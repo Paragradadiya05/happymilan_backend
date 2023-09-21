@@ -24,7 +24,6 @@ export const register = catchAsync(async (req, res) => {
     results: {
       success: true,
       message: 'Email has been sent to your registered email. Please check your email and verify it',
-      user,
     },
   });
 });
@@ -142,7 +141,7 @@ export const userInfo = catchAsync(async (req, res) => {
  */
 export const updateUserInfo = catchAsync(async (req, res) => {
   const filter = { _id: req.user._id };
-  const user = await userService.updateUser(filter, req.body);
+  const user = await userService.updateUser(filter, req.body, { new: true });
   res.status(httpStatus.OK).send({ user });
 });
 
