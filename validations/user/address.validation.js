@@ -3,7 +3,15 @@ import Joi from 'joi';
 Joi.objectId = require('joi-objectid')(Joi);
 
 export const createAddress = {
-  body: Joi.object().keys({}),
+  body: Joi.object().keys({
+    userId: Joi.objectId().required(),
+    currentResidenceAddress: Joi.string(),
+    currentCity: Joi.string(),
+    currentCountry: Joi.string(),
+    originResidenceAddress: Joi.string(),
+    originCity: Joi.string(),
+    originCountry: Joi.string(),
+  }),
 };
 
 export const updateAddress = {

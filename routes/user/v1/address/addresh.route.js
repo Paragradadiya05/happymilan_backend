@@ -2,6 +2,7 @@ import express from 'express';
 import { addressController } from 'controllers/user';
 import { addressValidation } from 'validations/user';
 import validate from 'middlewares/validate';
+import auth from 'middlewares/auth';
 
 const router = express.Router();
 router
@@ -9,29 +10,29 @@ router
   /**
    * createAddress
    * */
-  .post(validate(addressValidation.createAddress), addressController.createAddress)
+  .post(auth(), validate(addressValidation.createAddress), addressController.createAddress)
   /**
    * getAddress
    * */
-  .get(validate(addressValidation.getAddress), addressController.listAddress);
+  .get(auth(), validate(addressValidation.getAddress), addressController.listAddress);
 router
   .route('/paginated')
   /**
    * getAddressPaginated
    * */
-  .get(validate(addressValidation.paginatedAddress), addressController.paginateAddress);
+  .get(auth(), validate(addressValidation.paginatedAddress), addressController.paginateAddress);
 router
   .route('/:addressId')
   /**
    * getAddressById
    * */
-  .get(validate(addressValidation.getAddressById), addressController.getAddress)
+  .get(auth(), validate(addressValidation.getAddressById), addressController.getAddress)
   /**
    * updateAddress
    * */
-  .put(validate(addressValidation.updateAddress), addressController.updateAddress)
+  .put(auth(), validate(addressValidation.updateAddress), addressController.updateAddress)
   /**
    * deleteAddressById
    * */
-  .delete(validate(addressValidation.deleteAddressById), addressController.removeAddress);
+  .delete(auth(), validate(addressValidation.deleteAddressById), addressController.removeAddress);
 export default router;
