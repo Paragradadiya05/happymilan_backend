@@ -12,7 +12,7 @@
     "pm2-start": "pm2 start ecosystem.config.js --env development",
     "start-prod": "npm run build && pm2 start ecosystem.config.js --env production",
     "start": "nodemon --inspect index.js --exec babel-node -e js",
-    "build": "babel happymilan_backend --ignore node_modules --source-type module --out-dir build && cp .env build/ && cp ../utils/content-type.json build/utils/ && cp ../config/firebase.json build/config/ ",
+    "build": "babel . --ignore node_modules --source-type module --out-dir build && cp .env build/ && cp utils/content-type.json build/utils/ && cp config/firebase.json build/config/ ",
     "lint": "eslint node-setup",
     "lint:fix": "eslint node-setup --fix",
     "prettier": "prettier --check **/*.js",
