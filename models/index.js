@@ -6,3 +6,4 @@ module.exports.Error = require('./error.model');
 module.exports.Enum = require('./enum.model');
 module.exports.plugins = require('./plugins');
 module.exports.Address = require('./address.model');
+module.exports.UserProfessionalDetail = require('./userProfessionalDetail.model');

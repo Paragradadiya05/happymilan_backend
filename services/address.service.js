@@ -29,7 +29,14 @@ export async function createAddress(body = {}) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'field userId is not valid');
     }
   }
-  const address = await Address.create(body);
+
+  const findAddress = await Address.find({ userId: body.userId });
+  let address;
+  if (findAddress) {
+    address = await Address.findOneAndUpdate({ userId: body.userId }, body);
+  } else {
+    address = await Address.create({ body });
+  }
   return address;
 }
 
