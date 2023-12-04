@@ -24,6 +24,14 @@ const EnumGenderOfUsers = {
   MALE: 'male',
   FEMALE: 'female',
 };
+const EnumStatusOfFriend={
+ REQUESTED:'requested',
+  RECEIVED:'received',
+  ACCEPTED:'accepted',
+  REJECTED:'rejected',
+  REMOVED:'removed',
+  BLOCKED:'blocked'
+}
 module.exports = {
   EnumCodeTypeOfCode,
   EnumRoleOfUser,
@@ -31,4 +39,5 @@ module.exports = {
   EnumTypeOfToken,
   EnumAppUsesTypeOfUsers,
   EnumGenderOfUsers,
+  EnumStatusOfFriend
 };

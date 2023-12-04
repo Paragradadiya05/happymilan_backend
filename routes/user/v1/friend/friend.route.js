@@ -5,7 +5,7 @@ import validate from 'middlewares/validate';
 
 const router = express.Router();
 router
-  .route('/')
+  .route('/create-friend')
   /**
    * createFriend
    * */
@@ -20,6 +20,12 @@ router
    * getFriendPaginated
    * */
   .get(validate(friendValidation.paginatedFriend), friendController.paginateFriend);
+router
+    .route('/respond-friend-req')
+    /**
+     * acceptfriendreq
+     * */
+    .post(validate(friendValidation.respondFriendRequest), friendController.respondFriendRequest)
 router
   .route('/:friendId')
   /**
