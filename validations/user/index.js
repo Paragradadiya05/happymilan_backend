@@ -7,3 +7,5 @@ module.exports.authValidation = require('./auth.validation');
 module.exports.addressValidation = require('./address.validation');
 
 module.exports.userProfationalDetailValidation = require('./userProfationalDetail.validation');
+
+module.exports.friendValidation = require('./friend.validation');
