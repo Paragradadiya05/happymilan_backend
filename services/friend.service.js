@@ -38,16 +38,20 @@ export async function createFriend(body = {}) {
       { friend: body.user, user: body.friend },
     ],
   });
-  if (User.status === 'blocked') {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'user blocked you');
-  } else if (getExistingFriendOrNot && !getExistingFriendOrNot.stauts === EnumStatusOfFriend.REJECTED) {
+  if (getExistingFriendOrNot && !getExistingFriendOrNot.stauts === EnumStatusOfFriend.REJECTED) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'user already friend');
   } else if (
-    [EnumStatusOfFriend.PENDING, EnumStatusOfFriend.REQUESTED, EnumStatusOfFriend.ACCEPTED].includes(
-      getExistingFriendOrNot.stauts
-    )
+    [
+      EnumStatusOfFriend.PENDING,
+      EnumStatusOfFriend.REQUESTED,
+      EnumStatusOfFriend.ACCEPTED,
+      EnumStatusOfFriend.BLOCKED,
+    ].includes(getExistingFriendOrNot.stauts)
   ) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'user already friend or friend request is already sent');
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'user already friend or friend request is already sent or user may blocked you'
+    );
   }
   return Friend.create(body);
 }
