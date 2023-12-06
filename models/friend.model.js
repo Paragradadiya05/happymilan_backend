@@ -6,7 +6,7 @@ import enumModel from 'models/enum.model';
 const StatusHistorySchema = new mongoose.Schema({
   status: {
     type: String,
-    enum: Object.values(enumModel.EnumStatusOfStatusHistory),
+    enum: Object.values(enumModel.EnumStatusOfFriend),
     required: true,
   },
   date: {

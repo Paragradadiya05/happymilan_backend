@@ -27,10 +27,9 @@ export const paginateFriend = catchAsync(async (req, res) => {
 });
 
 export const createFriend = catchAsync(async (req, res) => {
-  const { body } = req;
   const options = {};
-  const friend = await friendService.createFriend(body, options);
-  return res.status(httpStatus.CREATED).send({ results: friend });
+  const friend = await friendService.createFriend(req.body, options);
+  return res.status(httpStatus.OK).send({ results: friend });
 });
 
 export const updateFriend = catchAsync(async (req, res) => {
@@ -51,4 +50,11 @@ export const removeFriend = catchAsync(async (req, res) => {
   };
   const friend = await friendService.removeFriend(filter);
   return res.status(httpStatus.OK).send({ results: friend });
+});
+
+export const respondFriendRequest = catchAsync(async (req, res) => {
+  const { request, status, user } = req.body;
+  req.body.user = request;
+  await friendService.respondFriendRequest(request, status, user);
+  return res.status(httpStatus.OK).send({ success: true });
 });
