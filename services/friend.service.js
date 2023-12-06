@@ -49,8 +49,7 @@ export async function createFriend(body = {}) {
   ) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'user already friend or friend request is already sent');
   }
-  const addfriend = await Friend.create(body);
-  return addfriend;
+  return Friend.create(body);
 }
 export async function updateFriend(filter, body, options = {}) {
   const initiatorUserArr = body.statusHistory.map((item) => item.initiatorUser);
