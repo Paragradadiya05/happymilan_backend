@@ -42,6 +42,12 @@ export async function createFriend(body = {}) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'user blocked you');
   } else if (getExistingFriendOrNot && !getExistingFriendOrNot.stauts === EnumStatusOfFriend.REJECTED) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'user already friend');
+  } else if (
+    [EnumStatusOfFriend.PENDING, EnumStatusOfFriend.REQUESTED, EnumStatusOfFriend.ACCEPTED].includes(
+      getExistingFriendOrNot.stauts
+    )
+  ) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'user already friend');
   }
   const addfriend = await Friend.create(body);
   return addfriend;
