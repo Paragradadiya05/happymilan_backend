@@ -9,3 +9,4 @@ module.exports.Address = require('./address.model');
 module.exports.Friend = require('./friend.model');
 module.exports.UserProfessionalDetail = require('./userProfessionalDetail.model');
 module.exports.Story = require('./story.model');
+module.exports.Blog = require('./blog.model');

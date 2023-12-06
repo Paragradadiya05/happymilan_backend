@@ -13,3 +13,5 @@ module.exports.addressService = require('./address.service');
 module.exports.userProfessionalDetailService = require('./userProfationalDetail.service');
 module.exports.friendService = require('./friend.service');
 module.exports.storyService = require('./story.service');
+module.exports.blogservice = require('./blog.service');
+module.exports.storyService = require('./story.service');

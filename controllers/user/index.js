@@ -5,3 +5,5 @@ module.exports.addressController = require('./address.controller');
 module.exports.userProfationalDetailController = require('./userProfationalDetail.controller');
 module.exports.friendController = require('./friend.controller');
 module.exports.storyController = require('./story.controller');
+module.exports.blogController = require('./blog.controller');
+module.exports.storyController = require('./story.controller');
