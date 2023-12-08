@@ -45,17 +45,20 @@ const DeviceTokenSchema = new mongoose.Schema({
   },
 });
 
-// const UserImagesSchema = new mongoose.Schema({
-//   url: {
-//     type: String,
-//   },
-//   name: {
-//     type: String,
-//   },
-//   isProfilePic: {
-//     type: String,
-//   },
-// });
+const UserImagesSchema = new mongoose.Schema(
+  {
+    url: {
+      type: String,
+    },
+    name: {
+      type: String,
+    },
+    isProfilePic: {
+      type: String,
+    },
+  },
+  { timestamps: { createdAt: true, updatedAt: true } }
+);
 
 const UserSchema = new mongoose.Schema(
   {
@@ -175,6 +178,7 @@ const UserSchema = new mongoose.Schema(
     homeMobileNumber: {
       type: Number,
     },
+    userProfilePic: [UserImagesSchema],
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );

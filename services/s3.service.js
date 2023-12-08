@@ -7,7 +7,7 @@ import axios from 'axios';
 import jimp from 'jimp';
 import { asyncForEach } from 'utils/common';
 import ApiError from 'utils/ApiError';
-import { TempS3 } from 'models';
+import { TempS3, User } from 'models';
 import config from 'config/config';
 import allowedContentType from 'utils/content-type.json';
 
@@ -68,6 +68,13 @@ export const validateExtensionForPutObject = async (preSignedReq, user) => {
     key: preSignedReq.key,
   };
   const tempS3 = new TempS3(tempS3Body);
+
+  // here we are updating all image to the specific user
+  await User.findByIdAndUpdate(
+    user._id,
+    { $addToSet: { userProfilePic: { url: `${url.split('?')[0]}`, name: preSignedReq.key } } },
+    { new: true } // To return the updated document
+  );
   await tempS3.save();
   return { url, key: preSignedReq.key };
 };
