@@ -1,5 +1,6 @@
 import Joi from 'joi';
-import enumFields from '/models/enum.model'
+import enumFields from 'models/enum.model';
+
 Joi.objectId = require('joi-objectid')(Joi);
 
 export const createFriend = {

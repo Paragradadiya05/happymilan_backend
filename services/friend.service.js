@@ -1,8 +1,7 @@
 import ApiError from 'utils/ApiError';
 import httpStatus from 'http-status';
 import { Friend, User } from 'models';
-import {EnumStatusOfFriend} from "../models/enum.model";
-
+import { EnumStatusOfFriend } from '../models/enum.model';
 
 export async function getFriendById(id, options = {}) {
   const friend = await Friend.findById(id, options.projection, options);
@@ -25,31 +24,40 @@ export async function getFriendListWithPagination(filter, options = {}) {
 }
 
 export async function createFriend(body = {}) {
-  const userId= body.user.toString();
-  const friend=body.friend.toString();
-  if (userId === friend){
-    throw new ApiError(httpStatus.BAD_REQUEST,'you cannot send friend request to yourself')
+  const userId = body.user.toString();
+  const friend = body.friend.toString();
+  if (userId === friend) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'you cannot send friend request to yourself');
   }
-  if (!(await User.findById(friend))){
-    throw  new ApiError(httpStatus.BAD_REQUEST,'no such user exists')
+  if (!(await User.findById(friend))) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'no such user exists');
   }
   const getExistingFriendOrNot = await Friend.findOne({
-    $or:[{friend:body.friend,user:body.user},
-      {friend:body.user,user:body.friend}]
-  })
-  if(User.status === "blocked"){
-      throw new ApiError(httpStatus.BAD_REQUEST,'user blocked you')
+    $or: [
+      { friend: body.friend, user: body.user },
+      { friend: body.user, user: body.friend },
+    ],
+  });
+  if (getExistingFriendOrNot && !getExistingFriendOrNot.stauts === EnumStatusOfFriend.REJECTED) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'user already friend');
+  } else if (
+    [
+      EnumStatusOfFriend.PENDING,
+      EnumStatusOfFriend.REQUESTED,
+      EnumStatusOfFriend.ACCEPTED,
+      EnumStatusOfFriend.BLOCKED,
+    ].includes(getExistingFriendOrNot.stauts)
+  ) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'user already friend or friend request is already sent or user may blocked you'
+    );
   }
-  else if(getExistingFriendOrNot && !getExistingFriendOrNot.stauts === EnumStatusOfFriend.REJECTED){
-    throw new ApiError(httpStatus.BAD_REQUEST,'user already friend');
-
-  }
-    const addfriend = await Friend.create(body);
-      return addfriend;
-    };
+  return Friend.create(body);
+}
 export async function updateFriend(filter, body, options = {}) {
   const initiatorUserArr = body.statusHistory.map((item) => item.initiatorUser);
-  const initiatorUser = await Users.find({ _id: { $in: initiatorUserArr } });
+  const initiatorUser = await User.find({ _id: { $in: initiatorUserArr } });
   if (initiatorUser.length !== initiatorUserArr.length) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'initiatorUser of statusHistory some ids not valid');
   }
@@ -88,22 +96,21 @@ export async function aggregateFriendWithPagination(query, options = {}) {
   return friend;
 }
 
-export  async  function respondFriendRequest (request , status, user ={}) {
-  const friendRequest = await Friend.findOne({_id: request, friend: user});
+export async function respondFriendRequest(request, status, user = {}) {
+  const friendRequest = await Friend.findOne({ _id: request, friend: user });
   if (!friendRequest) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'No such Friend Request');
   } else {
     if (friendRequest.status === 'accepted') {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'You have already accepted this friend request')
+      throw new ApiError(httpStatus.BAD_REQUEST, 'You have already accepted this friend request');
     } else if (friendRequest.status === 'rejected') {
       throw new ApiError(httpStatus.BAD_REQUEST, 'You have already rejected this friend request');
     } else if (friendRequest.status === 'blocked') {
       throw new ApiError(httpStatus.BAD_REQUEST, 'You have already blocked this friend request');
-
     }
-     return Friend.findByIdAndUpdate(request, {
-        $set: {status},
-        $push: {statusHistory: {status, initiatorUser: user}},
-      });
-    }
-};
+    return Friend.findByIdAndUpdate(request, {
+      $set: { status },
+      $push: { statusHistory: { status, initiatorUser: user } },
+    });
+  }
+}
