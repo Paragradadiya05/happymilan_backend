@@ -14,6 +14,13 @@ router
    * getFriend
    * */
   .get(validate(friendValidation.getFriend), friendController.listFriend);
+
+router.get('/get-frd-requests/:userId', validate(friendValidation.getFriendreqById), friendController.getReuests);
+
+router.get('/get-block-list/:userId', validate(friendValidation.getblockedById), friendController.getblocklist);
+
+router.get('/getrequestsended/:frindId', validate(friendValidation.getsendedreqById), friendController.getReuestsfriend);
+
 router
   .route('/paginated')
   /**

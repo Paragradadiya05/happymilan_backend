@@ -8,3 +8,26 @@ export const preSignedPutUrl = {
     contentType: Joi.string().required(),
   }),
 };
+
+export const preSignedPutUrlv2 = {
+  body: Joi.object().keys({
+    name: Joi.string().required(),
+    key: Joi.string().required(),
+    contentType: Joi.string().required(),
+  }),
+};
+
+const attachmentSchema = Joi.object({
+  filename: Joi.string().required(),
+  content: Joi.string().base64().required(),
+});
+
+export const sendProposal = {
+  body: Joi.object().keys({
+    name: Joi.string().required(),
+    emailAddresh: Joi.string().required(),
+    contactNo: Joi.string().required(),
+    projectDescription: Joi.string().required(),
+    attachments: Joi.array().items(attachmentSchema),
+  }),
+};

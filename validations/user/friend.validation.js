@@ -51,3 +51,19 @@ export const respondFriendRequest = {
     status: Joi.string().valid(...Object.values(enumFields.EnumStatusOfFriend)),
   }),
 };
+export const getFriendreqById = {
+  params: Joi.object().keys({
+    userId: Joi.objectId().required(),
+  }),
+};
+
+export const getblockedById = {
+  params: Joi.object().keys({
+    userId: Joi.objectId().required(),
+  }),
+};
+export const getsendedreqById = {
+  params: Joi.object().keys({
+    frindId: Joi.objectId().required(),
+  }),
+};

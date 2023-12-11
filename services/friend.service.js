@@ -41,6 +41,7 @@ export async function createFriend(body = {}) {
   if (getExistingFriendOrNot && !getExistingFriendOrNot.stauts === EnumStatusOfFriend.REJECTED) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'user already friend');
   } else if (
+    getExistingFriendOrNot &&
     [
       EnumStatusOfFriend.PENDING,
       EnumStatusOfFriend.REQUESTED,
