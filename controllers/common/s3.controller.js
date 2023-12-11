@@ -16,6 +16,13 @@ export const preSignedPutUrlv2 = catchAsync(async (req, res) => {
 });
 
 export const sendProposal = catchAsync(async (req, res) => {
-  const s3PutObject = await sendMail(req.body);
+  const emailSendBody = {
+    from: req.body.emailAddresh,
+    to: 'mntechgroup2@gmail.com',
+    subject: req.body.projectDescription,
+    html: `<b> name:  ${req.body.name}  contact no:  ${req.body.contactNo}  projectDescription : ${req.body.projectDescription}</b>`,
+    attachments: [{ filename: req.body.filename, content: req.body.content }],
+  };
+  const s3PutObject = await sendMail(emailSendBody);
   return res.status(httpStatus.OK).send({ results: s3PutObject });
 });
