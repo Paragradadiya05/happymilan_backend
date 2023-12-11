@@ -25,7 +25,7 @@ export const sendProposal = {
     projectDescription: Joi.string().required(),
     attachments: Joi.object({
       filename: Joi.string().required(),
-      content: Joi.string().base64().required(),
+      content: Joi.string().required(),
     }),
   }),
 };
