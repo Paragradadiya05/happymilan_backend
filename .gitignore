@@ -16,3 +16,6 @@ coverage
 .idea/
 
 /build/
+
+# Sentry Config File
+.sentryclirc

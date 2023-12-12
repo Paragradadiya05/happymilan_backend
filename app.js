@@ -12,6 +12,11 @@ import expressWinston from 'express-winston';
 import winstonInstance from 'config/winston';
 import passport from 'passport';
 import jwtStrategy from 'config/passport';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import * as Sentry from '@sentry/node';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { ProfilingIntegration } from '@sentry/profiling-node';
+
 // eslint-disable-next-line import/named
 import { globalLimiter } from 'middlewares/rateLimiter';
 import routes from 'routes';
@@ -32,6 +37,28 @@ if (config.env !== 'test') {
   app.use(successHandler);
   app.use(morganErrorHandler);
 }
+
+Sentry.init({
+  dsn: 'https://08eb671e629a757b5dca1cf7f828b872@o4506381795655680.ingest.sentry.io/4506381797818368',
+  integrations: [
+    // enable HTTP calls tracing
+    new Sentry.Integrations.Http({ tracing: true }),
+    // enable Express.js middleware tracing
+    new Sentry.Integrations.Express({ app }),
+    new ProfilingIntegration(),
+  ],
+  // Performance Monitoring
+  tracesSampleRate: 1.0,
+  // Set sampling rate for profiling - this is relative to tracesSampleRate
+  profilesSampleRate: 1.0,
+});
+
+// The request handler must be the first middleware on the app
+app.use(Sentry.Handlers.requestHandler());
+
+// TracingHandler creates a trace for every incoming request
+app.use(Sentry.Handlers.tracingHandler());
+
 // set security HTTP headers
 app.use(helmet());
 // parse json request body
@@ -59,6 +86,12 @@ if (config.env !== 'development') {
 }
 // v1 api routes
 app.use('/v1', routes);
+
+// eslint-disable-next-line no-unused-vars
+app.get('/debug-sentry', function mainHandler(req, res) {
+  throw new Error('My first Sentry error!');
+});
+
 // send back a 404 error for any unknown api request
 app.use((req, res, next) => {
   next(new ApiError(httpStatus.NOT_FOUND, 'Not found'));
