@@ -141,8 +141,13 @@ export const userInfo = catchAsync(async (req, res) => {
  */
 export const updateUserInfo = catchAsync(async (req, res) => {
   const filter = { _id: req.user._id };
-  const user = await userService.updateUser(filter, req.body, { new: true });
-  res.status(httpStatus.OK).send({ user });
+  const userData = await userService.updateUserForAuth(
+    filter,
+    req.body,
+    { returnNewDocument: true, new: true, upsert: true },
+    req.user
+  );
+  res.status(httpStatus.OK).send({ userData });
 });
 
 export const sendVerifyOtp = catchAsync(async (req, res) => {

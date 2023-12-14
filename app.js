@@ -13,9 +13,7 @@ import winstonInstance from 'config/winston';
 import passport from 'passport';
 import jwtStrategy from 'config/passport';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import * as Sentry from '@sentry/node';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { ProfilingIntegration } from '@sentry/profiling-node';
 
 // eslint-disable-next-line import/named
 import { globalLimiter } from 'middlewares/rateLimiter';
@@ -38,26 +36,11 @@ if (config.env !== 'test') {
   app.use(morganErrorHandler);
 }
 
-Sentry.init({
-  dsn: 'https://08eb671e629a757b5dca1cf7f828b872@o4506381795655680.ingest.sentry.io/4506381797818368',
-  integrations: [
-    // enable HTTP calls tracing
-    new Sentry.Integrations.Http({ tracing: true }),
-    // enable Express.js middleware tracing
-    new Sentry.Integrations.Express({ app }),
-    new ProfilingIntegration(),
-  ],
-  // Performance Monitoring
-  tracesSampleRate: 1.0,
-  // Set sampling rate for profiling - this is relative to tracesSampleRate
-  profilesSampleRate: 1.0,
-});
-
 // The request handler must be the first middleware on the app
-app.use(Sentry.Handlers.requestHandler());
+// app.use(Sentry.Handlers.requestHandler());
 
 // TracingHandler creates a trace for every incoming request
-app.use(Sentry.Handlers.tracingHandler());
+// app.use(Sentry.Handlers.tracingHandler());
 
 // set security HTTP headers
 app.use(helmet());

@@ -44,6 +44,13 @@ export async function updateUser(filter, body, options = {}) {
   return user;
 }
 
+export async function updateUserForAuth(filter, body, options = {}, user) {
+  if (body.email && (await User.findOne({ email: body.email, _id: { $ne: user._id } }))) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
+  }
+  return User.findByIdAndUpdate(filter._id, body, options);
+}
+
 export async function updateManyUser(filter, body, options = {}) {
   const user = await User.updateMany(filter, body, options);
   return user;
