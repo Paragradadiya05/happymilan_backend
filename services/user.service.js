@@ -2,6 +2,7 @@ import ApiError from 'utils/ApiError';
 import httpStatus from 'http-status';
 import { User } from 'models';
 import _ from 'lodash';
+import bcrypt from 'bcryptjs';
 import { notificationService } from './index';
 
 export async function getUserById(id, options = {}) {
@@ -48,7 +49,14 @@ export async function updateUserForAuth(filter, body, options = {}, user) {
   if (body.email && (await User.findOne({ email: body.email, _id: { $ne: user._id } }))) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
   }
-  return User.findByIdAndUpdate(filter._id, body, options);
+
+  if (body && body.password) {
+    // eslint-disable-next-line no-param-reassign
+    body.password = await bcrypt.hash(body.password, 10);
+  }
+
+  await User.updateOne(filter, body, options);
+  return getOne(filter);
 }
 
 export async function updateManyUser(filter, body, options = {}) {
