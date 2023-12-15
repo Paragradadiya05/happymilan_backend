@@ -7,6 +7,7 @@ import userProfessionalDetailRoutes from './v1/userProfationalDetail/userProfati
 import friendRoutes from './v1/friend/friend.route';
 import storyRoute from './v1/story/story.route';
 import blogRoute from './v1/blog/blog.route';
+import ShortlistRoute from './v1/shortlist/shortlist.route';
 
 const router = express.Router();
 router.use('/user', userRoutes);
@@ -17,14 +18,11 @@ router.use('/userProfessionalDetail', userProfessionalDetailRoutes);
 router.use('/friend', friendRoutes);
 router.use('/story', storyRoute);
 router.use('/blog', blogRoute);
-// router.use('/users', usersRoutes);
-// router.use('/addresh', addreshRoutes);
+router.use('/shortlist', ShortlistRoute);
+
 // router.use('/userEducation', userEducationRoutes);
-// router.use('/blog', blogRoutes);
-// router.use('/story', storyRoutes);
 // router.use('/commentOnStory', commentOnStoryRoutes);
 // router.use('/commentsOnBlog', commentsOnBlogRoutes);
 // router.use('/notification', notificationRoutes);
-// router.use('/friend', friendRoutes);
 
 module.exports = router;

@@ -15,3 +15,5 @@ module.exports.storyValidation = require('./story.validation');
 module.exports.blogvalidation = require('./blog.validation');
 
 module.exports.storyValidation = require('./story.validation');
+
+module.exports.shortlistValidation = require('./shortlist.validation');

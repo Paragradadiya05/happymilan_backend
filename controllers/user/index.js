@@ -7,3 +7,4 @@ module.exports.friendController = require('./friend.controller');
 module.exports.storyController = require('./story.controller');
 module.exports.blogController = require('./blog.controller');
 module.exports.storyController = require('./story.controller');
+module.exports.shortlistController = require('./shortlist.controller');
