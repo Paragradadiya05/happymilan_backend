@@ -5,8 +5,9 @@ import { softDelete, toJSON } from './plugins';
 const { Schema } = mongoose;
 const ProfileViewerSchema = new Schema(
   {
-    userId: {
+    user: {
       type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
     },
     viewerId: {
       type: mongoose.Schema.Types.ObjectId,
