@@ -11,3 +11,4 @@ module.exports.UserProfessionalDetail = require('./userProfessionalDetail.model'
 module.exports.Story = require('./story.model');
 module.exports.Blog = require('./blog.model');
 module.exports.Shortlist = require('./shortlist.model');
+module.exports.profilrviwe = require('./profileviwe.model');

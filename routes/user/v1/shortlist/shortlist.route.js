@@ -8,4 +8,4 @@ const router = express();
 router.post('/create-shortlist', auth(), validate(shortlistValidation.createShortlist), shortlistController.createShortlist);
 module.exports = router;
 
-router.get('/getshortlist', auth(), validate(shortlistValidation.Getshortlist), shortlistController.getshortlist);
+router.get('/get-short-list', auth(), validate(shortlistValidation.Getshortlist), shortlistController.getshortlist);

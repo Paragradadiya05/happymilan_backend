@@ -8,6 +8,7 @@ import friendRoutes from './v1/friend/friend.route';
 import storyRoute from './v1/story/story.route';
 import blogRoute from './v1/blog/blog.route';
 import ShortlistRoute from './v1/shortlist/shortlist.route';
+import profileviwerRoute from './v1/profilrviewer/profileviwer.route';
 
 const router = express.Router();
 router.use('/user', userRoutes);
@@ -19,6 +20,8 @@ router.use('/friend', friendRoutes);
 router.use('/story', storyRoute);
 router.use('/blog', blogRoute);
 router.use('/shortlist', ShortlistRoute);
+// todo : correct this speling profileviwerRoute
+router.use('/profile-viewer', profileviwerRoute);
 
 // router.use('/userEducation', userEducationRoutes);
 // router.use('/commentOnStory', commentOnStoryRoutes);

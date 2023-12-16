@@ -2,6 +2,7 @@ import express from 'express';
 import { friendController } from 'controllers/user';
 import { friendValidation } from 'validations/user';
 import validate from 'middlewares/validate';
+import auth from 'middlewares/auth';
 
 const router = express.Router();
 router
@@ -15,11 +16,11 @@ router
    * */
   .get(validate(friendValidation.getFriend), friendController.listFriend);
 
-router.get('/get-frd-requests/:userId', validate(friendValidation.getFriendreqById), friendController.getReuests);
+router.get('/get-frd-requests', auth(), friendController.getReuests);
 
-router.get('/get-block-list/:userId', validate(friendValidation.getblockedById), friendController.getblocklist);
+router.get('/get-block-list', auth(), friendController.getBlockList);
 
-router.get('/getrequestsended/:frindId', validate(friendValidation.getsendedreqById), friendController.getReuestsfriend);
+router.get('/get-request-sent', auth(), friendController.getRequestedFriend);
 
 router
   .route('/paginated')
@@ -30,7 +31,7 @@ router
 router
   .route('/respond-friend-req')
   /**
-   * acceptfriendreq
+   * accept friend req
    * */
   .post(validate(friendValidation.respondFriendRequest), friendController.respondFriendRequest);
 router

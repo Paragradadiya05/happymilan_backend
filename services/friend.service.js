@@ -14,7 +14,7 @@ export async function getOne(query, options = {}) {
 }
 
 export async function getFriendList(filter, options = {}) {
-  const friend = await Friend.find(filter, options.projection, options);
+  const friend = await Friend.find(filter, options.projection, options).populate('user').exec();
   return friend;
 }
 
@@ -26,6 +26,9 @@ export async function getFriendListWithPagination(filter, options = {}) {
 export async function createFriend(body = {}) {
   const userId = body.user.toString();
   const friend = body.friend.toString();
+
+  // eslint-disable-next-line no-param-reassign
+  body.status = EnumStatusOfFriend.REQUESTED;
   if (userId === friend) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'you cannot send friend request to yourself');
   }

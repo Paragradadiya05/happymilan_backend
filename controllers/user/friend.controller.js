@@ -59,8 +59,8 @@ export const respondFriendRequest = catchAsync(async (req, res) => {
   await friendService.respondFriendRequest(request, status, user);
   return res.status(httpStatus.OK).send({ success: true });
 });
-export const getblocklist = catchAsync(async (req, res) => {
-  const { userId } = req.params;
+export const getBlockList = catchAsync(async (req, res) => {
+  const userId = req.user._id;
   const filter = {
     friend: userId,
     status: EnumStatusOfFriend.BLOCKED,
@@ -72,7 +72,7 @@ export const getblocklist = catchAsync(async (req, res) => {
 });
 
 export const getReuests = catchAsync(async (req, res) => {
-  const { userId } = req.params;
+  const userId = req.user._id;
   const filter = {
     friend: userId,
     status: EnumStatusOfFriend.REQUESTED,
@@ -82,10 +82,10 @@ export const getReuests = catchAsync(async (req, res) => {
   return res.status(httpStatus.OK).send({ results: user });
 });
 
-export const getReuestsfriend = catchAsync(async (req, res) => {
+export const getRequestedFriend = catchAsync(async (req, res) => {
   const { friendId } = req.params;
   const filter = {
-    usrer: friendId,
+    user: friendId,
     status: EnumStatusOfFriend.REQUESTED,
   };
   const options = {};
