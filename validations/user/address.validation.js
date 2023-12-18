@@ -4,7 +4,6 @@ Joi.objectId = require('joi-objectid')(Joi);
 
 export const createAddress = {
   body: Joi.object().keys({
-    userId: Joi.objectId().required(),
     currentResidenceAddress: Joi.string(),
     currentCity: Joi.string(),
     currentCountry: Joi.string(),

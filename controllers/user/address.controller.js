@@ -28,8 +28,15 @@ export const paginateAddress = catchAsync(async (req, res) => {
 
 export const createAddress = catchAsync(async (req, res) => {
   const { body } = req;
+  const userId = req.user._id;
   const options = {};
-  const address = await addressService.createAddress(body, options);
+  const address = await addressService.createAddress(
+    {
+      userId,
+      ...body,
+    },
+    options
+  );
   return res.status(httpStatus.CREATED).send({ results: address });
 });
 
