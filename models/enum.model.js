@@ -32,6 +32,14 @@ const EnumStatusOfFriend = {
   REMOVED: 'removed',
   BLOCKED: 'blocked',
 };
+
+const EnumCretingProfileFor = {
+  MYSELF: 'myself',
+  MYSON: 'myson',
+  MYDOUGHTER: 'mydoughter',
+  MYBROTHER: 'mybrother',
+  MYFRIEND: 'myfriend',
+};
 module.exports = {
   EnumCodeTypeOfCode,
   EnumRoleOfUser,
@@ -40,4 +48,5 @@ module.exports = {
   EnumAppUsesTypeOfUsers,
   EnumGenderOfUsers,
   EnumStatusOfFriend,
+  EnumCretingProfileFor,
 };

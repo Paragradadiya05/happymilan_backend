@@ -3,6 +3,7 @@ import mongoosePaginateV2 from 'mongoose-paginate-v2';
 import { toJSON } from 'models/plugins';
 import enumModel from 'models/enum.model';
 import bcrypt from 'bcryptjs';
+import { string } from 'joi';
 
 const CodeSchema = new mongoose.Schema({
   code: {
@@ -178,6 +179,14 @@ const UserSchema = new mongoose.Schema(
     homeMobileNumber: {
       type: Number,
     },
+    creatingprofilefor: {
+      type: string,
+      enum: Object.values(enumModel.EnumCretingProfileFor),
+    },
+    writeaboutyourself: {
+      type: string,
+    },
+
     userProfilePic: [UserImagesSchema],
   },
   { timestamps: { createdAt: true, updatedAt: true } }
