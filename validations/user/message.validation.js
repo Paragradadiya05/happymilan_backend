@@ -10,3 +10,9 @@ export const createMessage = {
     message: Joi.string().required(),
   }),
 };
+export const getMessage = {
+  body: Joi.object().keys({
+    loginUser: Joi.objectId().required(),
+    otherUser: Joi.objectId().required(),
+  }),
+};

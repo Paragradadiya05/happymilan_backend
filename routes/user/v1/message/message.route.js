@@ -16,6 +16,6 @@ router
   /**
    * getmessage
    * */
-  .get(messageController.getMessage);
+  .get(validate(messageValidation.getMessage), messageController.getMessage);
 
 export default router;

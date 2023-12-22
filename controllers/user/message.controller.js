@@ -9,8 +9,13 @@ export const createMessage = catchAsync(async (req, res) => {
 });
 
 export const getMessage = catchAsync(async (req, res) => {
-  const filter = {};
-  const options = {};
+  const { loginUser, otherUser } = req.body;
+  const filter = {
+    from: { $in: [loginUser, otherUser] },
+    to: { $in: [loginUser, otherUser] },
+    messageDeletedAll: false,
+  };
+  const options = { sort: 'createdAt', limit: 5 };
   const message = await messageservice.getMessageList(filter, options);
   return res.status(httpStatus.OK).send({ results: message });
 });

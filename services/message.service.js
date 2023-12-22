@@ -6,6 +6,6 @@ export async function createMessage(body = {}) {
 }
 
 export async function getMessageList(filter, options = {}) {
-  const message = await Message.find(filter, options.projection, options);
+  const message = await Message.find(filter, options.projection, options).sort({ createdAt: -1 }).limit(5);
   return message;
 }
