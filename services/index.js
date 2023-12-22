@@ -17,3 +17,4 @@ module.exports.blogservice = require('./blog.service');
 module.exports.storyService = require('./story.service');
 module.exports.shortlistervice = require('./shortlist.service');
 module.exports.profileviewerservice = require('./profileviewer.service');
+module.exports.messageservice = require('./message.service');

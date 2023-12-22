@@ -178,6 +178,13 @@ const UserSchema = new mongoose.Schema(
     homeMobileNumber: {
       type: Number,
     },
+    creatingProfileFor: {
+      type: String,
+      enum: Object.values(enumModel.EnumCreatingProfileFor),
+    },
+    writeBoutYourSelf: {
+      type: String,
+    },
     userProfilePic: [UserImagesSchema],
   },
   { timestamps: { createdAt: true, updatedAt: true } }
