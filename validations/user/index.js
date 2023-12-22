@@ -19,3 +19,5 @@ module.exports.storyValidation = require('./story.validation');
 module.exports.shortlistValidation = require('./shortlist.validation');
 
 module.exports.profileviewerValidation = require('./profileviwer.valadation');
+
+module.exports.messageValidation = require('./message.validation');
