@@ -18,3 +18,6 @@ module.exports.storyService = require('./story.service');
 module.exports.shortlistervice = require('./shortlist.service');
 module.exports.profileviewerservice = require('./profileviewer.service');
 module.exports.messageservice = require('./message.service');
+module.exports.pravicyservice = require('./privacy.service');
+module.exports.Emailnotificationservice = require('./emailnotification.service');
+module.exports.notificationservice = require('./notificationmsg.service');

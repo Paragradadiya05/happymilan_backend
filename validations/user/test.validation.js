@@ -3,7 +3,10 @@ import Joi from 'joi';
 Joi.objectId = require('joi-objectid')(Joi);
 
 export const createTest = {
-  body: Joi.object().keys({}),
+  body: Joi.object().keys({
+    createdBy: Joi.objectId().required(),
+    updatedBy: Joi.objectId().required(),
+  }),
 };
 
 export const updateTest = {

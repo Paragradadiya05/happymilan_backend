@@ -21,3 +21,9 @@ module.exports.shortlistValidation = require('./shortlist.validation');
 module.exports.profileviewerValidation = require('./profileviwer.valadation');
 
 module.exports.messageValidation = require('./message.validation');
+
+module.exports.privacyValidation = require('./privacy.validation');
+
+module.exports.emailnotificationValidation = require('./emailnotification.validation');
+
+module.exports.notificationValidation = require('./notification.validation');

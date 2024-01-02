@@ -8,6 +8,7 @@ export const createShortlist = catchAsync(async (req, res) => {
     shortlistId: req.body.shortlistId,
     userId,
   };
+
   body.createdBy = req.user;
   body.updatedBy = req.user;
   const shortlist = await shortlistervice.createshortList(body);

@@ -1,6 +1,6 @@
 import ApiError from 'utils/ApiError';
 import httpStatus from 'http-status';
-import { Friend, User } from 'models';
+import { Friend, Notification, User } from 'models';
 import { EnumStatusOfFriend } from '../models/enum.model';
 
 export async function getFriendById(id, options = {}) {
@@ -57,8 +57,10 @@ export async function createFriend(body = {}) {
       'user already friend or friend request is already sent or user may blocked you'
     );
   }
+  await Notification.create({ userId: body.user, otherUserId: body.friend });
   return Friend.create(body);
 }
+
 export async function updateFriend(filter, body, options = {}) {
   const initiatorUserArr = body.statusHistory.map((item) => item.initiatorUser);
   const initiatorUser = await User.find({ _id: { $in: initiatorUserArr } });

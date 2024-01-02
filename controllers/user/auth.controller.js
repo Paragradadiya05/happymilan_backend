@@ -2,7 +2,7 @@ import httpStatus from 'http-status';
 import { generateOtp } from 'utils/common';
 import ApiError from 'utils/ApiError';
 import { catchAsync } from 'utils/catchAsync';
-import { authService, tokenService, userService, emailService } from 'services';
+import { authService, tokenService, userService, emailService, pravicyservice } from 'services';
 import { EnumTypeOfToken, EnumCodeTypeOfCode } from 'models/enum.model';
 
 export const register = catchAsync(async (req, res) => {
@@ -18,6 +18,45 @@ export const register = catchAsync(async (req, res) => {
     codeType: EnumCodeTypeOfCode.LOGIN,
   });
   await user.save();
+  // todo : add default question for user are here
+
+  // create privacy policy from here
+  const question = [
+    {
+      userId: user._id,
+      question: 'Who can see your mobile Number ?',
+      options: [
+        { option: 'Visible to all', isSelected: false },
+        { option: 'Only visible to registered Members', isSelected: false },
+      ],
+    },
+    {
+      userId: user._id,
+      question: 'Who can see your email address ?',
+      options: [
+        { option: 'Visible to all', isSelected: false },
+        { option: 'Only visible to registered Members', isSelected: false },
+      ],
+    },
+    {
+      userId: user._id,
+      question: 'profile privacy',
+      options: [
+        { option: 'Visible to all,including unregistered visitors ', isSelected: false },
+        { option: 'Only visible to registered Members', isSelected: false },
+      ],
+    },
+  ];
+  question.forEach((que) => {
+    que.options.forEach((opt) => {
+      if (opt.isSelected) {
+        console.log(`${que.question}: ${opt.option} true`);
+      } else {
+        console.log(`${que.question}: ${opt.option} false`);
+      }
+    });
+  });
+  await pravicyservice.createPrivacy(question);
   await emailService.sendOtpVerificationEmail(user, otp).then().catch();
 
   res.status(httpStatus.OK).send({
