@@ -10,3 +10,6 @@ module.exports.storyController = require('./story.controller');
 module.exports.shortlistController = require('./shortlist.controller');
 module.exports.pofileviewerController = require('./profileviewer.controller');
 module.exports.messageController = require('./message.controller');
+module.exports.privacyController = require('./privacy.controller');
+module.exports.emailnotificationController = require('./emailnotification.controller');
+module.exports.notificationController = require('./notification.controller');

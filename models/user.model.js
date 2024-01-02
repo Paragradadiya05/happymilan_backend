@@ -185,6 +185,13 @@ const UserSchema = new mongoose.Schema(
     writeBoutYourSelf: {
       type: String,
     },
+    isProfileVisible: {
+      type: Boolean,
+      default: true,
+    },
+    hideProfileDuration: {
+      type: Date,
+    },
     userProfilePic: [UserImagesSchema],
   },
   { timestamps: { createdAt: true, updatedAt: true } }

@@ -1,0 +1,19 @@
+import Joi from 'joi';
+
+export const register = {
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string(),
+    name: Joi.string().required(),
+    role: Joi.string(),
+    mobileNumber: Joi.number(),
+  }),
+};
+
+export const login = {
+  body: Joi.object().keys({
+    email: Joi.string().required(),
+    password: Joi.string().required(),
+    deviceToken: Joi.string().allow(''),
+  }),
+};

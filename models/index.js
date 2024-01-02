@@ -13,3 +13,6 @@ module.exports.Blog = require('./blog.model');
 module.exports.Shortlist = require('./shortlist.model');
 module.exports.profilrviwe = require('./profileviwe.model');
 module.exports.Message = require('./chat.model');
+module.exports.Privacy = require('./privacy.model');
+module.exports.EmailNotification = require('./emailnotification.model');
+module.exports.Notification = require('./notification.model');

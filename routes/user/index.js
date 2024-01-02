@@ -10,6 +10,9 @@ import blogRoute from './v1/blog/blog.route';
 import ShortlistRoute from './v1/shortlist/shortlist.route';
 import profileviwerRoute from './v1/profilrviewer/profileviwer.route';
 import MessageRoute from './v1/message/message.route';
+import privacyRoute from './v1/privacy/privacy.route';
+import EmailNotificationRoute from './v1/emailnotification/emailnotification.route';
+import NotificationRoute from './v1/notification/notification.route';
 
 const router = express.Router();
 router.use('/user', userRoutes);
@@ -23,6 +26,9 @@ router.use('/blog', blogRoute);
 router.use('/shortlist', ShortlistRoute);
 router.use('/profile-viewer', profileviwerRoute);
 router.use('/message', MessageRoute);
+router.use('/privacy', privacyRoute);
+router.use('/email-notification', EmailNotificationRoute);
+router.use('/notification', NotificationRoute);
 
 // router.use('/userEducation', userEducationRoutes);
 // router.use('/commentOnStory', commentOnStoryRoutes);
