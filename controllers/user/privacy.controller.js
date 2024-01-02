@@ -34,7 +34,6 @@ export const update = catchAsync(async (req, res) => {
     _id: privacyId,
   };
   const options = { new: true };
-  console.log('=== var name = body ==>', body);
   const privacy = await pravicyservice.updatePrivacy(filter, body, options);
   return res.status(httpStatus.OK).send({ results: privacy });
 });
