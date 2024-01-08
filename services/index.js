@@ -21,3 +21,4 @@ module.exports.messageservice = require('./message.service');
 module.exports.pravicyservice = require('./privacy.service');
 module.exports.Emailnotificationservice = require('./emailnotification.service');
 module.exports.notificationservice = require('./notificationmsg.service');
+module.exports.planservice = require('./plan.service');

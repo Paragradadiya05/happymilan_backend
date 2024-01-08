@@ -13,3 +13,4 @@ module.exports.messageController = require('./message.controller');
 module.exports.privacyController = require('./privacy.controller');
 module.exports.emailnotificationController = require('./emailnotification.controller');
 module.exports.notificationController = require('./notification.controller');
+module.exports.planController = require('./plan.controller');

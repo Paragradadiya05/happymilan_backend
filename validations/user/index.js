@@ -27,3 +27,5 @@ module.exports.privacyValidation = require('./privacy.validation');
 module.exports.emailnotificationValidation = require('./emailnotification.validation');
 
 module.exports.notificationValidation = require('./notification.validation');
+
+module.exports.planValidation = require('./plan.validation');

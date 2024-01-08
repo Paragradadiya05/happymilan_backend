@@ -40,6 +40,24 @@ const EnumCreatingProfileFor = {
   MY_BROTHER: 'myBrother',
   MY_FRIEND: 'myFriend',
 };
+
+const EnumOfPlan = {
+  FREE: 'free',
+  PAID: 'paid',
+  SILVER: 'silver',
+  PREMIUM: 'premium',
+};
+const EnumOfOnlineSupport = {
+  YES: 'yes',
+  No: 'no',
+};
+const EnumOfPlanDuration = {
+  MONTHLY: 'monthly',
+  YEARLY: 'yearly',
+  QUARTERLY: 'quarterly',
+  BIANNUAL: 'biannual',
+};
+
 module.exports = {
   EnumCodeTypeOfCode,
   EnumRoleOfUser,
@@ -49,4 +67,7 @@ module.exports = {
   EnumGenderOfUsers,
   EnumStatusOfFriend,
   EnumCreatingProfileFor,
+  EnumOfPlan,
+  EnumOfOnlineSupport,
+  EnumOfPlanDuration,
 };
