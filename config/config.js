@@ -67,8 +67,9 @@ export default {
   },
   email: {
     smtp: {
-      host: envVars.SMTP_HOST,
-      port: envVars.SMTP_PORT,
+      // host: envVars.SMTP_HOST,
+      // port: envVars.SMTP_PORT,
+      service: 'Gmail',
       auth: {
         user: envVars.SMTP_USERNAME,
         pass: envVars.SMTP_PASSWORD,
