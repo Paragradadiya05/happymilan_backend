@@ -9,3 +9,5 @@ module.exports.blogValidation = require('./blog.validation');
 module.exports.storyValidation = require('./story.validation');
 
 module.exports.planValidation = require('./plan.validation');
+
+module.exports.subscriptionValidation = require('./subscription.validation');

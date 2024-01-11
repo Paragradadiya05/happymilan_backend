@@ -4,3 +4,5 @@ module.exports.authController = require('./auth.controller');
 module.exports.blogController = require('./blog.controller');
 module.exports.storyController = require('./story.controller');
 module.exports.planController = require('./plan.controller');
+module.exports.subscriptionController = require('./subscription.controller');
+module.exports.xlxsController = require('./uploadxlsx.controller');
