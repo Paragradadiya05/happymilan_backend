@@ -17,3 +17,9 @@ export const login = {
     deviceToken: Joi.string().allow(''),
   }),
 };
+
+export const refreshTokens = {
+  body: Joi.object().keys({
+    refreshToken: Joi.string().required(),
+  }),
+};

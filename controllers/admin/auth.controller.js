@@ -39,3 +39,8 @@ export const login = catchAsync(async (req, res) => {
     res.status(httpStatus.OK).send({ results: { admin, tokens } });
   }
 });
+
+export const refreshTokens = catchAsync(async (req, res) => {
+  const tokens = await authService.refreshAuth(req.body.refreshToken);
+  res.status(httpStatus.OK).send({ results: { ...tokens } });
+});

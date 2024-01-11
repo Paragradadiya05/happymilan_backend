@@ -192,6 +192,10 @@ const UserSchema = new mongoose.Schema(
     hideProfileDuration: {
       type: Date,
     },
+    userProfileCompleted: {
+      type: Boolean,
+      default: false,
+    },
     userProfilePic: [UserImagesSchema],
   },
   { timestamps: { createdAt: true, updatedAt: true } }
