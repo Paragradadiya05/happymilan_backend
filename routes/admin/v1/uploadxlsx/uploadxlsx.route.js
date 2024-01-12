@@ -4,10 +4,8 @@ import { xlxsController } from 'controllers/admin';
 const router = express.Router();
 const multer = require('multer');
 
-const storage = multer.diskStorage({});
+const upload = multer();
 
-const upload = multer({ storage });
-
-router.post('/xlsx', upload.single('xlsxFile'), xlxsController.uploadxlsx);
+router.post('/xlsx', upload.single('uploaded_file'), xlxsController.uploadxlsx);
 
 module.exports = router;
