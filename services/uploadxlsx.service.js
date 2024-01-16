@@ -9,18 +9,41 @@ export async function uploadData(file) {
   if (sheetNames.length === 0) {
     throw new Error('Sheet has no data');
   }
+  if (jsonData.length === 0) {
+    throw new Error('Sheet has no data');
+  }
+
+  const emailSet = new Set();
+  const numberSet = new Set();
+  //
+  jsonData.forEach((userData) => {
+    if (emailSet.has(userData.email)) {
+      throw new Error(`Duplicate email found: ${userData.email}`);
+    }
+    if (!userData.email || userData.email.trim() === '') {
+      throw new Error('email wes not added in data');
+    }
+    emailSet.add(userData.email);
+  });
+  //
+  jsonData.forEach((userData) => {
+    if (numberSet.has(userData.mobileNumber)) {
+      throw new Error(`Duplicate mobileNumber found: ${userData.mobileNumber}`);
+    }
+    numberSet.add(userData.mobileNumber);
+  });
 
   const data = await User.create(
     jsonData.map((userData) =>
       Object.assign(userData, {
         ...(userData.dateOfBirth && {
-          dateOfBirth: new Date((userData.dateOfBirth - (25567 + 1)) * 86400 * 1000),
+          dateOfBirth: new Date((userData.dateOfBirth - 25569) * 86400 * 1000),
         }),
         ...(userData.birthTime && {
-          birthTime: new Date((userData.birthTime - (25567 + 1)) * 86400 * 1000),
+          birthTime: new Date((userData.birthTime - 25569) * 86400 * 1000),
         }),
         ...(userData.hideProfileDuration && {
-          hideProfileDuration: new Date((userData.hideProfileDuration - (25567 + 1)) * 86400 * 1000),
+          hideProfileDuration: new Date((userData.hideProfileDuration - 25569) * 86400 * 1000),
         }),
       })
     )
