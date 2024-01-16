@@ -57,6 +57,10 @@ const EnumOfPlanDuration = {
   QUARTERLY: 'quarterly',
   BIANNUAL: 'biannual',
 };
+const EnumOfStatus = {
+  ACTIVE: 'active',
+  INACTIVE: 'inactive',
+};
 
 module.exports = {
   EnumCodeTypeOfCode,
@@ -67,7 +71,8 @@ module.exports = {
   EnumGenderOfUsers,
   EnumStatusOfFriend,
   EnumCreatingProfileFor,
-  EnumOfPlan,
-  EnumOfOnlineSupport,
+  EnumOfStatus,
   EnumOfPlanDuration,
+  EnumOfOnlineSupport,
+  EnumOfPlan,
 };

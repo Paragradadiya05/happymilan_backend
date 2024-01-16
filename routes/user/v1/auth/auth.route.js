@@ -45,6 +45,7 @@ router.post('/login', validate(authValidation.login), authController.login);
 router.get('/me', auth(), authController.userInfo);
 /**
  * update the Current UserInfo
+ * // todo: need to add validation here for update user
  */
 router.put('/update-user', auth(), authController.updateUserInfo);
 /**

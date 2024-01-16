@@ -17,3 +17,4 @@ module.exports.Privacy = require('./privacy.model');
 module.exports.EmailNotification = require('./emailnotification.model');
 module.exports.Notification = require('./notification.model');
 module.exports.Plan = require('./plan.model');
+module.exports.Subscription = require('./Subscription.model');

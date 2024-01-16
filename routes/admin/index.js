@@ -5,6 +5,8 @@ import authRoutes from './v1/auth/auth.route';
 import blogRoutes from './v1/blog/blog.route';
 import storyRoutes from './v1/story/story.route';
 import planRoutes from './v1/plan/plan.route';
+import subscriptionRoutes from './v1/subscription/subscription.route';
+import xlsxRoutes from './v1/uploadxlsx/uploadxlsx.route';
 
 const router = express.Router();
 router.use('/user', userRoutes);
@@ -13,4 +15,6 @@ router.use('/auth', authRoutes);
 router.use('/blog', blogRoutes);
 router.use('/story', storyRoutes);
 router.use('/plan', planRoutes);
+router.use('/subscription', subscriptionRoutes);
+router.use('/upload', xlsxRoutes);
 module.exports = router;
