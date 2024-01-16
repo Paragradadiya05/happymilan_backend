@@ -6,6 +6,7 @@ export async function uploadData(file) {
   const workbook = xlsx.read(file.data, { type: 'buffer' });
   const sheetNames = workbook.SheetNames;
   const jsonData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetNames[0]]);
+
   if (sheetNames.length === 0) {
     throw new Error('Sheet has no data');
   }
