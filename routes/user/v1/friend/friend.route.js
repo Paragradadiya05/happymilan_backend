@@ -10,11 +10,11 @@ router
   /**
    * createFriend
    * */
-  .post(validate(friendValidation.createFriend), friendController.createFriend)
+  .post(auth(), validate(friendValidation.createFriend), friendController.createFriend)
   /**
    * getFriend
    * */
-  .get(validate(friendValidation.getFriend), friendController.listFriend);
+  .get(auth(), validate(friendValidation.getFriend), friendController.listFriend);
 
 router.get('/get-frd-requests', auth(), friendController.getReuests);
 
@@ -33,19 +33,19 @@ router
   /**
    * accept friend req
    * */
-  .post(validate(friendValidation.respondFriendRequest), friendController.respondFriendRequest);
+  .post(auth(), validate(friendValidation.respondFriendRequest), friendController.respondFriendRequest);
 router
   .route('/:friendId')
   /**
    * getFriendById
    * */
-  .get(validate(friendValidation.getFriendById), friendController.getFriend)
+  .get(auth(), validate(friendValidation.getFriendById), friendController.getFriend)
   /**
    * updateFriend
    * */
-  .put(validate(friendValidation.updateFriend), friendController.updateFriend)
+  .put(auth(), validate(friendValidation.updateFriend), friendController.updateFriend)
   /**
    * deleteFriendById
    * */
-  .delete(validate(friendValidation.deleteFriendById), friendController.removeFriend);
+  .delete(auth(), validate(friendValidation.deleteFriendById), friendController.removeFriend);
 export default router;
