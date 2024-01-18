@@ -83,9 +83,9 @@ export const getReuests = catchAsync(async (req, res) => {
 });
 
 export const getRequestedFriend = catchAsync(async (req, res) => {
-  const { friendId } = req.params;
+  const userId = req.user._id;
   const filter = {
-    user: friendId,
+    user: userId,
     status: EnumStatusOfFriend.REQUESTED,
   };
   const options = {};
