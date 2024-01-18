@@ -8,7 +8,6 @@ export const createNotification = {
     body: Joi.string(),
     userId: Joi.objectId(),
     otherUserId: Joi.objectId(),
-    read: Joi.string(),
   }),
 };
 
