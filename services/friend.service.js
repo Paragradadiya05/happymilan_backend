@@ -14,7 +14,7 @@ export async function getOne(query, options = {}) {
 }
 
 export async function getFriendList(filter, options = {}) {
-  const friend = await Friend.find(filter, options.projection, options).populate('user').exec();
+  const friend = await Friend.find(filter, options.projection, options).populate('User').exec();
   return friend;
 }
 
