@@ -3,61 +3,29 @@ import mongoosePaginateV2 from 'mongoose-paginate-v2';
 import { toJSON } from 'models/plugins';
 import enumModel from './enum.model';
 
+// Define a schema for access permissions
+const accessSchema = new mongoose.Schema({
+  view: { type: Boolean, default: false },
+  add: { type: Boolean, default: false },
+  update: { type: Boolean, default: false },
+  delete: { type: Boolean, default: false },
+});
+
 const RoleSchema = new mongoose.Schema(
   {
-    user: {
+    role: {
       type: String,
-      enum: Object.values(enumModel.EnumOfUser),
-      required: true,
+      enum: Object.values(enumModel.EnumRoleOfUser),
+      default: enumModel.EnumRoleOfUser.USER,
     },
-    dashboard: {
-      type: Boolean,
-      default: false,
-    },
-    plans: {
-      type: Boolean,
-      default: false,
-    },
-    emailMarketing: {
-      type: Boolean,
-      default: false,
-    },
-    paymentAndReceipts: {
-      type: Boolean,
-      default: false,
-    },
-    User: {
-      type: Boolean,
-      default: false,
-    },
-    blogs: {
-      type: Boolean,
-      default: false,
-    },
-    roles: {
-      type: Boolean,
-      default: false,
-    },
-    successStories: {
-      type: Boolean,
-      default: false,
-    },
-    new: {
-      type: Boolean,
-      default: false,
-    },
-    edit: {
-      type: Boolean,
-      default: false,
-    },
-    view: {
-      type: Boolean,
-      default: false,
-    },
-    delete: {
-      type: Boolean,
-      default: false,
-    },
+    dashboard: accessSchema,
+    plans: accessSchema,
+    emailMarketing: accessSchema,
+    paymentAndReceipts: accessSchema,
+    User: accessSchema,
+    blogs: accessSchema,
+    roles: accessSchema,
+    successStories: accessSchema,
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );

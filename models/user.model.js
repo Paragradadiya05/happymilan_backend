@@ -89,10 +89,17 @@ const UserSchema = new mongoose.Schema(
     /**
      * role
      * */
+    // role: {
+    //   //  add role id
+    //   type: String,
+    //   enum: Object.values(enumModel.EnumRoleOfUser),
+    //   default: enumModel.EnumRoleOfUser.USER,
+    // },
+    // todo : we have to add user model when user is created.
+    //  default schema model in db. also make migration for stag existing data
     role: {
-      type: String,
-      enum: Object.values(enumModel.EnumRoleOfUser),
-      default: enumModel.EnumRoleOfUser.USER,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Role',
     },
     /**
      * custom server authentication
