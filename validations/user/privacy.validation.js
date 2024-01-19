@@ -4,7 +4,7 @@ Joi.objectId = require('joi-objectid')(Joi);
 
 export const create = {
   body: Joi.object().keys({
-    userId: Joi.string().hex().length(24).required(),
+    userId: Joi.objectId().required(),
     question: Joi.string().required(),
     options: Joi.array()
       .items(
@@ -18,6 +18,7 @@ export const create = {
 };
 
 export const updatePrivacy = {
+  userId: Joi.objectId().required(),
   params: Joi.object().keys({
     privacyId: Joi.objectId().required(),
   }),

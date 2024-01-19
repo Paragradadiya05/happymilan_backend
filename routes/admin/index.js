@@ -7,6 +7,7 @@ import storyRoutes from './v1/story/story.route';
 import planRoutes from './v1/plan/plan.route';
 import subscriptionRoutes from './v1/subscription/subscription.route';
 import xlsxRoutes from './v1/uploadxlsx/uploadxlsx.route';
+import roleRoutes from './v1/Role/role.route';
 
 const router = express.Router();
 router.use('/user', userRoutes);
@@ -17,4 +18,6 @@ router.use('/story', storyRoutes);
 router.use('/plan', planRoutes);
 router.use('/subscription', subscriptionRoutes);
 router.use('/upload', xlsxRoutes);
+router.use('/role', roleRoutes);
+
 module.exports = router;

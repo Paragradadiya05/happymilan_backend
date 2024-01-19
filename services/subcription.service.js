@@ -13,6 +13,7 @@ export async function updateSubscription(filter, body, options = {}) {
   console.log('=====body', body);
   console.log('=====filter', filter);
   console.log('=====options', options);
+
   const subscription = await Subscription.findOneAndUpdate(filter, body, options);
   return subscription;
 }

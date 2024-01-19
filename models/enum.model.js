@@ -61,7 +61,12 @@ const EnumOfStatus = {
   ACTIVE: 'active',
   INACTIVE: 'inactive',
 };
-
+const EnumOfUser = {
+  PROJECT_OWNER: 'project-owner',
+  SUPER_ADMIN: 'super-admin',
+  ADMIN: 'admin',
+  CO_ADMIN: 'co-admin',
+};
 module.exports = {
   EnumCodeTypeOfCode,
   EnumRoleOfUser,
@@ -75,4 +80,5 @@ module.exports = {
   EnumOfPlanDuration,
   EnumOfOnlineSupport,
   EnumOfPlan,
+  EnumOfUser,
 };

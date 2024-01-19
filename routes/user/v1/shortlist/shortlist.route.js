@@ -6,6 +6,6 @@ import auth from 'middlewares/auth';
 
 const router = express();
 router.post('/create-shortlist', auth(), validate(shortlistValidation.createShortlist), shortlistController.createShortlist);
-module.exports = router;
 
 router.get('/get-short-list', auth(), validate(shortlistValidation.Getshortlist), shortlistController.getshortlist);
+module.exports = router;

@@ -17,3 +17,15 @@ export async function getNotification(filter, options = {}) {
   const notification = await Notification.find(filter, options.projection, options);
   return notification;
 }
+export async function getOne(query, options = {}) {
+  const notification = await Notification.findOne(query, options.projection, options);
+  return notification;
+}
+export async function updatenotification(filter, body, options = {}) {
+  const notification = await Notification.findOneAndUpdate(filter, body, options);
+  return notification;
+}
+export async function removeNotification(filter) {
+  const notification = await Notification.findOneAndRemove(filter);
+  return notification;
+}
