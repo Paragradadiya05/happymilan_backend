@@ -29,3 +29,5 @@ module.exports.emailnotificationValidation = require('./emailnotification.valida
 module.exports.notificationValidation = require('./notification.validation');
 
 module.exports.planValidation = require('./plan.validation');
+
+module.exports.searchValidation = require('./search.validation');

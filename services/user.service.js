@@ -11,11 +11,14 @@ export async function getUserById(id, options = {}) {
 }
 
 export async function getOne(query, options = {}) {
+  console.log('===', query);
   const user = await User.findOne(query, options.projection, options);
+  console.log('===', user);
   return user;
 }
 
 export async function getUserList(filter, options = {}) {
+  console.log('=== filtere ===', filter);
   const user = await User.find(filter, options.projection, options);
   return user;
 }

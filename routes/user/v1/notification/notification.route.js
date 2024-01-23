@@ -11,16 +11,6 @@ router
    * createNotification
    * */
   .post(auth(), validate(notificationValidation.createNotification), notificationController.createNotification);
-
-/**
- * getNotificationById
- * */
-router.get(
-  '/get-notification-byid/:userId',
-  auth(),
-  validate(notificationValidation.getNotificationById),
-  notificationController.getNotificationById
-);
 /**
  * getNotification
  * */
@@ -30,19 +20,5 @@ router.get(
   validate(notificationValidation.getNotification),
   notificationController.getNotification
 );
-router.put(
-  '/update-notification/:notificationId',
-  auth(),
-  validate(notificationValidation.updateNotification),
-  notificationController.update
-);
-/**
- * deleteNotificationById
- * */
-router.delete(
-  '/delete-notification/:notificationId',
-  auth(),
-  validate(notificationValidation.deleteNotification),
-  notificationController.remove
-);
+
 export default router;
