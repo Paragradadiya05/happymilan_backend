@@ -15,3 +15,4 @@ module.exports.emailnotificationController = require('./emailnotification.contro
 module.exports.notificationController = require('./notification.controller');
 module.exports.planController = require('./plan.controller');
 module.exports.searchController = require('./search.controller');
+module.exports.likeController = require('./like.controller');

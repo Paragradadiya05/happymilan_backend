@@ -57,7 +57,7 @@ export async function createFriend(body = {}) {
       'user already friend or friend request is already sent or user may blocked you'
     );
   }
-  await Notification.create({ userId: body.user, otherUserId: body.friend });
+  await Notification.create({ userId: body.user, otherUserId: body.friend, body: 'Request sent' });
   return Friend.create(body);
 }
 
@@ -109,11 +109,14 @@ export async function respondFriendRequest(request, status, user = {}) {
   } else {
     if (friendRequest.status === 'accepted') {
       throw new ApiError(httpStatus.BAD_REQUEST, 'You have already accepted this friend request');
-    } else if (friendRequest.status === 'rejected') {
+    }
+    await Notification.create({ userId: user, body: `Request accepted ` });
+    if (friendRequest.status === 'rejected') {
       throw new ApiError(httpStatus.BAD_REQUEST, 'You have already rejected this friend request');
     } else if (friendRequest.status === 'blocked') {
       throw new ApiError(httpStatus.BAD_REQUEST, 'You have already blocked this friend request');
     }
+
     return Friend.findByIdAndUpdate(request, {
       $set: { status },
       $push: { statusHistory: { status, initiatorUser: user } },
