@@ -50,10 +50,187 @@ export const sendResetPasswordEmail = async (to, token) => {
   const subject = 'Reset password';
   // replace this url with the link to the reset password page of your front-end app
   // const resetPasswordUrl = `http://link-to-app/reset-password?token=${token}`;
-  const text = `Dear user,
-  To reset your password, Copy this Code: ${token}
-  If you did not request any password resets, then ignore this email.`;
-  await sendEmail({ to, subject, text });
+  const text = `
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap">
+
+    <title></title>
+
+    <style type="text/css">
+        .btn {
+            display: inline-block;
+            color: #ffffff !important;
+            justify-items: center;
+            padding-top: 15px;
+            white-space: nowrap;
+            vertical-align: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none; 
+            user-select: none;
+            transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            background: linear-gradient(123.55deg, #0F52BA 0%, #8225AF 81.56%);
+            width: 175px;
+            height: 38px;
+            border-radius: 10px;
+            align-content: center;
+            text-align: center;
+            font-family: Poppins;
+            box-shadow: none;
+            text-decoration: none;
+        }
+        #parrent {
+            width: 700px;
+            height: 406px;
+            flex-shrink: 0;
+            border-radius: 14px;
+            border: 1px solid #E2E2E2;
+
+        }
+
+        #logo {
+            text-align: center;
+            padding-top: 30px;
+        }
+
+        #content div {
+            width: 622px;
+        }
+
+        #content div p {
+            color: #000;
+            font-family: Poppins;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: normal;
+        }
+
+        #content {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        #footer-box {
+            display: flex;
+            justify-content: center;
+        }
+
+        #footer {
+            width: 607px;
+            height: 1px;
+            border-top: 1px solid #E2E2E2;
+            text-align: center;
+            padding-top: 10px;
+            margin-top: 30px;
+
+        }
+
+        #footer-content {
+            width: 600px;
+        }
+
+
+        #footer div {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #footer div #ul-1 {
+            list-style-type: none;
+            position: relative;
+            left: -30px;
+        }
+
+        #footer div #ul-1 li span {
+            color: #000;
+            font-family: Poppins;
+            font-size: 10px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: normal;
+        }
+
+        #footer div #ul-2 li span {
+            color: #0F52BA;
+            font-family: Poppins;
+            font-size: 10px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: normal;
+        }
+
+
+        #footer div #ul-2 li {
+            list-style-type: none;
+            display: flex;
+            gap: 20px;
+        }
+
+        #footer div #ul-2 {
+            display: flex;
+            gap: 20px;
+        }
+</style>
+</head>
+<body>
+
+
+    <div>
+
+        <div id="parrent">
+            <div id="logo">
+                <img src="./assests/logo.svg" />
+            </div>
+            <div id="content">
+                <div>
+                    <p>Dear User,</p>
+                    <p>We received a request to reset the password for your account. If you initiated this request,
+                        please use the following link to reset your password:
+
+                    </p>
+                    <div><a target="_blank" href="${token}" id="verifyButton" class="btn btn-primary">Reset
+                            Password</a></div><br>
+                    <p>Note : Please note that the password reset link is valid for a limited time. After clicking the
+                        link, you will be prompted to create a new password.</p>
+                </div>
+            </div>
+            <div id="footer-box">
+                <div id="footer">
+                    <div id="footer-content">
+                        <ul id="ul-1">
+                            <li>
+                                <span>Copyright 2023 MN Techgroup India</span>
+                            </li>
+                        </ul>
+                        <ul id="ul-2">
+                            <li>
+                                <span>Privacy Policy</span>
+                            </li>
+                            <li><span>Terms of Use</span></li>
+
+                        </ul>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+    </div>
+
+</body>
+
+</html>
+`;
+  await sendEmail({ to, subject, text, isHtml: true });
 };
 
 /**
