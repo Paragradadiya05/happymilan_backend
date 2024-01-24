@@ -155,12 +155,167 @@ export const sendReportUserEmail = async (reporter, reportedUser, party, comment
  * @returns {Promise}
  */
 export const sendOtpVerificationEmail = async (user, otp) => {
-  const { email: to } = user;
+  const { email: to, name } = user;
   const subject = 'Otp verification email!';
-  const text = `Dear user,
-  Your email verification Code, Copy this Code: ${otp}
-  If you did not request any password resets, then ignore this email.`;
-  await sendEmail({ to, subject, text, isHtml: false })
+  const text = `
+ <html>
+ <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap">
+ <title></title>
+ <style type="text/css">
+#parrent{
+width: 700px;
+height: 406px;
+flex-shrink: 0;
+tborder-radius: 14px;
+tborder: 1px solid #E2E2E2;
+}
+
+#logo{
+text-align: center;
+padding-top: 30px;
+}
+
+#content div{
+width: 622px;
+}
+
+#content div p{
+color: #000;
+font-family: Poppins;
+font-size: 14px;
+font-style: normal;
+font-weight: 400;
+line-height: normal;
+}
+#content{
+display: flex;
+justify-content: center;
+margin-top: 30px;
+}
+#OTP-Text{
+background: linear-gradient(97deg, #0F52BA 5.37%, #BA0FA9 20.06%);
+background-clip: text;
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+font-family: Poppins;
+font-size: 24px;
+font-style: normal;
+font-weight: 700;
+line-height: normal;
+}
+
+#footer-box{
+display: flex;
+justify-content: center;
+}
+
+#footer{
+width: 607px;
+height: 1px;
+border-top: 1px solid #E2E2E2;
+text-align: center;
+padding-top: 10px;
+margin-top: 30px;
+
+}
+
+#footer-content{
+width: 600px;
+}
+
+
+#footer div {
+display: flex;
+justify-content: space-between;
+}
+#footer div #ul-1{
+list-style-type: none;
+position: relative;
+left: -30px;
+}
+
+#footer div #ul-1 li span{
+color: #000;
+font-family: Poppins;
+font-size: 10px;
+font-style: normal;
+font-weight: 400;
+line-height: normal;
+}
+
+#footer div #ul-2 li span {
+color: #0F52BA;
+font-family: Poppins;
+font-size: 10px;
+font-style: normal;
+font-weight: 400;
+line-height: normal;
+}
+
+
+#footer div #ul-2 li {
+list-style-type: none;
+display: flex;
+gap: 20px;
+}
+
+#footer div #ul-2{
+display: flex;
+gap: 20px;
+}
+
+</style>
+</head>
+<body>
+<div>
+
+<div id="parrent">
+<div id="logo">
+<img src="../logo.svg" />
+</div>
+<div id="content">
+<div>
+<p>Dear User,${name}</p>
+<p>Thank you for using our services. To complete the verification process, please enter the
+following One-Time Password (OTP) on the verification page:</p>
+<h1 id="OTP-Text"> ${otp}</h1> <!--OTP Variable -->
+<p>Please do not share this OTP with anyone for security reasons</p>
+</div>
+</div>
+<div id="footer-box">
+<div id="footer">
+<div id="footer-content">
+<ul id="ul-1">
+<li>
+<span>Copyright 2023 MN Techgroup India</span>
+</li>
+</ul>
+<ul id="ul-2">
+<li>
+<span>Privacy Policy</span>
+</li>
+<li><span>Terms of Use</span></li>
+
+</ul>
+
+</div>
+</div>
+</div>
+
+</div>
+
+
+</div>
+
+</body>
+
+</html>
+`;
+  await sendEmail({ to, subject, text, isHtml: true })
     .then(() => logger.info('email sent successfully'))
     .catch((error) => logger.warn(`Unable to send mail ${error}`));
 };
