@@ -25,3 +25,4 @@ module.exports.planservice = require('./plan.service');
 module.exports.subscriptionservice = require('./subcription.service');
 module.exports.xlsxservice = require('./uploadxlsx.service');
 module.exports.roleservice = require('./role.service');
+module.exports.likeservice = require('./like.service');

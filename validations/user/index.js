@@ -31,3 +31,5 @@ module.exports.notificationValidation = require('./notification.validation');
 module.exports.planValidation = require('./plan.validation');
 
 module.exports.searchValidation = require('./search.validation');
+
+module.exports.likeValidation = require('./like.validation');
