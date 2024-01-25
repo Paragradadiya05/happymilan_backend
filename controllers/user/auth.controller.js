@@ -79,7 +79,6 @@ export const login = catchAsync(async (req, res) => {
     res.status(httpStatus.OK).send({ results: { user, tokens } });
   }
 });
-
 // if user's email is not verified then we call this function for reverification
 export const sendVerifyEmail = catchAsync(async (req, res) => {
   const { email } = req.body;

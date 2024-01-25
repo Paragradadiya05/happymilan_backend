@@ -67,6 +67,26 @@ const EnumOfUser = {
   ADMIN: 'admin',
   CO_ADMIN: 'co-admin',
 };
+const EnumOfMaritalStatus = {
+  SINGLE: 'single',
+  NEVER_MARRIED: 'nevermarried',
+  MARRIED: 'married',
+};
+const EnumOfReligion = {
+  HINDU: 'hindu',
+  MUSLIM: 'muslim',
+  SIKH: 'sikh',
+};
+const EnumOfCommunity = {
+  PATEL: 'patel',
+  SHAH: 'shah',
+  SONI: 'soni',
+};
+const EnumOfMotherTongue = {
+  GUJARATI: 'gujarati',
+  HINDI: 'hindi',
+  ENGLISH: 'english',
+};
 module.exports = {
   EnumCodeTypeOfCode,
   EnumRoleOfUser,
@@ -77,8 +97,12 @@ module.exports = {
   EnumStatusOfFriend,
   EnumCreatingProfileFor,
   EnumOfStatus,
+  EnumOfMaritalStatus,
   EnumOfPlanDuration,
   EnumOfOnlineSupport,
   EnumOfPlan,
   EnumOfUser,
+  EnumOfReligion,
+  EnumOfCommunity,
+  EnumOfMotherTongue,
 };

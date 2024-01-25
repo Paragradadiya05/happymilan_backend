@@ -1,12 +1,22 @@
 import httpStatus from 'http-status';
 import { catchAsync } from '../../utils/catchAsync';
 import { userService } from '../../services';
+import enumModel from '../../models/enum.model';
 
 export const getByAge = catchAsync(async (req, res) => {
-  const { minAge, maxAge } = req.body;
-
-  // const filter = {};
-  // todo:more changes
+  const { minAge, maxAge, maritalStatus, religion, community, motherTongue } = req.body;
+  if (maritalStatus && !Object.values(enumModel.EnumOfMaritalStatus).includes(maritalStatus)) {
+    return res.status(httpStatus.BAD_REQUEST).send({ error: 'Invalid appUsesType' });
+  }
+  if (religion && !Object.values(enumModel.EnumOfReligion).includes(religion)) {
+    return res.status(httpStatus.BAD_REQUEST).send({ error: 'Invalid appUsesType' });
+  }
+  if (community && !Object.values(enumModel.EnumOfCommunity).includes(community)) {
+    return res.status(httpStatus.BAD_REQUEST).send({ error: 'Invalid appUsesType' });
+  }
+  if (motherTongue && !Object.values(enumModel.EnumOfMotherTongue).includes(motherTongue)) {
+    return res.status(httpStatus.BAD_REQUEST).send({ error: 'Invalid appUsesType' });
+  }
   const filter = {
     ...((minAge || maxAge) && {
       dateOfBirth: {
@@ -18,7 +28,12 @@ export const getByAge = catchAsync(async (req, res) => {
         }),
       },
     }),
+    ...(maritalStatus && { maritalStatus }),
+    ...(religion && { religion }),
+    ...(community && { community }),
+    ...(motherTongue && { motherTongue }),
   };
+
   const user = await userService.getUserList(filter, {});
   return res.status(httpStatus.OK).send({ results: user });
 });

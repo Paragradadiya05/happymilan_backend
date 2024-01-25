@@ -168,6 +168,7 @@ const UserSchema = new mongoose.Schema(
     },
     religion: {
       type: String,
+      enum: Object.values(enumModel.EnumOfReligion),
     },
     cast: {
       type: String,
@@ -196,6 +197,10 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    maritalStatus: {
+      type: String,
+      enum: Object.values(enumModel.EnumOfMaritalStatus),
+    },
     hideProfileDuration: {
       type: Date,
     },
@@ -203,8 +208,14 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    community: {
+      type: String,
+      enum: Object.values(enumModel.EnumOfCommunity),
+    },
+    motherTongue: { type: String, enum: Object.values(enumModel.EnumOfMotherTongue) },
     userProfilePic: [UserImagesSchema],
   },
+
   { timestamps: { createdAt: true, updatedAt: true } }
 );
 UserSchema.plugin(toJSON);
