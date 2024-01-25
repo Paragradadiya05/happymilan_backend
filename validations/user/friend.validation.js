@@ -14,19 +14,19 @@ export const createFriend = {
 export const updateFriend = {
   body: Joi.object().keys({}),
   params: Joi.object().keys({
-    testId: Joi.objectId().required(),
+    friendId: Joi.objectId().required(),
   }),
 };
 
 export const getFriendById = {
   params: Joi.object().keys({
-    testId: Joi.objectId().required(),
+    friendId: Joi.objectId().required(),
   }),
 };
 
 export const deleteFriendById = {
   params: Joi.object().keys({
-    testId: Joi.objectId().required(),
+    friendId: Joi.objectId().required(),
   }),
 };
 

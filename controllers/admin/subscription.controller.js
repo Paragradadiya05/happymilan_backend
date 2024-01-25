@@ -4,8 +4,8 @@ import { subscriptionservice } from '../../services';
 
 export const create = catchAsync(async (req, res) => {
   const { body } = req;
-  body.createdBy = req.admin;
-  body.updatedBy = req.admin;
+  body.createdBy = req.user;
+  body.updatedBy = req.user;
   const options = {};
   const Subscription = await subscriptionservice.createSubscription(body, options);
   return res.status(httpStatus.CREATED).send({ results: Subscription });
@@ -19,11 +19,12 @@ export const list = catchAsync(async (req, res) => {
 });
 
 export const update = catchAsync(async (req, res) => {
-  const { subscriptionId } = req.params;
   const { body } = req;
+  body.updatedBy = req.user;
+  const { subscriptionId } = req.params;
+
   console.log('======body', body);
   console.log('======body', req.admin);
-  body.updatedBy = req.admin;
 
   const filter = {
     _id: subscriptionId,

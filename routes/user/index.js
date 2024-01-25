@@ -14,6 +14,7 @@ import privacyRoute from './v1/privacy/privacy.route';
 import EmailNotificationRoute from './v1/emailnotification/emailnotification.route';
 import NotificationRoute from './v1/notification/notification.route';
 import PlanRoute from './v1/plan/plan.route';
+import serachRoute from './v1/search/search.route';
 
 const router = express.Router();
 router.use('/user', userRoutes);
@@ -31,6 +32,7 @@ router.use('/privacy', privacyRoute);
 router.use('/email-notification', EmailNotificationRoute);
 router.use('/notification', NotificationRoute);
 router.use('/plan', PlanRoute);
+router.use('/search', serachRoute);
 
 // router.use('/userEducation', userEducationRoutes);
 // router.use('/commentOnStory', commentOnStoryRoutes);

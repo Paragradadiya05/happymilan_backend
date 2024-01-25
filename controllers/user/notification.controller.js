@@ -14,3 +14,32 @@ export const getNotification = catchAsync(async (req, res) => {
   const notification = await notificationservice.getNotification(filter, options);
   return res.status(httpStatus.OK).send({ results: notification });
 });
+
+export const getNotificationById = catchAsync(async (req, res) => {
+  const options = {};
+  const { user } = req;
+  const filter = {
+    userId: user,
+  };
+  const notification = await notificationservice.getNotification(filter, options);
+  return res.status(httpStatus.OK).send({ results: notification });
+});
+
+export const update = catchAsync(async (req, res) => {
+  const { notificationId } = req.params;
+  const filter = {
+    _id: notificationId,
+  };
+  const options = { new: true };
+  const notification = await notificationservice.updatenotification(filter, options);
+  return res.status(httpStatus.OK).send({ results: notification });
+});
+
+export const remove = catchAsync(async (req, res) => {
+  const { notificationId } = req.params;
+  const filter = {
+    _id: notificationId,
+  };
+  const notification = await notificationservice.removeNotification(filter);
+  return res.status(httpStatus.OK).send({ results: notification });
+});
