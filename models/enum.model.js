@@ -69,7 +69,7 @@ const EnumOfUser = {
 };
 const EnumOfMaritalStatus = {
   SINGLE: 'single',
-  NEVER_MARRIED: 'nevermarried',
+  NEVER_MARRIED: 'never-married',
   MARRIED: 'married',
 };
 const EnumOfReligion = {

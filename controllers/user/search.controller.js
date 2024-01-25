@@ -5,17 +5,45 @@ import enumModel from '../../models/enum.model';
 
 export const getByAge = catchAsync(async (req, res) => {
   const { minAge, maxAge, maritalStatus, religion, community, motherTongue } = req.body;
-  if (maritalStatus && !Object.values(enumModel.EnumOfMaritalStatus).includes(maritalStatus)) {
-    return res.status(httpStatus.BAD_REQUEST).send({ error: 'Invalid appUsesType' });
+  if (maritalStatus && !Array.isArray(maritalStatus)) {
+    return res.status(httpStatus.BAD_REQUEST).send({ error: 'maritalStatus must be an array' });
   }
-  if (religion && !Object.values(enumModel.EnumOfReligion).includes(religion)) {
-    return res.status(httpStatus.BAD_REQUEST).send({ error: 'Invalid appUsesType' });
+  if (maritalStatus) {
+    const validMaritalStatusValues = Object.values(enumModel.EnumOfMaritalStatus);
+    const invalidValues = maritalStatus.filter((value) => !validMaritalStatusValues.includes(value));
+    if (invalidValues.length > 0) {
+      return res.status(httpStatus.BAD_REQUEST).send({ error: `Invalid maritalStatus values` });
+    }
   }
-  if (community && !Object.values(enumModel.EnumOfCommunity).includes(community)) {
-    return res.status(httpStatus.BAD_REQUEST).send({ error: 'Invalid appUsesType' });
+  if (religion && !Array.isArray(religion)) {
+    return res.status(httpStatus.BAD_REQUEST).send({ error: 'religion must be an array' });
   }
-  if (motherTongue && !Object.values(enumModel.EnumOfMotherTongue).includes(motherTongue)) {
-    return res.status(httpStatus.BAD_REQUEST).send({ error: 'Invalid appUsesType' });
+  if (religion) {
+    const validReligionValues = Object.values(enumModel.EnumOfReligion);
+    const invalidValues = religion.filter((value) => !validReligionValues.includes(value));
+    if (invalidValues.length > 0) {
+      return res.status(httpStatus.BAD_REQUEST).send({ error: `Invalid religion values` });
+    }
+  }
+  if (community && !Array.isArray(community)) {
+    return res.status(httpStatus.BAD_REQUEST).send({ error: 'community must be an array' });
+  }
+  if (community) {
+    const validCommunityValues = Object.values(enumModel.EnumOfCommunity);
+    const invalidValues = community.filter((value) => !validCommunityValues.includes(value));
+    if (invalidValues.length > 0) {
+      return res.status(httpStatus.BAD_REQUEST).send({ error: `Invalid community values` });
+    }
+  }
+  if (motherTongue && !Array.isArray(motherTongue)) {
+    return res.status(httpStatus.BAD_REQUEST).send({ error: 'motherTongue must be an array' });
+  }
+  if (motherTongue) {
+    const validMotherTongueValues = Object.values(enumModel.EnumOfMotherTongue);
+    const invalidValues = motherTongue.filter((value) => !validMotherTongueValues.includes(value));
+    if (invalidValues.length > 0) {
+      return res.status(httpStatus.BAD_REQUEST).send({ error: `Invalid motherTongue values` });
+    }
   }
   const filter = {
     ...((minAge || maxAge) && {
@@ -28,10 +56,10 @@ export const getByAge = catchAsync(async (req, res) => {
         }),
       },
     }),
-    ...(maritalStatus && { maritalStatus }),
-    ...(religion && { religion }),
-    ...(community && { community }),
-    ...(motherTongue && { motherTongue }),
+    ...(maritalStatus && maritalStatus.length > 0 && { maritalStatus: { $in: maritalStatus } }),
+    ...(religion && religion.length > 0 && { religion: { $in: religion } }),
+    ...(community && community.length > 0 && { religion: { $in: community } }),
+    ...(motherTongue && motherTongue.length > 0 && { motherTongue: { $in: motherTongue } }),
   };
 
   const user = await userService.getUserList(filter, {});
