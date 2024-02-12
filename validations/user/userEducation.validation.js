@@ -15,7 +15,6 @@ export const createEducationDetail = {
 
 export const updateEducation = {
   body: Joi.object().keys({
-    userId: Joi.objectId(),
     degree: Joi.string(),
     collage: Joi.string(),
     city: Joi.string(),
@@ -29,7 +28,7 @@ export const updateEducation = {
 
 export const getEducationById = {
   params: Joi.object().keys({
-    userEducationDetailId: Joi.objectId().required(),
+    userId: Joi.objectId().required(),
   }),
 };
 

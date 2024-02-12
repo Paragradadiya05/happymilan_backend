@@ -8,26 +8,29 @@ const router = express.Router();
 router
   .route('/')
   /**
-   * createUserEducationDetail
+   * createUserPartnerPreDetail
    * */
   .post(auth(), validate(partnerValidation.createPartnerpre), partnerController.createPartner)
   /**
-   * getUserEducationDetail
+   * getUserPartnerPreDetail
    * */
   .get(auth(), validate(partnerValidation.getPartnerpre), partnerController.listPartner);
 router
   .route('/:PartnerId')
   /**
-   * getUserEducationDetailById
-   * */
-  .get(auth(), validate(partnerValidation.getPartnerpreById), partnerController.getPartner)
-  /**
-   * updateUserEducationDetail
+   * updateUserPartnerPreDetail
    * */
   .put(auth(), validate(partnerValidation.updatePartnerpre), partnerController.updatePartner)
   /**
-   * deleteUserEducationDetailById
+   * deleteUserPartnerPreDetailById
    * */
   .delete(auth(), validate(partnerValidation.deletePartnerpreById), partnerController.removePartner);
+
+router
+  .route('/getByUser/:userId')
+  /**
+   * getUserPartnerPreDetailById
+   * */
+  .get(auth(), validate(partnerValidation.getPartnerpreById), partnerController.getPartner);
 
 export default router;

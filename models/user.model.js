@@ -231,9 +231,17 @@ const UserSchema = new mongoose.Schema(
     height: {
       type: Number,
     },
+    partner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'UserPartner',
+    },
     address: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Address',
+    },
+    userEducation: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'UserEducation',
     },
 
     userProfilePic: [UserImagesSchema],

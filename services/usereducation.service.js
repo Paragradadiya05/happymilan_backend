@@ -1,4 +1,6 @@
-import { Education } from '../models';
+import httpStatus from 'http-status';
+import { Education, User } from '../models';
+import ApiError from '../utils/ApiError';
 
 export async function getOne(query, options = {}) {
   const userEducationDetail = await Education.findOne(query, options.projection, options);
@@ -16,8 +18,22 @@ export async function getEducationListWithPagination(filter, options = {}) {
 }
 
 export async function createEducation(body = {}) {
-  const userEducationDetail = await Education.create(body);
-  return userEducationDetail;
+  if (body.userId) {
+    const userId = await User.findOne({ _id: body.userId });
+    if (!userId) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'field userId is not valid');
+    }
+  }
+  const findEducation = await Education.find({ userId: body.userId });
+  let education;
+  if (findEducation.length) {
+    education = await Education.findOneAndUpdate({ userId: body.userId }, body, {
+      new: true,
+    });
+  } else {
+    education = await Education.create(body);
+  }
+  return education;
 }
 
 export async function updateEducation(filter, body, options = {}) {

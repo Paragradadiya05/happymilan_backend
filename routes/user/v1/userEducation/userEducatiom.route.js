@@ -16,11 +16,14 @@ router
    * */
   .get(auth(), validate(usereducationValidation.getEducation), usereducationController.listUserEducationDetail);
 router
-  .route('/:userEducationDetailId')
+  .route('/:userId')
   /**
    * getUserEducationDetailById
    * */
-  .get(auth(), validate(usereducationValidation.getEducationById), usereducationController.getUserEducationDetail)
+  .get(auth(), validate(usereducationValidation.getEducationById), usereducationController.getUserEducationDetail);
+router
+  .route('/:userEducationDetailId')
+
   /**
    * updateUserEducationDetail
    * */
@@ -29,4 +32,5 @@ router
    * deleteUserEducationDetailById
    * */
   .delete(auth(), validate(usereducationValidation.deleteEducationById), usereducationController.removeUserEducationDetail);
+
 export default router;

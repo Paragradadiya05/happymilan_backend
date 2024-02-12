@@ -1,11 +1,11 @@
 import httpStatus from 'http-status';
-import { educationservice } from 'services';
+import { educationservice, userService } from 'services';
 import { catchAsync } from 'utils/catchAsync';
 
 export const getUserEducationDetail = catchAsync(async (req, res) => {
-  const { userEducationDetailId } = req.params;
+  const { userId } = req.params;
   const filter = {
-    _id: userEducationDetailId,
+    userId,
   };
   const options = {};
   const userEducationDetail = await educationservice.getOne(filter, options);
@@ -21,9 +21,12 @@ export const listUserEducationDetail = catchAsync(async (req, res) => {
 
 export const createUserEducationDetail = catchAsync(async (req, res) => {
   const { body } = req;
+  const { user } = req;
+  const userId = req.user._id;
   const options = {};
-  const userEducationDetail = await educationservice.createEducation(body, options);
-  return res.status(httpStatus.CREATED).send({ results: userEducationDetail });
+  const userEducation = await educationservice.createEducation({ userId, ...body }, options);
+  await userService.updateUser({ _id: user.id }, { userEducation });
+  return res.status(httpStatus.CREATED).send({ results: userEducation });
 });
 
 export const updateUserEducationDetail = catchAsync(async (req, res) => {
