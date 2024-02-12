@@ -101,6 +101,7 @@ export const verifyEmail = catchAsync(async (req, res) => {
     await authService.verifyEmail(req.query);
     res.status(httpStatus.OK).send({ message: 'Your Email is Verified Successfully' });
   } catch (e) {
+    console.log('===e===', e);
     res.status(httpStatus.OK).send({ message: e.message });
   }
 });
@@ -141,6 +142,7 @@ export const verifyOtp = catchAsync(async (req, res) => {
     const updatedUser = await userService.addDeviceToken(user, req.body);
     res.status(httpStatus.OK).send({ results: { user: updatedUser, tokens } });
   } else {
+    await emailService.sendCongratulationEmail(user).then().catch();
     res.status(httpStatus.OK).send({ results: { user, tokens } });
   }
 });

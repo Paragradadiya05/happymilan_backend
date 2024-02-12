@@ -7,6 +7,16 @@ export const createShortlist = {
     shortlistId: Joi.objectId().required(),
   }),
 };
-export const Getshortlist = {
+export const GetShortlist = {
   body: Joi.object().keys({}).unknown(true),
+};
+export const GetShortlistByUser = {
+  params: Joi.object().keys({
+    userId: Joi.objectId().required(),
+  }),
+};
+export const deleteShortlistByUser = {
+  params: Joi.object().keys({
+    userId: Joi.objectId().required(),
+  }),
 };

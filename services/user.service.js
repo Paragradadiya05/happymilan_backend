@@ -9,17 +9,17 @@ export async function getUserById(id, options = {}) {
   const user = await User.findById(id, options.projection, options);
   return user;
 }
-
+// todo:check populate in database
 export async function getOne(query, options = {}) {
   console.log('===', query);
-  const user = await User.findOne(query, options.projection, options);
+  const user = await User.findOne(query, options.projection, options).populate('address').exec();
   console.log('===', user);
   return user;
 }
 
 export async function getUserList(filter, options = {}) {
   console.log('=== filtere ===', filter);
-  const user = await User.find(filter, options.projection, options);
+  const user = await User.find(filter, options.projection, options).populate('address');
   return user;
 }
 
@@ -58,7 +58,7 @@ export async function updateUserForAuth(filter, body, options = {}, user) {
     body.password = await bcrypt.hash(body.password, 10);
   }
 
-  await User.updateOne(filter, body, options);
+  await User.updateOne(filter, body, options).populate('address');
   return getOne(filter);
 }
 

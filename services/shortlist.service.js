@@ -23,3 +23,8 @@ export async function getShortlist(filter, options = {}) {
   const user = await Shortlist.find(filter, options.projection, options);
   return user;
 }
+
+export async function removeshotylist(filter = {}) {
+  const user = await Shortlist.findOneAndRemove(filter);
+  return user;
+}

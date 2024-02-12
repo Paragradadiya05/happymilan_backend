@@ -9,6 +9,8 @@ export const searchAge = {
     religion: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfReligion))),
     community: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfCommunity))),
     motherTongue: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfMotherTongue))),
+    height: Joi.number(),
+    currentCountry: Joi.string().valid(...Object.values(enumModel.EnumOfCurrentCountry)),
   }),
 };
 

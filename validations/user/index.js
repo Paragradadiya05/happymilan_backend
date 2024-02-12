@@ -33,3 +33,7 @@ module.exports.planValidation = require('./plan.validation');
 module.exports.searchValidation = require('./search.validation');
 
 module.exports.likeValidation = require('./like.validation');
+
+module.exports.usereducationValidation = require('./userEducation.validation');
+
+module.exports.partnerValidation = require('./partner.validation');

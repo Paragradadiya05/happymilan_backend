@@ -212,7 +212,30 @@ const UserSchema = new mongoose.Schema(
       type: String,
       enum: Object.values(enumModel.EnumOfCommunity),
     },
-    motherTongue: { type: String, enum: Object.values(enumModel.EnumOfMotherTongue) },
+    motherTongue: {
+      type: String,
+      enum: Object.values(enumModel.EnumOfMotherTongue),
+    },
+    creative: {
+      type: String,
+    },
+    fun: {
+      type: String,
+    },
+    fitness: {
+      type: String,
+    },
+    Age: {
+      type: Number,
+    },
+    height: {
+      type: Number,
+    },
+    address: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Address',
+    },
+
     userProfilePic: [UserImagesSchema],
   },
 
@@ -226,6 +249,7 @@ UserSchema.plugin(mongoosePaginateV2);
  * @param {ObjectId} [excludeUserId] - The id of the User to be excluded
  * @returns Promise with boolean value
  */
+
 UserSchema.statics.isEmailTaken = async function (email, excludeUserId) {
   const User = await this.findOne({ email, _id: { $ne: excludeUserId } });
   return !!User;

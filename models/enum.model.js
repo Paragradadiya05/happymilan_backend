@@ -87,6 +87,37 @@ const EnumOfMotherTongue = {
   HINDI: 'hindi',
   ENGLISH: 'english',
 };
+const EnumOfCurrentCountry = {
+  INDIA: 'india',
+  US: 'us',
+  CANADA: 'canada',
+  MEXICO: 'mexico',
+};
+const EnumOfState = {
+  GUJARAT: 'gujarat',
+  OTAVA: 'otava',
+  ASSAM: 'Assam',
+};
+const EnumOfCountry = {
+  INDIA: 'india',
+  CANADA: 'canada',
+  US: 'us',
+};
+const EnumOfCity = {
+  SURAT: 'surat',
+  Ahmedabad: 'ahmedabad',
+  TORONTO: 'toronto',
+};
+
+const EnumOfCreative = {
+  WRITING: 'writing',
+  PAINTING: 'painting',
+};
+const EnumOfDiet = {
+  VEGETARIAN: 'vegetarian',
+  NON_VEGETARIAN: 'non_vegetarian',
+};
+
 module.exports = {
   EnumCodeTypeOfCode,
   EnumRoleOfUser,
@@ -105,4 +136,10 @@ module.exports = {
   EnumOfReligion,
   EnumOfCommunity,
   EnumOfMotherTongue,
+  EnumOfCurrentCountry,
+  EnumOfState,
+  EnumOfCountry,
+  EnumOfCity,
+  EnumOfCreative,
+  EnumOfDiet,
 };
