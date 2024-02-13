@@ -1,4 +1,6 @@
-import { UserProfessionalDetail } from 'models';
+import { User, UserProfessionalDetail } from 'models';
+import httpStatus from 'http-status';
+import ApiError from '../utils/ApiError';
 
 export async function getUserProfessionalDetailById(id, options = {}) {
   const userProfessionalDetail = await UserProfessionalDetail.findById(id, options.projection, options);
@@ -21,8 +23,22 @@ export async function getUserProfessionalDetailListWithPagination(filter, option
 }
 
 export async function createUserProfessionalDetail(body = {}) {
-  const userProfessionalDetail = await UserProfessionalDetail.create(body);
-  return userProfessionalDetail;
+  if (body.userId) {
+    const userId = await User.findOne({ _id: body.userId });
+    if (!userId) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'field userId is not valid');
+    }
+  }
+  const findProfessional = await UserProfessionalDetail.find({ userId: body.userId });
+  let professional;
+  if (findProfessional.length) {
+    professional = await UserProfessionalDetail.findOneAndUpdate({ userId: body.userId }, body, {
+      new: true,
+    });
+  } else {
+    professional = await UserProfessionalDetail.create(body);
+  }
+  return professional;
 }
 
 export async function updateUserProfessionalDetail(filter, body, options = {}) {

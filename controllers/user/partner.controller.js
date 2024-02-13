@@ -22,18 +22,17 @@ export const listPartner = catchAsync(async (req, res) => {
 export const createPartner = catchAsync(async (req, res) => {
   const { body } = req;
   const { user } = req;
-
   const userId = req.user._id;
   const options = {};
-  const partner = await partnerservice.createPartner(
+  const userPartner = await partnerservice.createPartner(
     {
       userId,
       ...body,
     },
     options
   );
-  await userService.updateUser({ _id: user.id }, { partner });
-  return res.status(httpStatus.CREATED).send({ results: partner });
+  await userService.updateUser({ _id: user.id }, { userPartner });
+  return res.status(httpStatus.CREATED).send({ results: userPartner });
 });
 
 export const updatePartner = catchAsync(async (req, res) => {

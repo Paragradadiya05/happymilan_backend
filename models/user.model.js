@@ -233,7 +233,7 @@ const UserSchema = new mongoose.Schema(
     },
     partner: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'UserPartner',
+      ref: 'Partner',
     },
     address: {
       type: mongoose.Schema.Types.ObjectId,
@@ -242,6 +242,10 @@ const UserSchema = new mongoose.Schema(
     userEducation: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'UserEducation',
+    },
+    userProfessional: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'UserProfessionalDetail',
     },
 
     userProfilePic: [UserImagesSchema],

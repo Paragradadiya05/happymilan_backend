@@ -1,11 +1,11 @@
 import httpStatus from 'http-status';
-import { userProfessionalDetailService } from 'services';
+import { userProfessionalDetailService, userService } from 'services';
 import { catchAsync } from 'utils/catchAsync';
 
 export const getUserProfessionalDetail = catchAsync(async (req, res) => {
-  const { userProfessionalDetailId } = req.params;
+  const { userId } = req.params;
   const filter = {
-    _id: userProfessionalDetailId,
+    userId,
   };
   const options = {};
   const userProfessionalDetail = await userProfessionalDetailService.getOne(filter, options);
@@ -31,9 +31,12 @@ export const paginateUserProfessionalDetail = catchAsync(async (req, res) => {
 
 export const createUserProfessionalDetail = catchAsync(async (req, res) => {
   const { body } = req;
+  const { user } = req;
+  const userId = req.user._id;
   const options = {};
-  const userProfessionalDetail = await userProfessionalDetailService.createUserProfessionalDetail(body, options);
-  return res.status(httpStatus.CREATED).send({ results: userProfessionalDetail });
+  const userProfessional = await userProfessionalDetailService.createUserProfessionalDetail({ userId, ...body }, options);
+  await userService.updateUser({ _id: user.id }, { userProfessional });
+  return res.status(httpStatus.CREATED).send({ results: userProfessional });
 });
 
 export const updateUserProfessionalDetail = catchAsync(async (req, res) => {

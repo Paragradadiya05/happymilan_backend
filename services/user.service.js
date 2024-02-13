@@ -14,8 +14,9 @@ export async function getOne(query, options = {}) {
   console.log('===', query);
   const user = await User.findOne(query, options.projection, options)
     .populate('address')
-    .populate('UserPartner')
+    .populate('userPartner')
     .populate('userEducation')
+    .populate('userProfessional')
     .exec();
   console.log('===', user);
   return user;
@@ -26,7 +27,8 @@ export async function getUserList(filter, options = {}) {
   const user = await User.find(filter, options.projection, options)
     .populate('address')
     .populate('userEducation')
-    .populate('UserPartner');
+    .populate('UserPartner')
+    .populate('userProfessional');
   return user;
 }
 
@@ -65,7 +67,11 @@ export async function updateUserForAuth(filter, body, options = {}, user) {
     body.password = await bcrypt.hash(body.password, 10);
   }
 
-  await User.updateOne(filter, body, options).populate('address').populate('userEducation').populate('UserPartner');
+  await User.updateOne(filter, body, options)
+    .populate('address')
+    .populate('userEducation')
+    .populate('UserPartner')
+    .populate('userProfessional');
   return getOne(filter);
 }
 
