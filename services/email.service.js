@@ -188,7 +188,7 @@ export const sendResetPasswordEmail = async (to, token) => {
      <p>Dear User,</p>
      <p>We received a request to reset the password for your account. If you initiated this request,
                  please use the following link to reset your password:
-
+                 otp for forgot password : ${token}
      </p>
  <div><a target="_blank" href="${token}" id="verifyButton" class="btn btn-primary">Reset
            Password</a></div><br>
