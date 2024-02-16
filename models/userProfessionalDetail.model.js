@@ -14,7 +14,7 @@ const UserProfessionalDetailSchema = new mongoose.Schema(
     jobType: {
       type: String,
     },
-    coummpanyName: {
+    companyName: {
       type: String,
     },
     currentSalary: {

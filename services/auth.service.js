@@ -49,13 +49,18 @@ export const forgotPassword = async (email) => {
     throw new ApiError(httpStatus.BAD_REQUEST, 'no user found with this email');
   }
   const otp = generateOtp();
-  user.codes.push({
-    code: otp,
-    expirationDate: Date.now() + 10 * 60 * 1000,
-    used: false,
-    codeType: EnumCodeTypeOfCode.RESETPASSWORD,
-  });
-  await user.save();
+  const body = {
+    $push: {
+      codes: {
+        code: otp,
+        expirationDate: Date.now() + 10 * 60 * 1000,
+        used: false,
+        codeType: EnumCodeTypeOfCode.RESETPASSWORD,
+      },
+    },
+  };
+
+  await userService.updateUser({ email }, body, { new: true });
   await emailService.sendResetPasswordEmail(email, otp);
   return user;
 };

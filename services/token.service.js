@@ -130,13 +130,19 @@ export const verifyResetOtp = async (email, otp) => {
   if (!user) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'no user found with this email');
   }
-  // eslint-disable-next-line eqeqeq
-  const otpCode = _.find(user.codes, (code) => code.code == otp && code.codeType === EnumCodeTypeOfCode.RESETPASSWORD);
-  if (!otpCode || otpCode.expirationDate < Date.now()) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'otp is Invalid');
+
+  // Find the OTP code in the user's codes array
+  const otpCodeIndex = _.findIndex(
+    user.codes,
+    (code) => code.code === otp && code.codeType === EnumCodeTypeOfCode.RESETPASSWORD
+  );
+
+  if (otpCodeIndex === -1 || user.codes[otpCodeIndex].expirationDate < Date.now()) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'OTP is invalid');
   }
-  user.codes = _.filter(user.codes, (code) => code.code !== otp);
-  await user.save();
+  // Update the user document
+  await userService.updateUser({ email }, { $set: { codes: user.codes } });
+  // await user.save();
   return user;
 };
 
