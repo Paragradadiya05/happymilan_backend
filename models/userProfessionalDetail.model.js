@@ -26,9 +26,6 @@ const UserProfessionalDetailSchema = new mongoose.Schema(
     workCountry: {
       type: String,
     },
-    currentDesignation: {
-      type: String,
-    },
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );

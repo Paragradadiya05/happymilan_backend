@@ -11,7 +11,6 @@ export const createProfessionalDetail = {
     currentSalary: Joi.number(),
     workCity: Joi.string(),
     workCountry: Joi.string(),
-    currentDesignation: Joi.string(),
   }),
 };
 
@@ -24,7 +23,6 @@ export const updateProfessional = {
     currentSalary: Joi.number(),
     workCity: Joi.string(),
     workCountry: Joi.string(),
-    currentDesignation: Joi.string(),
   }),
   params: Joi.object().keys({
     userProfessionalDetailId: Joi.objectId().required(),
