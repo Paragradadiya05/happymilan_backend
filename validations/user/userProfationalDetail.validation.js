@@ -3,25 +3,43 @@ import Joi from 'joi';
 Joi.objectId = require('joi-objectid')(Joi);
 // Professional
 export const createProfessionalDetail = {
-  body: Joi.object().keys({}),
+  body: Joi.object().keys({
+    userId: Joi.objectId(),
+    jobTitle: Joi.string(),
+    jobType: Joi.string(),
+    companyName: Joi.string(),
+    currentSalary: Joi.number(),
+    workCity: Joi.string(),
+    workCountry: Joi.string(),
+    currentDesignation: Joi.string(),
+  }),
 };
 
 export const updateProfessional = {
-  body: Joi.object().keys({}),
+  body: Joi.object().keys({
+    userId: Joi.objectId(),
+    jobTitle: Joi.string(),
+    jobType: Joi.string(),
+    companyName: Joi.string(),
+    currentSalary: Joi.number(),
+    workCity: Joi.string(),
+    workCountry: Joi.string(),
+    currentDesignation: Joi.string(),
+  }),
   params: Joi.object().keys({
-    testId: Joi.objectId().required(),
+    userProfessionalDetailId: Joi.objectId().required(),
   }),
 };
 
 export const getProfessionalById = {
   params: Joi.object().keys({
-    testId: Joi.objectId().required(),
+    userId: Joi.objectId().required(),
   }),
 };
 
 export const deleteProfessionalById = {
   params: Joi.object().keys({
-    testId: Joi.objectId().required(),
+    userProfessionalDetailId: Joi.objectId().required(),
   }),
 };
 

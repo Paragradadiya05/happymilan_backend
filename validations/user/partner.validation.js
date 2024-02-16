@@ -49,7 +49,7 @@ export const updatePartnerpre = {
 
 export const getPartnerpreById = {
   params: Joi.object().keys({
-    PartnerId: Joi.objectId().required(),
+    userId: Joi.objectId().required(),
   }),
 };
 

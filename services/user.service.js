@@ -12,14 +12,23 @@ export async function getUserById(id, options = {}) {
 // todo:check populate in database
 export async function getOne(query, options = {}) {
   console.log('===', query);
-  const user = await User.findOne(query, options.projection, options).populate('address').exec();
+  const user = await User.findOne(query, options.projection, options)
+    .populate('address')
+    .populate('userPartner')
+    .populate('userEducation')
+    .populate('userProfessional')
+    .exec();
   console.log('===', user);
   return user;
 }
 
 export async function getUserList(filter, options = {}) {
   console.log('=== filtere ===', filter);
-  const user = await User.find(filter, options.projection, options).populate('address');
+  const user = await User.find(filter, options.projection, options)
+    .populate('address')
+    .populate('userEducation')
+    .populate('UserPartner')
+    .populate('userProfessional');
   return user;
 }
 
@@ -58,7 +67,11 @@ export async function updateUserForAuth(filter, body, options = {}, user) {
     body.password = await bcrypt.hash(body.password, 10);
   }
 
-  await User.updateOne(filter, body, options).populate('address');
+  await User.updateOne(filter, body, options)
+    .populate('address')
+    .populate('userEducation')
+    .populate('UserPartner')
+    .populate('userProfessional');
   return getOne(filter);
 }
 

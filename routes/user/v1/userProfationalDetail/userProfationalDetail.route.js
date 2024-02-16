@@ -2,6 +2,7 @@ import express from 'express';
 import { userProfationalDetailController } from 'controllers/user';
 import { userProfationalDetailValidation } from 'validations/user';
 import validate from 'middlewares/validate';
+import auth from '../../../../middlewares/auth';
 
 const router = express.Router();
 router
@@ -10,6 +11,7 @@ router
    * createUserProfessionalDetail
    * */
   .post(
+    auth(),
     validate(userProfationalDetailValidation.createProfessionalDetail),
     userProfationalDetailController.createUserProfessionalDetail
   )
@@ -17,6 +19,7 @@ router
    * getUserProfessionalDetail
    * */
   .get(
+    auth(),
     validate(userProfationalDetailValidation.getProfessional),
     userProfationalDetailController.listUserProfessionalDetail
   );
@@ -26,22 +29,28 @@ router
    * getUserProfessionalDetailPaginated
    * */
   .get(
+    auth(),
     validate(userProfationalDetailValidation.paginatedProfessional),
     userProfationalDetailController.paginateUserProfessionalDetail
   );
 router
-  .route('/:userProfessionalDetailId')
+  .route('/getbyid/:userId')
   /**
    * getUserProfessionalDetailById
    * */
   .get(
+    auth(),
     validate(userProfationalDetailValidation.getProfessionalById),
     userProfationalDetailController.getUserProfessionalDetail
-  )
+  );
+router
+  .route('/:userProfessionalDetailId')
+
   /**
    * updateUserProfessionalDetail
    * */
   .put(
+    auth(),
     validate(userProfationalDetailValidation.updateProfessional),
     userProfationalDetailController.updateUserProfessionalDetail
   )
@@ -49,6 +58,7 @@ router
    * deleteUserProfessionalDetailById
    * */
   .delete(
+    auth(),
     validate(userProfationalDetailValidation.deleteProfessionalById),
     userProfationalDetailController.removeUserProfessionalDetail
   );

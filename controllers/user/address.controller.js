@@ -1,5 +1,5 @@
 import httpStatus from 'http-status';
-import { addressService } from 'services';
+import { addressService, userService } from 'services';
 import { catchAsync } from 'utils/catchAsync';
 
 export const getAddress = catchAsync(async (req, res) => {
@@ -27,9 +27,11 @@ export const paginateAddress = catchAsync(async (req, res) => {
 });
 
 export const createAddress = catchAsync(async (req, res) => {
+  const { user } = req;
   const { body } = req;
   const userId = req.user._id;
   const options = {};
+
   const address = await addressService.createAddress(
     {
       userId,
@@ -37,6 +39,8 @@ export const createAddress = catchAsync(async (req, res) => {
     },
     options
   );
+
+  await userService.updateUser({ _id: user.id }, { address });
   return res.status(httpStatus.CREATED).send({ results: address });
 });
 

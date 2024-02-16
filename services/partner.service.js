@@ -1,4 +1,6 @@
-import { Partner } from '../models';
+import httpStatus from 'http-status';
+import { Partner, User } from '../models';
+import ApiError from '../utils/ApiError';
 
 export async function getOne(query, options = {}) {
   const userPartnerDetail = await Partner.findOne(query, options.projection, options);
@@ -16,8 +18,22 @@ export async function getPartnerListWithPagination(filter, options = {}) {
 }
 
 export async function createPartner(body = {}) {
-  const userPartnerDetail = await Partner.create(body);
-  return userPartnerDetail;
+  if (body.userId) {
+    const userId = await User.findOne({ _id: body.userId });
+    if (!userId) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'field userId is not valid');
+    }
+  }
+  const findPartner = await Partner.find({ userId: body.userId });
+  let partner;
+  if (findPartner.length) {
+    partner = await Partner.findOneAndUpdate({ userId: body.userId }, body, {
+      new: true,
+    });
+  } else {
+    partner = await Partner.create(body);
+  }
+  return partner;
 }
 
 export async function updatePartner(filter, body, options = {}) {
