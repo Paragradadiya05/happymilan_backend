@@ -6,6 +6,7 @@ export const preSignedPutUrl = {
   body: Joi.object().keys({
     key: Joi.string().required(),
     contentType: Joi.string().required(),
+    isProfilePic: Joi.boolean(),
   }),
 };
 

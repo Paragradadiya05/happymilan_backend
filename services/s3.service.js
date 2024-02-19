@@ -40,7 +40,7 @@ export const getSignedUrlPutObject = async (key, contentType, isPublic) => {
   return s3.getSignedUrlPromise('putObject', signedURL);
 };
 
-export const validateExtensionForPutObject = async (preSignedReq, user) => {
+export const validateExtensionForPutObject = async (preSignedReq, user, isProfilePic) => {
   const ssExtensionsContentType = allowedContentType.map((ele) => ele.mimeType);
   const ssExtensions = allowedContentType.map((ele) => ele.key);
   // this is the number of unwanted file that is not used in system but uploaded in server
@@ -72,7 +72,11 @@ export const validateExtensionForPutObject = async (preSignedReq, user) => {
   // here we are updating all image to the specific user
   await User.findByIdAndUpdate(
     user._id,
-    { $addToSet: { userProfilePic: { url: `${url.split('?')[0]}`, name: preSignedReq.key } } },
+    {
+      $addToSet: {
+        userProfilePic: { url: `${url.split('?')[0]}`, name: preSignedReq.key, ...(isProfilePic && { isProfilePic }) },
+      },
+    },
     { new: true } // To return the updated document
   );
   await tempS3.save();
