@@ -89,6 +89,7 @@ export const sendResetPasswordEmail = async (to, token) => {
     flex-shrink: 0;
     border-radius: 14px;
     border: 1px solid #E2E2E2;
+    margin-left: 420px;
     }
 
  #logo {
@@ -339,6 +340,7 @@ height: 406px;
 flex-shrink: 0;
 tborder-radius: 14px;
 tborder: 1px solid #E2E2E2;
+margin-left: 420px;
 }
 
 #logo{
@@ -438,11 +440,9 @@ gap: 20px;
 </style>
 </head>
 <body>
-<div>
-
 <div id="parrent">
 <div id="logo">
-<img src="../logo.svg" />
+<img src="../logo.svg" alt="logo"/>
 </div>
 <div id="content">
 <div>
@@ -507,6 +507,7 @@ export const sendCongratulationEmail = async (user) => {
    flex-shrink: 0;
    border-radius: 14px;
    border: 1px solid #E2E2E2;
+    margin-left: 420px;
    }
 
  #logo {
