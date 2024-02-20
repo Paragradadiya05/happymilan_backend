@@ -16,7 +16,7 @@ router.get(
   shortlistController.getShortlistByUser
 );
 router.delete(
-  '/delete-short-list/:userId',
+  '/delete-short-list/:id',
   auth(),
   validate(shortlistValidation.deleteShortlistByUser),
   shortlistController.deleteShortlistByUser

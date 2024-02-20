@@ -17,6 +17,6 @@ export const GetShortlistByUser = {
 };
 export const deleteShortlistByUser = {
   params: Joi.object().keys({
-    userId: Joi.objectId().required(),
+    id: Joi.objectId().required(),
   }),
 };

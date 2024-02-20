@@ -31,9 +31,9 @@ export const getshortlist = catchAsync(async (req, res) => {
 });
 
 export const deleteShortlistByUser = catchAsync(async (req, res) => {
-  const { userId } = req.params;
+  const { id } = req.params;
   const filter = {
-    userId,
+    _id: id,
   };
   const escalate = await shortlistervice.removeshotylist(filter);
   return res.status(httpStatus.OK).send({ results: escalate });
