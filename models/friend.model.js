@@ -14,18 +14,18 @@ const StatusHistorySchema = new mongoose.Schema({
   },
   initiatorUser: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Users',
+    ref: 'User',
   },
 });
 const FriendSchema = new mongoose.Schema(
   {
     friend: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Users',
+      ref: 'User',
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Users',
+      ref: 'User',
     },
     userBlock: {
       type: Boolean,
