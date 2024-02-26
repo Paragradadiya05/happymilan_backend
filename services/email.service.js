@@ -89,13 +89,16 @@ export const sendResetPasswordEmail = async (to, token) => {
     flex-shrink: 0;
     border-radius: 14px;
     border: 1px solid #E2E2E2;
-    margin-left: 420px;
+    margin-left: 210px;
     }
 
- #logo {
-   text-align: center;
-   padding-top: 30px;
-   }
+#logo img{
+align-items: center;
+margin-left: 280px;
+padding-top: 30px;
+height: 24px;
+width: 85px;
+}
 
  #content div {
     width: 622px;
@@ -182,7 +185,7 @@ export const sendResetPasswordEmail = async (to, token) => {
 
  <div id="parrent">
  <div id="logo">
-   <img src="./assests/logo.svg" />
+   <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/logoImage/logo.jpg" alt="logo"/>
  </div>
  <div id="content">
  <div>
@@ -340,12 +343,14 @@ height: 406px;
 flex-shrink: 0;
 tborder-radius: 14px;
 tborder: 1px solid #E2E2E2;
-margin-left: 420px;
+margin-left: 210px;
 }
-
-#logo{
-text-align: center;
+#logo img{
+align-items: center;
+margin-left: 280px;
 padding-top: 30px;
+height: 24px;
+width: 85px;
 }
 
 #content div{
@@ -375,6 +380,7 @@ font-size: 24px;
 font-style: normal;
 font-weight: 700;
 line-height: normal;
+
 }
 
 #footer-box{
@@ -442,14 +448,14 @@ gap: 20px;
 <body>
 <div id="parrent">
 <div id="logo">
-<img src="../logo.svg" alt="logo"/>
+<img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/logoImage/logo.jpg" alt="logo"/>
 </div>
 <div id="content">
 <div>
 <p>Dear User,${name}</p>
 <p>Thank you for using our services. To complete the verification process, please enter the
 following One-Time Password (OTP) on the verification page:</p>
-<h1 id="OTP-Text"> ${otp}</h1> <!--OTP Variable -->
+<h1 id="OTP-Text">Otp: <span>${otp}</span></h1>
 <p>Please do not share this OTP with anyone for security reasons</p>
 </div>
 </div>
@@ -507,14 +513,16 @@ export const sendCongratulationEmail = async (user) => {
    flex-shrink: 0;
    border-radius: 14px;
    border: 1px solid #E2E2E2;
-    margin-left: 420px;
+   margin-left: 210px;
    }
 
- #logo {
-   text-align: center;
-   padding-top: 30px;
- }
-
+#logo img{
+align-items: center;
+margin-left: 280px;
+padding-top: 30px;
+height: 24px;
+width: 85px;
+}
  #content div {
    width: 622px;
  }
@@ -597,7 +605,7 @@ export const sendCongratulationEmail = async (user) => {
  <div>
  <div id="parrent">
  <div id="logo">
-   <img src="./assests/logo.svg" />
+   <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/logoImage/logo.jpg" alt="logo"/>
  </div>
  <div id="content">
 <div>
