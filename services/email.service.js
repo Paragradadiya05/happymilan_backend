@@ -89,7 +89,8 @@ export const sendResetPasswordEmail = async (to, token) => {
     flex-shrink: 0;
     border-radius: 14px;
     border: 1px solid #E2E2E2;
-    margin-left: 210px;
+    justify-content: center;
+    align-items: center;
     }
 
 #logo img{
@@ -329,164 +330,159 @@ export const sendOtpVerificationEmail = async (user, otp) => {
   const { email: to, name } = user;
   const subject = 'Otp verification email!';
   const text = `
- <html>
- <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
+ <!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap">
- <title></title>
- <style type="text/css">
-#parrent{
-width: 700px;
-height: 406px;
-flex-shrink: 0;
-tborder-radius: 14px;
-tborder: 1px solid #E2E2E2;
-margin-left: 210px;
-}
-#logo img{
-align-items: center;
-margin-left: 280px;
-padding-top: 30px;
-height: 24px;
-width: 85px;
-}
+    <title></title>
+    <style type="text/css">
+        #parrent {
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+            border-radius: 14px;
+            border: 1px solid #E2E2E2;
+            justify-content: center;
+            align-items: center;
+        }
 
-#content div{
-width: 622px;
-}
+        #logo img {
+            display: block;
+            margin: 0 auto;
+            padding-top: 30px;
+            height: 24px;
+            width: 85px;
+        }
 
-#content div p{
-color: #000;
-font-family: Poppins;
-font-size: 14px;
-font-style: normal;
-font-weight: 400;
-line-height: normal;
-}
-#content{
-display: flex;
-justify-content: center;
-margin-top: 30px;
-}
-#OTP-Text{
-background: linear-gradient(97deg, #0F52BA 5.37%, #BA0FA9 20.06%);
-background-clip: text;
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
-font-family: Poppins;
-font-size: 24px;
-font-style: normal;
-font-weight: 700;
-line-height: normal;
+        #content div {
+            width: 100%;
+            padding: 0 20px;
+        }
 
-}
+        #content div p {
+            color: #000;
+            font-family: Poppins;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: normal;
+        }
 
-#footer-box{
-display: flex;
-justify-content: center;
-}
+        #content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 30px;
+        }
 
-#footer{
-width: 607px;
-height: 1px;
-border-top: 1px solid #E2E2E2;
-text-align: center;
-padding-top: 10px;
-margin-top: 30px;
+        #OTP-Text {
+            background: linear-gradient(97deg, #0F52BA 5.37%, #BA0FA9 20.06%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-family: Poppins;
+            font-size: 24px;
+            font-style: normal;
+            font-weight: 700;
+            line-height: normal;
+        }
 
-}
+        #footer-box {
+            display: flex;
+            justify-content: center;
+        }
 
-#footer-content{
-width: 600px;
-}
+        #footer {
+            width: 100%;
+            border-top: 1px solid #E2E2E2;
+            text-align: center;
+            padding-top: 10px;
+            margin-top: 30px;
+        }
 
+        #footer-content {
+            width: 100%;
+            padding: 0 20px;
+        }
 
-#footer div {
-display: flex;
-justify-content: space-between;
-}
-#footer div #ul-1{
-list-style-type: none;
-position: relative;
-left: -30px;
-}
+        #footer div {
+            display: flex;
+            flex-direction: column;
+        }
 
-#footer div #ul-1 li span{
-color: #000;
-font-family: Poppins;
-font-size: 10px;
-font-style: normal;
-font-weight: 400;
-line-height: normal;
-}
+        #footer div #ul-1,
+        #footer div #ul-2 {
+            list-style-type: none;
+            padding: 0;
+        }
 
-#footer div #ul-2 li span {
-color: #0F52BA;
-font-family: Poppins;
-font-size: 10px;
-font-style: normal;
-font-weight: 400;
-line-height: normal;
-}
+        #footer div #ul-1 li span,
+        #footer div #ul-2 li span {
+            color: #000;
+            font-family: Poppins;
+            font-size: 10px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: normal;
+        }
 
+        #footer div #ul-2 li {
+            display: flex;
+            gap: 20px;
+        }
+         @media only screen and (max-width: 600px) {
+            #parrent {
+                margin-left: 0;
+            }
+        }
+  
+        
+    </style>
 
-#footer div #ul-2 li {
-list-style-type: none;
-display: flex;
-gap: 20px;
-}
-
-#footer div #ul-2{
-display: flex;
-gap: 20px;
-}
-
-</style>
+       
 </head>
+
 <body>
-<div id="parrent">
-<div id="logo">
-<img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/logoImage/logo.jpg" alt="logo"/>
-</div>
-<div id="content">
-<div>
-<p>Dear User,${name}</p>
-<p>Thank you for using our services. To complete the verification process, please enter the
-following One-Time Password (OTP) on the verification page:</p>
-<h1 id="OTP-Text">Otp: <span>${otp}</span></h1>
-<p>Please do not share this OTP with anyone for security reasons</p>
-</div>
-</div>
-<div id="footer-box">
-<div id="footer">
-<div id="footer-content">
-<ul id="ul-1">
-<li>
-<span>Copyright 2023 MN Techgroup India</span>
-</li>
-</ul>
-<ul id="ul-2">
-<li>
-<span>Privacy Policy</span>
-</li>
-<li><span>Terms of Use</span></li>
-
-</ul>
-
-</div>
-</div>
-</div>
-
-</div>
-
-
-</div>
-
+    <div id="center">
+        <div id="parrent">
+            <div id="logo">
+                <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/logoImage/logo.jpg" alt="logo" />
+            </div>
+            <div id="content">
+                <div>
+                    <p>Dear User,${name}</p>
+                    <p>Thank you for using our services. To complete the verification process, please enter the
+                        following One-Time Password (OTP) on the verification page:</p>
+                    <h1 id="OTP-Text"> OTP:${otp}</h1>
+                    <!--OTP Variable -->
+                    <p>Please do not share this OTP with anyone for security reasons</p>
+                </div>
+            </div>
+            <div id="footer-box">
+                <div id="footer">
+                    <div id="footer-content">
+                        <ul id="ul-1">
+                            <li>
+                                <span>Copyright 2023 MN Techgroup India</span>
+                            </li>
+                        </ul>
+                        <ul id="ul-2">
+                            <li><span>Privacy Policy</span></li>
+                            <li><span>Terms of Use</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
+
 `;
   await sendEmail({ to, subject, text, isHtml: true })
     .then(() => logger.info('email sent successfully'))
@@ -507,13 +503,13 @@ export const sendCongratulationEmail = async (user) => {
 
 <title></title>
  <style type="text/css">
- #parrent {
+  #parrent {
    width: 700px;
    height: 406px;
    flex-shrink: 0;
    border-radius: 14px;
    border: 1px solid #E2E2E2;
-   margin-left: 210px;
+   margin-left: 410px;
    }
 
 #logo img{
