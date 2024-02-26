@@ -171,7 +171,8 @@ export const resetPasswordToken = catchAsync(async (req, res) => {
 });
 
 export const userInfo = catchAsync(async (req, res) => {
-  const user = await userService.getUserById(req.user._id);
+  const options = {};
+  const user = await userService.getUserById(req.user._id, options);
   res.status(httpStatus.OK).send({ results: { user } });
 });
 

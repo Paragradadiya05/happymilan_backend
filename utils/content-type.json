@@ -30,6 +30,11 @@
      "mimeType": "image/jpeg"
   },
   {
+    "key": "svg",
+    "extension": ".svg",
+    "mimeType": "image/svg+xml"
+  },
+  {
     "key": "ppt",
     "extension": ".ppt",
     "mimeType": "application/vnd.ms-powerpoint"

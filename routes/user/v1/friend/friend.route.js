@@ -16,7 +16,9 @@ router
    * */
   .get(auth(), validate(friendValidation.getFriend), friendController.listFriend);
 
-router.get('/get-frd-requests', auth(), friendController.getReuests);
+router.get('/get-frd-requests', auth(), friendController.getRequests);
+
+router.get('/get-frds', auth(), friendController.getMyFrdRequests);
 
 router.get('/get-block-list', auth(), friendController.getBlockList);
 
