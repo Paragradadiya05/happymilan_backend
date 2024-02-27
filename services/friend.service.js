@@ -52,7 +52,11 @@ export async function createFriend(body = {}) {
     ],
   });
 
-  if (getExistingFriendOrNot.status === EnumStatusOfFriend.REJECTED) {
+  if (
+    getExistingFriendOrNot &&
+    getExistingFriendOrNot.status &&
+    getExistingFriendOrNot.status === EnumStatusOfFriend.REJECTED
+  ) {
     getExistingFriendOrNot = await Friend.findOneAndUpdate(
       {
         $or: [
