@@ -16,7 +16,10 @@ export async function createlike(body = {}, user) {
   });
 }
 export async function getLike(filter, options = {}) {
-  const like = await Like.find(filter, options.projection, options);
+  const like = await Like.find(filter, options.projection, options)
+    .populate({ path: 'user', select: 'name' })
+    .populate({ path: 'likeId', select: 'name' })
+    .exec();
   return like;
 }
 export async function removeLike(filter) {

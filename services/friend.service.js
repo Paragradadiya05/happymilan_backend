@@ -134,12 +134,11 @@ export async function respondFriendRequest(request, status, user = {}) {
   if (!friendRequest) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'No such Friend Request');
   } else {
-    if (friendRequest.status === 'accepted') {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'You have already accepted this friend request');
+    if (friendRequest.status === status) {
+      throw new ApiError(httpStatus.BAD_REQUEST, `Friend request is already ${status}`);
     }
-    await Notification.create({ userId: user, body: `Request accepted` });
-    if (friendRequest.status === 'blocked') {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'You have already blocked this friend request');
+    if (status === 'accepted') {
+      await Notification.create({ userId: user, body: `Friend request accepted` });
     }
 
     return Friend.findByIdAndUpdate(request, {
