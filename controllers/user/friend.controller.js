@@ -28,8 +28,8 @@ export const paginateFriend = catchAsync(async (req, res) => {
 });
 
 export const createFriend = catchAsync(async (req, res) => {
-  const options = {};
-  const friend = await friendService.createFriend(req.body, options);
+  const { user } = req;
+  const friend = await friendService.createFriend(req.body, user);
   return res.status(httpStatus.OK).send({ results: friend });
 });
 

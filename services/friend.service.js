@@ -33,7 +33,7 @@ export async function getFriendListWithPagination(filter, options = {}) {
   return friend;
 }
 
-export async function createFriend(body = {}) {
+export async function createFriend(body = {}, user) {
   const userId = body.user.toString();
   const friend = body.friend.toString();
 
@@ -64,7 +64,10 @@ export async function createFriend(body = {}) {
           { friend: body.user, user: body.friend },
         ],
       },
-      { $set: { status: EnumStatusOfFriend.REQUESTED } },
+      {
+        $set: { status: EnumStatusOfFriend.REQUESTED, friend: body.friend, user: body.user, lastInitiatorUser: user },
+        $push: { statusHistory: { status: EnumStatusOfFriend.REQUESTED, initiatorUser: user } },
+      },
       { new: true }
     );
     await Notification.create({ userId: body.user, otherUserId: body.friend, body: 'Request sent' });
@@ -85,7 +88,11 @@ export async function createFriend(body = {}) {
   }
 
   await Notification.create({ userId: body.user, otherUserId: body.friend, body: 'Request sent' });
-  return Friend.create(body);
+  return Friend.create({
+    ...body,
+    lastInitiatorUser: user,
+    $push: { statusHistory: { status: EnumStatusOfFriend.REQUESTED, initiatorUser: user } },
+  });
 }
 
 export async function updateFriend(filter, body, options = {}) {

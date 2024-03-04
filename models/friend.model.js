@@ -44,6 +44,10 @@ const FriendSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    lastInitiatorUser: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
     statusHistory: {
       type: [StatusHistorySchema],
     },
