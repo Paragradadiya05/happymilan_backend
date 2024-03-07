@@ -1,7 +1,8 @@
 import httpStatus from 'http-status';
-import { userService } from 'services';
+import { friendService, userService } from 'services';
 import { catchAsync } from 'utils/catchAsync';
 import { pick } from '../../utils/pick';
+import { EnumStatusOfFriend } from '../../models/enum.model';
 
 export const get = catchAsync(async (req, res) => {
   const { userId } = req.params;
@@ -33,6 +34,35 @@ export const paginate = catchAsync(async (req, res) => {
   };
   const user = await userService.getUserListWithPagination(filter, options);
   return res.status(httpStatus.OK).send({ results: user });
+});
+
+export const paginatedUserThatNotFriend = catchAsync(async (req, res) => {
+  const { query } = req;
+  const { user } = req;
+  const sortingObj = pick(query, ['sort', 'order']);
+  const sortObj = {
+    [sortingObj.sort]: sortingObj.order,
+  };
+  const options = {
+    sort: sortObj,
+    ...pick(query, ['limit', 'page']),
+  };
+  const filter = {
+    status: EnumStatusOfFriend.ACCEPTED,
+    $or: [{ friend: user._id }, { user: user._id }],
+  };
+  const getFriend = await friendService.getFriendList(filter, options);
+  const friendUserIds = getFriend.map((friend) => {
+    if (friend.user.toString() !== user._id) {
+      return friend.user;
+    }
+    return friend.friend;
+  });
+  const userData = await userService.getUserListWithPagination(
+    { _id: { $nin: friendUserIds.map((data) => data._id) } },
+    options
+  );
+  return res.status(httpStatus.OK).send({ results: userData });
 });
 
 export const create = catchAsync(async (req, res) => {

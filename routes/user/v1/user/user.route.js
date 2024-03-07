@@ -2,6 +2,7 @@ import express from 'express';
 import { userController } from 'controllers/user';
 import { userValidation } from 'validations/user';
 import validate from 'middlewares/validate';
+import auth from 'middlewares/auth';
 
 const router = express.Router();
 router
@@ -14,6 +15,14 @@ router
    * getUser
    * */
   .get(validate(userValidation.getUser), userController.list);
+
+router
+  .route('/users-not-frd')
+  /**
+   * getUserPaginated
+   * */
+  .get(auth(), validate(userValidation.paginatedUserThatNotFriend), userController.paginatedUserThatNotFriend);
+
 router
   .route('/paginated')
   /**

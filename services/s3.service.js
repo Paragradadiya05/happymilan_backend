@@ -73,6 +73,7 @@ export const validateExtensionForPutObject = async (preSignedReq, user, isProfil
   await User.findByIdAndUpdate(
     user._id,
     {
+      profilePic: `${url.split('?')[0]}`,
       $addToSet: {
         userProfilePic: { url: `${url.split('?')[0]}`, name: preSignedReq.key, ...(isProfilePic && { isProfilePic }) },
       },

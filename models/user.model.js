@@ -247,7 +247,9 @@ const UserSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'UserProfessionalDetail',
     },
-
+    profilePic: {
+      type: String,
+    },
     userProfilePic: [UserImagesSchema],
   },
 
