@@ -54,7 +54,7 @@ const UserImagesSchema = new mongoose.Schema(
       type: String,
     },
     isProfilePic: {
-      type: String,
+      type: Boolean,
     },
   },
   { timestamps: { createdAt: true, updatedAt: true } }

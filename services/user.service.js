@@ -47,11 +47,22 @@ export async function createUser(body) {
 
 export async function updateUser(filter, body, options = {}) {
   const userData = await getOne(filter, {});
+  const { profilePic } = body.profilePic;
+
   if (!userData) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'user not found');
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   }
+
   if (body.email && (await User.isEmailTaken(body.email, userData.id))) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
+  }
+  if (profilePic) {
+    // Update userProfilePic array and set isProfilePic to true for the matching URL
+    // eslint-disable-next-line no-param-reassign
+    body.userProfilePic = body.userProfilePic.map((image) => ({
+      ...image,
+      isProfilePic: image.url === profilePic ? true : image.isProfilePic || false,
+    }));
   }
   const user = await User.findOneAndUpdate(filter, body, options);
   return user;

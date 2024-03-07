@@ -25,6 +25,11 @@ const githubProviderEmbed = Joi.object().keys({
   id: Joi.string(),
   token: Joi.string(),
 });
+const UserImagesSchema = Joi.object().keys({
+  url: Joi.string(),
+  name: Joi.string(),
+  isProfilePic: Joi.boolean(),
+});
 export const createUser = {
   body: Joi.object().keys({
     name: Joi.string(),
@@ -50,6 +55,8 @@ export const updateUser = {
     googleProvider: googleProviderEmbed,
     appleProvider: appleProviderEmbed,
     githubProvider: githubProviderEmbed,
+    profilePic: Joi.string(),
+    userProfilePic: UserImagesSchema,
   }),
   params: Joi.object().keys({
     userId: Joi.objectId().required(),

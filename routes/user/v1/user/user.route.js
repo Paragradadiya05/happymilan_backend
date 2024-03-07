@@ -15,7 +15,6 @@ router
    * getUser
    * */
   .get(validate(userValidation.getUser), userController.list);
-
 router
   .route('/users-not-frd')
   /**
@@ -43,4 +42,5 @@ router
    * getUserById
    * */
   .get(validate(userValidation.getUserById), userController.get);
+
 export default router;
