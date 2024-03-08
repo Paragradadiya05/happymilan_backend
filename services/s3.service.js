@@ -73,9 +73,9 @@ export const validateExtensionForPutObject = async (preSignedReq, user, isProfil
   await User.findByIdAndUpdate(
     user._id,
     {
-      profilePic: `${url.split('?')[0]}`,
+      ...(isProfilePic && { profilePic: `${url.split('?')[0]}` }),
       $addToSet: {
-        userProfilePic: { url: `${url.split('?')[0]}`, name: preSignedReq.key, ...(isProfilePic && { isProfilePic }) },
+        userProfilePic: { url: `${url.split('?')[0]}`, name: preSignedReq.key },
       },
     },
     { new: true } // To return the updated document
