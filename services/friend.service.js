@@ -149,7 +149,7 @@ export async function respondFriendRequest(request, status, user = {}) {
     }
 
     return Friend.findByIdAndUpdate(request, {
-      $set: { status },
+      $set: { status, lastInitiatorUser: user },
       $push: { statusHistory: { status, initiatorUser: user } },
     });
   }
