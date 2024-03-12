@@ -300,13 +300,17 @@ UserSchema.pre('findOneAndUpdate', async function (next) {
 UserSchema.post(
   ['find', 'findOne', 'findOneAndDelete', 'findOneAndRemove', 'update', 'updateOne', 'updateMany'],
   function (result, next) {
-    // eslint-disable-next-line no-param-reassign
-    result.userProfilePic = result.userProfilePic.filter((doc) => !doc.isDeleted);
+    if (result.userProfilePic && result.userProfilePic.length) {
+      // eslint-disable-next-line no-param-reassign
+      result.userProfilePic = result.userProfilePic.filter((doc) => !doc.isDeleted);
+    }
 
     // If you want to include deleted images, you can use a flag 'includeDeleted'
     if (!this._mongooseOptions.includeDeleted) {
-      // eslint-disable-next-line no-param-reassign
-      result.userProfilePic = result.userProfilePic.filter((doc) => !doc.deleted);
+      if (result.userProfilePic && result.userProfilePic.length) {
+        // eslint-disable-next-line no-param-reassign
+        result.userProfilePic = result.userProfilePic.filter((doc) => !doc.deleted);
+      }
     }
 
     next(null, result);

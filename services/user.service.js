@@ -11,14 +11,12 @@ export async function getUserById(id, options = {}) {
 }
 // todo:check populate in database
 export async function getOne(query, options = {}) {
-  console.log('===', query);
   const user = await User.findOne(query, options.projection, options)
     .populate('address')
     .populate('userPartner')
     .populate('userEducation')
     .populate('userProfessional')
     .exec();
-  console.log('===', user);
   return user;
 }
 
