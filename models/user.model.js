@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import mongoosePaginateV2 from 'mongoose-paginate-v2';
-import { toJSON } from 'models/plugins';
+import { softDelete, toJSON } from 'models/plugins';
 import enumModel from 'models/enum.model';
 import bcrypt from 'bcryptjs';
 
@@ -53,6 +53,8 @@ const UserImagesSchema = new mongoose.Schema(
     name: {
       type: String,
     },
+    isDeleted: Boolean,
+    deleted: Boolean,
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );
@@ -254,6 +256,13 @@ const UserSchema = new mongoose.Schema(
 );
 UserSchema.plugin(toJSON);
 UserSchema.plugin(mongoosePaginateV2);
+UserImagesSchema.plugin(softDelete, {
+  isSoftDeleteAddon: true,
+  overrideMethods: 'all',
+  deleted: 'isDeleted',
+  deletedBy: 'deletedBy',
+  deletedAt: 'deletedAt',
+});
 /**
  * Check if email is taken
  * @param {string} email - The user's email
@@ -287,5 +296,22 @@ UserSchema.pre('findOneAndUpdate', async function (next) {
   }
   next();
 });
+
+UserSchema.post(
+  ['find', 'findOne', 'findOneAndDelete', 'findOneAndRemove', 'update', 'updateOne', 'updateMany'],
+  function (result, next) {
+    // eslint-disable-next-line no-param-reassign
+    result.userProfilePic = result.userProfilePic.filter((doc) => !doc.isDeleted);
+
+    // If you want to include deleted images, you can use a flag 'includeDeleted'
+    if (!this._mongooseOptions.includeDeleted) {
+      // eslint-disable-next-line no-param-reassign
+      result.userProfilePic = result.userProfilePic.filter((doc) => !doc.deleted);
+    }
+
+    next(null, result);
+  }
+);
+
 const UserModel = mongoose.models.User || mongoose.model('User', UserSchema, 'User');
 module.exports = UserModel;

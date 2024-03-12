@@ -34,7 +34,15 @@ router
   /**
    * updateUser
    * */
-  .put(validate(userValidation.updateUser), userController.update)
+  .put(validate(userValidation.updateUser), userController.update);
+
+router
+  .route('/delete-profile-image/:userId')
+  /**
+   * updateUser
+   * */
+  .post(validate(userValidation.deleteUserImages), userController.deleteUserImage)
+
   /**
    * deleteUserById
    * */

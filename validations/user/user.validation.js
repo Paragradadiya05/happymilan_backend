@@ -56,6 +56,16 @@ export const updateUser = {
   }),
 };
 
+export const deleteUserImages = {
+  body: Joi.object().keys({
+    profileImageUrl: Joi.string().required(),
+    name: Joi.string().required(),
+  }),
+  params: Joi.object().keys({
+    userId: Joi.objectId().required(),
+  }),
+};
+
 export const getUserById = {
   params: Joi.object().keys({
     userId: Joi.objectId().required(),
