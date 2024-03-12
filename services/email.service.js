@@ -83,102 +83,136 @@ export const sendResetPasswordEmail = async (to, token) => {
     box-shadow: none;
     text-decoration: none;
     }
- #parrent {
-    width: 700px;
-    height: 406px;
-    flex-shrink: 0;
-    border-radius: 14px;
-    border: 1px solid #E2E2E2;
-    justify-content: center;
-    align-items: center;
-    }
+   
+        #parrent {
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+            border-radius: 14px;
+            border: 1px solid #E2E2E2;
+            justify-content: center;
+            align-items: center;
+        }
 
-#logo img{
-align-items: center;
-margin-left: 280px;
-padding-top: 30px;
-height: 24px;
-width: 85px;
-}
+        #logo img {
+            align-items: center;
+            margin-left: 280px;
+            padding-top: 30px;
+            height: 24px;
+            width: 85px;
+        }
 
- #content div {
-    width: 622px;
-    }
+        #content div {
+            width: 622px;
+        }
 
- #content div p {
-    color: #000;
-    font-family: Poppins;
-    font-size: 14px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
-    }
+        #content div p {
+            color: #000;
+            font-family: Poppins;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: normal;
+        }
 
- #content {
-    display: flex;
-    justify-content: center;
-    margin-top: 30px;
-    }
+        #content {
+            margin-left: 40px;
+            margin-top: 30px;
+        }
 
- #footer-box {
-     display: flex;
-     justify-content: center;
- }
+        #OTP-Text {
+            background: linear-gradient(97deg, #0F52BA 5.37%, #BA0FA9 20.06%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-family: Poppins;
+            font-size: 24px;
+            font-style: normal;
+            font-weight: 700;
+            line-height: normal;
+        }
 
- #footer {
-     width: 607px;
-     height: 1px;
-     border-top: 1px solid #E2E2E2;
-     text-align: center;
-     padding-top: 10px;
-     margin-top: 30px;
- }
+        #footer-box {
+            display: flex;
+            justify-content: center;
+        }
 
-  #footer-content {
-        width: 600px;
-          }
+        #footer {
+            width: 607px;
+            height: 60px;
+            border-top: 1px solid #E2E2E2;
+            text-align: center;
+            padding-top: 10px;
+            margin-top: 30px;
 
+        }
 
-  #footer div {
-      display: flex;
-      justify-content: space-between;
-  }
-
-  #footer div #ul-1 {
-      list-style-type: none;
-      position: relative;
-      left: -30px;
-  }
-
-  #footer div #ul-1 li span {
-      color: #000;
-      font-family: Poppins;
-      font-size: 10px;
-      font-style: normal;
-      font-weight: 400;
-      line-height: normal;
-  }
-
-  #footer div #ul-2 li span {
-      color: #0F52BA;
-      font-family: Poppins;
-      font-size: 10px;
-      font-style: normal;
-      font-weight: 400;
-      line-height: normal;
-  }
+        #footer-content {
+            width: 600px;
+        }
 
 
-  #footer div #ul-2 li {
-      list-style-type: none;
-      display: flex;
-      gap: 20px;
-  }
+        #footer div {
+            display: flex;
+            justify-content: space-between;
+        }
 
-   #footer div #ul-2 {
-       display: flex;
-       gap: 20px;
-   }
+        #footer div #ul-1 {
+            list-style-type: none;
+            position: relative;
+            left: -30px;
+        }
+
+        #footer div #ul-1 li span {
+            color: #000;
+            font-family: Poppins;
+            font-size: 10px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: normal;
+        }
+
+        #footer div #ul-2 li span {
+            color: #0F52BA;
+            font-family: Poppins;
+            font-size: 10px;
+            font-style: normal;
+            font-weight: 900;
+            line-height: normal;
+        }
+
+
+        #footer div #ul-2 li {
+            list-style-type: none;
+            display: flex;
+            gap: 20px;
+        }
+
+        #footer div #ul-2 {
+            display: flex;
+            gap: 40px;
+            justify-content: space-between;
+        }
+
+        @media only screen and (max-width: 600px) {
+            #parrent {
+                margin-left: 0;
+            }
+
+            #footer-content {
+                width: 350px;
+            }
+
+            #logo img {
+                align-items: center;
+                margin-left: 270px;
+                padding-top: 30px;
+                height: 24px;
+                width: 85px;
+            }
+
+        }
+    </style>
 </style>
 </head>
 <body>
@@ -186,7 +220,7 @@ width: 85px;
 
  <div id="parrent">
  <div id="logo">
-   <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/logoImage/logo.jpg" alt="logo"/>
+   <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/users/65e991ad15835e46f0861b8b/65eff3406145b642700c32ba/logo.jpg" alt="logo"/>
  </div>
  <div id="content">
  <div>
@@ -476,7 +510,7 @@ export const sendOtpVerificationEmail = async (user, otp) => {
 <body>
     <div id="parrent">
         <div id="logo">
-            <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/logoImage/logo.jpg" alt="logo" />
+            <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/users/65e991ad15835e46f0861b8b/65eff3406145b642700c32ba/logo.jpg" alt="logo" />
         </div>
         <div id="content">
             <div>
@@ -535,106 +569,142 @@ export const sendCongratulationEmail = async (user) => {
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap">
 
 <title></title>
- <style type="text/css">
-  #parrent {
-   width: 700px;
-   height: 406px;
-   flex-shrink: 0;
-   border-radius: 14px;
-   border: 1px solid #E2E2E2;
-   margin-left: 410px;
-   }
+   <style type="text/css">
+        #parrent {
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+            border-radius: 14px;
+            border: 1px solid #E2E2E2;
+            justify-content: center;
+            align-items: center;
+        }
 
-#logo img{
-align-items: center;
-margin-left: 280px;
-padding-top: 30px;
-height: 24px;
-width: 85px;
-}
- #content div {
-   width: 622px;
- }
+        #logo img {
+            align-items: center;
+            margin-left: 280px;
+            padding-top: 30px;
+            height: 24px;
+            width: 85px;
+        }
 
-  #content div p {
-   color: #000;
-   font-family: Poppins;
-   font-size: 14px;
-   font-style: normal;
-   font-weight: 400;
-   line-height: normal;
-  }
+        #content div {
+            width: 622px;
+        }
 
-  #content {
-    display: flex;
-    justify-content: center;
-    margin-top: 30px;
-  }
+        #content div p {
+            color: #000;
+            font-family: Poppins;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: normal;
+        }
 
-  #footer-box {
-   display: flex;
-   justify-content: center;
-  }  
+        #content {
+            margin-left: 40px;
+            margin-top: 30px;
+        }
 
-  #footer {
-    width: 607px;
-    height: 1px;
-    border-top: 1px solid #E2E2E2;
-    text-align: center;
-    padding-top: 10px;
-    margin-top: 30px;
-  }
-  #footer-content {
-     width: 600px;
-    }
+        #OTP-Text {
+            background: linear-gradient(97deg, #0F52BA 5.37%, #BA0FA9 20.06%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-family: Poppins;
+            font-size: 24px;
+            font-style: normal;
+            font-weight: 700;
+            line-height: normal;
+        }
 
-  #footer div {
-    display: flex;
-    justify-content: space-between;
-  }
+        #footer-box {
+            display: flex;
+            justify-content: center;
+        }
 
-  #footer div #ul-1 {
-    list-style-type: none;
-    position: relative;
-    left: -30px;
-  }
+        #footer {
+            width: 607px;
+            height: 60px;
+            border-top: 1px solid #E2E2E2;
+            text-align: center;
+            padding-top: 10px;
+            margin-top: 30px;
 
-  #footer div #ul-1 li span {
-     color: #000;
-     font-family: Poppins;
-     font-size: 10px;
-     font-style: normal;
-     font-weight: 400;
-     line-height: normal;
-  }
+        }
 
-   #footer div #ul-2 li span {
-      color: #0F52BA;
-      font-family: Poppins;
-      font-size: 10px;
-      font-style: normal;
-      font-weight: 400;
-      line-height: normal;
-   }
+        #footer-content {
+            width: 600px;
+        }
 
 
-   #footer div #ul-2 li {
-       list-style-type: none;
-       display: flex;
-       gap: 20px;
-   }
+        #footer div {
+            display: flex;
+            justify-content: space-between;
+        }
 
-   #footer div #ul-2 {
-       display: flex;
-       gap: 20px;
-   }
-</style>
+        #footer div #ul-1 {
+            list-style-type: none;
+            position: relative;
+            left: -30px;
+        }
+
+        #footer div #ul-1 li span {
+            color: #000;
+            font-family: Poppins;
+            font-size: 10px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: normal;
+        }
+
+        #footer div #ul-2 li span {
+            color: #0F52BA;
+            font-family: Poppins;
+            font-size: 10px;
+            font-style: normal;
+            font-weight: 900;
+            line-height: normal;
+        }
+
+
+        #footer div #ul-2 li {
+            list-style-type: none;
+            display: flex;
+            gap: 20px;
+        }
+
+        #footer div #ul-2 {
+            display: flex;
+            gap: 40px;
+            justify-content: space-between;
+        }
+
+        @media only screen and (max-width: 600px) {
+            #parrent {
+                margin-left: 0;
+            }
+
+            #footer-content {
+                width: 350px;
+            }
+
+            #logo img {
+                align-items: center;
+                margin-left: 270px;
+                padding-top: 30px;
+                height: 24px;
+                width: 85px;
+            }
+
+        }
+    </style>
 </head>
 <body>
  <div>
  <div id="parrent">
  <div id="logo">
-   <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/logoImage/logo.jpg" alt="logo"/>
+   <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/users/65e991ad15835e46f0861b8b/65eff3406145b642700c32ba/logo.jpg" alt="logo"/>
  </div>
  <div id="content">
 <div>
