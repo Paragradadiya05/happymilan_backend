@@ -14,21 +14,28 @@ export const createAddress = {
 };
 
 export const updateAddress = {
-  body: Joi.object().keys({}),
+  body: Joi.object().keys({
+    currentResidenceAddress: Joi.string(),
+    currentCity: Joi.string(),
+    currentCountry: Joi.string(),
+    originResidenceAddress: Joi.string(),
+    originCity: Joi.string(),
+    originCountry: Joi.string(),
+  }),
   params: Joi.object().keys({
-    testId: Joi.objectId().required(),
+    addressId: Joi.objectId().required(),
   }),
 };
 
 export const getAddressById = {
   params: Joi.object().keys({
-    testId: Joi.objectId().required(),
+    addressId: Joi.objectId().required(),
   }),
 };
 
 export const deleteAddressById = {
   params: Joi.object().keys({
-    testId: Joi.objectId().required(),
+    addressId: Joi.objectId().required(),
   }),
 };
 
