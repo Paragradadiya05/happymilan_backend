@@ -39,7 +39,6 @@ io.use(initSubscription).on('connection', function (socket) {
       from,
       to: { $in: [getUserToSendMessage._id] },
     });
-
     socket.emit('message', {
       from,
       to,

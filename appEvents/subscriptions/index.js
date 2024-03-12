@@ -25,10 +25,10 @@ module.exports = {
         if (user) {
           // TODO: Add the user Session Init Code he if you have any condition on connection
           // eslint-disable-next-line no-param-reassign
-          socket.user = { _id: user._id };
+          socket.user = user._id;
           // eslint-disable-next-line no-param-reassign
           socket.startedAt = new Date();
-          socket.join(`user.${decoded.sub}`);
+          socket.join(`${decoded.sub}`);
           socket.on('disconnect', function () {
             // TODO: Add the User Disconnect Cleanup Code here
           });
