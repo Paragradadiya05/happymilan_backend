@@ -98,8 +98,8 @@ export const sendResetPasswordEmail = async (to, token) => {
             align-items: center;
             margin-left: 280px;
             padding-top: 30px;
-            height: 24px;
-            width: 85px;
+            height: 32px;
+            width: 130px;
         }
 
         #content div {
@@ -111,7 +111,7 @@ export const sendResetPasswordEmail = async (to, token) => {
             font-family: Poppins;
             font-size: 14px;
             font-style: normal;
-            font-weight: 400;
+            /*font-weight: 400;*/
             line-height: normal;
         }
 
@@ -168,7 +168,7 @@ export const sendResetPasswordEmail = async (to, token) => {
             font-family: Poppins;
             font-size: 10px;
             font-style: normal;
-            font-weight: 400;
+            /*font-weight: 400;*/
             line-height: normal;
         }
 
@@ -177,7 +177,7 @@ export const sendResetPasswordEmail = async (to, token) => {
             font-family: Poppins;
             font-size: 10px;
             font-style: normal;
-            font-weight: 900;
+            /*font-weight: 900;*/
             line-height: normal;
         }
 
@@ -207,8 +207,8 @@ export const sendResetPasswordEmail = async (to, token) => {
                 align-items: center;
                 margin-left: 270px;
                 padding-top: 30px;
-                height: 24px;
-                width: 85px;
+                height: 32px;
+                width: 130px;
             }
 
         }
@@ -387,8 +387,8 @@ export const sendOtpVerificationEmail = async (user, otp) => {
             align-items: center;
             margin-left: 280px;
             padding-top: 30px;
-            height: 24px;
-            width: 85px;
+            height: 32px;
+            width: 130px;
         }
 
         #content div {
@@ -400,7 +400,7 @@ export const sendOtpVerificationEmail = async (user, otp) => {
             font-family: Poppins;
             font-size: 14px;
             font-style: normal;
-            font-weight: 400;
+            /*font-weight: 400;*/
             line-height: normal;
         }
 
@@ -496,8 +496,8 @@ export const sendOtpVerificationEmail = async (user, otp) => {
                 align-items: center;
                 margin-left: 270px;
                 padding-top: 30px;
-                height: 24px;
-                width: 85px;
+                height: 32px;
+                width: 130px;
             }
 
         }
@@ -514,7 +514,7 @@ export const sendOtpVerificationEmail = async (user, otp) => {
         </div>
         <div id="content">
             <div>
-                <p>Dear User,${name}</p>
+                <p>Dear,${name}</p>
                 <p>Thank you for using our services. To complete the verification process, please enter the
                     following One-Time Password (OTP) on the verification page:</p>
                 <h1 id="OTP-Text"> ${otp}</h1> <!--OTP Variable -->
@@ -584,8 +584,8 @@ export const sendCongratulationEmail = async (user) => {
             align-items: center;
             margin-left: 280px;
             padding-top: 30px;
-            height: 24px;
-            width: 85px;
+            height: 32px;
+            width: 130px;
         }
 
         #content div {
@@ -597,7 +597,7 @@ export const sendCongratulationEmail = async (user) => {
             font-family: Poppins;
             font-size: 14px;
             font-style: normal;
-            font-weight: 400;
+            /*font-weight: 400;*/
             line-height: normal;
         }
 
@@ -614,7 +614,7 @@ export const sendCongratulationEmail = async (user) => {
             font-family: Poppins;
             font-size: 24px;
             font-style: normal;
-            font-weight: 700;
+            /*font-weight: 700;*/
             line-height: normal;
         }
 
@@ -654,7 +654,7 @@ export const sendCongratulationEmail = async (user) => {
             font-family: Poppins;
             font-size: 10px;
             font-style: normal;
-            font-weight: 400;
+            /*font-weight: 400;*/
             line-height: normal;
         }
 
@@ -663,7 +663,7 @@ export const sendCongratulationEmail = async (user) => {
             font-family: Poppins;
             font-size: 10px;
             font-style: normal;
-            font-weight: 900;
+            /*font-weight: 900;*/
             line-height: normal;
         }
 
@@ -693,8 +693,8 @@ export const sendCongratulationEmail = async (user) => {
                 align-items: center;
                 margin-left: 270px;
                 padding-top: 30px;
-                height: 24px;
-                width: 85px;
+                height: 32px;
+                width: 130px;
             }
 
         }
@@ -708,7 +708,7 @@ export const sendCongratulationEmail = async (user) => {
  </div>
  <div id="content">
 <div>
-  <p>Dear User,${name}</p>
+  <p>Dear,${name}</p>
   <p>Welcome to HappyMilan! We are thrilled to have you as a part of our community. Congratulations on successfully registering your account.
   </p>
                  
