@@ -92,6 +92,18 @@ export const getMyFrdRequests = catchAsync(async (req, res) => {
   const user = await friendService.getFriendList(filter, options);
   return res.status(httpStatus.OK).send({ results: user });
 });
+
+export const getRejectedFrdRequests = catchAsync(async (req, res) => {
+  const userId = req.user._id;
+  const filter = {
+    status: EnumStatusOfFriend.REJECTED,
+    $or: [{ friend: userId }, { user: userId }],
+  };
+  const options = {};
+  const user = await friendService.getFriendList(filter, options);
+  return res.status(httpStatus.OK).send({ results: user });
+});
+
 export const getRequestedFriend = catchAsync(async (req, res) => {
   const userId = req.user._id;
   const filter = {
