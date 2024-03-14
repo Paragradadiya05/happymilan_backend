@@ -16,7 +16,8 @@
     "lint": "eslint node-setup",
     "lint:fix": "eslint node-setup --fix",
     "prettier": "prettier --check **/*.js",
-    "prettier:fix": "prettier --write **/*.js"
+    "prettier:fix": "prettier --write **/*.js",
+    "update-stage": "npm run build && pm2 restart app"
   },
   "dependencies": {
     "aws-sdk": "^2.936.0",
