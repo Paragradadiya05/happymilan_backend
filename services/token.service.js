@@ -134,9 +134,8 @@ export const verifyResetOtp = async (email, otp) => {
   // Find the OTP code in the user's codes array
   const otpCodeIndex = _.findIndex(
     user.codes,
-    (code) => code.code === otp && code.codeType === EnumCodeTypeOfCode.RESETPASSWORD
+    (code) => code.code === otp.toString() && code.codeType === EnumCodeTypeOfCode.RESETPASSWORD
   );
-
   if (otpCodeIndex === -1 || user.codes[otpCodeIndex].expirationDate < Date.now()) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'OTP is invalid');
   }
