@@ -55,7 +55,7 @@ export async function createFriend(body = {}, user) {
   if (
     getExistingFriendOrNot &&
     getExistingFriendOrNot.status &&
-    getExistingFriendOrNot.status === EnumStatusOfFriend.REJECTED
+    [EnumStatusOfFriend.REJECTED, EnumStatusOfFriend.REMOVED].includes(getExistingFriendOrNot.status)
   ) {
     getExistingFriendOrNot = await Friend.findOneAndUpdate(
       {
