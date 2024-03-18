@@ -13,10 +13,10 @@ router.post(
 );
 
 router.get(
-  '/getprofileviewer/:userId',
+  '/get-profile-viewer/:userId',
   auth(),
   validate(profileviewerValidation.GetProfileviwer),
-  pofileviewerController.getprofileviewer
+  pofileviewerController.getProfileViewer
 );
 
 module.exports = router;

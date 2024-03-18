@@ -6,6 +6,6 @@ import validate from '../../../../middlewares/validate';
 
 const router = express();
 
-router.get('/getbyage', auth(), validate(searchValidation.searchAge), searchController.getByAge);
+router.post('/search-user', auth(), validate(searchValidation.searchUser), searchController.searchUser);
 
 module.exports = router;

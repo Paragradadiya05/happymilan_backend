@@ -21,12 +21,37 @@ export async function getOne(query, options = {}) {
 }
 
 export async function getUserList(filter, options = {}) {
-  console.log('=== filtere ===', filter);
   const user = await User.find(filter, options.projection, options)
     .populate('address')
     .populate('userEducation')
     .populate('UserPartner')
-    .populate('userProfessional');
+    .populate('userProfessional')
+    .populate({
+      path: 'address',
+      select: 'currentCountry',
+    });
+  return user;
+}
+
+export async function getUserListForSearch(filter, currentCountry) {
+  const user = await User.find(filter)
+    .populate([
+      {
+        path: 'address',
+        ...(currentCountry && currentCountry.length > 0 && { match: { currentCity: { $in: currentCountry } } }),
+        // Specify the current city you want to query for
+      },
+      {
+        path: 'userEducation',
+      },
+      {
+        path: 'UserPartner',
+      },
+      {
+        path: 'userProfessional',
+      },
+    ])
+    .exec();
   return user;
 }
 

@@ -27,5 +27,5 @@ ProfileViewerSchema.plugin(softDelete, {
   deletedAt: 'deletedAt',
 });
 
-const Profileviwe = mongoose.models.profileviwe || mongoose.model('Profileviwe', ProfileViewerSchema);
-module.exports = Profileviwe;
+const ProfileView = mongoose.models.profileviwe || mongoose.model('ProfileView', ProfileViewerSchema);
+module.exports = ProfileView;

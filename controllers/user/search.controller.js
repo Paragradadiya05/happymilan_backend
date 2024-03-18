@@ -3,8 +3,9 @@ import { catchAsync } from '../../utils/catchAsync';
 import { userService } from '../../services';
 import enumModel from '../../models/enum.model';
 
-export const getByAge = catchAsync(async (req, res) => {
-  const { minAge, maxAge, maritalStatus, religion, community, motherTongue, height, currentCountry } = req.body;
+export const searchUser = catchAsync(async (req, res) => {
+  const { minAge, maxAge, maritalStatus, religion, community, motherTongue, minHeight, maxHeight, currentCountry } =
+    req.body;
   if (maritalStatus && !Array.isArray(maritalStatus)) {
     return res.status(httpStatus.BAD_REQUEST).send({ error: 'maritalStatus must be an array' });
   }
@@ -45,10 +46,15 @@ export const getByAge = catchAsync(async (req, res) => {
       return res.status(httpStatus.BAD_REQUEST).send({ error: `Invalid motherTongue values` });
     }
   }
-  const validCurrentCountryValues = Object.values(enumModel.EnumOfCurrentCountry);
-
-  if (currentCountry && !validCurrentCountryValues.includes(currentCountry)) {
-    return res.status(httpStatus.BAD_REQUEST).send({ error: 'Invalid currentCountry' });
+  if (currentCountry && !Array.isArray(currentCountry)) {
+    return res.status(httpStatus.BAD_REQUEST).send({ error: 'currentCountry must be an array' });
+  }
+  if (currentCountry) {
+    const validCurrentCountryValues = Object.values(enumModel.EnumOfCurrentCountry);
+    const invalidValues = currentCountry.filter((value) => !validCurrentCountryValues.includes(value));
+    if (invalidValues.length > 0) {
+      return res.status(httpStatus.BAD_REQUEST).send({ error: `Invalid currentCountry values` });
+    }
   }
   const filter = {
     ...((minAge || maxAge) && {
@@ -63,13 +69,19 @@ export const getByAge = catchAsync(async (req, res) => {
     }),
     ...(maritalStatus && maritalStatus.length > 0 && { maritalStatus: { $in: maritalStatus } }),
     ...(religion && religion.length > 0 && { religion: { $in: religion } }),
-    ...(community && community.length > 0 && { religion: { $in: community } }),
+    ...(community && community.length > 0 && { community: { $in: community } }),
     ...(motherTongue && motherTongue.length > 0 && { motherTongue: { $in: motherTongue } }),
-    ...(height && { height }),
-    ...(currentCountry && { currentCountry }),
+    ...(minHeight &&
+      maxHeight && {
+        height: {
+          $gte: minHeight, // Minimum height
+          $lte: maxHeight, // Maximum height
+        },
+      }),
+    ...(currentCountry && currentCountry.length > 0 && { 'address.currentCountry': { $in: currentCountry } }),
   };
 
-  const user = await userService.getUserList(filter, {});
+  const user = await userService.getUserListForSearch(filter, currentCountry);
   return res.status(httpStatus.OK).send({ results: user });
 });
 

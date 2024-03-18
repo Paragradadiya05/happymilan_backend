@@ -1,7 +1,7 @@
 import Joi from 'joi';
 import enumModel from '../../models/enum.model';
 
-export const searchAge = {
+export const searchUser = {
   body: Joi.object().keys({
     minAge: Joi.number(),
     maxAge: Joi.number(),
@@ -9,8 +9,9 @@ export const searchAge = {
     religion: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfReligion))),
     community: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfCommunity))),
     motherTongue: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfMotherTongue))),
-    height: Joi.number(),
-    currentCountry: Joi.string().valid(...Object.values(enumModel.EnumOfCurrentCountry)),
+    minHeight: Joi.number(),
+    maxHeight: Joi.number(),
+    currentCountry: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfCurrentCountry))),
   }),
 };
 

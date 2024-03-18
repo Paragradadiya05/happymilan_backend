@@ -1,5 +1,5 @@
 import httpStatus from 'http-status';
-import { profilrviwe, User, Notification } from '../models';
+import { ProfileView, User, Notification } from '../models';
 import ApiError from '../utils/ApiError';
 
 export async function createprofileviewer(body = {}, user) {
@@ -13,14 +13,14 @@ export async function createprofileviewer(body = {}, user) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'No such user exists');
   }
   await Notification.create({ userId, otherUserId: body.viewerId, body: 'view your profile' });
-  return profilrviwe.create({
+  return ProfileView.create({
     user: userId,
     viewerId: body.viewerId,
     createdBy: user,
     updatedBy: user,
   });
 }
-export async function getprofileviewer(filter, options = {}) {
-  const user = await profilrviwe.findOne(filter, options.projection, options);
+export async function getProfileViewer(filter, options = {}) {
+  const user = await ProfileView.findOne(filter, options.projection, options);
   return user;
 }
