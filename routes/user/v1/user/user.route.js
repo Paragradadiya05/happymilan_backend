@@ -34,8 +34,11 @@ router
   /**
    * updateUser
    * */
-  .put(validate(userValidation.updateUser), userController.update);
-
+  .put(validate(userValidation.updateUser), userController.update)
+  /**
+   * getUserById
+   * */
+  .get(validate(userValidation.getUserById), userController.get);
 router
   .route('/delete-profile-image/:userId')
   /**
@@ -46,9 +49,6 @@ router
   /**
    * deleteUserById
    * */
-  .delete(validate(userValidation.deleteUserById), userController.remove)
-  /**
-   * getUserById
-   * */
-  .get(validate(userValidation.getUserById), userController.get);
+  .delete(validate(userValidation.deleteUserById), userController.remove);
+
 export default router;
