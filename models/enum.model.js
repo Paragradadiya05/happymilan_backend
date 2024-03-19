@@ -104,6 +104,13 @@ const EnumOfCountry = {
   US: 'us',
 };
 
+const EnumOfCity = {
+  SURAT: 'surat',
+  Ahmedabad: 'ahmedabad',
+  TORONTO: 'toronto',
+  RAJKOT: 'rajkot',
+};
+
 const EnumOfCreative = {
   WRITING: 'writing',
   PAINTING: 'painting',
@@ -114,6 +121,7 @@ const EnumOfDiet = {
 };
 
 module.exports = {
+  EnumOfCity,
   EnumCodeTypeOfCode,
   EnumRoleOfUser,
   EnumPlatformOfDeviceToken,
