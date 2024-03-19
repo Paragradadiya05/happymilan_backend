@@ -6,6 +6,7 @@ import enumModel from '../../models/enum.model';
 export const searchUser = catchAsync(async (req, res) => {
   const { minAge, maxAge, maritalStatus, religion, community, motherTongue, minHeight, maxHeight, currentCountry } =
     req.body;
+
   if (maritalStatus && !Array.isArray(maritalStatus)) {
     return res.status(httpStatus.BAD_REQUEST).send({ error: 'maritalStatus must be an array' });
   }
@@ -56,6 +57,7 @@ export const searchUser = catchAsync(async (req, res) => {
       return res.status(httpStatus.BAD_REQUEST).send({ error: `Invalid currentCountry values` });
     }
   }
+
   const filter = {
     ...((minAge || maxAge) && {
       dateOfBirth: {
@@ -78,7 +80,6 @@ export const searchUser = catchAsync(async (req, res) => {
           $lte: maxHeight, // Maximum height
         },
       }),
-    // ...(currentCountry && currentCountry.length > 0 && { 'address.currentCountry': { $in: currentCountry } }),
   };
 
   const user = await userService.getUserListForSearch(filter, currentCountry);

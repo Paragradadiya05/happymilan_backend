@@ -5,26 +5,17 @@ import { Friend, Notification, User } from 'models';
 import { EnumStatusOfFriend } from '../models/enum.model';
 
 export async function getFriendById(id, options = {}) {
-  const friend = await Friend.findById(id, options.projection, options)
-    .populate({ path: 'user', select: 'name profilePic' })
-    .populate({ path: 'friend', select: 'name profilePic' })
-    .exec();
+  const friend = await Friend.findById(id, options.projection, options).populate('user').populate('friend').exec();
   return friend;
 }
 
 export async function getOne(query, options = {}) {
-  const friend = await Friend.findOne(query, options.projection, options)
-    .populate({ path: 'user', select: 'name profilePic' })
-    .populate({ path: 'friend', select: 'name profilePic' })
-    .exec();
+  const friend = await Friend.findOne(query, options.projection, options).populate('user').populate('friend').exec();
   return friend;
 }
 
 export async function getFriendList(filter, options = {}) {
-  const friend = await Friend.find(filter, options.projection, options)
-    .populate({ path: 'user', select: 'name profilePic' })
-    .populate({ path: 'friend', select: 'name profilePic' })
-    .exec();
+  const friend = await Friend.find(filter, options.projection, options).populate('user').populate('friend').exec();
   return friend;
 }
 

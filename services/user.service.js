@@ -40,7 +40,6 @@ export async function getUserListForSearch(filter, currentCountry) {
       match: { currentCountry: { $in: currentCountry } },
     })
     .exec();
-
   return user;
 }
 export async function getUserListWithPagination(filter, options = {}) {
