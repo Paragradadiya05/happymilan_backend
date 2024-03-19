@@ -107,6 +107,7 @@ const EnumOfCity = {
   SURAT: 'surat',
   Ahmedabad: 'ahmedabad',
   TORONTO: 'toronto',
+  RAJKOT: 'rajkot',
 };
 
 const EnumOfCreative = {

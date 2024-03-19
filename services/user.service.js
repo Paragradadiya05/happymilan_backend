@@ -33,13 +33,27 @@ export async function getUserList(filter, options = {}) {
   return user;
 }
 
-export async function getUserListForSearch(filter, currentCountry) {
-  const user = await User.find(filter)
-    .populate({
-      path: 'address',
-      match: { currentCountry: { $in: currentCountry } },
-    })
-    .exec();
+export async function getUserListForSearch(filter, { currentCountry = [], currentCity = [] }) {
+  const user = await User.aggregate([
+    {
+      $match: filter,
+    },
+    {
+      $lookup: {
+        from: 'Address',
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'address',
+      },
+    },
+    {
+      $match: {
+        ...(currentCountry && currentCountry.length && { 'address.currentCountry': { $in: currentCountry } }),
+        ...(currentCity && currentCity.length && { 'address.currentCity': { $in: currentCity } }),
+      },
+    },
+  ]);
+
   return user;
 }
 export async function getUserListWithPagination(filter, options = {}) {

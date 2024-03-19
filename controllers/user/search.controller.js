@@ -4,8 +4,18 @@ import { userService } from '../../services';
 import enumModel from '../../models/enum.model';
 
 export const searchUser = catchAsync(async (req, res) => {
-  const { minAge, maxAge, maritalStatus, religion, community, motherTongue, minHeight, maxHeight, currentCountry } =
-    req.body;
+  const {
+    minAge,
+    maxAge,
+    maritalStatus,
+    religion,
+    community,
+    motherTongue,
+    minHeight,
+    maxHeight,
+    currentCountry,
+    currentCity,
+  } = req.body;
 
   if (maritalStatus && !Array.isArray(maritalStatus)) {
     return res.status(httpStatus.BAD_REQUEST).send({ error: 'maritalStatus must be an array' });
@@ -82,7 +92,7 @@ export const searchUser = catchAsync(async (req, res) => {
       }),
   };
 
-  const user = await userService.getUserListForSearch(filter, currentCountry);
+  const user = await userService.getUserListForSearch(filter, { currentCountry, currentCity });
   return res.status(httpStatus.OK).send({ results: user });
 });
 
