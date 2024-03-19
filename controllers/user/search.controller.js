@@ -78,7 +78,7 @@ export const searchUser = catchAsync(async (req, res) => {
           $lte: maxHeight, // Maximum height
         },
       }),
-    ...(currentCountry && currentCountry.length > 0 && { 'address.currentCountry': { $in: currentCountry } }),
+    // ...(currentCountry && currentCountry.length > 0 && { 'address.currentCountry': { $in: currentCountry } }),
   };
 
   const user = await userService.getUserListForSearch(filter, currentCountry);
