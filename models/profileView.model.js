@@ -13,6 +13,12 @@ const ProfileViewerSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },
+    recentViews: [
+      {
+        recentView: Date,
+      },
+    ],
+    lastViewTime: Date,
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );

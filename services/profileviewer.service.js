@@ -5,12 +5,25 @@ import ApiError from '../utils/ApiError';
 export async function createprofileviewer(body = {}, user) {
   const userId = user._id;
   const { viewerId } = body;
-  if (!User.findOne(body.viewerId)) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'no such user exists');
-  }
+
   const viewer = await User.findOne({ _id: viewerId });
   if (!viewer) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'No such user exists');
+  }
+
+  let existingProfileView = await ProfileView.findOne({ user: userId, viewerId });
+
+  if (existingProfileView) {
+    existingProfileView.lastViewTime = Date.now();
+
+    if (!existingProfileView.recentViews) {
+      existingProfileView.recentViews = [];
+    }
+    existingProfileView.recentViews.push({ recentView: Date.now() });
+
+    existingProfileView = await existingProfileView.save();
+
+    return existingProfileView;
   }
   await Notification.create({ userId, otherUserId: body.viewerId, body: 'view your profile' });
   return ProfileView.create({
@@ -18,6 +31,8 @@ export async function createprofileviewer(body = {}, user) {
     viewerId: body.viewerId,
     createdBy: user,
     updatedBy: user,
+    recentViews: [{ recentView: Date.now() }],
+    lastViewTime: Date.now(),
   });
 }
 export async function getProfileViewer(filter, options = {}) {
