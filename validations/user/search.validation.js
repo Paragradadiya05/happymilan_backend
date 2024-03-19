@@ -12,7 +12,7 @@ export const searchUser = {
     minHeight: Joi.number(),
     maxHeight: Joi.number(),
     currentCountry: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfCurrentCountry))),
-    currentCity: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfCity))),
+    currentCity: Joi.array().items(Joi.string()),
   }),
 };
 

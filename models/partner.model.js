@@ -27,7 +27,6 @@ const UserPartnerSchema = new mongoose.Schema(
     },
     city: {
       type: String,
-      enum: Object.values(enumModel.EnumOfCity),
     },
     income: {
       type: String,
