@@ -103,12 +103,6 @@ const EnumOfCountry = {
   CANADA: 'canada',
   US: 'us',
 };
-const EnumOfCity = {
-  SURAT: 'surat',
-  Ahmedabad: 'ahmedabad',
-  TORONTO: 'toronto',
-  RAJKOT: 'rajkot',
-};
 
 const EnumOfCreative = {
   WRITING: 'writing',
@@ -140,7 +134,6 @@ module.exports = {
   EnumOfCurrentCountry,
   EnumOfState,
   EnumOfCountry,
-  EnumOfCity,
   EnumOfCreative,
   EnumOfDiet,
 };
