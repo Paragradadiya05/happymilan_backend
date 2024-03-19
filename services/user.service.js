@@ -35,26 +35,14 @@ export async function getUserList(filter, options = {}) {
 
 export async function getUserListForSearch(filter, currentCountry) {
   const user = await User.find(filter)
-    .populate([
-      {
-        path: 'address',
-        ...(currentCountry && currentCountry.length > 0 && { match: { currentCity: { $in: currentCountry } } }),
-        // Specify the current city you want to query for
-      },
-      {
-        path: 'userEducation',
-      },
-      {
-        path: 'UserPartner',
-      },
-      {
-        path: 'userProfessional',
-      },
-    ])
+    .populate({
+      path: 'address',
+      match: { currentCountry: { $in: currentCountry } },
+    })
     .exec();
+
   return user;
 }
-
 export async function getUserListWithPagination(filter, options = {}) {
   const user = await User.paginate(filter, options);
   return user;
