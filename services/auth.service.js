@@ -88,7 +88,7 @@ export const resetPasswordOtp = async (resetPasswordRequest) => {
   };
   return userService.updateUser(filter, {
     ...(password && { password }),
-    ...(newMail && { newMail }),
+    ...(newMail && { email: newMail }),
     ...(mobileNumber && { mobileNumber }),
   });
 };
