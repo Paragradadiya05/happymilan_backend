@@ -7,6 +7,8 @@ const { initSubscription } = require('./subscriptions');
 
 const io = socketIO();
 const socketAPI = {};
+const onlineUsers = new Set();
+
 /**
  * This is used for the Authentication purpose and this can be added the conditionally
  */
@@ -51,7 +53,46 @@ io.use(initSubscription).on('connection', function (socket) {
       sendMessage,
     });
   });
+  socket.on('typing', (data) => {
+    // Broadcast "typing" event to other users
+    socket.broadcast.emit('typing', data);
+  });
+
+  // Listen for "stopTyping" event
+  socket.on('stopTyping', () => {
+    // Broadcast "stopTyping" event to other users
+    socket.broadcast.emit('stopTyping');
+  });
+
+  socket.on('checkUserStatus', async (data, callback) => {
+    const { userId } = data;
+    try {
+      // Check if the user exists
+      const user = await userService.getOne({ _id: userId });
+      if (!user) {
+        // If user does not exist, send an error response
+        callback({ error: 'User not found' });
+        return;
+      }
+
+      // Check if the user is online
+      const isOnline = onlineUsers.has(userId);
+      callback({ userId, isOnline }); // Emitting the online status back to the client
+    } catch (error) {
+      // Handle any errors
+      callback({ error: 'Internal server error' });
+    }
+  });
+
+  // Handling user connections and disconnections
+  socket.on('disconnect', () => {
+    const { userId } = socket;
+    if (userId) {
+      onlineUsers.delete(userId); // Remove user from online users set when they disconnect
+    }
+  });
 });
+
 // io.on('connection', function (socket) {
 //   console.log('=== var name ===> connection establised');
 //
