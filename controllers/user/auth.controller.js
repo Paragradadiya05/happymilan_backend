@@ -149,7 +149,7 @@ export const verifyOtp = catchAsync(async (req, res) => {
 
 export const resetPasswordOtp = catchAsync(async (req, res) => {
   await authService.resetPasswordOtp(req.body);
-  res.status(httpStatus.OK).send({ results: { success: true, message: 'Password has been reset successfully' } });
+  res.status(httpStatus.OK).send({ results: { success: true, message: 'Data has been reset successfully' } });
 });
 
 export const resetPasswordOtpVerify = catchAsync(async (req, res) => {
