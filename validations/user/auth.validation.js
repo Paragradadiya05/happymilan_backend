@@ -65,6 +65,8 @@ export const resetPasswordOtp = {
   body: Joi.object().keys({
     password: Joi.string().required(),
     email: Joi.string().email().required(),
+    newMail: Joi.string().email().required(),
+    mobileNumber: Joi.number().required(),
     otp: Joi.number().required(),
   }),
 };

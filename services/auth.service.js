@@ -66,12 +66,20 @@ export const forgotPassword = async (email) => {
 };
 
 export const resetPasswordOtp = async (resetPasswordRequest) => {
-  const { email, otp, password } = resetPasswordRequest;
+  const { email, otp, password, newMail, mobileNumber } = resetPasswordRequest;
+  const existingUserWithNewMail = await userService.getOne({ email: newMail });
+  const existingUserWithMobileNumber = await userService.getOne({ mobileNumber });
+  if (existingUserWithNewMail) {
+    throw new Error('New email is already associated with another user.');
+  }
+  if (existingUserWithMobileNumber) {
+    throw new Error('Mobile number is already associated with another user.');
+  }
   const user = await tokenService.verifyResetOtp(email, otp);
   const filter = {
     _id: user._id,
   };
-  return userService.updateUser(filter, { password });
+  return userService.updateUser(filter, { password, newMail, mobileNumber });
 };
 
 /**
