@@ -68,11 +68,11 @@ export const forgotPassword = async (email) => {
 export const resetPasswordOtp = async (resetPasswordRequest) => {
   const { email, otp, password, newMail, mobileNumber } = resetPasswordRequest;
   const existingUserWithNewMail = await userService.getOne({ email: newMail });
-  const existingUserWithMobileNumber = await userService.getOne({ mobileNumber });
+  const existingUserWithMobile = mobileNumber ? await userService.getOne({ mobileNumber }) : null;
   if (existingUserWithNewMail) {
     throw new Error('New email is already associated with another user.');
   }
-  if (existingUserWithMobileNumber) {
+  if (existingUserWithMobile) {
     throw new Error('Mobile number is already associated with another user.');
   }
   if (!mobileNumber && !password && !newMail) {
