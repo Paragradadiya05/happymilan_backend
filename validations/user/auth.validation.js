@@ -63,10 +63,10 @@ export const resetPassword = {
 
 export const resetPasswordOtp = {
   body: Joi.object().keys({
-    password: Joi.string().required(),
+    password: Joi.string(),
     email: Joi.string().email().required(),
-    newMail: Joi.string().email().required(),
-    mobileNumber: Joi.number().required(),
+    newMail: Joi.string().email(),
+    mobileNumber: Joi.number(),
     otp: Joi.number().required(),
   }),
 };

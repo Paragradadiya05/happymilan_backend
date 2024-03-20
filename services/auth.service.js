@@ -75,6 +75,13 @@ export const resetPasswordOtp = async (resetPasswordRequest) => {
   if (existingUserWithMobileNumber) {
     throw new Error('Mobile number is already associated with another user.');
   }
+  if (!mobileNumber && !password && !newMail) {
+    throw new Error('At least one of mobileNumber, password, or newMail is required.');
+  }
+  const providedFields = [mobileNumber, password, newMail].filter((field) => field !== undefined);
+  if (providedFields.length !== 1) {
+    throw new Error('Exactly one of mobileNumber, password, or newMail is required.');
+  }
   const user = await tokenService.verifyResetOtp(email, otp);
   const filter = {
     _id: user._id,
