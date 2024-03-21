@@ -25,11 +25,7 @@ export async function getUserList(filter, options = {}) {
     .populate('address')
     .populate('userEducation')
     .populate('userPartner')
-    .populate('userProfessional')
-    .populate({
-      path: 'address',
-      select: 'currentCountry',
-    });
+    .populate('userProfessional');
   return user;
 }
 
