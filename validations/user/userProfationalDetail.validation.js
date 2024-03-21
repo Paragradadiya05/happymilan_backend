@@ -11,6 +11,7 @@ export const createProfessionalDetail = {
     currentSalary: Joi.number(),
     workCity: Joi.string(),
     workCountry: Joi.string(),
+    currentDesignation: Joi.string(),
   }),
 };
 

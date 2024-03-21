@@ -230,13 +230,13 @@ const UserSchema = new mongoose.Schema(
     height: {
       type: Number,
     },
-    partner: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Partner',
-    },
     address: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Address',
+    },
+    userPartner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'UserPartner',
     },
     userEducation: {
       type: mongoose.Schema.Types.ObjectId,

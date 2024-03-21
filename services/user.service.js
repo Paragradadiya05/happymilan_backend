@@ -24,7 +24,7 @@ export async function getUserList(filter, options = {}) {
   const user = await User.find(filter, options.projection, options)
     .populate('address')
     .populate('userEducation')
-    .populate('UserPartner')
+    .populate('userPartner')
     .populate('userProfessional')
     .populate({
       path: 'address',
