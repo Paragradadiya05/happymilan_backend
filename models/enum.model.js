@@ -171,6 +171,19 @@ const EnumOfDiet = {
   NON_VEGETARIAN: 'non_vegetarian',
 };
 
+const EnumForTimeDurationOfProfileHide = {
+  ONE_WEEK: 'oneWeek',
+  TWO_WEEK: 'twoWeek',
+  ONE_MONTH: 'oneMonth',
+  THREE_MONTH: 'threeMonth',
+  SIX_MONTH: 'sixMonth',
+};
+const EnumOfReasonForProfileDelete = {
+  FOUND_MY_MATCH: 'found-my-match',
+  WANTS_TO_TAKE_BREAK: 'wants-to-take-break',
+  NOT_SATISFIED_BY_MATCHES: 'not-satisfied-by-matches',
+  OTHER_REASON: 'other-reason',
+};
 module.exports = {
   EnumCodeTypeOfCode,
   EnumRoleOfUser,
@@ -194,4 +207,6 @@ module.exports = {
   EnumOfCountry,
   EnumOfCreative,
   EnumOfDiet,
+  EnumForTimeDurationOfProfileHide,
+  EnumOfReasonForProfileDelete,
 };

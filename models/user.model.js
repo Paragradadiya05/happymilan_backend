@@ -58,7 +58,26 @@ const UserImagesSchema = new mongoose.Schema(
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );
-
+const ProfileHideAndDelete = new mongoose.Schema(
+  {
+    isProfileHide: {
+      type: Boolean,
+      default: false,
+    },
+    timeForProfileHide: {
+      type: Date,
+    },
+    isProfileDelete: {
+      type: Boolean,
+      default: false,
+    },
+    reasonForProfileDelete: {
+      type: String,
+      enum: Object.values(enumModel.EnumOfReasonForProfileDelete),
+    },
+  },
+  { timestamps: { createdAt: true, updatedAt: true } }
+);
 const UserSchema = new mongoose.Schema(
   {
     /**
@@ -250,6 +269,7 @@ const UserSchema = new mongoose.Schema(
       type: String,
     },
     userProfilePic: [UserImagesSchema],
+    profileHideAndDelete: [ProfileHideAndDelete],
   },
 
   { timestamps: { createdAt: true, updatedAt: true } }
@@ -316,6 +336,5 @@ UserSchema.post(
     next(null, result);
   }
 );
-
 const UserModel = mongoose.models.User || mongoose.model('User', UserSchema, 'User');
 module.exports = UserModel;
