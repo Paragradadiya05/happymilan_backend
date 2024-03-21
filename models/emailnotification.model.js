@@ -8,7 +8,7 @@ const EmailNotificationSchema = new mongoose.Schema(
       type: String,
     },
     matchMailAndPhotoMatchMail: {
-      type: String,
+      option: String,
       isSelected: Boolean,
     },
     emailAlert: [
