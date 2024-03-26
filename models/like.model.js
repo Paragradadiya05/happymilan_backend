@@ -18,7 +18,8 @@ const likeSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },
-    likeId: {
+    // this id is a user id of user that is liked by some other user
+    likedUserId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },

@@ -35,3 +35,12 @@ export const updateLike = catchAsync(async (req, res) => {
   const like = await likeservice.updateLike(filter, body, options);
   return res.status(httpStatus.OK).send({ results: like });
 });
+export const likeData = catchAsync(async (req, res) => {
+  const { likedUserId } = req.params;
+  const filter = {
+    likedUserId,
+  };
+  const options = {};
+  const like = await likeservice.getLike(filter, options);
+  return res.status(httpStatus.OK).send({ results: like });
+});

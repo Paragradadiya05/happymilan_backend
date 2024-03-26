@@ -9,11 +9,15 @@ const router = express();
  * create like
  * */
 router.post('/create-like', auth(), validate(likeValidation.createLike), likeController.createLike);
+
 /**
  * getlikes
  * */
 router.get('/getlike/:userId', auth(), validate(likeValidation.GetLikes), likeController.getLike);
-
+/**
+ * getlikeduser
+ * */
+router.get('/get-like/:likedUserId', auth(), validate(likeValidation.likeData), likeController.likeData);
 /**
  * UpdateLike
  * */

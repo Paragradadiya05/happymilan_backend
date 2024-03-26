@@ -4,11 +4,11 @@ import ApiError from '../utils/ApiError';
 
 export async function createLike(body = {}, user) {
   const userId = user._id;
-  const likedUser = await User.findById(body.likeId);
+  const likedUser = await User.findById(body.likedUserId);
   if (!likedUser) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'No such user exists');
   }
-  const existingLike = await Like.findOne({ user: userId, likeId: body.likeId, isLike: true });
+  const existingLike = await Like.findOne({ user: userId, likedUserId: body.likedUserId, isLike: true });
   if (existingLike) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Already liked this profile');
   }
@@ -17,10 +17,10 @@ export async function createLike(body = {}, user) {
     isLike,
     date: new Date(),
   };
-  await Notification.create({ userId, otherUserId: body.likeId, body: 'like' });
+  await Notification.create({ userId, otherUserId: body.likedUserId, body: 'like' });
   return Like.create({
     user: userId,
-    likeId: body.likeId,
+    likedUserId: body.likedUserId,
     isLike: body.isLike,
     statusHistory: [statusHistory],
     createdBy: user,
@@ -30,7 +30,7 @@ export async function createLike(body = {}, user) {
 export async function getLike(filter, options = {}) {
   const like = await Like.find(filter, options.projection, options)
     .populate({ path: 'user', select: 'name' })
-    .populate({ path: 'likeId', select: 'name' })
+    .populate({ path: 'likedUserId', select: 'name' })
     .exec();
   return like;
 }
