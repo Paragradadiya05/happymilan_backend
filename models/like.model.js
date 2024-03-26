@@ -3,6 +3,15 @@ import mongoosePaginateV2 from 'mongoose-paginate-v2';
 import { softDelete, toJSON } from './plugins';
 
 const { Schema } = mongoose;
+const StatusHistorySchema = new mongoose.Schema({
+  isLike: {
+    type: Boolean,
+    required: true,
+  },
+  date: {
+    type: Date,
+  },
+});
 const likeSchema = new Schema(
   {
     user: {
@@ -12,6 +21,13 @@ const likeSchema = new Schema(
     likeId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
+    },
+    isLike: {
+      type: Boolean,
+      default: false,
+    },
+    statusHistory: {
+      type: [StatusHistorySchema],
     },
   },
   { timestamps: { createdAt: true, updatedAt: true } }

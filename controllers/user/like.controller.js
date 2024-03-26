@@ -2,12 +2,12 @@ import httpStatus from 'http-status';
 import { catchAsync } from '../../utils/catchAsync';
 import { likeservice } from '../../services';
 
-export const createlike = catchAsync(async (req, res) => {
-  const like = await likeservice.createlike(req.body, req.user);
+export const createLike = catchAsync(async (req, res) => {
+  const like = await likeservice.createLike(req.body, req.user);
   return res.status(httpStatus.OK).send({ results: like });
 });
 
-export const getlike = catchAsync(async (req, res) => {
+export const getLike = catchAsync(async (req, res) => {
   const { userId } = req.params;
   // const viewer = req.body.viewerId;
   const filter = {
@@ -23,5 +23,15 @@ export const remove = catchAsync(async (req, res) => {
     _id: likeId,
   };
   const like = await likeservice.removeLike(filter);
+  return res.status(httpStatus.OK).send({ results: like });
+});
+export const updateLike = catchAsync(async (req, res) => {
+  const { body } = req;
+  const { likeId } = req.params;
+  const filter = {
+    _id: likeId,
+  };
+  const options = { new: true };
+  const like = await likeservice.updateLike(filter, body, options);
   return res.status(httpStatus.OK).send({ results: like });
 });

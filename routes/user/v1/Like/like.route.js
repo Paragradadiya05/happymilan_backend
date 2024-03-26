@@ -8,12 +8,16 @@ const router = express();
 /**
  * create like
  * */
-router.post('/create-like', auth(), validate(likeValidation.createLike), likeController.createlike);
+router.post('/create-like', auth(), validate(likeValidation.createLike), likeController.createLike);
 /**
  * getlikes
  * */
-router.get('/getlike/:userId', auth(), validate(likeValidation.GetLikes), likeController.getlike);
+router.get('/getlike/:userId', auth(), validate(likeValidation.GetLikes), likeController.getLike);
 
+/**
+ * UpdateLike
+ * */
+router.put('/update-like/:likeId', auth(), validate(likeValidation.updateLike), likeController.updateLike);
 /**
  * deletelike
  * */
