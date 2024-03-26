@@ -4,11 +4,13 @@ import ApiError from '../utils/ApiError';
 
 export async function createLike(body = {}, user) {
   const userId = user._id;
-  if (!User.findOne(body.likeId)) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'no such user exists');
+  const likedUser = await User.findById(body.likeId);
+  if (!likedUser) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'No such user exists');
   }
-  if (body.isLike === true) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'already Like this profile');
+  const existingLike = await Like.findOne({ user: userId, likeId: body.likeId, isLike: true });
+  if (existingLike) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Already liked this profile');
   }
   const isLike = body.isLike !== undefined ? body.isLike : true;
   const statusHistory = {
