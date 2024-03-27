@@ -48,6 +48,7 @@ export const paginateStatus = catchAsync(async (req, res) => {
   const userId = req.user._id;
   const filter = {
     user: userId,
+    isLike: true,
   };
   const options = {};
   const like = await likeservice.getLikeListWithPagination(filter, options);
