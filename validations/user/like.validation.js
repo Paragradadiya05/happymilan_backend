@@ -8,11 +8,7 @@ export const createLike = {
     isLike: Joi.boolean().required(),
   }),
 };
-export const GetLikes = {
-  params: Joi.object().keys({
-    userId: Joi.objectId().required(),
-  }),
-};
+export const GetLikes = {};
 
 export const DeleteLike = {
   params: Joi.object().keys({

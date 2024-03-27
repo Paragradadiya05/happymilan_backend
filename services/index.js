@@ -28,3 +28,4 @@ module.exports.roleservice = require('./role.service');
 module.exports.likeservice = require('./like.service');
 module.exports.educationservice = require('./usereducation.service');
 module.exports.partnerservice = require('./partner.service');
+module.exports.statusService = require('./status.service');

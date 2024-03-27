@@ -18,6 +18,7 @@ import serachRoute from './v1/search/search.route';
 import likeRoute from './v1/Like/like.route';
 import EducationRoute from './v1/userEducation/userEducatiom.route';
 import PratnerRoute from './v1/paertner/partner.route';
+import StatusRoute from './v1/status/status.route';
 
 const router = express.Router();
 router.use('/user', userRoutes);
@@ -39,6 +40,7 @@ router.use('/search', serachRoute);
 router.use('/like', likeRoute);
 router.use('/userEducation', EducationRoute);
 router.use('/partner', PratnerRoute);
+router.use('/status', StatusRoute);
 
 // router.use('/userEducation', userEducationRoutes);
 // router.use('/commentOnStory', commentOnStoryRoutes);

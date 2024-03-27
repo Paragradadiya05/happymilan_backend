@@ -22,3 +22,4 @@ module.exports.Role = require('./role.model');
 module.exports.Like = require('./like.model');
 module.exports.Partner = require('./partner.model');
 module.exports.Education = require('./userEducation.model');
+module.exports.Status = require('./status.model');

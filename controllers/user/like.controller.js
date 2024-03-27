@@ -8,8 +8,8 @@ export const createLike = catchAsync(async (req, res) => {
 });
 
 export const getLike = catchAsync(async (req, res) => {
-  const { userId } = req.params;
   // const viewer = req.body.viewerId;
+  const userId = req.user._id;
   const filter = {
     user: userId,
   };

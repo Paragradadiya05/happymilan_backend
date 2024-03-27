@@ -37,3 +37,5 @@ module.exports.likeValidation = require('./like.validation');
 module.exports.usereducationValidation = require('./userEducation.validation');
 
 module.exports.partnerValidation = require('./partner.validation');
+
+module.exports.statusValidation = require('./status.validation');
