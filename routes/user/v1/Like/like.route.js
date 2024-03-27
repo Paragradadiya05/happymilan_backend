@@ -26,5 +26,8 @@ router.put('/update-like/:likeId', auth(), validate(likeValidation.updateLike), 
  * deletelike
  * */
 router.delete('/delete-like/:likeId', validate(likeValidation.DeleteLike), likeController.remove);
-
+/**
+ * getLikePaginated
+ * */
+router.get('/paginated', auth(), validate(likeValidation.paginatedStatus), likeController.paginateStatus);
 module.exports = router;

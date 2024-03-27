@@ -55,3 +55,7 @@ export async function updateLike(filter, body, options = {}) {
   }
   return like;
 }
+export async function getLikeListWithPagination(filter, options = {}) {
+  const like = await Like.paginate(filter, options);
+  return like;
+}

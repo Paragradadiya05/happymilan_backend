@@ -44,3 +44,12 @@ export const likeData = catchAsync(async (req, res) => {
   const like = await likeservice.getLike(filter, options);
   return res.status(httpStatus.OK).send({ results: like });
 });
+export const paginateStatus = catchAsync(async (req, res) => {
+  const userId = req.user._id;
+  const filter = {
+    user: userId,
+  };
+  const options = {};
+  const like = await likeservice.getLikeListWithPagination(filter, options);
+  return res.status(httpStatus.OK).send({ results: like });
+});
