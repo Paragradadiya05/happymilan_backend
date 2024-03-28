@@ -45,7 +45,7 @@ export const likeData = catchAsync(async (req, res) => {
   return res.status(httpStatus.OK).send({ results: like });
 });
 export const paginateStatus = catchAsync(async (req, res) => {
-  const userId = req.user._id;
+  const { userId } = req.params;
   const filter = {
     likedUserId: userId,
     isLike: true,

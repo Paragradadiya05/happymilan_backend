@@ -31,7 +31,9 @@ export const likeData = {
 };
 
 export const paginatedStatus = {
-  body: Joi.object().keys({}).unknown(true),
+  params: Joi.object().keys({
+    userId: Joi.objectId().required(),
+  }),
   query: Joi.object()
     .keys({
       page: Joi.number().default(1),
