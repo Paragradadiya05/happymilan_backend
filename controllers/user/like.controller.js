@@ -47,7 +47,7 @@ export const likeData = catchAsync(async (req, res) => {
 export const paginateStatus = catchAsync(async (req, res) => {
   const userId = req.user._id;
   const filter = {
-    user: userId,
+    likedUserId: userId,
     isLike: true,
   };
   const options = {};
