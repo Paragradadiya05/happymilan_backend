@@ -13,7 +13,7 @@ router.post('/create-like', auth(), validate(likeValidation.createLike), likeCon
 /**
  * getlikes
  * */
-router.get('/getlike', auth(), validate(likeValidation.GetLikes), likeController.getLike);
+router.get('/getlike/:userId', auth(), validate(likeValidation.paginatedStatus), likeController.userPaginateStatus);
 /**
  * getlikeduser
  * */

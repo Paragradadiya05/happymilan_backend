@@ -54,3 +54,14 @@ export const paginateStatus = catchAsync(async (req, res) => {
   const like = await likeservice.getLikeListWithPagination(filter, options);
   return res.status(httpStatus.OK).send({ results: like });
 });
+
+export const userPaginateStatus = catchAsync(async (req, res) => {
+  const { userId } = req.params;
+  const filter = {
+    user: userId,
+    isLike: true,
+  };
+  const options = {};
+  const like = await likeservice.getLikeListWithPagination(filter, options);
+  return res.status(httpStatus.OK).send({ results: like });
+});
