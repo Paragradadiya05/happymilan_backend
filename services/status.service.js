@@ -18,5 +18,6 @@ export async function getStatusList(filter, options = {}) {
 }
 
 export async function updateStatus(filter, body, options = {}) {
-  return Status.findOneAndUpdate(filter, body, options);
+  const status = await Status.findOneAndUpdate(filter, body, options);
+  return status;
 }

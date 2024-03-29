@@ -8,26 +8,20 @@ export const create = catchAsync(async (req, res) => {
   body.updatedBy = req.user;
   const userId = req.user._id;
   const options = {};
-  const story = await statusService.createStatus({ userId, content: body.content }, options);
+  const story = await statusService.createStatus({ userId, content: body.content, caption: body.caption }, options);
   return res.status(httpStatus.CREATED).send({ results: story });
 });
 
 export const update = catchAsync(async (req, res) => {
   const { body } = req;
-  const { statusId } = req.params;
-  body.createdBy = req.user;
   body.updatedBy = req.user;
-  const userId = req.user._id;
-  const options = {};
-  const story = await statusService.updateStatus(
-    { statusId },
-    {
-      userId,
-      ...body,
-    },
-    options
-  );
-  return res.status(httpStatus.CREATED).send({ results: story });
+  const { statusId } = req.params;
+  const filter = {
+    _id: statusId,
+  };
+  const options = { new: true };
+  const status = await statusService.updateStatus(filter, body, options);
+  return res.status(httpStatus.OK).send({ results: status });
 });
 
 export const list = catchAsync(async (req, res) => {

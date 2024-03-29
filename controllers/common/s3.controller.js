@@ -5,7 +5,7 @@ import { sendMail } from '../../utils/sendMailMnteh';
 // eslint-disable-next-line import/prefer-default-export
 export const preSignedPutUrl = catchAsync(async (req, res) => {
   const { body, user } = req;
-  const s3PutObject = await s3Service.validateExtensionForPutObject(body, user, body.isProfilePic);
+  const s3PutObject = await s3Service.validateExtensionForPutObject(body, user, body.isProfilePic, body.caption);
   return res.status(httpStatus.OK).send({ results: s3PutObject });
 });
 

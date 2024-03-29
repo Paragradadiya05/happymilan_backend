@@ -11,6 +11,7 @@ export const preSignedPutUrl = {
     profileType: Joi.string()
       .valid(...Object.values(enumFields.EnumOfImageTypes))
       .required(),
+    caption: Joi.string(),
   }),
 };
 

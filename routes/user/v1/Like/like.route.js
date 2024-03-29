@@ -11,11 +11,11 @@ const router = express();
 router.post('/create-like', auth(), validate(likeValidation.createLike), likeController.createLike);
 
 /**
- * getlikes
+ * get-likes
  * */
 router.get('/getlike/:userId', auth(), validate(likeValidation.paginatedStatus), likeController.userPaginateStatus);
 /**
- * getlikeduser
+ * get-liked-user
  * */
 router.get('/get-like/:likedUserId', auth(), validate(likeValidation.likeData), likeController.likeData);
 /**
@@ -23,7 +23,7 @@ router.get('/get-like/:likedUserId', auth(), validate(likeValidation.likeData), 
  * */
 router.put('/update-like/:likeId', auth(), validate(likeValidation.updateLike), likeController.updateLike);
 /**
- * deletelike
+ * delete-like
  * */
 router.delete('/delete-like/:likeId', validate(likeValidation.DeleteLike), likeController.remove);
 /**

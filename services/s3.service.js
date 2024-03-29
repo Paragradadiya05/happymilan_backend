@@ -41,7 +41,7 @@ export const getSignedUrlPutObject = async (key, contentType, isPublic) => {
   return s3.getSignedUrlPromise('putObject', signedURL);
 };
 
-export const validateExtensionForPutObject = async (preSignedReq, user, isProfilePic) => {
+export const validateExtensionForPutObject = async (preSignedReq, user, isProfilePic, caption) => {
   const ssExtensionsContentType = allowedContentType.map((ele) => ele.mimeType);
   const ssExtensions = allowedContentType.map((ele) => ele.key);
   // this is the number of unwanted file that is not used in system but uploaded in server
@@ -91,6 +91,7 @@ export const validateExtensionForPutObject = async (preSignedReq, user, isProfil
     const statusData = await Status.create({
       userId: user._id,
       content: `${url.split('?')[0]}`,
+      caption,
     });
     result = {
       statusData,
