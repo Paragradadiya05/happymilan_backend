@@ -184,6 +184,12 @@ const EnumOfReasonForProfileDelete = {
   NOT_SATISFIED_BY_MATCHES: 'not-satisfied-by-matches',
   OTHER_REASON: 'other-reason',
 };
+
+const EnumOfImageTypes = {
+  PROFILE_IMAGE: 'profileImage',
+  STATUS_IMAGE: 'statusImage',
+};
+
 module.exports = {
   EnumCodeTypeOfCode,
   EnumRoleOfUser,
@@ -209,4 +215,5 @@ module.exports = {
   EnumOfDiet,
   EnumForTimeDurationOfProfileHide,
   EnumOfReasonForProfileDelete,
+  EnumOfImageTypes,
 };

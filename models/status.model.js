@@ -7,7 +7,12 @@ const StatusSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },
+    // content id image of video url for user
+    // todo : we have to define that what are content ( image or video)
     content: {
+      type: String,
+    },
+    caption: {
       type: String,
     },
     statusAddTime: {

@@ -7,9 +7,10 @@ import axios from 'axios';
 import jimp from 'jimp';
 import { asyncForEach } from 'utils/common';
 import ApiError from 'utils/ApiError';
-import { TempS3, User, Mntech } from 'models';
+import { TempS3, User, Mntech, Status } from 'models';
 import config from 'config/config';
 import allowedContentType from 'utils/content-type.json';
+import { EnumOfImageTypes } from '../models/enum.model';
 
 AWS.config = new AWS.Config({
   accessKeyId: config.aws.accessKeyId, // stored in the .env file
@@ -52,7 +53,7 @@ export const validateExtensionForPutObject = async (preSignedReq, user, isProfil
   }
   if (ssExtensionsContentType.includes(preSignedReq.contentType) && ssExtensions.includes(extensionOfKey)) {
     Object.assign(preSignedReq, {
-      key: `users/${user._id}/${mongoose.Types.ObjectId()}/${preSignedReq.key}`,
+      key: `users/${user._id}/${preSignedReq.profileType}/${mongoose.Types.ObjectId()}/${preSignedReq.key}`,
     });
   } else {
     throw new ApiError(httpStatus.BAD_REQUEST, 'invalid content-type');
@@ -68,20 +69,35 @@ export const validateExtensionForPutObject = async (preSignedReq, user, isProfil
     key: preSignedReq.key,
   };
   const tempS3 = new TempS3(tempS3Body);
-
-  // here we are updating all image to the specific user
-  await User.findByIdAndUpdate(
-    user._id,
-    {
-      ...(isProfilePic && { profilePic: `${url.split('?')[0]}` }),
-      $addToSet: {
-        userProfilePic: { url: `${url.split('?')[0]}`, name: preSignedReq.key },
+  let result;
+  if (preSignedReq.profileType === EnumOfImageTypes.PROFILE_IMAGE) {
+    // here we are updating all image to the specific user
+    const userData = await User.findByIdAndUpdate(
+      user._id,
+      {
+        ...(isProfilePic && { profilePic: `${url.split('?')[0]}` }),
+        $addToSet: {
+          userProfilePic: { url: `${url.split('?')[0]}`, name: preSignedReq.key },
+        },
       },
-    },
-    { new: true } // To return the updated document
-  );
+      { new: true } // To return the updated document
+    );
+    result = {
+      userData,
+    };
+  }
+  if (preSignedReq.profileType === EnumOfImageTypes.STATUS_IMAGE) {
+    // here we are updating all images to the specific user
+    const statusData = await Status.create({
+      userId: user._id,
+      content: `${url.split('?')[0]}`,
+    });
+    result = {
+      statusData,
+    };
+  }
   await tempS3.save();
-  return { url, key: preSignedReq.key };
+  return { url, key: preSignedReq.key, data: result };
 };
 
 export const deleteObjects = async (keys) => {

@@ -10,6 +10,10 @@ const router = express.Router();
  * */
 router.post('/create-status', auth(), validate(statusValidation.createStatus), statusController.create);
 /**
+ * update status
+ * */
+router.put('/update-status/:statusId', auth(), validate(statusValidation.updateStatus), statusController.update);
+/**
  * get status
  * */
 router.get('/get-status', auth(), validate(statusValidation.getStatus), statusController.list);

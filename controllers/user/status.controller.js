@@ -11,6 +11,25 @@ export const create = catchAsync(async (req, res) => {
   const story = await statusService.createStatus({ userId, content: body.content }, options);
   return res.status(httpStatus.CREATED).send({ results: story });
 });
+
+export const update = catchAsync(async (req, res) => {
+  const { body } = req;
+  const { statusId } = req.params;
+  body.createdBy = req.user;
+  body.updatedBy = req.user;
+  const userId = req.user._id;
+  const options = {};
+  const story = await statusService.updateStatus(
+    { statusId },
+    {
+      userId,
+      ...body,
+    },
+    options
+  );
+  return res.status(httpStatus.CREATED).send({ results: story });
+});
+
 export const list = catchAsync(async (req, res) => {
   const userId = req.user._id;
   const filter = {
