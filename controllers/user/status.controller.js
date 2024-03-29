@@ -34,3 +34,10 @@ export const list = catchAsync(async (req, res) => {
   const story = await statusService.getStatusList(filter, options);
   return res.status(httpStatus.OK).send({ results: story });
 });
+
+export const allList = catchAsync(async (req, res) => {
+  const filter = {};
+  const options = {};
+  const story = await statusService.getStatusList(filter, options);
+  return res.status(httpStatus.OK).send({ results: story });
+});

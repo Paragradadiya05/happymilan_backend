@@ -17,5 +17,9 @@ router.put('/update-status/:statusId', auth(), validate(statusValidation.updateS
  * get status
  * */
 router.get('/get-status', auth(), validate(statusValidation.getStatus), statusController.list);
+/**
+ * get all status
+ * */
+router.get('/get-all-status', auth(), validate(statusValidation.getStatus), statusController.allList);
 
 export default router;
