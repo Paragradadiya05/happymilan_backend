@@ -46,22 +46,34 @@ export const likeData = catchAsync(async (req, res) => {
 });
 export const paginateStatus = catchAsync(async (req, res) => {
   const { userId } = req.params;
+  const { page, limit } = req.query;
+  const pageNumber = parseInt(page, 10);
+  const limitNumber = parseInt(limit, 10);
   const filter = {
     likedUserId: userId,
     isLike: true,
   };
-  const options = {};
+  const options = {
+    page: pageNumber,
+    limit: limitNumber,
+  };
   const like = await likeservice.getLikeListWithPagination(filter, options);
   return res.status(httpStatus.OK).send({ results: like });
 });
 
 export const userPaginateStatus = catchAsync(async (req, res) => {
   const { userId } = req.params;
+  const { page, limit } = req.query;
+  const pageNumber = parseInt(page, 10);
+  const limitNumber = parseInt(limit, 10);
   const filter = {
     user: userId,
     isLike: true,
   };
-  const options = {};
+  const options = {
+    page: pageNumber,
+    limit: limitNumber,
+  };
   const like = await likeservice.getLikeListWithPagination(filter, options);
   return res.status(httpStatus.OK).send({ results: like });
 });
