@@ -22,3 +22,8 @@ export const updateStatus = {
 export const getStatus = {
   body: Joi.object().keys({}).unknown(true),
 };
+export const deleteStatusById = {
+  params: Joi.object().keys({
+    statusId: Joi.string().required(),
+  }),
+};

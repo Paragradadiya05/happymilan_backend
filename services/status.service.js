@@ -21,3 +21,8 @@ export async function updateStatus(filter, body, options = {}) {
   const status = await Status.findOneAndUpdate(filter, body, options);
   return status;
 }
+
+export async function removeStatus(filter) {
+  const status = await Status.findOneAndRemove(filter);
+  return status;
+}

@@ -31,13 +31,22 @@ export const list = catchAsync(async (req, res) => {
   };
 
   const options = {};
-  const story = await statusService.getStatusList(filter, options);
-  return res.status(httpStatus.OK).send({ results: story });
+  const status = await statusService.getStatusList(filter, options);
+  return res.status(httpStatus.OK).send({ results: status });
 });
 
 export const allList = catchAsync(async (req, res) => {
   const filter = {};
   const options = {};
-  const story = await statusService.getStatusList(filter, options);
-  return res.status(httpStatus.OK).send({ results: story });
+  const status = await statusService.getStatusList(filter, options);
+  return res.status(httpStatus.OK).send({ results: status });
+});
+
+export const remove = catchAsync(async (req, res) => {
+  const { statusId } = req.params;
+  const filter = {
+    _id: statusId,
+  };
+  const status = await statusService.removeStatus(filter);
+  return res.status(httpStatus.OK).send({ results: status });
 });

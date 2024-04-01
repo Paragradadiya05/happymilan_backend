@@ -21,5 +21,8 @@ router.get('/get-status', auth(), validate(statusValidation.getStatus), statusCo
  * get all status
  * */
 router.get('/get-all-status', auth(), validate(statusValidation.getStatus), statusController.allList);
-
+/**
+ * delete status ById
+ * */
+router.delete('/delete-status/:statusId', validate(statusValidation.deleteStatusById), statusController.remove);
 export default router;
