@@ -268,6 +268,9 @@ const UserSchema = new mongoose.Schema(
     profilePic: {
       type: String,
     },
+    userUniqueId: {
+      type: String,
+    },
     userProfilePic: [UserImagesSchema],
     profileHideAndDelete: [ProfileHideAndDelete],
   },

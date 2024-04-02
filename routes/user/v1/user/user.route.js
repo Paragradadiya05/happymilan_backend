@@ -50,5 +50,10 @@ router
    * deleteUserById
    * */
   .delete(validate(userValidation.deleteUserById), userController.remove);
-
+router
+  .route('/userUniqueId/:userUniqueId')
+  /**
+   * getUserByUserUniqueId
+   * */
+  .get(auth(), validate(userValidation.get), userController.getUnique);
 export default router;

@@ -131,3 +131,12 @@ export const remove = catchAsync(async (req, res) => {
   const user = await userService.removeUser(filter);
   return res.status(httpStatus.OK).send({ results: user });
 });
+export const getUnique = catchAsync(async (req, res) => {
+  const { userUniqueId } = req.params;
+  const filter = {
+    userUniqueId,
+  };
+  const options = {};
+  const user = await userService.getUserList(filter, options);
+  return res.status(httpStatus.OK).send({ results: user });
+});

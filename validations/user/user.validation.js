@@ -101,3 +101,9 @@ export const paginatedUserThatNotFriend = {
     })
     .unknown(true),
 };
+
+export const get = {
+  params: Joi.object().keys({
+    userUniqueId: Joi.string().required(),
+  }),
+};

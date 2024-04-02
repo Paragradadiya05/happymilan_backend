@@ -5,9 +5,20 @@ import { catchAsync } from 'utils/catchAsync';
 import { authService, tokenService, userService, emailService, pravicyservice } from 'services';
 import { EnumTypeOfToken, EnumCodeTypeOfCode, EnumForTimeDurationOfProfileHide } from 'models/enum.model';
 
+function generateRandomId() {
+  // Current date string
+  const dateString = new Date().toISOString().slice(0, 10).replace(/-/g, '').slice(4, 8);
+  // Generate random characters
+  const randomChars = Array.from({ length: 4 }, () => Math.random().toString(36).charAt(2)).join('');
+  // Combine date string and random characters
+  const uniqueId = dateString + randomChars;
+  return uniqueId;
+}
+
 export const register = catchAsync(async (req, res) => {
   const { body } = req;
-  const user = await userService.createUser(body);
+  const userUniqueId = generateRandomId();
+  const user = await userService.createUser({ ...body, userUniqueId });
   // const emailVerifyToken = await tokenService.generateVerifyEmailToken(user.email);
   // emailService.sendEmailVerificationEmail(user, emailVerifyToken).then().catch();
   const otp = generateOtp();

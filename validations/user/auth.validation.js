@@ -8,6 +8,7 @@ export const register = {
     password: Joi.string(),
     name: Joi.string().required(),
     mobileNumber: Joi.number(),
+    userUniqueId: Joi.string(),
   }),
 };
 
