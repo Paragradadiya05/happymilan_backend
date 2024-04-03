@@ -13,7 +13,10 @@ export async function createStatus(body = {}) {
   return status;
 }
 export async function getStatusList(filter, options = {}) {
-  const status = await Status.find(filter, options.projection, options);
+  const status = await Status.find(filter, options.projection, options).populate({
+    path: 'userId',
+    select: ['name', 'profilePic'],
+  });
   return status;
 }
 

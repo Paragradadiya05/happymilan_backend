@@ -36,6 +36,7 @@ export const verifyOtp = {
   body: Joi.object().keys({
     email: Joi.string().email().required(),
     otp: Joi.number().required(),
+    deviceToken: Joi.string().allow(''),
   }),
 };
 
