@@ -39,3 +39,5 @@ module.exports.usereducationValidation = require('./userEducation.validation');
 module.exports.partnerValidation = require('./partner.validation');
 
 module.exports.statusValidation = require('./status.validation');
+
+module.exports.emojiValidation = require('./emoji.valiodation');

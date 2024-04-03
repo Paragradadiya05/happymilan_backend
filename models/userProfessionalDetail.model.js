@@ -4,7 +4,7 @@ import { toJSON } from 'models/plugins';
 
 const UserProfessionalDetailSchema = new mongoose.Schema(
   {
-    jobTitel: {
+    jobTitle: {
       type: String,
     },
     userId: {
