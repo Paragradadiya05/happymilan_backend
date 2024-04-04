@@ -119,7 +119,8 @@ export async function addDeviceToken(user, body) {
   const deviceTokenList = user.deviceTokens.map((data) => data.deviceToken);
   if (_.indexOf(deviceTokenList, deviceToken) === -1) {
     user.deviceTokens.push({ deviceToken, platform });
-    const updatedUser = await updateUser({ _id: user._id }, user);
+    const updatedUser = await updateUser({ _id: user._id }, { $addToSet: { deviceTokens: { deviceToken } } }, { new: true });
     return updatedUser;
   }
+  return user;
 }

@@ -3,6 +3,7 @@ import httpStatus from 'http-status';
 import { Friend, Notification, User } from 'models';
 
 import { EnumStatusOfFriend } from '../models/enum.model';
+import { sendNotification } from './notification.service';
 
 export async function getFriendById(id, options = {}) {
   const friend = await Friend.findById(id, options.projection, options).populate('user').populate('friend').exec();
@@ -33,7 +34,9 @@ export async function createFriend(body = {}, user) {
   if (userId === friend) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'you cannot send friend request to yourself');
   }
-  if (!(await User.findById(friend))) {
+
+  const getFrdUser = await User.findById(friend);
+  if (!getFrdUser) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'no such user exists');
   }
   let getExistingFriendOrNot = await Friend.findOne({
@@ -61,7 +64,56 @@ export async function createFriend(body = {}, user) {
       },
       { new: true }
     );
-    await Notification.create({ userId: body.user, otherUserId: body.friend, body: 'Request sent' });
+    const createNotificationForUser = await Notification.create({
+      userId: body.user,
+      otherUserId: body.friend,
+      body: 'Request sent',
+    });
+    // send notification
+    // check if usr hase deice token or not
+    console.log('=== var user.deviceTokens.length ===>', user.deviceTokens.length);
+    if (user.deviceTokens.length) {
+      const deviceToken = user.deviceTokens.map((fcmToken) => fcmToken.deviceToken);
+      console.log('=== var name ===>', deviceToken);
+      await sendNotification(
+        deviceToken,
+        {
+          data: {
+            _id: createNotificationForUser._id.toString(),
+            userId: createNotificationForUser.userId.toString(),
+            otherUserId: createNotificationForUser.otherUserId.toString(),
+            body: 'Request sent',
+            createdAt: createNotificationForUser.createdAt.toString(),
+            updatedAt: createNotificationForUser.updatedAt.toString(),
+          },
+        },
+        {}
+      );
+    }
+
+    // after creating Notification we need to send firebase noti. to user
+    const createNotificationForReceiver = await Notification.create({
+      userId: body.user,
+      otherUserId: body.friend,
+      body: 'Request received',
+    });
+    if (getFrdUser.deviceTokens.length) {
+      const deviceToken = getFrdUser.deviceTokens.map((fcmToken) => fcmToken.deviceToken);
+      await sendNotification(
+        deviceToken,
+        {
+          data: {
+            _id: createNotificationForReceiver._id.toString(),
+            userId: createNotificationForReceiver.userId.toString(),
+            otherUserId: createNotificationForReceiver.otherUserId.toString(),
+            body: 'Request sent',
+            createdAt: createNotificationForReceiver.createdAt.toString(),
+            updatedAt: createNotificationForReceiver.updatedAt.toString(),
+          },
+        },
+        {}
+      );
+    }
     return getExistingFriendOrNot;
   }
   if (getExistingFriendOrNot && !getExistingFriendOrNot.status === EnumStatusOfFriend.REQUESTED) {
@@ -78,7 +130,54 @@ export async function createFriend(body = {}, user) {
     );
   }
 
-  await Notification.create({ userId: body.user, otherUserId: body.friend, body: 'Request sent' });
+  const createNotificationForUser = await Notification.create({
+    userId: body.user,
+    otherUserId: body.friend,
+    body: 'Request sent',
+  });
+  console.log('=== var name 1===>', user.deviceTokens.length);
+  if (user.deviceTokens.length) {
+    const deviceToken = user.deviceTokens.map((fcmToken) => fcmToken.deviceToken);
+    console.log('=== var name 2===>', deviceToken);
+    await sendNotification(
+      deviceToken,
+      {
+        data: {
+          _id: createNotificationForUser._id.toString(),
+          userId: createNotificationForUser.userId.toString(),
+          otherUserId: createNotificationForUser.otherUserId.toString(),
+          body: 'Request sent',
+          createdAt: createNotificationForUser.createdAt.toString(),
+          updatedAt: createNotificationForUser.updatedAt.toString(),
+        },
+      },
+      {}
+    );
+  }
+
+  const createNotificationForReceiver = await Notification.create({
+    otherUserId: body.user,
+    userId: body.friend,
+    body: 'Request received',
+  });
+  if (getFrdUser.deviceTokens.length) {
+    const deviceToken = getFrdUser.deviceTokens.map((fcmToken) => fcmToken.deviceToken);
+    console.log('=== var deviceToken ===>', deviceToken);
+    await sendNotification(
+      deviceToken,
+      {
+        data: {
+          _id: createNotificationForReceiver._id.toString(),
+          userId: createNotificationForReceiver.userId.toString(),
+          otherUserId: createNotificationForReceiver.otherUserId.toString(),
+          body: 'Request received',
+          createdAt: createNotificationForReceiver.createdAt.toString(),
+          updatedAt: createNotificationForReceiver.updatedAt.toString(),
+        },
+      },
+      {}
+    );
+  }
   return Friend.create({
     ...body,
     lastInitiatorUser: user,

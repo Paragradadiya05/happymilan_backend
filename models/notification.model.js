@@ -8,11 +8,14 @@ const notificationSchema = new mongoose.Schema(
       type: String,
     },
     body: {
-      type: String,
+      type: Object,
     },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
+    },
+    message: {
+      type: String,
     },
     otherUserId: {
       type: mongoose.Schema.Types.ObjectId,
