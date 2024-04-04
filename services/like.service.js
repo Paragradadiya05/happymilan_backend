@@ -1,6 +1,8 @@
 import httpStatus from 'http-status';
 import { Like, Notification, User } from '../models';
 import ApiError from '../utils/ApiError';
+import { sendNotification } from './notification.service';
+import { EnumOfNotification } from '../models/enum.model';
 
 export async function createLike(body = {}, user) {
   const userId = user._id;
@@ -17,7 +19,37 @@ export async function createLike(body = {}, user) {
     isLike,
     date: new Date(),
   };
-  await Notification.create({ userId, otherUserId: body.likedUserId, body: 'like' });
+  // await Notification.create({ userId, otherUserId: body.likedUserId, body: 'like' });
+
+  const createNotificationForLikedProfile = await Notification.create({
+    userId,
+    otherUserId: body.likedUserId,
+    body: EnumOfNotification.SOMEONE_LIKED_YOUR_PROFILE,
+  });
+  console.log('=====xx====>', createNotificationForLikedProfile);
+  // send notification
+  // check if usr hase deice token or not
+  console.log('===== like deviceTokens ====>', user);
+  console.log('=== var like deviceTokens.length ===>', user.deviceTokens.length);
+  if (user && user.deviceTokens && user.deviceTokens.length) {
+    const deviceToken = user.deviceTokens.map((fcmToken) => fcmToken.deviceToken);
+    console.log('=== var like deviceToken name ===>', deviceToken);
+    await sendNotification(
+      deviceToken,
+      {
+        data: {
+          _id: createNotificationForLikedProfile._id.toString(),
+          userId: createNotificationForLikedProfile.userId.toString(),
+          otherUserId: createNotificationForLikedProfile.otherUserId.toString(),
+          body: EnumOfNotification.SOMEONE_LIKED_YOUR_PROFILE,
+          createdAt: createNotificationForLikedProfile.createdAt.toString(),
+          updatedAt: createNotificationForLikedProfile.updatedAt.toString(),
+        },
+      },
+      {}
+    );
+  }
+
   return Like.create({
     user: userId,
     likedUserId: body.likedUserId,

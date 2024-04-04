@@ -189,7 +189,12 @@ const EnumOfImageTypes = {
   PROFILE_IMAGE: 'profileImage',
   STATUS_IMAGE: 'statusImage',
 };
-
+const EnumOfNotification = {
+  REQUEST_SENT: 'Request-sent',
+  REQUEST_RECEIVED: 'Request-received',
+  REQUEST_ACCEPTED: 'request-accepted',
+  SOMEONE_LIKED_YOUR_PROFILE: 'someone-liked-your-profile',
+};
 module.exports = {
   EnumCodeTypeOfCode,
   EnumRoleOfUser,
@@ -216,4 +221,5 @@ module.exports = {
   EnumForTimeDurationOfProfileHide,
   EnumOfReasonForProfileDelete,
   EnumOfImageTypes,
+  EnumOfNotification,
 };
