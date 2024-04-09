@@ -68,7 +68,6 @@ export const userPaginateStatus = catchAsync(async (req, res) => {
   const limitNumber = parseInt(limit, 10);
   const filter = {
     user: userId,
-    isLike: true,
   };
   const options = {
     page: pageNumber,
