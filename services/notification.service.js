@@ -5,6 +5,8 @@ const serviceAccount = require('../config/firebase.json');
 
 const notificationOptions = {
   priority: 'high',
+  timeToLive: 0,
+  ttl: 0,
 };
 /**
  * intializing the firebase messaging service (push notification)
@@ -37,8 +39,8 @@ export const verifyFCMToken = async (fcmToken) => {
  */
 export const sendNotification = async (deviceToken, message, options = {}) => {
   try {
-    console.log('=== var message ===>', message);
-
+    console.log('=== var sendNotification message===>', message);
+    console.log('=== var sendNotification deviceToken===>', deviceToken);
     return messaging.sendToDevice(deviceToken, message, { ...notificationOptions, ...options });
   } catch (e) {
     console.log('=== var name ===>', e);
