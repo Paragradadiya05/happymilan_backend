@@ -26,12 +26,13 @@ export const getNotificationById = catchAsync(async (req, res) => {
 });
 
 export const update = catchAsync(async (req, res) => {
+  const { body } = req;
   const { notificationId } = req.params;
   const filter = {
     _id: notificationId,
   };
   const options = { new: true };
-  const notification = await notificationservice.updatenotification(filter, options);
+  const notification = await notificationservice.updatenotification(filter, body, options);
   return res.status(httpStatus.OK).send({ results: notification });
 });
 

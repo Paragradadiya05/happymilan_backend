@@ -30,7 +30,7 @@ export const updateNotification = {
     body: Joi.string(),
     userId: Joi.objectId(),
     otherUserId: Joi.objectId(),
-    read: Joi.string(),
+    read: Joi.boolean(),
   }),
 };
 export const deleteNotification = {
