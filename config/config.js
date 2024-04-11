@@ -4,7 +4,6 @@ import Joi from 'joi';
 
 dotenv.config({ path: path.join(__dirname, '../.env') });
 
-console.log(' === variable ===> ', process.env.NODE_ENV);
 const envVarsSchema = Joi.object()
   .keys({
     NODE_ENV: Joi.string().valid('production', 'development', 'test').required(),

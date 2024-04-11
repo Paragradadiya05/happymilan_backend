@@ -57,8 +57,22 @@ app.use(compression());
 // set api response
 app.use(sendResponse);
 // enable cors
-app.use(cors());
-app.options('*', cors());
+
+// app.use(cors());
+// app.options('*', cors());
+
+app.use(
+  cors({
+    origin: ['http://localhost:3000', 'https://happymilan.tech/'],
+  })
+);
+app.options(
+  '*',
+  cors({
+    origin: ['http://localhost:3000', 'https://happymilan.tech/'],
+  })
+);
+
 app.use(express.static(path.join(__dirname, '../public')));
 // jwt authentication
 app.use(passport.initialize());
