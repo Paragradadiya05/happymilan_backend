@@ -1,7 +1,7 @@
 import path from 'path';
 import httpStatus from 'http-status';
 import mongoosePaginate from 'mongoose-paginate-v2';
-import cors from 'cors';
+// import cors from 'cors';
 import compression from 'compression';
 import mongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
@@ -60,18 +60,6 @@ app.use(sendResponse);
 
 // app.use(cors());
 // app.options('*', cors());
-
-app.use(
-  cors({
-    origin: ['http://localhost:3000', 'https://happymilan.tech/', 'https://happymilanweb.web.app/'],
-  })
-);
-app.options(
-  '*',
-  cors({
-    origin: ['http://localhost:3000', 'https://happymilan.tech/', 'https://happymilanweb.web.app/'],
-  })
-);
 
 app.use(express.static(path.join(__dirname, '../public')));
 // jwt authentication
