@@ -63,13 +63,13 @@ app.use(sendResponse);
 
 app.use(
   cors({
-    origin: ['http://localhost:3000', 'https://happymilan.tech/'],
+    origin: ['http://localhost:3000', 'https://happymilan.tech/', 'https://happymilanweb.web.app/'],
   })
 );
 app.options(
   '*',
   cors({
-    origin: ['http://localhost:3000', 'https://happymilan.tech/'],
+    origin: ['http://localhost:3000', 'https://happymilan.tech/', 'https://happymilanweb.web.app/'],
   })
 );
 
