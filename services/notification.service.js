@@ -51,27 +51,38 @@ export const verifyFCMToken = async (fcmToken) => {
 export const sendNotification = async (fcmToken, messageData) => {
   try {
     const message = {
-      data: {
-        _id: messageData.data._id,
-        userId: messageData.data.userId,
-        otherUserId: messageData.data.otherUserId,
-        body: messageData.data.body,
+      notification: {
+        ...(messageData.data._id && { _id: messageData.data._id }),
+        ...(messageData.data.userId && { _id: messageData.data.userId }),
+        ...(messageData.data.body && { _id: messageData.data._id }),
+        ...(messageData.data.title && { _id: messageData.data.body }),
       },
     };
-
     messaging
-      .sendToDevice(fcmToken, message, {
-        priority: 'high',
-        timeToLive: 0,
-        ttl: 0,
-      })
+      .sendToDevice(
+        fcmToken,
+        {
+          notification: {
+            title: messageData.data.body,
+            ...(messageData.data.body && { jsonData: JSON.stringify(message) }),
+          },
+        },
+        {
+          priority: 'high',
+          timeToLive: 0,
+          ttl: 0,
+          // dryRun: true,
+        }
+      )
       .then((res) => {
-        console.log('=== var name ===>', res.results);
+        if (!res.successCount) {
+          console.log('error in send notification ===>', res.results);
+        }
       })
       .catch((e) => {
-        console.log('=== var error ===>', e);
+        console.log('=== error in send notification outside fun ===>', e);
       });
   } catch (er) {
-    console.log('=== var eer ===>', er);
+    console.log('=== error in send notification outside fun catch ===>', er);
   }
 };

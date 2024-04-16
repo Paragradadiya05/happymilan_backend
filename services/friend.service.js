@@ -123,7 +123,6 @@ export async function createFriend(body = {}, user) {
   });
   if (user.deviceTokens.length) {
     await user.deviceTokens.map(async (fcmToken) => {
-      console.log('=== var fcmToken.deviceToken ===>', fcmToken.deviceToken);
       await sendNotification(
         fcmToken.deviceToken,
         {
@@ -132,8 +131,6 @@ export async function createFriend(body = {}, user) {
             userId: createNotificationForUser.userId.toString(),
             otherUserId: createNotificationForUser.otherUserId.toString(),
             body: EnumOfNotification.REQUEST_SENT,
-            createdAt: createNotificationForUser.createdAt.toString(),
-            updatedAt: createNotificationForUser.updatedAt.toString(),
           },
         },
         {}
