@@ -32,18 +32,46 @@ export const verifyFCMToken = async (fcmToken) => {
  * @param {string} options
  * @returns {Promise}
  */
-export const sendNotification = async (deviceToken, message) => {
+// export const sendNotification = async (deviceToken, message) => {
+//   try {
+//     console.log('===sendNotification deviceToken ===>', deviceToken);
+//     console.log('=== sendNotification message ===>', message);
+//     const result = await messaging.sendToDevice(deviceToken, message, {
+//       priority: 'high',
+//       timeToLive: 0,
+//       ttl: 0,
+//     });
+//     console.log('=== sendNotification result ===>', result);
+//     return result;
+//   } catch (e) {
+//     console.log('=== sendNotification error ===>', e);
+//   }
+// };
+
+export const sendNotification = async (fcmToken, messageData) => {
   try {
-    console.log('===sendNotification deviceToken ===>', deviceToken);
-    console.log('=== sendNotification message ===>', message);
-    const result = await messaging.sendToDevice(deviceToken, message, {
-      priority: 'high',
-      timeToLive: 0,
-      ttl: 0,
-    });
-    console.log('=== sendNotification result ===>', result);
-    return result;
-  } catch (e) {
-    console.log('=== sendNotification error ===>', e);
+    const message = {
+      data: {
+        _id: messageData.data._id,
+        userId: messageData.data.userId,
+        otherUserId: messageData.data.otherUserId,
+        body: messageData.data.body,
+      },
+    };
+
+    messaging
+      .sendToDevice(fcmToken, message, {
+        priority: 'high',
+        timeToLive: 0,
+        ttl: 0,
+      })
+      .then((res) => {
+        console.log('=== var name ===>', res.results);
+      })
+      .catch((e) => {
+        console.log('=== var error ===>', e);
+      });
+  } catch (er) {
+    console.log('=== var eer ===>', er);
   }
 };
