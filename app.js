@@ -1,7 +1,7 @@
 import path from 'path';
 import httpStatus from 'http-status';
 import mongoosePaginate from 'mongoose-paginate-v2';
-// import cors from 'cors';
+import cors from 'cors';
 import compression from 'compression';
 import mongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
@@ -58,8 +58,8 @@ app.use(compression());
 app.use(sendResponse);
 // enable cors
 
-// app.use(cors());
-// app.options('*', cors());
+app.use(cors());
+app.options('*', cors());
 
 app.use(express.static(path.join(__dirname, '../public')));
 // jwt authentication
