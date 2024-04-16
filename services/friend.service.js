@@ -69,24 +69,17 @@ export async function createFriend(body = {}, user) {
     });
     // send notification
     // check if usr hase deice token or not
-    console.log('=== var user.deviceTokens.length ===>', user.deviceTokens.length);
     if (user.deviceTokens.length) {
-      const deviceToken = user.deviceTokens.map((fcmToken) => fcmToken.deviceToken);
-      console.log('=== var name ===>', deviceToken);
-      await sendNotification(
-        deviceToken,
-        {
+      await user.deviceTokens.map(async (fcmToken) => {
+        await sendNotification(fcmToken.deviceToken, {
           data: {
             _id: createNotificationForUser._id.toString(),
             userId: createNotificationForUser.userId.toString(),
             otherUserId: createNotificationForUser.otherUserId.toString(),
             body: EnumOfNotification.REQUEST_SENT,
-            createdAt: createNotificationForUser.createdAt.toString(),
-            updatedAt: createNotificationForUser.updatedAt.toString(),
           },
-        },
-        {}
-      );
+        });
+      });
     }
 
     // after creating Notification we need to send firebase noti. to user
@@ -96,21 +89,16 @@ export async function createFriend(body = {}, user) {
       body: EnumOfNotification.REQUEST_RECEIVED,
     });
     if (getFrdUser.deviceTokens.length) {
-      const deviceToken = getFrdUser.deviceTokens.map((fcmToken) => fcmToken.deviceToken);
-      await sendNotification(
-        deviceToken,
-        {
+      await getFrdUser.deviceTokens.map(async (fcmToken) => {
+        await sendNotification(fcmToken.deviceToken, {
           data: {
             _id: createNotificationForReceiver._id.toString(),
             userId: createNotificationForReceiver.userId.toString(),
             otherUserId: createNotificationForReceiver.otherUserId.toString(),
             body: EnumOfNotification.REQUEST_RECEIVED,
-            createdAt: createNotificationForReceiver.createdAt.toString(),
-            updatedAt: createNotificationForReceiver.updatedAt.toString(),
           },
-        },
-        {}
-      );
+        });
+      });
     }
     return getExistingFriendOrNot;
   }
@@ -133,25 +121,24 @@ export async function createFriend(body = {}, user) {
     otherUserId: body.friend,
     body: EnumOfNotification.REQUEST_SENT,
   });
-  console.log('=====xx====>', user);
-  console.log('=== var name 1===>', user.deviceTokens.length);
   if (user.deviceTokens.length) {
-    const deviceToken = user.deviceTokens.map((fcmToken) => fcmToken.deviceToken);
-    console.log('=== var name 2===>', deviceToken);
-    await sendNotification(
-      deviceToken,
-      {
-        data: {
-          _id: createNotificationForUser._id.toString(),
-          userId: createNotificationForUser.userId.toString(),
-          otherUserId: createNotificationForUser.otherUserId.toString(),
-          body: EnumOfNotification.REQUEST_SENT,
-          createdAt: createNotificationForUser.createdAt.toString(),
-          updatedAt: createNotificationForUser.updatedAt.toString(),
+    await user.deviceTokens.map(async (fcmToken) => {
+      console.log('=== var fcmToken.deviceToken ===>', fcmToken.deviceToken);
+      await sendNotification(
+        fcmToken.deviceToken,
+        {
+          data: {
+            _id: createNotificationForUser._id.toString(),
+            userId: createNotificationForUser.userId.toString(),
+            otherUserId: createNotificationForUser.otherUserId.toString(),
+            body: EnumOfNotification.REQUEST_SENT,
+            createdAt: createNotificationForUser.createdAt.toString(),
+            updatedAt: createNotificationForUser.updatedAt.toString(),
+          },
         },
-      },
-      {}
-    );
+        {}
+      );
+    });
   }
 
   const createNotificationForReceiver = await Notification.create({
@@ -160,11 +147,8 @@ export async function createFriend(body = {}, user) {
     body: EnumOfNotification.REQUEST_RECEIVED,
   });
   if (getFrdUser.deviceTokens.length) {
-    const deviceToken = getFrdUser.deviceTokens.map((fcmToken) => fcmToken.deviceToken);
-    console.log('=== var deviceToken ===>', deviceToken);
-    await sendNotification(
-      deviceToken,
-      {
+    await getFrdUser.deviceTokens.map(async (fcmToken) => {
+      await sendNotification(fcmToken.deviceToken, {
         data: {
           _id: createNotificationForReceiver._id.toString(),
           userId: createNotificationForReceiver.userId.toString(),
@@ -173,9 +157,8 @@ export async function createFriend(body = {}, user) {
           createdAt: createNotificationForReceiver.createdAt.toString(),
           updatedAt: createNotificationForReceiver.updatedAt.toString(),
         },
-      },
-      {}
-    );
+      });
+    });
   }
   return Friend.create({
     ...body,

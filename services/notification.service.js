@@ -3,11 +3,6 @@ import admin from 'firebase-admin';
 // TODO: uncomment this line and create FirebaseJson
 const serviceAccount = require('../config/firebase.json');
 
-const notificationOptions = {
-  priority: 'high',
-  timeToLive: 0,
-  ttl: 0,
-};
 /**
  * intializing the firebase messaging service (push notification)
  */
@@ -23,7 +18,7 @@ export const verifyFCMToken = async (fcmToken) => {
       {
         token: fcmToken,
       },
-      true
+      false
     );
     return isValid;
   } catch (er) {}
@@ -37,34 +32,18 @@ export const verifyFCMToken = async (fcmToken) => {
  * @param {string} options
  * @returns {Promise}
  */
-export const sendNotification = async (deviceToken, message, options = {}) => {
+export const sendNotification = async (deviceToken, message) => {
   try {
-    console.log('=== var sendNotification message===>', message);
-    console.log('=== var sendNotification deviceToken===>', deviceToken);
-    return messaging.sendToDevice(deviceToken, message, { ...notificationOptions, ...options });
+    console.log('===sendNotification deviceToken ===>', deviceToken);
+    console.log('=== sendNotification message ===>', message);
+    const result = await messaging.sendToDevice(deviceToken, message, {
+      priority: 'high',
+      timeToLive: 0,
+      ttl: 0,
+    });
+    console.log('=== sendNotification result ===>', result);
+    return result;
   } catch (e) {
-    console.log('=== var name ===>', e);
+    console.log('=== sendNotification error ===>', e);
   }
 };
-
-// export const sendNotification = async (deviceToken, message, options = {}) => {
-//   try {
-//     const payload = {
-//       notification: {
-//         title: 'Urgent action needed!',
-//         body: 'Urgent action is needed to prevent your account from being disabled!',
-//       },
-//     };
-//
-//     messaging
-//       .sendToDevice(deviceToken, message, { ...notificationOptions, ...options })
-//       .then((response) => {
-//         console.log('Successfully sent message:', response);
-//       })
-//       .catch((error) => {
-//         console.log('Error sending message:', error);
-//       });
-//   } catch (e) {
-//     console.log('=== var name ===>', e);
-//   }
-// };
