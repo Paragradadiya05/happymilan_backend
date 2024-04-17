@@ -38,3 +38,9 @@ export const deleteNotification = {
     notificationId: Joi.objectId().required(),
   }),
 };
+
+export const getNotificationId = {
+  params: Joi.object().keys({
+    notificationId: Joi.objectId().required(),
+  }),
+};

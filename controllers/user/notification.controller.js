@@ -44,3 +44,12 @@ export const remove = catchAsync(async (req, res) => {
   const notification = await notificationservice.removeNotification(filter);
   return res.status(httpStatus.OK).send({ results: notification });
 });
+
+export const getById = catchAsync(async (req, res) => {
+  const { notificationId } = req.params;
+  const filter = {
+    _id: notificationId,
+  };
+  const notification = await notificationservice.getOne(filter);
+  return res.status(httpStatus.OK).send({ results: notification });
+});

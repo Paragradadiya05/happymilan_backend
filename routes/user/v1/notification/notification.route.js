@@ -40,9 +40,18 @@ router.put(
  * deleteNotificationById
  * */
 router.delete(
-  '/delete-notification/:notificationId',
+  '/delete-notificationbyId/:notificationId',
   auth(),
   validate(notificationValidation.deleteNotification),
   notificationController.remove
+);
+/**
+ * GetNotificationById
+ * */
+router.get(
+  '/get-notification/:notificationId',
+  auth(),
+  validate(notificationValidation.getNotificationId),
+  notificationController.getById
 );
 export default router;

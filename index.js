@@ -19,7 +19,7 @@ mongoose.connect(config.mongoose.url, config.mongoose.options).then(() => {
   socketAPI.io.adapter(redisAdapter({ host: config.redis.host, port: config.redis.port }));
   socketAPI.io.attach(server, {
     cors: {
-      origin: '*',
+      origin: ['http://localhost:3000', 'https://happymilan.tech/', 'https://happymilanweb.web.app/'],
       methods: ['GET', 'POST'],
     },
   });
