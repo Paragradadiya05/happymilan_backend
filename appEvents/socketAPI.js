@@ -20,13 +20,12 @@ io.use(initSubscription).on('connection', function (socket) {
     // from : => login user
     // to: => receiver message user
     // message : => message that sent from user
-    const { from, to, message } = data;
-    const getUserToSendMessage = await userService.getOne({ _id: to });
-    if (!getUserToSendMessage) {
-      throw new ApiError(httpStatus.NOT_FOUND, 'user not fount, please login back');
-    }
-
     try {
+      const { from, to, message } = data;
+      const getUserToSendMessage = await userService.getOne({ _id: to });
+      if (!getUserToSendMessage) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'user not fount, please login back');
+      }
       // create message
       const createMessageBody = {
         from,
