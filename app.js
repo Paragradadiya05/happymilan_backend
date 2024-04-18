@@ -35,12 +35,7 @@ if (config.env !== 'test') {
   app.use(successHandler);
   app.use(morganErrorHandler);
 }
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, GET');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  next();
-});
+
 // The request handler must be the first middleware on the app
 // app.use(Sentry.Handlers.requestHandler());
 
