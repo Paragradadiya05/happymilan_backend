@@ -1,23 +1,25 @@
 import mongoose from 'mongoose';
+import cors from 'cors'; // Import cors middleware
 import { createServer } from 'http'; // Import createServer function from 'http'
 // import { Server } from 'socket.io';
 import redisAdapter from 'socket.io-redis';
-import config from './config/config';
-import { logger } from './config/logger';
-import socketAPI from './appEvents/socketAPI';
-import { initSockets } from './appEvents/handler';
+import config from 'config/config';
+import { logger } from 'config/logger';
+import socketAPI from 'appEvents/socketAPI';
+import { initSockets } from 'appEvents/handler';
 import app from './app';
 
 const server = createServer(app); // Create HTTP server using Express app
 // const io = new Server(server); // Create Socket.IO server
 
-// Middleware to handle CORS for Express routes
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:3000'); // Allow requests from this origin
-  res.header('Access-Control-Allow-Methods', 'GET, POST'); // Allow these HTTP methods
-  res.header('Access-Control-Allow-Headers', 'Content-Type'); // Allow Content-Type header
-  next();
-});
+// Use cors middleware
+app.use(
+  cors({
+    origin: 'http://localhost:3000', // Allow requests from this origin
+    methods: ['GET', 'POST'], // Allow these HTTP methods
+    allowedHeaders: ['Access-Control-Allow-Origin', 'http://localhost:3000'], // Allow these headers
+  })
+);
 
 mongoose.connect(config.mongoose.url, config.mongoose.options).then(() => {
   logger.info('Connected to MongoDB');
