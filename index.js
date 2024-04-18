@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import cors from 'cors'; // Import cors middleware
 import { createServer } from 'http'; // Import createServer function from 'http'
-// import { Server } from 'socket.io';
+import { Server } from 'socket.io';
 import redisAdapter from 'socket.io-redis';
 import config from 'config/config';
 import { logger } from 'config/logger';
@@ -29,8 +29,10 @@ mongoose.connect(config.mongoose.url, config.mongoose.options).then(() => {
   mongoose.set('useFindAndModify', false);
 
   // Configure Socket.IO with Redis adapter and attach it to the HTTP server
-  socketAPI.io.adapter(redisAdapter({ host: config.redis.host, port: config.redis.port }));
-  socketAPI.io.attach(server);
+  const io = new Server(server); // Create Socket.IO server
+  io.adapter(redisAdapter({ host: config.redis.host, port: config.redis.port })); // Configure Socket.IO with Redis adapter
+  socketAPI.io = io; // Set the io instance in socketAPI
+  socketAPI.io.attach(server); // Attach Socket.IO to the HTTP server
 
   initSockets();
 });
