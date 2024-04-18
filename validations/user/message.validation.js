@@ -7,6 +7,7 @@ export const createMessage = {
   body: Joi.object().keys({
     from: Joi.objectId().required(),
     to: Joi.objectId().required(),
+    type: Joi.string(),
     message: Joi.string().required(),
   }),
 };

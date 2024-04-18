@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const mongoosePaginateV2 = require('mongoose-paginate-v2');
 const { toJSON, softDelete } = require('./plugins');
+const enumModel = require('./enum.model');
+const { EnumOfChatType } = require('./enum.model');
 
 const { ObjectId } = mongoose.Schema.Types;
 
@@ -19,6 +21,11 @@ const MessageSchema = mongoose.Schema(
     message: {
       type: String,
       required: true,
+    },
+    type: {
+      type: String,
+      enum: Object.values(enumModel.EnumOfChatType),
+      default: EnumOfChatType.TEXT,
     },
     isReadMessage: {
       type: Boolean,

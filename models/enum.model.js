@@ -195,6 +195,13 @@ const EnumOfNotification = {
   REQUEST_ACCEPTED: 'request-accepted',
   SOMEONE_LIKED_YOUR_PROFILE: 'someone-liked-your-profile',
 };
+const EnumOfChatType = {
+  IMAGE: 'image',
+  DOC: 'doc',
+  LINK: 'link',
+  REPLY: 'reply',
+  TEXT: 'text',
+};
 module.exports = {
   EnumCodeTypeOfCode,
   EnumRoleOfUser,
@@ -222,4 +229,5 @@ module.exports = {
   EnumOfReasonForProfileDelete,
   EnumOfImageTypes,
   EnumOfNotification,
+  EnumOfChatType,
 };
