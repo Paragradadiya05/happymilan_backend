@@ -26,30 +26,34 @@ io.use(initSubscription).on('connection', function (socket) {
       throw new ApiError(httpStatus.NOT_FOUND, 'user not fount, please login back');
     }
 
-    // create message
-    const createMessageBody = {
-      from,
-      to,
-      message,
-      sendAt: Date.now(),
-    };
-    await messageservice.createMessage(createMessageBody);
+    try {
+      // create message
+      const createMessageBody = {
+        from,
+        to,
+        message,
+        sendAt: Date.now(),
+      };
+      await messageservice.createMessage(createMessageBody);
 
-    const sendMessage = await messageservice.getMessageList({
-      from,
-      to: { $in: [getUserToSendMessage._id] },
-    });
-    socket.emit('message', {
-      from,
-      to,
-      sendMessage,
-    });
+      const sendMessage = await messageservice.getMessageList({
+        from,
+        to: { $in: [getUserToSendMessage._id] },
+      });
+      socket.emit('message', {
+        from,
+        to,
+        sendMessage,
+      });
 
-    socket.to(to).emit('message', {
-      from,
-      to,
-      sendMessage,
-    });
+      socket.to(to).emit('message', {
+        from,
+        to,
+        sendMessage,
+      });
+    } catch (e) {
+      console.log('=== error from socket  ===>', e);
+    }
   });
 });
 // io.on('connection', function (socket) {
