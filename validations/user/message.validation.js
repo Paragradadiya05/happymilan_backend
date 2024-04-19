@@ -17,3 +17,14 @@ export const getMessage = {
     otherUser: Joi.objectId().required(),
   }),
 };
+export const getMessagePaginated = {
+  params: Joi.object().keys({
+    userId: Joi.objectId(),
+  }),
+  query: Joi.object()
+    .keys({
+      page: Joi.number().default(1),
+      limit: Joi.number().default(15).max(100),
+    })
+    .unknown(true),
+};

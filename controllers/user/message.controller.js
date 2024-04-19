@@ -19,3 +19,19 @@ export const getMessage = catchAsync(async (req, res) => {
   const message = await messageservice.getMessageList(filter, options);
   return res.status(httpStatus.OK).send({ results: message });
 });
+
+export const getMessagePaginated = catchAsync(async (req, res) => {
+  const { userId } = req.params;
+  const { page, limit } = req.query;
+  const pageNumber = parseInt(page, 10);
+  const limitNumber = parseInt(limit, 15);
+  const filter = {
+    user: userId,
+  };
+  const options = {
+    page: pageNumber,
+    limit: limitNumber,
+  };
+  const message = await messageservice.getMessageWithPagination(filter, options);
+  return res.status(httpStatus.OK).send({ results: message });
+});

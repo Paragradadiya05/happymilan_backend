@@ -17,5 +17,10 @@ router
    * getmessage
    * */
   .get(validate(messageValidation.getMessage), messageController.getMessage);
-
+router
+  .route('/get-message-paginated')
+  /**
+   * getmessage
+   * */
+  .get(validate(messageValidation.getMessagePaginated), messageController.getMessagePaginated);
 export default router;

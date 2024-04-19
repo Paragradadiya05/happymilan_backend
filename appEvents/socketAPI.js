@@ -34,10 +34,14 @@ io.use(initSubscription).on('connection', function (socket) {
         sendAt: Date.now(),
       };
       await messageservice.createMessage(createMessageBody);
-
-      const sendMessage = await messageservice.getMessageList({
+      const options = {
+        page: 1,
+        limit: 15,
+      };
+      const sendMessage = await messageservice.getMessageWithPagination({
         from,
         to: { $in: [getUserToSendMessage._id] },
+        options,
       });
       socket.emit('message', {
         from,
