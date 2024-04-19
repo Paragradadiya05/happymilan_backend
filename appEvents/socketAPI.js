@@ -21,7 +21,7 @@ io.use(initSubscription).on('connection', function (socket) {
     // to: => receiver message user
     // message : => message that sent from user
     try {
-      const { from, to, message } = data;
+      const { from, to, message, page, limit } = data;
       const getUserToSendMessage = await userService.getOne({ _id: to });
       if (!getUserToSendMessage) {
         throw new ApiError(httpStatus.NOT_FOUND, 'user not fount, please login back');
@@ -35,14 +35,18 @@ io.use(initSubscription).on('connection', function (socket) {
       };
       await messageservice.createMessage(createMessageBody);
       const options = {
-        page: 1,
-        limit: 15,
+        page: page || 1,
+        limit: limit || 15,
+        sort: { sendAt: -1 }, // Default limit to 10 if not specified
       };
-      const sendMessage = await messageservice.getMessageWithPagination({
-        from,
-        to: { $in: [getUserToSendMessage._id] },
-        options,
-      });
+      const sendMessage = await messageservice.getMessageWithPagination(
+        {
+          from,
+          to: { $in: [getUserToSendMessage._id] },
+        },
+        options
+      );
+
       socket.emit('message', {
         from,
         to,
