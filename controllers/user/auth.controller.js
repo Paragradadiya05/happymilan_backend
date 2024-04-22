@@ -3,7 +3,14 @@ import { generateOtp } from 'utils/common';
 import ApiError from 'utils/ApiError';
 import { catchAsync } from 'utils/catchAsync';
 import { authService, tokenService, userService, emailService, pravicyservice } from 'services';
-import { EnumTypeOfToken, EnumCodeTypeOfCode, EnumForTimeDurationOfProfileHide } from 'models/enum.model';
+import {
+  EnumTypeOfToken,
+  EnumCodeTypeOfCode,
+  EnumForTimeDurationOfProfileHide,
+  EnumOfNotification,
+} from 'models/enum.model';
+import { Notification } from '../../models';
+import { sendNotification } from '../../services/notification.service';
 
 function generateRandomId() {
   // Current date string
@@ -69,7 +76,32 @@ export const register = catchAsync(async (req, res) => {
   });
   await pravicyservice.createPrivacy(question);
   await emailService.sendOtpVerificationEmail(user, otp).then().catch();
-
+  const createNotificationForOtp = await Notification.create({
+    userId: user._id,
+    body: EnumOfNotification.OTP_SEND,
+  });
+  console.log('=====xx====>', createNotificationForOtp);
+  // send notification
+  // check if usr hase deice token or not
+  console.log('===== Otp deviceTokens ====>', user);
+  console.log('=== var Otp deviceTokens.length ===>', user.deviceTokens.length);
+  if (user && user.deviceTokens && user.deviceTokens.length) {
+    const deviceToken = user.deviceTokens.map((fcmToken) => fcmToken.deviceToken);
+    console.log('=== var Otp deviceToken name ===>', deviceToken);
+    await sendNotification(
+      deviceToken,
+      {
+        data: {
+          _id: createNotificationForOtp._id.toString(),
+          userId: createNotificationForOtp.userId.toString(),
+          body: EnumOfNotification.OTP_SEND,
+          createdAt: createNotificationForOtp.createdAt.toString(),
+          updatedAt: createNotificationForOtp.updatedAt.toString(),
+        },
+      },
+      {}
+    );
+  }
   res.status(httpStatus.OK).send({
     results: {
       success: true,
@@ -154,6 +186,33 @@ export const verifyOtp = catchAsync(async (req, res) => {
     res.status(httpStatus.OK).send({ results: { user: updatedUser, tokens } });
   } else {
     await emailService.sendCongratulationEmail(user).then().catch();
+    const createNotificationForCongratulation = await Notification.create({
+      userId: user._id,
+      body: EnumOfNotification.CONGRATULATION,
+    });
+    console.log('=====xx====>', createNotificationForCongratulation);
+    // send notification
+    // check if usr hase deice token or not
+    console.log('===== Congratulations deviceTokens ====>', user);
+    console.log('=== var Congratulations deviceTokens.length ===>', user.deviceTokens.length);
+    if (user && user.deviceTokens && user.deviceTokens.length) {
+      // eslint-disable-next-line no-shadow
+      const deviceToken = user.deviceTokens.map((fcmToken) => fcmToken.deviceToken);
+      console.log('=== var Congratulations deviceToken name ===>', deviceToken);
+      await sendNotification(
+        deviceToken,
+        {
+          data: {
+            _id: createNotificationForCongratulation._id.toString(),
+            userId: createNotificationForCongratulation.userId.toString(),
+            body: EnumOfNotification.CONGRATULATION,
+            createdAt: createNotificationForCongratulation.createdAt.toString(),
+            updatedAt: createNotificationForCongratulation.updatedAt.toString(),
+          },
+        },
+        {}
+      );
+    }
     res.status(httpStatus.OK).send({ results: { user, tokens } });
   }
 });

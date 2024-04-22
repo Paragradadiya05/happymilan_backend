@@ -1,11 +1,12 @@
 import httpStatus from 'http-status';
 import ApiError from 'utils/ApiError';
 import _ from 'lodash';
-import { User, Token } from 'models';
+import { User, Token, Notification } from 'models';
 import { userService, tokenService, emailService } from 'services';
-import { EnumTypeOfToken, EnumCodeTypeOfCode } from 'models/enum.model';
+import { EnumTypeOfToken, EnumCodeTypeOfCode, EnumOfNotification } from 'models/enum.model';
 import bcrypt from 'bcryptjs';
 import { generateOtp } from 'utils/common';
+import { sendNotification } from './notification.service';
 /**
  * Login with username and password
  * @param {string} email
@@ -62,6 +63,32 @@ export const forgotPassword = async (email) => {
 
   await userService.updateUser({ email }, body, { new: true });
   await emailService.sendResetPasswordEmail(email, otp);
+  const createNotificationForResetPass = await Notification.create({
+    userId: user._id,
+    body: EnumOfNotification.RESET_PASS,
+  });
+  console.log('=====xx====>', createNotificationForResetPass);
+  // send notification
+  // check if usr hase deice token or not
+  console.log('===== Otp deviceTokens ====>', user);
+  console.log('=== var Otp deviceTokens.length ===>', user.deviceTokens.length);
+  if (user.deviceTokens.length) {
+    const deviceToken = user.deviceTokens.map((fcmToken) => fcmToken.deviceToken);
+    console.log('=== var Otp deviceToken name ===>', deviceToken);
+    await sendNotification(
+      deviceToken,
+      {
+        data: {
+          _id: createNotificationForResetPass._id.toString(),
+          userId: createNotificationForResetPass.userId.toString(),
+          body: EnumOfNotification.RESET_PASS,
+          createdAt: createNotificationForResetPass.createdAt.toString(),
+          updatedAt: createNotificationForResetPass.updatedAt.toString(),
+        },
+      },
+      {}
+    );
+  }
   return user;
 };
 

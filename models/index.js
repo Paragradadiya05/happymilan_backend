@@ -24,3 +24,4 @@ module.exports.Partner = require('./partner.model');
 module.exports.Education = require('./userEducation.model');
 module.exports.Status = require('./status.model');
 module.exports.Emoji = require('./emoji.model');
+module.exports.Offer = require('./offer.model');

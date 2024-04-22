@@ -22,8 +22,8 @@ export async function createLike(body = {}, user) {
   // await Notification.create({ userId, otherUserId: body.likedUserId, body: 'like' });
 
   const createNotificationForLikedProfile = await Notification.create({
-    userId,
-    otherUserId: body.likedUserId,
+    userId: body.likedUserId,
+    otherUserId: user._id,
     body: EnumOfNotification.SOMEONE_LIKED_YOUR_PROFILE,
   });
   console.log('=====xx====>', createNotificationForLikedProfile);

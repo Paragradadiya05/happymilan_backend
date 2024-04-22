@@ -194,6 +194,10 @@ const EnumOfNotification = {
   REQUEST_RECEIVED: 'Request-received',
   REQUEST_ACCEPTED: 'request-accepted',
   SOMEONE_LIKED_YOUR_PROFILE: 'someone-liked-your-profile',
+  OTP_SEND: 'otp has been sent to your registered email',
+  RESET_PASS: 'link has been sent to your registered email',
+  CONGRATULATION:
+    'Welcome to HappyMilan! We are thrilled to have you as a part of our community. Congratulations on successfully registering your account.',
 };
 const EnumOfChatType = {
   IMAGE: 'image',
@@ -201,6 +205,11 @@ const EnumOfChatType = {
   LINK: 'link',
   REPLY: 'reply',
   TEXT: 'text',
+};
+const EnumOfOffer = {
+  FESTIVAL: 'festival',
+  OFFER: 'offer',
+  PROMOTION: 'promotion',
 };
 module.exports = {
   EnumCodeTypeOfCode,
@@ -230,4 +239,5 @@ module.exports = {
   EnumOfImageTypes,
   EnumOfNotification,
   EnumOfChatType,
+  EnumOfOffer,
 };
