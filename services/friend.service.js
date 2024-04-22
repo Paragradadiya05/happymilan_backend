@@ -5,20 +5,33 @@ import { EnumOfNotification, EnumStatusOfFriend } from '../models/enum.model';
 import { sendNotification } from './notification.service';
 
 export async function getFriendById(id, options = {}) {
-  const friend = await Friend.findById(id, options.projection, options).populate('user').populate('friend').exec();
+  const friend = await Friend.findById(id, options.projection, options)
+    .populate('address')
+    .populate('user')
+    .populate('friend')
+    .exec();
   return friend;
 }
 
 export async function getOne(query, options = {}) {
-  const friend = await Friend.findOne(query, options.projection, options).populate('user').populate('friend').exec();
+  const friend = await Friend.findOne(query, options.projection, options)
+    .populate('user')
+    .populate('friend')
+    .populate('address')
+    .exec();
   return friend;
 }
 
 export async function getFriendList(filter, options = {}) {
   const friend = await Friend.find(filter, options.projection, options)
-    .populate('user')
-    .populate('friend')
-    .populate('Address')
+    .populate({
+      path: 'friend',
+      populate: { path: 'address' }, // Populate the address field of the user object
+    })
+    .populate({
+      path: 'user',
+      populate: { path: 'address' }, // Populate the address field of the user object
+    })
     .exec();
   return friend;
 }
