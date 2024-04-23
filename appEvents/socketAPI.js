@@ -62,6 +62,42 @@ io.use(initSubscription).on('connection', function (socket) {
       console.log('=== error from socket  ===>', e);
     }
   });
+
+  socket.on('getLastConversation', async (data) => {
+    try {
+      const { from, to, page, limit } = data;
+      const getUserToSendMessage = await userService.getOne({ _id: to });
+      if (!getUserToSendMessage) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'user not fount, please login back');
+      }
+
+      const sendMessage = await messageservice.getMessageWithPagination(
+        {
+          from,
+          to: { $in: [getUserToSendMessage._id] },
+        },
+        {
+          page: page || 1,
+          limit: limit || 15,
+          sort: { sendAt: -1 }, // Default limit to 10 if not specified
+        }
+      );
+
+      socket.emit('message', {
+        from,
+        to,
+        sendMessage,
+      });
+
+      // socket.to(to).emit('message', {
+      //   from,
+      //   to,
+      //   sendMessage,
+      // });
+    } catch (e) {
+      console.log('=== error from get last conversation ===>', e);
+    }
+  });
 });
 // io.on('connection', function (socket) {
 //   console.log('=== var name ===> connection establised');
