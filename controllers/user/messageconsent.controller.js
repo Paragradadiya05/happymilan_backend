@@ -1,0 +1,40 @@
+import httpStatus from 'http-status';
+import { messageConsentservice } from 'services';
+import { catchAsync } from 'utils/catchAsync';
+
+export const create = catchAsync(async (req, res) => {
+  const { body } = req;
+  body.createdBy = req.user;
+  body.updatedBy = req.user;
+  const options = {};
+  const messageConsent = await messageConsentservice.createMessageConsent(body, options);
+  return res.status(httpStatus.CREATED).send({ results: messageConsent });
+});
+
+export const update = catchAsync(async (req, res) => {
+  const { body } = req;
+  body.updatedBy = req.user;
+  const { messageConsentId } = req.params;
+  const filter = {
+    _id: messageConsentId,
+  };
+  const options = { new: true };
+  const messageConsent = await messageConsentservice.updateMessageConsent(filter, body, options);
+  return res.status(httpStatus.OK).send({ results: messageConsent });
+});
+
+export const remove = catchAsync(async (req, res) => {
+  const { messageConsentId } = req.params;
+  const filter = {
+    _id: messageConsentId,
+  };
+  const messageConsent = await messageConsentservice.removeMessageConsent(filter);
+  return res.status(httpStatus.OK).send({ results: messageConsent });
+});
+
+export const list = catchAsync(async (req, res) => {
+  const filter = {};
+  const options = {};
+  const messageConsent = await messageConsentservice.getMessageConsentList(filter, options);
+  return res.status(httpStatus.OK).send({ results: messageConsent });
+});

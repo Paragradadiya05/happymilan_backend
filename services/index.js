@@ -31,3 +31,4 @@ module.exports.partnerservice = require('./partner.service');
 module.exports.statusService = require('./status.service');
 module.exports.emojiService = require('./emoji.service');
 module.exports.offerService = require('./offer.service');
+module.exports.messageConsentservice = require('./messageconsent.service');

@@ -21,3 +21,4 @@ module.exports.partnerController = require('./partner.controller');
 module.exports.statusController = require('./status.controller');
 module.exports.emojiController = require('./emoji.controller ');
 module.exports.offerController = require('./offer.controller');
+module.exports.messageconsentController = require('./messageconsent.controller');

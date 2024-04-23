@@ -43,3 +43,5 @@ module.exports.statusValidation = require('./status.validation');
 module.exports.emojiValidation = require('./emoji.valiodation');
 
 module.exports.offerValidation = require('./offer.validation');
+
+module.exports.messageconsentValidation = require('./messageconsent.validation');

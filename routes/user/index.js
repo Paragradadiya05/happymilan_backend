@@ -21,6 +21,7 @@ import PratnerRoute from './v1/paertner/partner.route';
 import StatusRoute from './v1/status/status.route';
 import EmojiRoute from './v1/Emoji/emoji.route';
 import OfferRoute from './v1/Offer/offer.route';
+import MessageConsentRoute from './v1/MessageConsent/messageconsent.route';
 
 const router = express.Router();
 router.use('/user', userRoutes);
@@ -45,6 +46,7 @@ router.use('/partner', PratnerRoute);
 router.use('/status', StatusRoute);
 router.use('/emoji', EmojiRoute);
 router.use('/offer', OfferRoute);
+router.use('/messageConsent', MessageConsentRoute);
 
 // router.use('/userEducation', userEducationRoutes);
 // router.use('/commentOnStory', commentOnStoryRoutes);
