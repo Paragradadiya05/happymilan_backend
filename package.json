@@ -62,6 +62,7 @@
     "passport-jwt": "^4.0.0",
     "passport-token-google2": "^0.1.4",
     "pm2": "^4.1.2",
+    "punycode": "^2.3.1",
     "rate-limit-redis": "^3.0.1",
     "socket.io": "^4.5.2",
     "socket.io-redis": "^6.1.0",
