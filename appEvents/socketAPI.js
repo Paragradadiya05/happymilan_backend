@@ -2,6 +2,8 @@ import socketIO from 'socket.io';
 import httpStatus from 'http-status';
 import { messageservice, userService } from '../services';
 import ApiError from '../utils/ApiError';
+import { uploadChatContent } from '../services/s3.service';
+import { EnumOfChatType } from '../models/enum.model';
 
 const { initSubscription } = require('./subscriptions');
 
@@ -15,13 +17,55 @@ io.use(initSubscription).on('connection', function (socket) {
   socket.on('message', function (message) {
     io.emit('message', message);
   });
+
+  socket.on('uploadContent', async (data) => {
+    try {
+      const { from, to, message, type, fileName } = data;
+      if (!from || !to || !message || !type) {
+        throw new Error('');
+      }
+
+      const getUserToSendMessage = await userService.getOne({ _id: to });
+      if (!getUserToSendMessage) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'user not fount, please login back');
+      }
+
+      const result = await uploadChatContent(type, fileName, from);
+      const createMessageBody = {
+        from,
+        to,
+        message: result.url.split('?')[0],
+        sendAt: Date.now(),
+        type,
+      };
+      await messageservice.createMessage(createMessageBody);
+
+      socket.emit('message', {
+        from,
+        to,
+        data: {
+          message: 'file upload url generated',
+          result,
+        },
+      });
+
+      console.log('=== var name ===> after emit events ');
+    } catch (e) {
+      // todo: handle error here in socket
+      console.log('=== var uploadContent error ===>', e);
+    }
+  });
+
   // send msg on event => event call from front end side
   socket.on('sendMessage', async (data) => {
     // from : => login user
     // to: => receiver message user
     // message : => message that sent from user
     try {
-      const { from, to, message, page, limit } = data;
+      const { from, to, message, page, limit, type } = data;
+      if (!from || !to || !message) {
+        throw new Error('');
+      }
       const getUserToSendMessage = await userService.getOne({ _id: to });
       if (!getUserToSendMessage) {
         throw new ApiError(httpStatus.NOT_FOUND, 'user not fount, please login back');
@@ -32,8 +76,13 @@ io.use(initSubscription).on('connection', function (socket) {
         to,
         message,
         sendAt: Date.now(),
+        ...(type && { type }),
       };
-      await messageservice.createMessage(createMessageBody);
+
+      // here we need to check if type is image or video then a message is already created so not need to send it again to another user
+      if (type && ![EnumOfChatType.IMAGE, EnumOfChatType.VIDEO, EnumOfChatType.DOC].includes(type)) {
+        await messageservice.createMessage(createMessageBody);
+      }
       const options = {
         page: page || 1,
         limit: limit || 15,
@@ -51,6 +100,10 @@ io.use(initSubscription).on('connection', function (socket) {
         from,
         to,
         sendMessage,
+        data: {
+          message: 'messages received',
+          result: sendMessage,
+        },
       });
 
       socket.to(to).emit('message', {

@@ -304,3 +304,21 @@ export const validateExtensionForPutObjectv2 = async (preSignedReq) => {
   await tempS3.save();
   return { url, key: preSignedReq.key };
 };
+
+/*
+ * this function for create url for chat related content for use-only socket
+ * */
+export const uploadChatContent = async (contentType, key, userId) => {
+  const ssExtensionsContentType = allowedContentType.map((ele) => ele.mimeType);
+  const ssExtensions = allowedContentType.map((ele) => ele.key);
+  let extensionOfKey = key.split('.');
+  extensionOfKey = extensionOfKey[extensionOfKey.length - 1];
+  if (!extensionOfKey) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'invalid key');
+  }
+  if (!ssExtensionsContentType.includes(contentType) && !ssExtensions.includes(extensionOfKey)) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'invalid content-type');
+  }
+  const url = await getSignedUrlPutObject(`/${userId}/chat/${mongoose.Types.ObjectId()}/${key}`, contentType, true);
+  return { url, key };
+};
