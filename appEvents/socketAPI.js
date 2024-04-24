@@ -69,9 +69,9 @@ io.use(initSubscription).on('connection', function (socket) {
   });
 
   // Listen for "stopTyping" event
-  socket.on('stopTyping', () => {
+  socket.on('stopTyping', (data) => {
     // Broadcast "stopTyping" event to other users
-    socket.broadcast.emit('stopTyping');
+    socket.broadcast.emit('stopTyping', data);
   });
 
   socket.on('getLastConversation', async (data) => {
