@@ -6,8 +6,9 @@ export const create = catchAsync(async (req, res) => {
   const { body } = req;
   body.createdBy = req.user;
   body.updatedBy = req.user;
+  const senderId = req.user._id;
   const options = {};
-  const messageConsent = await messageConsentservice.createMessageConsent(body, options);
+  const messageConsent = await messageConsentservice.createMessageConsent({ senderId, ...body }, options);
   return res.status(httpStatus.CREATED).send({ results: messageConsent });
 });
 

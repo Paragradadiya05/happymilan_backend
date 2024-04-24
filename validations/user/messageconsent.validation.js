@@ -4,9 +4,9 @@ Joi.objectId = require('joi-objectid')(Joi);
 
 export const createMessageConsent = {
   body: Joi.object().keys({
-    senderId: Joi.objectId().required(),
+    senderId: Joi.objectId(),
     receiverId: Joi.objectId().required(),
-    primaryConsent: Joi.string(),
+    primaryConsent: Joi.boolean(),
     secondaryConsent: Joi.string(),
     report: Joi.object(),
     isBlocked: Joi.boolean(),
@@ -20,7 +20,7 @@ export const updateMessageConsent = {
   body: Joi.object().keys({
     senderId: Joi.objectId().required(),
     receiverId: Joi.objectId().required(),
-    primaryConsent: Joi.string(),
+    primaryConsent: Joi.boolean(),
     secondaryConsent: Joi.string(),
     report: Joi.object(),
     isBlocked: Joi.boolean(),

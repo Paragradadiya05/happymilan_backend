@@ -13,7 +13,8 @@ const messageConsentSchema = new mongoose.Schema(
       ref: 'User',
     },
     primaryConsent: {
-      type: String,
+      type: Boolean,
+      default: false,
     },
     secondaryConsent: {
       type: String,
