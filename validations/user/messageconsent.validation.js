@@ -36,3 +36,13 @@ export const deleteMessageConsentById = {
 export const getMessageConsent = {
   body: Joi.object().keys({}).unknown(true),
 };
+
+export const getMessageConsentByReceiverId = {
+  params: Joi.object().keys({
+    receiverId: Joi.objectId().required(),
+  }),
+};
+
+export const getConsent = {
+  body: Joi.object().keys({}).unknown(true),
+};

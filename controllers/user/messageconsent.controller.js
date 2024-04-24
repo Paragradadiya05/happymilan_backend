@@ -38,3 +38,24 @@ export const list = catchAsync(async (req, res) => {
   const messageConsent = await messageConsentservice.getMessageConsentList(filter, options);
   return res.status(httpStatus.OK).send({ results: messageConsent });
 });
+
+export const getConsent = catchAsync(async (req, res) => {
+  const { receiverId } = req.params;
+  const filter = {
+    receiverId,
+  };
+  const options = {};
+  const messageConsent = await messageConsentservice.getMessageConsentList(filter, options);
+  return res.status(httpStatus.OK).send({ results: messageConsent });
+});
+
+export const getUserConsent = catchAsync(async (req, res) => {
+  const senderId = req.user._id;
+  const filter = {
+    senderId,
+  };
+  console.log('=====xx====>', filter);
+  const options = {};
+  const messageConsent = await messageConsentservice.getMessageConsentList(filter, options);
+  return res.status(httpStatus.OK).send({ results: messageConsent });
+});

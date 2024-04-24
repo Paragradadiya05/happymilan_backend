@@ -32,6 +32,6 @@ const messageConsentSchema = new mongoose.Schema(
 );
 messageConsentSchema.plugin(toJSON);
 messageConsentSchema.plugin(mongoosePaginateV2);
-const messageConsentModel =
+const messageconsentModel =
   mongoose.models.messageConsent || mongoose.model('messageConsent', messageConsentSchema, 'messageConsent');
-module.exports = messageConsentModel;
+module.exports = messageconsentModel;

@@ -46,7 +46,7 @@ router.use('/partner', PratnerRoute);
 router.use('/status', StatusRoute);
 router.use('/emoji', EmojiRoute);
 router.use('/offer', OfferRoute);
-router.use('/messageConsent', MessageConsentRoute);
+router.use('/message-consent', MessageConsentRoute);
 
 // router.use('/userEducation', userEducationRoutes);
 // router.use('/commentOnStory', commentOnStoryRoutes);

@@ -9,7 +9,7 @@ const router = express.Router();
  * create messageConsent
  * */
 router.post(
-  '/create-messageConsent',
+  '/create-message-consent',
   auth(),
   validate(messageconsentValidation.createMessageConsent),
   messageconsentController.create
@@ -18,7 +18,7 @@ router.post(
  * get messageConsent
  * */
 router.get(
-  '/get-messageConsent',
+  '/get-all-message-consent',
   auth(),
   validate(messageconsentValidation.getMessageConsent),
   messageconsentController.list
@@ -27,7 +27,7 @@ router.get(
  * update messageConsent
  * */
 router.put(
-  '/update-messageConsent/:messageConsentId',
+  '/update-message-consent/:messageConsentId',
   auth(),
   validate(messageconsentValidation.updateMessageConsent),
   messageconsentController.update
@@ -36,10 +36,27 @@ router.put(
  * delete-messageConsentById
  * */
 router.delete(
-  '/delete-messageConsent/:messageConsentId',
+  '/delete-message-consent/:messageConsentId',
   auth(),
   validate(messageconsentValidation.deleteMessageConsentById),
   messageconsentController.remove
 );
-
+/**
+ * get-messageConsentBy-reciverId
+ * */
+router.get(
+  '/get-message-consent/:receiverId',
+  auth(),
+  validate(messageconsentValidation.getMessageConsentByReceiverId),
+  messageconsentController.getConsent
+);
+/**
+ * get status
+ * */
+router.get(
+  '/get-message-consent',
+  auth(),
+  validate(messageconsentValidation.getConsent),
+  messageconsentController.getUserConsent
+);
 export default router;
