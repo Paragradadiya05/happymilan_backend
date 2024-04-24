@@ -63,6 +63,17 @@ io.use(initSubscription).on('connection', function (socket) {
     }
   });
 
+  socket.on('typing', (data) => {
+    // Broadcast "typing" event to other users
+    socket.broadcast.emit('typing', data);
+  });
+
+  // Listen for "stopTyping" event
+  socket.on('stopTyping', () => {
+    // Broadcast "stopTyping" event to other users
+    socket.broadcast.emit('stopTyping');
+  });
+
   socket.on('getLastConversation', async (data) => {
     try {
       const { from, to, page, limit } = data;
