@@ -81,7 +81,11 @@ io.use(initSubscription).on('connection', function (socket) {
       };
 
       // here we need to check if type is image or video then a message is already created so not need to send it again to another user
-      if (type && ![EnumOfChatType.IMAGE, EnumOfChatType.VIDEO, EnumOfChatType.DOC].includes(type)) {
+      if (type && [EnumOfChatType.IMAGE, EnumOfChatType.VIDEO, EnumOfChatType.DOC].includes(type)) {
+        // Do nothing because it's one of the specified types
+        console.log('=== type is not valid ===>');
+      } else {
+        console.log('=== var type is to create message ===>');
         await messageservice.createMessage(createMessageBody);
       }
       // await messageservice.createMessage(createMessageBody);
@@ -97,21 +101,19 @@ io.use(initSubscription).on('connection', function (socket) {
         },
         options
       );
-      console.log('=====xx====>', sendMessage);
       socket.emit('message', {
         from,
         to,
-        sendMessage,
+        // sendMessage,
         data: {
           message: 'messages received',
-          result: sendMessage,
+          sendMessage,
         },
       });
-      console.log('=====xx====>', sendMessage);
       socket.to(to).emit('message', {
         from,
         to,
-        sendMessage,
+        // sendMessage,
         data: {
           message: 'messages received',
           result: sendMessage,
