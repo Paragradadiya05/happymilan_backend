@@ -104,7 +104,7 @@ io.use(initSubscription).on('connection', function (socket) {
         sendMessage,
         data: {
           message: 'messages received',
-          result: sendMessage,
+          sendMessage,
         },
       });
       console.log('=====xx====>', sendMessage);
@@ -114,7 +114,7 @@ io.use(initSubscription).on('connection', function (socket) {
         sendMessage,
         data: {
           message: 'messages received',
-          result: sendMessage,
+          sendMessage,
         },
       });
     } catch (e) {
@@ -138,7 +138,7 @@ io.use(initSubscription).on('connection', function (socket) {
         sendMessage,
         data: {
           message: 'messages received',
-          result: sendMessage,
+          sendMessage,
         },
       });
       // Emit event to the receiver's socket
@@ -148,7 +148,7 @@ io.use(initSubscription).on('connection', function (socket) {
         sendMessage,
         data: {
           message: 'messages received',
-          result: sendMessage,
+          sendMessage,
         },
       });
       console.log('Message marked as read successfully:', messageId);
@@ -197,7 +197,7 @@ io.use(initSubscription).on('connection', function (socket) {
         to,
         data: {
           message: 'messages received',
-          result: sendMessage,
+          sendMessage,
         },
       });
 
