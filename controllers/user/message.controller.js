@@ -35,3 +35,15 @@ export const getMessagePaginated = catchAsync(async (req, res) => {
   const message = await messageservice.getMessageWithPagination(filter, options);
   return res.status(httpStatus.OK).send({ results: message });
 });
+
+export const update = catchAsync(async (req, res) => {
+  const { body } = req;
+  body.updatedBy = req.user;
+  const { messageId } = req.params;
+  const filter = {
+    _id: messageId,
+  };
+  const options = { new: true };
+  const message = await messageservice.updateMessage(filter, body, options);
+  return res.status(httpStatus.OK).send({ results: message });
+});

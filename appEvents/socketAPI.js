@@ -84,6 +84,7 @@ io.use(initSubscription).on('connection', function (socket) {
       if (type && ![EnumOfChatType.IMAGE, EnumOfChatType.VIDEO, EnumOfChatType.DOC].includes(type)) {
         await messageservice.createMessage(createMessageBody);
       }
+      // await messageservice.createMessage(createMessageBody);
       const options = {
         page: page || 1,
         limit: limit || 15,
@@ -96,7 +97,7 @@ io.use(initSubscription).on('connection', function (socket) {
         },
         options
       );
-
+      console.log('=====xx====>', sendMessage);
       socket.emit('message', {
         from,
         to,
@@ -106,7 +107,7 @@ io.use(initSubscription).on('connection', function (socket) {
           result: sendMessage,
         },
       });
-
+      console.log('=====xx====>', sendMessage);
       socket.to(to).emit('message', {
         from,
         to,
@@ -121,6 +122,45 @@ io.use(initSubscription).on('connection', function (socket) {
     }
   });
 
+  socket.on('messageUpdate', async (data) => {
+    try {
+      const { messageId, from, to } = data;
+      if (!messageId || !from || !to) {
+        throw new Error('Message ID, sender, and receiver are required');
+      }
+      // Update the message to mark as read
+      const sendMessage = await messageservice.updateMessage({ _id: messageId }, { isReadMessage: true });
+
+      // Emit confirmation back to sender
+      socket.emit('message', {
+        from,
+        to,
+        sendMessage,
+        data: {
+          message: 'messages received',
+          result: sendMessage,
+        },
+      });
+      // Emit event to the receiver's socket
+      socket.to(to).emit('message', {
+        from,
+        to,
+        sendMessage,
+        data: {
+          message: 'messages received',
+          result: sendMessage,
+        },
+      });
+      console.log('Message marked as read successfully:', messageId);
+    } catch (e) {
+      // Handle errors
+      console.error('Error marking message as read:', e.message);
+      socket.emit('messageReadConfirmation', {
+        success: false,
+        message: e.message,
+      });
+    }
+  });
   socket.on('typing', (data) => {
     // Broadcast "typing" event to other users
     socket.broadcast.emit('typing', data);

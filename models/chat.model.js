@@ -33,7 +33,6 @@ const MessageSchema = mongoose.Schema(
     isReadMessage: {
       type: Boolean,
       default: false,
-      select: false,
     },
     sendAt: {
       type: Number,

@@ -23,4 +23,8 @@ router
    * getmessage
    * */
   .get(validate(messageValidation.getMessagePaginated), messageController.getMessagePaginated);
+/**
+ * update messageConsent
+ * */
+router.put('/update-message/:messageId', validate(messageValidation.update), messageController.update);
 export default router;

@@ -28,3 +28,15 @@ export const getMessagePaginated = {
     })
     .unknown(true),
 };
+
+export const update = {
+  body: Joi.object().keys({
+    from: Joi.objectId().required(),
+    to: Joi.objectId().required(),
+    type: Joi.string(),
+    message: Joi.string().required(),
+  }),
+  params: Joi.object().keys({
+    messageId: Joi.objectId(),
+  }),
+};

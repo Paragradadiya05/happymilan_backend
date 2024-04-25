@@ -13,3 +13,8 @@ export async function getMessageWithPagination(filter, options = {}) {
   const message = await Message.paginate(filter, options);
   return message;
 }
+
+export async function updateMessage(filter, body, options = {}) {
+  const message = await Message.findOneAndUpdate(filter, body, options);
+  return message;
+}
