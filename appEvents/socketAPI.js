@@ -34,7 +34,8 @@ io.use(initSubscription).on('connection', function (socket) {
       const createMessageBody = {
         from,
         to,
-        message: result.url.split('?')[0],
+        message,
+        fileUrl: result.url.split('?')[0],
         sendAt: Date.now(),
         type,
       };
@@ -110,6 +111,10 @@ io.use(initSubscription).on('connection', function (socket) {
         from,
         to,
         sendMessage,
+        data: {
+          message: 'messages received',
+          result: sendMessage,
+        },
       });
     } catch (e) {
       console.log('=== error from socket  ===>', e);

@@ -27,6 +27,9 @@ const MessageSchema = mongoose.Schema(
       enum: Object.values(enumModel.EnumOfChatType),
       default: EnumOfChatType.TEXT,
     },
+    fileUrl: {
+      type: String,
+    },
     isReadMessage: {
       type: Boolean,
       default: false,
@@ -36,10 +39,15 @@ const MessageSchema = mongoose.Schema(
       type: Number,
       default: Date.now,
     },
-    messageDeleted: {
+    messageDeletedFrom: {
       type: Boolean,
       default: false,
     },
+    messageDeletedTo: {
+      type: Boolean,
+      default: false,
+    },
+    // this is for only group chat we don't need now so ignore it
     deleteMessageFromUser: {
       type: Array,
       ref: 'User',
