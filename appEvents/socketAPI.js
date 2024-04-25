@@ -155,7 +155,10 @@ io.use(initSubscription).on('connection', function (socket) {
       socket.emit('message', {
         from,
         to,
-        sendMessage,
+        data: {
+          message: 'messages received',
+          result: sendMessage,
+        },
       });
 
       // socket.to(to).emit('message', {
