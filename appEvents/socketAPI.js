@@ -79,11 +79,9 @@ io.use(initSubscription).on('connection', function (socket) {
         sendAt: Date.now(),
         ...(type && { type }),
       };
-
       // here we need to check if type is image or video then a message is already created so not need to send it again to another user
       if (type && [EnumOfChatType.IMAGE, EnumOfChatType.VIDEO, EnumOfChatType.DOC].includes(type)) {
         // Do nothing because it's one of the specified types
-        console.log('=== type is not valid ===>');
       } else {
         console.log('=== var type is to create message ===>');
         await messageservice.createMessage(createMessageBody);
@@ -124,36 +122,49 @@ io.use(initSubscription).on('connection', function (socket) {
     }
   });
 
-  socket.on('messageUpdate', async (data) => {
+  socket.on('readMessage', async (data) => {
     try {
       const { messageId, from, to } = data;
       if (!messageId || !from || !to) {
         throw new Error('Message ID, sender, and receiver are required');
       }
       // Update the message to mark as read
-      const sendMessage = await messageservice.updateMessage({ _id: messageId }, { isReadMessage: true });
+      const updatedMessage = await messageservice.updateMessage({ _id: messageId }, { isReadMessage: true }, { new: true });
+
+      // Get all messages sent before the current message
+      const earlierMessages = await messageservice.getMessageList({
+        from,
+        to,
+        sendAt: { $lt: updatedMessage.sendAt }, // Find messages sent before the current message
+      });
+
+      // Update all earlier messages to mark them as read
+      await Promise.all(
+        earlierMessages.map(async (message) => {
+          await messageservice.updateMessage({ _id: message.id }, { isReadMessage: true });
+        })
+      );
 
       // Emit confirmation back to sender
       socket.emit('message', {
         from,
         to,
-        sendMessage,
+        updatedMessage,
         data: {
           message: 'messages received',
-          sendMessage,
+          updatedMessage,
         },
       });
       // Emit event to the receiver's socket
       socket.to(to).emit('message', {
         from,
         to,
-        sendMessage,
+        updatedMessage,
         data: {
           message: 'messages received',
-          sendMessage,
+          updatedMessage,
         },
       });
-      console.log('Message marked as read successfully:', messageId);
     } catch (e) {
       // Handle errors
       console.error('Error marking message as read:', e.message);

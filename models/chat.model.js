@@ -35,7 +35,7 @@ const MessageSchema = mongoose.Schema(
       default: false,
     },
     sendAt: {
-      type: Number,
+      type: Date,
       default: Date.now,
     },
     messageDeletedFrom: {
