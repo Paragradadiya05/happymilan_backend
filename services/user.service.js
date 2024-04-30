@@ -19,8 +19,9 @@ export async function getOne(query, options = {}) {
     .exec();
   return user;
 }
-
 export async function getUserList(filter, options = {}) {
+  // eslint-disable-next-line no-param-reassign
+  filter['profileHideAndDelete.isProfileHide'] = { $ne: true };
   const user = await User.find(filter, options.projection, options)
     .populate('address')
     .populate('userEducation')
@@ -30,6 +31,8 @@ export async function getUserList(filter, options = {}) {
 }
 
 export async function getUserListForSearch(filter, { currentCountry = [], currentCity = [] }) {
+  // eslint-disable-next-line no-param-reassign
+  filter['profileHideAndDelete.isProfileHide'] = { $ne: true };
   const user = await User.aggregate([
     {
       $match: filter,
@@ -49,7 +52,6 @@ export async function getUserListForSearch(filter, { currentCountry = [], curren
       },
     },
   ]);
-
   return user;
 }
 export async function getUserListWithPagination(filter, options = {}) {
