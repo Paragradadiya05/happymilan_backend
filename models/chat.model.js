@@ -55,6 +55,10 @@ const MessageSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isFileUploaded: {
+      type: Boolean,
+      default: false,
+    },
     // emoji , pic
   },
   { timestamps: { createdAt: true, updatedAt: true } }
