@@ -174,6 +174,41 @@ io.use(initSubscription).on('connection', function (socket) {
       });
     }
   });
+
+  socket.on('DeleteMessage', async (data) => {
+    try {
+      const { messageId, from, to, messageDeletedFrom, messageDeletedTo, messageDeletedAll } = data;
+      if (!messageId || !from || !to) {
+        throw new Error('Message ID, sender, receiver required');
+      }
+
+      // Update the message's 'messageDeletedFrom' and 'messageDeletedTo' fields based on the provided values
+      await messageservice.updateMessage(
+        { _id: messageId, from, to },
+        {
+          ...(messageDeletedFrom && { messageDeletedFrom }),
+          ...(messageDeletedTo && { messageDeletedTo }),
+          ...(messageDeletedAll && { messageDeletedAll }),
+        },
+        { new: true }
+      );
+
+      socket.emit('message', {
+        data: {
+          status: true,
+          message: 'Message deletion status updated successfully',
+        },
+      });
+    } catch (e) {
+      // Handle errors
+      console.error('Error updating message deletion status:', e.message);
+      socket.emit('messageDeleteStatusUpdateConfirmation', {
+        success: false,
+        message: e.message,
+      });
+    }
+  });
+
   socket.on('typing', (data) => {
     // Broadcast "typing" event to other users
     socket.broadcast.emit('typing', data);
@@ -205,6 +240,9 @@ io.use(initSubscription).on('connection', function (socket) {
         }
       );
 
+      sendMessage.results = sendMessage.results.filter(
+        (item) => item.from.toString() === socket.user.toString() && !item.messageDeletedFrom && !item.messageDeletedAll
+      );
       socket.emit('message', {
         from,
         to,
@@ -224,15 +262,6 @@ io.use(initSubscription).on('connection', function (socket) {
     }
   });
 });
-// io.on('connection', function (socket) {
-//   console.log('=== var name ===> connection establised');
-//
-//   // Connection now authenticated to receive further events
-//   socket.on('message', function (message) {
-//     io.emit('message', message);
-//   });
-// });
 
-// Your socket logic here
 socketAPI.io = io;
 module.exports = socketAPI;
