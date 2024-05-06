@@ -212,6 +212,12 @@ const EnumOfOffer = {
   OFFER: 'offer',
   PROMOTION: 'promotion',
 };
+
+const EnumOfUserPlan = {
+  ACTIVE: 'active',
+  INACTIVE: 'inactive',
+  EXPIRED: 'expired',
+};
 module.exports = {
   EnumCodeTypeOfCode,
   EnumRoleOfUser,
@@ -241,4 +247,5 @@ module.exports = {
   EnumOfNotification,
   EnumOfChatType,
   EnumOfOffer,
+  EnumOfUserPlan,
 };

@@ -26,3 +26,5 @@ module.exports.Status = require('./status.model');
 module.exports.Emoji = require('./emoji.model');
 module.exports.Offer = require('./offer.model');
 module.exports.MessageConsent = require('./messageconsent.model');
+module.exports.paymentDetails = require('./paymentdetails.model');
+module.exports.paymentHistory = require('./paymentHistory.model');

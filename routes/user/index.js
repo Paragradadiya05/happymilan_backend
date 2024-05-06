@@ -22,6 +22,7 @@ import StatusRoute from './v1/status/status.route';
 import EmojiRoute from './v1/Emoji/emoji.route';
 import OfferRoute from './v1/Offer/offer.route';
 import MessageConsentRoute from './v1/MessageConsent/messageconsent.route';
+import razorpayRoute from './v1/razorpay/ordercomplete.route';
 
 const router = express.Router();
 router.use('/user', userRoutes);
@@ -47,6 +48,7 @@ router.use('/status', StatusRoute);
 router.use('/emoji', EmojiRoute);
 router.use('/offer', OfferRoute);
 router.use('/message-consent', MessageConsentRoute);
+router.use('/razorpay', razorpayRoute);
 
 // router.use('/userEducation', userEducationRoutes);
 // router.use('/commentOnStory', commentOnStoryRoutes);
