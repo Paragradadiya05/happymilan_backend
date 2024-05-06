@@ -113,6 +113,24 @@ io.use(initSubscription).on('connection', function (socket) {
         },
         options
       );
+
+      // eslint-disable-next-line
+      sendMessage.results = sendMessage.results.filter((item) => {
+        if (item.from.toString() !== socket.user.toString() && !item.messageDeletedAll) {
+          return item;
+        }
+        if (item.from.toString() === socket.user.toString()) {
+          if (!item.messageDeletedAll) {
+            if (!item.messageDeletedFrom) {
+              return item;
+            }
+            // not return message
+          } else {
+            // not return message
+          }
+        }
+      });
+
       socket.emit('message', {
         from,
         to,
@@ -254,9 +272,27 @@ io.use(initSubscription).on('connection', function (socket) {
         }
       );
 
-      sendMessage.results = sendMessage.results.filter(
-        (item) => item.from.toString() === socket.user.toString() && !item.messageDeletedFrom && !item.messageDeletedAll
-      );
+      // sendMessage.results = sendMessage.results.filter(
+      //   (item) => item.from.toString() === socket.user.toString() && !item.messageDeletedFrom && !item.messageDeletedAll
+      // );
+
+      // eslint-disable-next-line
+      sendMessage.results = sendMessage.results.filter((item) => {
+        if (item.from.toString() !== socket.user.toString() && !item.messageDeletedAll) {
+          return item;
+        }
+        if (item.from.toString() === socket.user.toString()) {
+          if (!item.messageDeletedAll) {
+            if (!item.messageDeletedFrom) {
+              return item;
+            }
+            // not return message
+          } else {
+            // not return message
+          }
+        }
+      });
+
       socket.emit('message', {
         from,
         to,
