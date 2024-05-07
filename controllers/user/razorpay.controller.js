@@ -4,8 +4,8 @@ const razorpay = require('razorpay');
 
 // eslint-disable-next-line new-cap
 const razorpayInstance = new razorpay({
-  key_id: 'YOUR_KEY_ID',
-  key_secret: 'YOUR_KEY_SECRET',
+  key_id: 'rzp_test_Dv5ALfzUvZ12UN',
+  key_secret: 'REHhueTzlSuxPIsTTPBMyOWG',
 });
 // eslint-disable-next-line import/prefer-default-export
 export const complete = catchAsync(async (req, res) => {
