@@ -29,7 +29,7 @@ export const createUser = {
   body: Joi.object().keys({
     name: Joi.string(),
     email: Joi.string().email(),
-    role: Joi.string().valid(...Object.values(enumFields.EnumRoleOfUser)),
+    role: Joi.objectId().required(),
     codes: Joi.array().items(codesEmbed),
     password: Joi.string(),
     facebookProvider: facebookProviderEmbed,

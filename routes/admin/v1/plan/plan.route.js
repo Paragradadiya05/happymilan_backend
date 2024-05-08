@@ -10,11 +10,11 @@ const router = express.Router();
 /**
  * create plan
  * */
-router.post('/create-plan', auth('admin'), validate(planValidation.createPlan), planController.createPlan);
+router.post('/create-plan', auth(['super-admin', 'admin']), validate(planValidation.createPlan), planController.createPlan);
 /**
  * get plan
  * */
-router.get('/get-plan', auth('admin'), planController.listPlan);
+router.get('/get-plan', auth(), planController.listPlan);
 /**
  * update plan
  * */

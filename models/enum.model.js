@@ -5,6 +5,9 @@ const EnumCodeTypeOfCode = {
 const EnumRoleOfUser = {
   USER: 'user',
   ADMIN: 'admin',
+  PROJECT_OWNER: 'project-owner',
+  SUPER_ADMIN: 'super-admin',
+  CO_ADMIN: 'co-admin',
 };
 const EnumPlatformOfDeviceToken = {
   ANDROID: 'android',
@@ -60,12 +63,6 @@ const EnumOfPlanDuration = {
 const EnumOfStatus = {
   ACTIVE: 'active',
   INACTIVE: 'inactive',
-};
-const EnumOfUser = {
-  PROJECT_OWNER: 'project-owner',
-  SUPER_ADMIN: 'super-admin',
-  ADMIN: 'admin',
-  CO_ADMIN: 'co-admin',
 };
 const EnumOfMaritalStatus = {
   SINGLE: 'single',
@@ -232,7 +229,6 @@ module.exports = {
   EnumOfPlanDuration,
   EnumOfOnlineSupport,
   EnumOfPlan,
-  EnumOfUser,
   EnumOfReligion,
   EnumOfCommunity,
   EnumOfMotherTongue,

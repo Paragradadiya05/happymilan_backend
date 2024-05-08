@@ -11,8 +11,8 @@ const accessSchema = Joi.object({
 
 export const addRole = {
   body: Joi.object().keys({
-    user: Joi.string()
-      .valid(...Object.values(enumFields.EnumOfUser))
+    role: Joi.string()
+      .valid(...Object.values(enumFields.EnumRoleOfUser))
       .required(),
     dashboard: accessSchema,
     plans: accessSchema,
@@ -31,8 +31,8 @@ export const rolelist = {
 
 export const updatePlan = {
   body: Joi.object().keys({
-    user: Joi.string()
-      .valid(...Object.values(enumFields.EnumOfUser))
+    role: Joi.string()
+      .valid(...Object.values(enumFields.EnumRoleOfUser))
       .required(),
     dashboard: accessSchema,
     plans: accessSchema,

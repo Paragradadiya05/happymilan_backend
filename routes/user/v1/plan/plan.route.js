@@ -4,6 +4,6 @@ import auth from 'middlewares/auth';
 
 const router = express();
 
-router.get('/getplan', auth(), planController.listPlan);
+router.get('/get-plan', auth(), planController.listPlan);
 
 module.exports = router;
