@@ -17,6 +17,8 @@ const RoleSchema = new mongoose.Schema(
       type: String,
       enum: Object.values(enumModel.EnumRoleOfUser),
       default: enumModel.EnumRoleOfUser.USER,
+      unique: true,
+      required: true,
     },
     dashboard: accessSchema,
     plans: accessSchema,

@@ -8,7 +8,12 @@ const router = express.Router();
 /**
  * create role
  * */
-router.post('/create-role', auth('admin'), validate(roleValidation.addRole), roleController.add);
+router.post(
+  '/create-role',
+  // auth('admin'),
+  validate(roleValidation.addRole),
+  roleController.add
+);
 /**
  * get role
  * */
