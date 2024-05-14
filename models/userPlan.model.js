@@ -10,8 +10,9 @@ const userPlanSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
-    planName: {
-      type: String,
+    planId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Plan',
       required: true,
     },
     startDate: {
