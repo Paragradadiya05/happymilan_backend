@@ -10,17 +10,28 @@ export async function createLike(body = {}, user) {
   if (!likedUser) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'No such user exists');
   }
-  const existingLike = await Like.findOne({ user: userId, likedUserId: body.likedUserId, isLike: true });
+  const existingLike = await Like.findOne({ user: userId, likedUserId: body.likedUserId });
+
   if (existingLike) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Already liked this profile');
+    if (existingLike.isLike) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Already liked this profile');
+    }
+    existingLike.isLike = true;
+    existingLike.updatedBy = user;
+    await existingLike.save();
+    existingLike.statusHistory.push({
+      isLike: true,
+      date: new Date(),
+    });
+    await existingLike.save();
+
+    return existingLike;
   }
-  const isLike = body.isLike !== undefined ? body.isLike : true;
   const statusHistory = {
-    isLike,
+    isLike: true,
     date: new Date(),
   };
   // await Notification.create({ userId, otherUserId: body.likedUserId, body: 'like' });
-
   const createNotificationForLikedProfile = await Notification.create({
     userId: body.likedUserId,
     otherUserId: user._id,
