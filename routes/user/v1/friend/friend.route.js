@@ -37,7 +37,7 @@ router
   /**
    * accept friend req
    * */
-  .put(auth(), validate(friendValidation.respondFriendRequest), friendController.respondFriendRequest);
+  .post(auth(), validate(friendValidation.respondFriendRequest), friendController.respondFriendRequest);
 router
   .route('/:friendId')
   /**
