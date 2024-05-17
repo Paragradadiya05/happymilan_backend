@@ -78,6 +78,20 @@ const ProfileHideAndDelete = new mongoose.Schema(
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );
+const hobbiesSchema = new mongoose.Schema({
+  creative: {
+    type: String,
+  },
+  fun: {
+    type: String,
+  },
+  fitness: {
+    type: String,
+  },
+  other: {
+    type: String,
+  },
+});
 const UserSchema = new mongoose.Schema(
   {
     /**
@@ -195,9 +209,7 @@ const UserSchema = new mongoose.Schema(
       type: String,
       enum: Object.values(enumModel.EnumAppUsesTypeOfUsers),
     },
-    hobbies: {
-      type: [String],
-    },
+    hobbies: [hobbiesSchema],
     interest: {
       type: String,
     },
@@ -234,15 +246,15 @@ const UserSchema = new mongoose.Schema(
       type: String,
       enum: Object.values(enumModel.EnumOfMotherTongue),
     },
-    creative: {
-      type: String,
-    },
-    fun: {
-      type: String,
-    },
-    fitness: {
-      type: String,
-    },
+    // creative: {
+    //   type: String,
+    // },
+    // fun: {
+    //   type: String,
+    // },
+    // fitness: {
+    //   type: String,
+    // },
     Age: {
       type: Number,
     },
