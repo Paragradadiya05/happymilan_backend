@@ -79,17 +79,13 @@ const ProfileHideAndDelete = new mongoose.Schema(
   { timestamps: { createdAt: true, updatedAt: true } }
 );
 const hobbiesSchema = new mongoose.Schema({
-  creative: {
+  category: {
     type: String,
+    required: true,
   },
-  fun: {
-    type: String,
-  },
-  fitness: {
-    type: String,
-  },
-  other: {
-    type: String,
+  values: {
+    type: [String],
+    required: true,
   },
 });
 const UserSchema = new mongoose.Schema(
