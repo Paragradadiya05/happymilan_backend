@@ -18,28 +18,28 @@ const UserPartnerSchema = new mongoose.Schema(
       max: Number,
     },
     country: {
-      type: String,
+      type: [String],
       enum: Object.values(enumModel.EnumOfCountry),
     },
     state: {
-      type: String,
+      type: [String],
       enum: Object.values(enumModel.EnumOfState),
     },
     city: {
-      type: String,
+      type: [String],
     },
     income: {
       type: String,
     },
     creative: {
-      type: String,
+      type: [String],
       enum: Object.values(enumModel.EnumOfCreative),
     },
     fun: {
-      type: String,
+      type: [String],
     },
     diet: {
-      type: String,
+      type: [String],
       enum: Object.values(enumModel.EnumOfDiet),
     },
   },

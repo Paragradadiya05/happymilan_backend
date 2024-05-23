@@ -172,6 +172,9 @@ const UserSchema = new mongoose.Schema(
     githubProvider: {
       type: OauthSchema,
     },
+    displayName: {
+      type: String,
+    },
     firstName: {
       type: String,
     },
