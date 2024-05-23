@@ -43,16 +43,21 @@ export const updatePartnerpre = {
       min: Joi.number().required(),
       max: Joi.number().required(),
     }),
-    country: Joi.string().required(),
-    state: Joi.string().required(),
-    city: Joi.string().required(),
+    country: Joi.array()
+      .items(Joi.string().valid(...Object.values(enumModel.EnumOfCountry)))
+      .required(),
+    state: Joi.array()
+      .items(Joi.string().valid(...Object.values(enumModel.EnumOfState)))
+      .required(),
+    city: Joi.array().items(Joi.string()).required(),
     income: Joi.string().required(),
-    creative: Joi.string().required(),
-    fun: Joi.string().required(),
-    diet: Joi.string().required(),
-  }),
-  params: Joi.object().keys({
-    PartnerId: Joi.objectId().required(),
+    creative: Joi.array()
+      .items(Joi.string().valid(...Object.values(enumModel.EnumOfCreative)))
+      .required(),
+    fun: Joi.array().items(Joi.string()).required(),
+    diet: Joi.array()
+      .items(Joi.string().valid(...Object.values(enumModel.EnumOfDiet)))
+      .required(),
   }),
 };
 
