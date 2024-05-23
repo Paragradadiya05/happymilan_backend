@@ -54,3 +54,13 @@ export const removePartner = catchAsync(async (req, res) => {
   const Partner = await partnerservice.removePartner(filter);
   return res.status(httpStatus.OK).send({ results: Partner });
 });
+
+export const getPartnerById = catchAsync(async (req, res) => {
+  const { PartnerId } = req.params;
+  const filter = {
+    _id: PartnerId,
+  };
+  const options = {};
+  const partner = await partnerservice.getOne(filter, options);
+  return res.status(httpStatus.OK).send({ results: partner });
+});

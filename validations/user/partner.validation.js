@@ -71,3 +71,9 @@ export const deletePartnerpreById = {
 export const getPartnerpre = {
   body: Joi.object().keys({}).unknown(true),
 };
+
+export const getById = {
+  params: Joi.object().keys({
+    PartnerId: Joi.objectId().required(),
+  }),
+};

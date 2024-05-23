@@ -24,8 +24,11 @@ router
   /**
    * deleteUserPartnerPreDetailById
    * */
-  .delete(auth(), validate(partnerValidation.deletePartnerpreById), partnerController.removePartner);
-
+  .delete(auth(), validate(partnerValidation.deletePartnerpreById), partnerController.removePartner)
+  /**
+   * get by PartnerId
+   * */
+  .get(auth(), validate(partnerValidation.getById), partnerController.getPartnerById);
 router
   .route('/getByUser/:userId')
   /**
