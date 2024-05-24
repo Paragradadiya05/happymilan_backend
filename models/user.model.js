@@ -58,6 +58,20 @@ const UserImagesSchema = new mongoose.Schema(
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );
+const UserVideoSchema = new mongoose.Schema(
+  {
+    url: {
+      type: String,
+    },
+    name: {
+      type: String,
+    },
+    isDeleted: Boolean,
+    deleted: Boolean,
+  },
+  { timestamps: { createdAt: true, updatedAt: true } }
+);
+
 const ProfileHideAndDelete = new mongoose.Schema(
   {
     isProfileHide: {
@@ -283,6 +297,7 @@ const UserSchema = new mongoose.Schema(
       type: String,
     },
     userProfilePic: [UserImagesSchema],
+    userProfileVideo: [UserVideoSchema],
     profileHideAndDelete: [ProfileHideAndDelete],
   },
 

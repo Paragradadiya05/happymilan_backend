@@ -97,10 +97,24 @@ export const validateExtensionForPutObject = async (preSignedReq, user, isProfil
       statusData,
     };
   }
+  if (preSignedReq.profileType === EnumOfImageTypes.PROFILE_VIDEO) {
+    // here we are updating all image to the specific user
+    const userData = await User.findByIdAndUpdate(
+      user._id,
+      {
+        $addToSet: {
+          userProfileVideo: { url: `${url.split('?')[0]}`, name: preSignedReq.key },
+        },
+      },
+      { new: true } // To return the updated document
+    );
+    result = {
+      userData,
+    };
+  }
   await tempS3.save();
   return { url, key: preSignedReq.key, data: result };
 };
-
 export const deleteObjects = async (keys) => {
   return s3.deleteObjects({ Bucket: config.aws.bucket, Delete: { Objects: keys } }).promise();
 };

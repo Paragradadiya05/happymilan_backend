@@ -53,5 +53,30 @@
     "key": "xlsx",
     "extension": ".xlsx",
     "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  },
+  {
+    "key": "mp3",
+    "extension": ".mp3",
+    "mimeType": "audio/mpeg"
+  },
+  {
+    "key": "wav",
+    "extension": ".wav",
+    "mimeType": "audio/wav"
+  },
+  {
+    "key": "mp4",
+    "extension": ".mp4",
+    "mimeType": "video/mp4"
+  },
+  {
+    "key": "avi",
+    "extension": ".avi",
+    "mimeType": "video/x-msvideo"
+  },
+  {
+    "key": "mkv",
+    "extension": ".mkv",
+    "mimeType": "video/x-matroska"
   }
 ]
