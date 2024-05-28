@@ -4,6 +4,7 @@ import { messageservice, userService } from '../services';
 import ApiError from '../utils/ApiError';
 import { uploadChatContent } from '../services/s3.service';
 import { EnumOfChatType } from '../models/enum.model';
+import { Like, User } from '../models';
 
 const { initSubscription } = require('./subscriptions');
 
@@ -309,6 +310,81 @@ io.use(initSubscription).on('connection', function (socket) {
       // });
     } catch (e) {
       console.log('=== error from get last conversation ===>', e);
+    }
+  });
+
+  socket.on('createUserLike', async (data) => {
+    // get event when someone like profile
+    try {
+      // Assuming 'data' contains necessary information like user IDs or profile IDs
+      const { userId, page, limit, likedUserId } = data; // Assuming userId is available in 'data'
+      // Assuming likedUserId is available in 'data'
+
+      const likedUser = await User.findById(likedUserId);
+      if (!likedUser) {
+        throw new Error('No such user exists');
+      }
+
+      const existingLike = await Like.findOne({ user: userId, likedUserId });
+
+      if (existingLike) {
+        if (existingLike.isLike) {
+          throw new Error('Already liked this profile');
+        }
+        existingLike.isLike = true;
+        existingLike.updatedBy = userId;
+        existingLike.statusHistory.push({
+          isLike: true,
+          date: new Date(),
+        });
+        await existingLike.save();
+      } else {
+        const statusHistory = {
+          isLike: true,
+          date: new Date(),
+        };
+        await Like.create({
+          user: userId,
+          likedUserId,
+          isLike: true,
+          statusHistory: [statusHistory],
+          createdBy: userId,
+          updatedBy: userId,
+        });
+        const message = await Like.paginate(
+          { user: userId },
+          {
+            page: page || 1,
+            limit: limit || 15,
+          }
+        );
+        socket.emit('message', {
+          data: {
+            status: true,
+            message: 'profile liked',
+            data: message,
+          },
+        });
+        socket.to(likedUserId).emit('message', {
+          data: {
+            status: true,
+            message: 'some one like your profile',
+            data: message,
+          },
+        });
+        console.log('=== var name ===>', message);
+      }
+      // after get like event update db with event and send to fe side one event
+    } catch (error) {
+      // Handle errors
+      console.error(error);
+      socket.emit('message', {
+        data: {
+          status: false,
+          message: error.message || 'Failed to create like',
+          // You can send additional data if needed
+        },
+      });
     }
   });
 });
