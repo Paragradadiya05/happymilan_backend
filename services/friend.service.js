@@ -26,11 +26,11 @@ export async function getFriendList(filter, options = {}) {
   const friend = await Friend.find(filter, options.projection, options)
     .populate({
       path: 'friend',
-      populate: { path: 'address' }, // Populate the address field of the user object
+      populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }], // Populate the address field of the user object
     })
     .populate({
       path: 'user',
-      populate: { path: 'address' }, // Populate the address field of the user object
+      populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }], // Populate the address field of the user object
     })
     .exec();
   return friend;
