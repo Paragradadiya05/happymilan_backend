@@ -19,7 +19,7 @@ export const preSignedPutUrlv2 = {
   body: Joi.object().keys({
     name: Joi.string().required(),
     key: Joi.string().required(),
-    contentType: Joi.string().required(),
+    contentType: Joi.string(),
   }),
 };
 
@@ -31,7 +31,7 @@ export const sendProposal = {
     projectDescription: Joi.string().required(),
     attachments: Joi.object({
       filename: Joi.string().required(),
-      content: Joi.string().required(),
+      content: Joi.string(),
     }),
   }),
 };
