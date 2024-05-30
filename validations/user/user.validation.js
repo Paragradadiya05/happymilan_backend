@@ -107,3 +107,7 @@ export const get = {
     userUniqueId: Joi.string().required(),
   }),
 };
+
+export const getUserByGender = {
+  params: Joi.object().keys({}),
+};

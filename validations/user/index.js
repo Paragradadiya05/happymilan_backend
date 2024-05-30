@@ -45,3 +45,5 @@ module.exports.emojiValidation = require('./emoji.valiodation');
 module.exports.offerValidation = require('./offer.validation');
 
 module.exports.messageconsentValidation = require('./messageconsent.validation');
+
+module.exports.orderValidation = require('./order.validation');

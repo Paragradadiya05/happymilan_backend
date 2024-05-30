@@ -29,6 +29,7 @@ router
    * getUserPaginated
    * */
   .get(validate(userValidation.paginatedUser), userController.paginate);
+router.route('/getUserByGender').get(auth(), validate(userValidation.getUserByGender), userController.getUserByGender);
 router
   .route('/:userId')
   /**

@@ -140,3 +140,11 @@ export const getUnique = catchAsync(async (req, res) => {
   const user = await userService.getUserList(filter, options);
   return res.status(httpStatus.OK).send({ results: user });
 });
+
+export const getUserByGender = catchAsync(async (req, res) => {
+  const { user } = req;
+  const filter = { gender: user.gender };
+  const options = {};
+  const userdata = await userService.getGenderList(filter, options);
+  return res.status(httpStatus.OK).send({ results: userdata });
+});

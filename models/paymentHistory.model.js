@@ -17,6 +17,13 @@ const paymentHistorySchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    stauts: {
+      type: String, // update this after gating enum from razorrpay
+    },
+    razorpayLatestResponse: {
+      type: Object,
+    },
+    razorpayResponses: [Object],
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );
