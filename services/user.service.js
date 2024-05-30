@@ -4,6 +4,7 @@ import { User } from 'models';
 import _ from 'lodash';
 import bcrypt from 'bcryptjs';
 import { notificationService } from './index';
+import { EnumGenderOfUsers } from '../models/enum.model';
 
 export async function getUserById(id, options = {}) {
   const user = await User.findById(id, options.projection, options);
@@ -124,5 +125,22 @@ export async function addDeviceToken(user, body) {
     const updatedUser = await updateUser({ _id: user._id }, { $addToSet: { deviceTokens: { deviceToken } } }, { new: true });
     return updatedUser;
   }
+  return user;
+}
+
+export async function getGenderList(filter, options = {}) {
+  const userData = await getOne(filter, {});
+  if (!userData) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'user not found');
+  }
+  let oppositeGender;
+  if (userData.gender === EnumGenderOfUsers.MALE) {
+    oppositeGender = EnumGenderOfUsers.FEMALE;
+  } else if (userData.gender === EnumGenderOfUsers.FEMALE) {
+    oppositeGender = EnumGenderOfUsers.MALE;
+  } else {
+    throw new Error('Invalid gender for logged-in user');
+  }
+  const user = await User.find({ gender: oppositeGender }, options.projection, options);
   return user;
 }
