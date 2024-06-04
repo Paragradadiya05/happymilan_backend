@@ -23,3 +23,4 @@ module.exports.emojiController = require('./emoji.controller ');
 module.exports.offerController = require('./offer.controller');
 module.exports.messageconsentController = require('./messageconsent.controller');
 module.exports.completeController = require('./razorpay.controller');
+module.exports.searchHistoryController = require('./searchHistory.controller');

@@ -1,0 +1,26 @@
+import Joi from 'joi';
+import enumModel from '../../models/enum.model';
+
+export const getSearchHistory = {
+  body: Joi.object().keys({}).unknown(true),
+};
+
+export const createSearchHistory = {
+  body: Joi.object().keys({
+    userId: Joi.objectId(),
+    minAge: Joi.object({
+      min: Joi.number().required(),
+      max: Joi.number().required(),
+    }),
+    height: Joi.object({
+      min: Joi.number().required(),
+      max: Joi.number().required(),
+    }),
+    maritalStatus: Joi.string().valid(...Object.values(enumModel.EnumOfMaritalStatus)),
+    religion: Joi.string().valid(...Object.values(enumModel.EnumOfReligion)),
+    community: Joi.string().valid(...Object.values(enumModel.EnumOfCommunity)),
+    motherTongue: Joi.string().valid(...Object.values(enumModel.EnumOfMotherTongue)),
+    currentCountry: Joi.string(),
+    currentCity: Joi.string(),
+  }),
+};

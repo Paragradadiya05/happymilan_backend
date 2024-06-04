@@ -5,7 +5,7 @@ Joi.objectId = require('joi-objectid')(Joi);
 export const createStatus = {
   body: Joi.object().keys({
     content: Joi.string().required(),
-    caption: Joi.string().required(),
+    caption: Joi.string(),
   }),
 };
 
@@ -15,7 +15,7 @@ export const updateStatus = {
   }),
   body: Joi.object().keys({
     content: Joi.string().required(),
-    caption: Joi.string().required(),
+    caption: Joi.string(),
   }),
 };
 
