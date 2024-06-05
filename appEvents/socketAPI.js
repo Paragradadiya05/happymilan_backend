@@ -387,6 +387,47 @@ io.use(initSubscription).on('connection', function (socket) {
       });
     }
   });
+  socket.on('updateUserLike', async (data) => {
+    try {
+      const { userId, likedUserId, isLike } = data;
+
+      // Find the existing like
+      const existingLike = await Like.findOne({ user: userId, likedUserId });
+
+      if (!existingLike) {
+        throw new Error('No existing like found');
+      }
+
+      // Update the like status
+      existingLike.isLike = isLike;
+      existingLike.updatedBy = userId;
+      existingLike.statusHistory.push({
+        isLike,
+        date: new Date(),
+      });
+
+      // Save the updated like
+      await existingLike.save();
+
+      // Emit a message to the user who initiated the update
+      socket.emit('message', {
+        data: {
+          status: true,
+          message: 'Like updated successfully',
+          updatedLike: existingLike,
+        },
+      });
+    } catch (error) {
+      // Handle errors
+      console.error(error);
+      socket.emit('message', {
+        data: {
+          status: false,
+          message: error.message || 'Failed to update like',
+        },
+      });
+    }
+  });
 });
 
 socketAPI.io = io;
