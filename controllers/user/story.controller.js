@@ -4,10 +4,17 @@ import { catchAsync } from 'utils/catchAsync';
 
 export const create = catchAsync(async (req, res) => {
   const { body } = req;
+  const userId = req.user._id;
   body.createdBy = req.user;
   body.updatedBy = req.user;
   const options = {};
-  const story = await storyService.createStory(body, options);
+  const story = await storyService.createStory(
+    {
+      userId,
+      ...body,
+    },
+    options
+  );
   return res.status(httpStatus.CREATED).send({ results: story });
 });
 

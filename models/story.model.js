@@ -4,6 +4,14 @@ import { toJSON } from 'models/plugins';
 
 const StorySchema = new mongoose.Schema(
   {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Users',
+    },
+    partnerUserId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Users',
+    },
     images: {
       type: mongoose.Mixed,
     },
@@ -12,6 +20,14 @@ const StorySchema = new mongoose.Schema(
     },
     title: {
       type: String,
+    },
+    isConsentTaken: {
+      type: Boolean,
+      default: false,
+    },
+    consentTakenTime: {
+      type: Date,
+      default: Date.now,
     },
   },
   { timestamps: { createdAt: true, updatedAt: true } }

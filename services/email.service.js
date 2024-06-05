@@ -749,3 +749,57 @@ export const sendCongratulationEmail = async (user) => {
     .then(() => logger.info('email sent successfully'))
     .catch((error) => logger.warn(`Unable to send mail ${error}`));
 };
+
+export const sendEmailForConsentTaken = async (partnerUser) => {
+  const { email: to, name } = partnerUser;
+  const subject = 'Welcome to the mntech!';
+  // replace this url with the link to the reset password page of your front-end app
+
+  const text = `
+<html lang="en">
+<head>
+<style>
+.btn {
+  display: inline-block;
+  font-weight: 400;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: 0.25rem;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  color: #ffffff !important;
+  background-color: #007bff;
+  border: 1px solid #007bff;
+  box-shadow: none;
+  text-decoration: none;
+}
+.text-center {
+text-align: center
+}
+</style>
+</head>
+<body>
+<div>
+<div>Dear ${name},</div>
+<br>
+  
+  <div><a   target="_blank" href="" id="verifyButton" class="btn btn-primary" >Click here to Verify</a></div><br>
+  <div>If for some reason you clicked the Sign-Up button in error or you didn’t Sign-Up with this email address</div>
+  <div>in the first place, no need to worry.  You can completely ignore this email and we’ll delete the account for you.</div><br>
+  <div>If you still have questions or concerns just shoot us a note at info@swarayallday.com and we’ll be sure to help you out.</div><br>
+  <div>Thanks!</div><br/><br>
+  <img src="${config.front.url}/images/logo.jpg"><br><br>
+  <a class="text-center" target="_blank" href="https://www.google.com" >unsubscribe from this list</a><br><br>
+  </div>
+  </body>
+  </html>
+`;
+  await sendEmail({ to, subject, text, isHtml: true });
+};

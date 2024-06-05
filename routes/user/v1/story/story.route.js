@@ -2,14 +2,15 @@ import express from 'express';
 import { storyValidation } from 'validations/user';
 import { storyController } from 'controllers/user';
 import validate from 'middlewares/validate';
+import auth from '../../../../middlewares/auth';
 
 const router = express.Router();
 /**
  * create story
  * */
-router.post('/create-story', validate(storyValidation.createStory), storyController.create);
+router.post('/create-story', auth(), validate(storyValidation.createStory), storyController.create);
 /**
- * get storu
+ * get story
  * */
 router.get('/get-story', validate(storyValidation.getStory), storyController.list);
 /**
