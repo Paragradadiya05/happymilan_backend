@@ -65,6 +65,11 @@
     "mimeType": "audio/wav"
   },
   {
+    "key": "webm",
+    "extension": ".webm",
+    "mimeType": "audio/webm"
+  },
+  {
     "key": "mp4",
     "extension": ".mp4",
     "mimeType": "video/mp4"
