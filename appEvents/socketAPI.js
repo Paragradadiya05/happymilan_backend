@@ -52,7 +52,7 @@ io.use(initSubscription).on('connection', function (socket) {
         },
       });
 
-      console.log('=== var name ===> after emit events ');
+      console.log('=== var name ===> after emit events '); // todo : add logger in file and store error in model ( for better error handling )
     } catch (e) {
       // todo: handle error here in socket
       console.log('=== var uploadContent error ===>', e);
@@ -329,7 +329,14 @@ io.use(initSubscription).on('connection', function (socket) {
 
       if (existingLike) {
         if (existingLike.isLike) {
-          throw new Error('Already liked this profile');
+          socket.emit('message', {
+            data: {
+              status: false,
+              message: 'Failed to create like',
+              // You can send additional data if needed
+            },
+          });
+          return;
         }
         existingLike.isLike = true;
         existingLike.updatedBy = userId;
@@ -351,29 +358,30 @@ io.use(initSubscription).on('connection', function (socket) {
           createdBy: userId,
           updatedBy: userId,
         });
-        const message = await Like.paginate(
-          { user: userId },
-          {
-            page: page || 1,
-            limit: limit || 15,
-          }
-        );
-        socket.emit('message', {
-          data: {
-            status: true,
-            message: 'profile liked',
-            data: message,
-          },
-        });
-        socket.to(likedUserId).emit('message', {
-          data: {
-            status: true,
-            message: 'some one like your profile',
-            data: message,
-          },
-        });
-        console.log('=== var name ===>', message);
       }
+
+      const message = await Like.paginate(
+        { user: userId, isLike: true },
+        {
+          page: page || 1,
+          limit: limit || 15,
+        }
+      );
+
+      socket.emit('message', {
+        data: {
+          status: true,
+          message: 'profile liked',
+          data: message,
+        },
+      });
+      socket.to(likedUserId).emit('message', {
+        data: {
+          status: true,
+          message: 'some one like your profile',
+          data: message,
+        },
+      });
       // after get like event update db with event and send to fe side one event
     } catch (error) {
       // Handle errors

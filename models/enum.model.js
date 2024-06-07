@@ -204,6 +204,7 @@ const EnumOfChatType = {
   REPLY: 'reply',
   TEXT: 'text',
   VIDEO: 'video',
+  AUDIO: 'audio',
 };
 const EnumOfOffer = {
   FESTIVAL: 'festival',
