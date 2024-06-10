@@ -22,7 +22,7 @@ io.use(initSubscription).on('connection', function (socket) {
   socket.on('uploadContent', async (data) => {
     try {
       const { from, to, message, type, fileName } = data;
-      if (!from || !to || !message || !type) {
+      if (!from || !to || !type) {
         throw new Error('');
       }
 
@@ -35,7 +35,7 @@ io.use(initSubscription).on('connection', function (socket) {
       const createMessageBody = {
         from,
         to,
-        message,
+        message: message || '',
         fileUrl: result.url.split('?')[0],
         sendAt: Date.now(),
         type,
@@ -66,7 +66,7 @@ io.use(initSubscription).on('connection', function (socket) {
     // message : => message that sent from user
     try {
       const { from, to, message, page, limit, type, messageId } = data;
-      if (!from || !to || !message) {
+      if (!from || !to || (!message && !type)) {
         throw new Error('');
       }
       const getUserToSendMessage = await userService.getOne({ _id: to });
@@ -77,12 +77,12 @@ io.use(initSubscription).on('connection', function (socket) {
       const createMessageBody = {
         from,
         to,
-        message,
+        message: message || '',
         sendAt: Date.now(),
         ...(type && { type }),
       };
       // here we need to check if type is image or video then a message is already created so not need to send it again to another user
-      if (type && [EnumOfChatType.IMAGE, EnumOfChatType.VIDEO, EnumOfChatType.DOC].includes(type)) {
+      if (type && [EnumOfChatType.IMAGE, EnumOfChatType.VIDEO, EnumOfChatType.DOC, EnumOfChatType.AUDIO].includes(type)) {
         // Do nothing because it's one of the specified types
         if (messageId) {
           await messageservice.updateMessage(
