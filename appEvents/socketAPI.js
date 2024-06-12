@@ -397,7 +397,7 @@ io.use(initSubscription).on('connection', function (socket) {
   });
   socket.on('updateUserLike', async (data) => {
     try {
-      const { userId, likedUserId, isLike } = data;
+      const { userId, page, limit, likedUserId, isLike } = data;
 
       // Find the existing like
       const existingLike = await Like.findOne({ user: userId, likedUserId });
@@ -416,7 +416,28 @@ io.use(initSubscription).on('connection', function (socket) {
 
       // Save the updated like
       await existingLike.save();
+      const message = await Like.paginate(
+        { user: userId, isLike: true },
+        {
+          page: page || 1,
+          limit: limit || 15,
+        }
+      );
 
+      socket.emit('message', {
+        data: {
+          status: true,
+          message: 'update liked',
+          data: message,
+        },
+      });
+      socket.to(likedUserId).emit('message', {
+        data: {
+          status: true,
+          message: 'update liked',
+          data: message,
+        },
+      });
       // Emit a message to the user who initiated the update
       socket.emit('message', {
         data: {
