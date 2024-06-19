@@ -18,26 +18,27 @@ const SearchHistorySchema = new mongoose.Schema(
       max: Number,
     },
     maritalStatus: {
-      type: String,
+      type: [String],
       enum: Object.values(enumModel.EnumOfMaritalStatus),
     },
     religion: {
-      type: String,
+      type: [String],
       enum: Object.values(enumModel.EnumOfReligion),
     },
     community: {
-      type: String,
+      type: [String],
       enum: Object.values(enumModel.EnumOfCommunity),
     },
     motherTongue: {
-      type: String,
+      type: [String],
       enum: Object.values(enumModel.EnumOfMotherTongue),
     },
     currentCountry: {
-      type: String,
+      type: [String],
+      enum: Object.values(enumModel.EnumOfCurrentCountry),
     },
     currentCity: {
-      type: String,
+      type: [String],
     },
   },
   { timestamps: { createdAt: true, updatedAt: true } }
