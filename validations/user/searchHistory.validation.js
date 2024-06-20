@@ -22,5 +22,23 @@ export const createSearchHistory = {
     motherTongue: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfMotherTongue))),
     currentCountry: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfCurrentCountry))),
     currentCity: Joi.array().items(Joi.string()),
+    saveSearch: Joi.string(),
+  }),
+};
+
+export const getbySearchHistoryId = {
+  params: Joi.object().keys({
+    SearchHistoryId: Joi.objectId().required(),
+  }),
+};
+export const deletebySearchHistoryId = {
+  params: Joi.object().keys({
+    SearchHistoryId: Joi.objectId().required(),
+  }),
+};
+
+export const getbysaveSearch = {
+  params: Joi.object().keys({
+    saveSearch: Joi.string().required(),
   }),
 };

@@ -40,6 +40,9 @@ const SearchHistorySchema = new mongoose.Schema(
     currentCity: {
       type: [String],
     },
+    saveSearch: {
+      type: String,
+    },
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );

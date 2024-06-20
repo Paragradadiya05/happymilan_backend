@@ -15,4 +15,25 @@ router
    * getSearchHistory
    * */
   .get(auth(), validate(searchHistoryValidation.getSearchHistory), searchHistoryController.listSearchHistory);
+router
+  .route('/:SearchHistoryId')
+  /**
+   * getbySearchHistoryId
+   * */
+  .get(auth(), validate(searchHistoryValidation.getbySearchHistoryId), searchHistoryController.getbySearchHistoryId)
+  /**
+   * deletebySearchHistoryId
+   * */
+  .delete(
+    auth(),
+    validate(searchHistoryValidation.deletebySearchHistoryId),
+    searchHistoryController.deletebySearchHistoryId
+  );
+router
+  .route('/saveSearch/:saveSearch')
+  /**
+   * getbysaveSearch
+   * */
+  .get(auth(), validate(searchHistoryValidation.getbysaveSearch), searchHistoryController.getbysaveSearch);
+
 export default router;
