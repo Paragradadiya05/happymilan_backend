@@ -30,6 +30,12 @@ router
     searchHistoryController.deletebySearchHistoryId
   );
 router
+  .route('/get-by-user/:userId')
+  /**
+   * getbySearchHistoryId
+   * */
+  .get(auth(), validate(searchHistoryValidation.getbyuserId), searchHistoryController.getbyuserId);
+router
   .route('/saveSearch/:saveSearch')
   /**
    * getbysaveSearch

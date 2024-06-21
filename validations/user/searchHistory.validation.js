@@ -21,6 +21,7 @@ export const createSearchHistory = {
     community: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfCommunity))),
     motherTongue: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfMotherTongue))),
     currentCountry: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfCurrentCountry))),
+    state: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfState))),
     currentCity: Joi.array().items(Joi.string()),
     saveSearch: Joi.string(),
   }),
@@ -40,5 +41,11 @@ export const deletebySearchHistoryId = {
 export const getbysaveSearch = {
   params: Joi.object().keys({
     saveSearch: Joi.string().required(),
+  }),
+};
+
+export const getbyuserId = {
+  params: Joi.object().keys({
+    userId: Joi.objectId().required(),
   }),
 };

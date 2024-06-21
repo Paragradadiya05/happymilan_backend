@@ -40,6 +40,13 @@ const SearchHistorySchema = new mongoose.Schema(
     currentCity: {
       type: [String],
     },
+    state: {
+      type: [String],
+      enum: Object.values(enumModel.EnumOfState),
+    },
+    weight: {
+      type: Number,
+    },
     saveSearch: {
       type: String,
     },

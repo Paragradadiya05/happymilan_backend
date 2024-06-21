@@ -51,3 +51,14 @@ export const deletebySearchHistoryId = catchAsync(async (req, res) => {
   const SearchHistory = await searchHistoryService.remove(filter);
   return res.status(httpStatus.OK).send({ results: SearchHistory });
 });
+
+export const getbyuserId = catchAsync(async (req, res) => {
+  const { userId } = req.params;
+  const filter = {
+    userId,
+  };
+  console.log('=====xx====>', filter);
+  const options = {};
+  const SearchHistory = await searchHistoryService.getHistory(filter, options);
+  return res.status(httpStatus.OK).send({ results: SearchHistory });
+});
