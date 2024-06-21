@@ -57,7 +57,6 @@ export const getbyuserId = catchAsync(async (req, res) => {
   const filter = {
     userId,
   };
-  console.log('=====xx====>', filter);
   const options = {};
   const SearchHistory = await searchHistoryService.getHistory(filter, options);
   return res.status(httpStatus.OK).send({ results: SearchHistory });
