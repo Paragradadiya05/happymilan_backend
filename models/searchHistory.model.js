@@ -17,6 +17,10 @@ const SearchHistorySchema = new mongoose.Schema(
       min: Number,
       max: Number,
     },
+    weight: {
+      min: Number,
+      max: Number,
+    },
     maritalStatus: {
       type: [String],
       enum: Object.values(enumModel.EnumOfMaritalStatus),
@@ -43,9 +47,6 @@ const SearchHistorySchema = new mongoose.Schema(
     state: {
       type: [String],
       enum: Object.values(enumModel.EnumOfState),
-    },
-    weight: {
-      type: Number,
     },
     saveSearch: {
       type: String,

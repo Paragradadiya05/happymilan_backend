@@ -16,6 +16,10 @@ export const createSearchHistory = {
       min: Joi.number().required(),
       max: Joi.number().required(),
     }),
+    weight: Joi.object({
+      min: Joi.number(),
+      max: Joi.number(),
+    }),
     maritalStatus: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfMaritalStatus))),
     religion: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfReligion))),
     community: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfCommunity))),
