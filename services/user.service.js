@@ -130,6 +130,7 @@ export async function addDeviceToken(user, body) {
 
 export async function getGenderList(filter, options = {}) {
   const userData = await getOne(filter, {});
+
   if (!userData) {
     throw new ApiError(httpStatus.NOT_FOUND, 'user not found');
   }
@@ -141,6 +142,10 @@ export async function getGenderList(filter, options = {}) {
   } else {
     throw new Error('Invalid gender for logged-in user');
   }
-  const user = await User.find({ gender: oppositeGender }, options.projection, options);
+  const user = await User.find({ gender: oppositeGender }, options.projection, options)
+    .populate('address')
+    .populate('userEducation')
+    .populate('userPartner')
+    .populate('userProfessional');
   return user;
 }
