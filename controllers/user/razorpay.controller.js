@@ -41,31 +41,14 @@ const razorpayInstance = new razorpay({
 });
 // eslint-disable-next-line import/prefer-default-export
 export const complete = catchAsync(async (req, res) => {
-  console.log('=== var  req.body.razorpay_payment_id ===>', req.body.razorpay_payment_id);
-  console.log('=== var name ===>', req.query.paymentHistoryToken);
-
   if (!req.body.razorpay_payment_id || !req.query.paymentHistoryToken) {
     throw new ApiError(httpStatus.NOT_FOUND, 'razorpay_payment_id Not Available');
   }
   // Fetch payment details from Razorpay using the payment ID
   const paymentDocument = await razorpayInstance.payments.fetch(req.body.razorpay_payment_id);
 
-  console.log('=== var paymentDocument ===>', paymentDocument);
   // Check if payment status is captured
   if (paymentDocument.status === 'captured') {
-    const updatePaymentHistory = await paymentHistoryService.updatePaymentHistory(
-      {}, // update filter from here
-      {
-        razorpayLatestResponse: paymentDocument,
-        $push: {
-          razorpayResponses: paymentDocument,
-        },
-      },
-      {
-        new: true,
-      }
-    );
-    console.log('=====xx====>', updatePaymentHistory);
     // decrypt payment jwt token
     const paymentHistoryToken = jwt.verify(req.query.paymentHistoryToken, 'PAYMENT'); // todo : make this from env
 
@@ -83,9 +66,7 @@ export const complete = catchAsync(async (req, res) => {
       )
       .populate('planId');
 
-    console.log('=== var getPaymentHistory ===>', getPaymentHistory);
     // todo :  make function for calculated date based on plan details.
-    console.log('=====xx====>', calculateDates);
     const { startDate, endDate } = calculateDates(paymentHistoryToken.data.planDuration);
     await userPlanService.createUserPlan({
       userId: req.user._id,
@@ -108,7 +89,6 @@ export const createOrder = catchAsync(async (req, res) => {
   const { planId } = req.body;
   const userId = req.user._id;
 
-  console.log('=== var user ===>', userId);
   // take userid from auh middleware
   // we get plan id in order section for create order
   const getPlan = await planservice.getPlan({
@@ -124,8 +104,7 @@ export const createOrder = catchAsync(async (req, res) => {
 
   // based on request, we need to calculate amount and currency from plan
   // const orderAmount = (getPlan.price - (getPlan.price * getPlan.discount) / 100) * 100;
-  const orderAmount = 100;
-  console.log('=== var orderAmount ===>', orderAmount);
+  const orderAmount = 100; // todo : update this after done testing
 
   // create payment order in our database
   const createPaymentOrder = await paymentHistoryService.createPaymentHistory({
@@ -145,11 +124,8 @@ export const createOrder = catchAsync(async (req, res) => {
     // todo : check all other options and if some needed in that then we need to integrate it.
   };
 
-  console.log('=== var orderAmount ===>', orderAmount);
   // razor pay create order
   const razorPayOrder = await razorpayInstance.orders.create(options);
-
-  // console.log('=== var razorPayOrder ===>', razorPayOrder);
 
   // update order response in out db
   await paymentHistoryService.updatePaymentHistory(
@@ -164,10 +140,8 @@ export const createOrder = catchAsync(async (req, res) => {
     }
   );
 
-  console.log('=== var createPaymentOrder._id  ===>', createPaymentOrder._id);
   const paymentHistoryToken = jwt.sign({ data: createPaymentOrder._id }, process.env.JWT_SECRET_PAYMENT);
 
-  console.log('=== var paymentHistoryToken ===>', paymentHistoryToken);
   return res.status(httpStatus.OK).send({ ...razorPayOrder, paymentHistoryToken });
   // return res.status(httpStatus.OK).send({ results: 'ok' });
 });
