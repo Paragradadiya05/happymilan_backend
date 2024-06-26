@@ -1,6 +1,7 @@
 import { paymentHistoryService, planservice, userPlanService } from 'services';
 import httpStatus from 'http-status';
 import jwt from 'jsonwebtoken';
+import config from 'config/config';
 import { catchAsync } from '../../utils/catchAsync';
 import ApiError from '../../utils/ApiError';
 import { EnumOfPlanDuration, EnumOfUserPlan } from '../../models/enum.model';
@@ -36,8 +37,8 @@ const calculateDates = (planDuration) => {
 
 // eslint-disable-next-line new-cap
 const razorpayInstance = new razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
+  key_id: config.razorpay.key_id,
+  key_secret: config.razorpay.key_secret,
 });
 // eslint-disable-next-line import/prefer-default-export
 export const complete = catchAsync(async (req, res) => {
@@ -140,7 +141,7 @@ export const createOrder = catchAsync(async (req, res) => {
     }
   );
 
-  const paymentHistoryToken = jwt.sign({ data: createPaymentOrder._id }, process.env.JWT_SECRET_PAYMENT);
+  const paymentHistoryToken = jwt.sign({ data: createPaymentOrder._id }, 'PAYMENT');
 
   return res.status(httpStatus.OK).send({ ...razorPayOrder, paymentHistoryToken });
   // return res.status(httpStatus.OK).send({ results: 'ok' });

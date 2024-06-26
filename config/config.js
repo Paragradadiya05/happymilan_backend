@@ -39,6 +39,8 @@ const envVarsSchema = Joi.object()
     GITHUB_CLIENT_SECRET: Joi.string().required().description('Apple TeamId is required'),
     STRIPE_KEY: Joi.string().required().description('Stripe Secret Key required'),
     STRIPE_GATEWAY_ID: Joi.string().required().description('Stripe Gateway Id required'),
+    RAZORPAY_KEY_ID: Joi.string().required().description('razorpay Id required'),
+    RAZORPAY_KEY_SECRET: Joi.string().required().description('razorpay secrete required'),
   })
   .unknown();
 const { value: envVars, error } = envVarsSchema.prefs({ errors: { label: 'key' } }).validate(process.env);
@@ -121,5 +123,9 @@ export default {
   stripe: {
     key: envVars.STRIPE_KEY,
     gatewayId: envVars.STRIPE_GATEWAY_ID,
+  },
+  razorpay: {
+    key_id: envVars.RAZORPAY_KEY_ID,
+    key_secret: envVars.RAZORPAY_KEY_SECRET,
   },
 };
