@@ -7,3 +7,10 @@ export const createOrder = {
     planId: Joi.objectId().required(),
   }),
 };
+
+export const orderComplete = {
+  query: Joi.object().keys({
+    razorpay_payment_id: Joi.objectId().required(),
+    paymentHistoryToken: Joi.string().required(),
+  }),
+};

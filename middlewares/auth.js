@@ -32,6 +32,12 @@ const verifyCallback = (req, resolve, reject, role) => async (err, user, info) =
 };
 const auth = (role) => async (req, res, next) => {
   return new Promise((resolve, reject) => {
+    // Extract token from Authorization header or query parameters
+    const token = req.headers.authorization ? req.headers.authorization.split(' ')[1] : req.query.authToken;
+    if (token) {
+      // Set the token in the headers for Passport to use
+      req.headers.authorization = `Bearer ${token}`;
+    }
     passport.authenticate('jwt', { session: false }, verifyCallback(req, resolve, reject, role))(req, res, next);
   })
     .then(() => next())

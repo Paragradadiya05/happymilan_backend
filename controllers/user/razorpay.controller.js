@@ -1,23 +1,56 @@
-import { paymentHistoryService, planservice } from 'services';
+import { paymentHistoryService, planservice, userPlanService } from 'services';
 import httpStatus from 'http-status';
+import jwt from 'jsonwebtoken';
 import { catchAsync } from '../../utils/catchAsync';
 import ApiError from '../../utils/ApiError';
+import { EnumOfPlanDuration, EnumOfUserPlan } from '../../models/enum.model';
 
 const razorpay = require('razorpay');
 
+const calculateDates = (planDuration) => {
+  const currentDate = new Date();
+  const startDate = new Date(currentDate); // Initialize start date as current date
+  const endDate = new Date(currentDate); // Initialize end date as current date
+
+  switch (planDuration) {
+    case EnumOfPlanDuration.MONTHLY:
+      endDate.setMonth(endDate.getMonth() + 1);
+      break;
+    case EnumOfPlanDuration.YEARLY:
+      endDate.setFullYear(endDate.getFullYear() + 1);
+      break;
+    case EnumOfPlanDuration.QUARTERLY:
+      endDate.setMonth(endDate.getMonth() + 3);
+      break;
+    case EnumOfPlanDuration.BIANNUAL:
+      endDate.setMonth(endDate.getMonth() + 6);
+      break;
+    default:
+      // Handle unsupported plan durations or defaults to a reasonable duration
+      endDate.setMonth(endDate.getMonth() + 1); // Default to monthly if none specified
+      break;
+  }
+
+  return { startDate, endDate };
+};
+
 // eslint-disable-next-line new-cap
 const razorpayInstance = new razorpay({
-  key_id: 'rzp_test_Dv5ALfzUvZ12UN',
-  key_secret: 'REHhueTzlSuxPIsTTPBMyOWG',
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 // eslint-disable-next-line import/prefer-default-export
 export const complete = catchAsync(async (req, res) => {
+  console.log('=== var  req.body.razorpay_payment_id ===>', req.body.razorpay_payment_id);
+  console.log('=== var name ===>', req.query.paymentHistoryToken);
+
+  if (!req.body.razorpay_payment_id || !req.query.paymentHistoryToken) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'razorpay_payment_id Not Available');
+  }
   // Fetch payment details from Razorpay using the payment ID
   const paymentDocument = await razorpayInstance.payments.fetch(req.body.razorpay_payment_id);
 
-  // update payment order data if payment is payment
-  // successfully and create user current plan with calculation of date
-
+  console.log('=== var paymentDocument ===>', paymentDocument);
   // Check if payment status is captured
   if (paymentDocument.status === 'captured') {
     const updatePaymentHistory = await paymentHistoryService.updatePaymentHistory(
@@ -32,21 +65,50 @@ export const complete = catchAsync(async (req, res) => {
         new: true,
       }
     );
-    console.log(' == updated payment data == ', updatePaymentHistory);
+    console.log('=====xx====>', updatePaymentHistory);
+    // decrypt payment jwt token
+    const paymentHistoryToken = jwt.verify(req.query.paymentHistoryToken, 'PAYMENT'); // todo : make this from env
+
+    // todo:get plan here by populate
+    const getPaymentHistory = await paymentHistoryService
+      .updatePaymentHistory(
+        { _id: paymentHistoryToken.data },
+        {
+          $set: { status: paymentDocument.status, razorpayLatestResponse: paymentDocument },
+          $push: { razorpayResponses: paymentDocument },
+        },
+        {
+          new: true,
+        }
+      )
+      .populate('planId');
+
+    console.log('=== var getPaymentHistory ===>', getPaymentHistory);
+    // todo :  make function for calculated date based on plan details.
+    console.log('=====xx====>', calculateDates);
+    const { startDate, endDate } = calculateDates(paymentHistoryToken.data.planDuration);
+    await userPlanService.createUserPlan({
+      userId: req.user._id,
+      planId: getPaymentHistory.planId, // todo : update id here planId
+      startDate,
+      endDate,
+      status: EnumOfUserPlan.ACTIVE,
+    });
 
     // update user plan here
-
-    res.send('Payment Successful');
+    res.redirect('http://localhost:3000/is-order-complete'); // todo : add url from env here TO: kuldip
   } else {
     // todo : handle error here with help of fe side and also update payment
     // Redirect to homepage if payment status is not captured
-    res.redirect('/');
+    res.redirect('/'); // todo : throw error something went wrong
   }
 });
 
 export const createOrder = catchAsync(async (req, res) => {
   const { planId } = req.body;
+  const userId = req.user._id;
 
+  console.log('=== var user ===>', userId);
   // take userid from auh middleware
   // we get plan id in order section for create order
   const getPlan = await planservice.getPlan({
@@ -54,35 +116,40 @@ export const createOrder = catchAsync(async (req, res) => {
   });
 
   // todo : also validate that from witch platform this plan belongs
-  //  to that platform ( business portal dynamic pllan or plan that made by happymilan metrompny site)
+  //  to that platform ( business portal dynamic plan or plan that made by happymilan metrompny site)
   // verify plan details based on plan id
   if (!getPlan) {
     throw new ApiError(httpStatus.NOT_FOUND, 'No such Plan Available');
   }
 
-  console.log(' === get plan ===', getPlan);
-  // based on request we need to calculate amount and currency from plan
-  const orderAmount = (getPlan.price - (getPlan.price * getPlan.discount) / 100) * 100;
+  // based on request, we need to calculate amount and currency from plan
+  // const orderAmount = (getPlan.price - (getPlan.price * getPlan.discount) / 100) * 100;
+  const orderAmount = 100;
+  console.log('=== var orderAmount ===>', orderAmount);
 
   // create payment order in our database
   const createPaymentOrder = await paymentHistoryService.createPaymentHistory({
-    userId: '6641ccc92df11e1df4acea9f', // todo : update userd id based in auth token currently it is static
+    userId, // todo : update userd id based in auth token currently it is static
     amount: orderAmount, // order amount in rupee * 100 ( paisa )
     paymentMethod: 'razerpay', // update after data coming from razor pay
     stauts: 'created-our-side',
+    planId: getPlan._id,
   });
 
   // Set options for creating the order
   const options = {
-    // plan prise - discount prise => will get price that will be taken from user account
+    // plan prise - discount prise => will get price that will be taken from a user account
     amount: orderAmount,
-    currency: 'INR',
+    currency: 'INR', // the currency will be dynamic if user wants to change
     receipt: createPaymentOrder._id,
     // todo : check all other options and if some needed in that then we need to integrate it.
   };
 
+  console.log('=== var orderAmount ===>', orderAmount);
   // razor pay create order
   const razorPayOrder = await razorpayInstance.orders.create(options);
+
+  // console.log('=== var razorPayOrder ===>', razorPayOrder);
 
   // update order response in out db
   await paymentHistoryService.updatePaymentHistory(
@@ -97,5 +164,10 @@ export const createOrder = catchAsync(async (req, res) => {
     }
   );
 
-  return res.status(httpStatus.OK).send({ results: razorPayOrder });
+  console.log('=== var createPaymentOrder._id  ===>', createPaymentOrder._id);
+  const paymentHistoryToken = jwt.sign({ data: createPaymentOrder._id }, process.env.JWT_SECRET_PAYMENT);
+
+  console.log('=== var paymentHistoryToken ===>', paymentHistoryToken);
+  return res.status(httpStatus.OK).send({ ...razorPayOrder, paymentHistoryToken });
+  // return res.status(httpStatus.OK).send({ results: 'ok' });
 });

@@ -28,5 +28,5 @@ module.exports.Offer = require('./offer.model');
 module.exports.MessageConsent = require('./messageconsent.model');
 module.exports.PaymentDetails = require('./paymentdetails.model');
 module.exports.PaymentHistory = require('./paymentHistory.model');
-module.exports.PaymentHistory = require('./userPlan.model');
+module.exports.UserPlan = require('./userPlan.model');
 module.exports.SearchHistory = require('./searchHistory.model');
