@@ -1,46 +1,46 @@
-import { Test } from 'models';
+import { UserPlan } from 'models';
 
-export async function getTestById(id, options = {}) {
-  const test = await Test.findById(id, options.projection, options);
+export async function getUserPlanById(id, options = {}) {
+  const test = await UserPlan.findById(id, options.projection, options);
   return test;
 }
 
 export async function getOne(query, options = {}) {
-  const test = await Test.findOne(query, options.projection, options);
+  const test = await UserPlan.findOne(query, options.projection, options);
   return test;
 }
 
-export async function getTestList(filter, options = {}) {
-  const test = await Test.find(filter, options.projection, options);
+export async function getUserPlanList(filter, options = {}) {
+  const test = await UserPlan.find(filter, options.projection, options);
   return test;
 }
 
-export async function getTestListWithPagination(filter, options = {}) {
-  const test = await Test.paginate(filter, options);
+export async function getUserPlanListWithPagination(filter, options = {}) {
+  const test = await UserPlan.paginate(filter, options);
   return test;
 }
 
-export async function createTest(body = {}) {
-  const test = await Test.create(body);
+export async function createUserPlan(body = {}) {
+  const test = await UserPlan.create(body);
   return test;
 }
 
-export async function updateTest(filter, body, options = {}) {
-  const test = await Test.findOneAndUpdate(filter, body, options);
+export async function updateUserPlan(filter, body, options = {}) {
+  const test = await UserPlan.findOneAndUpdate(filter, body, options);
   return test;
 }
 
-export async function updateManyTest(filter, body, options = {}) {
-  const test = await Test.updateMany(filter, body, options);
+export async function updateManyUserPlan(filter, body, options = {}) {
+  const test = await UserPlan.updateMany(filter, body, options);
   return test;
 }
 
-export async function removeTest(filter) {
-  const test = await Test.findOneAndRemove(filter);
+export async function removeUserPlan(filter) {
+  const test = await UserPlan.findOneAndRemove(filter);
   return test;
 }
 
-export async function removeManyTest(filter) {
-  const test = await Test.deleteMany(filter);
+export async function removeManyUserPlan(filter) {
+  const test = await UserPlan.deleteMany(filter);
   return test;
 }

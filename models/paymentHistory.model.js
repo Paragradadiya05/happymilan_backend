@@ -23,6 +23,11 @@ const paymentHistorySchema = new mongoose.Schema(
     razorpayLatestResponse: {
       type: Object,
     },
+    planId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Plan',
+      required: true,
+    },
     razorpayResponses: [Object],
   },
   { timestamps: { createdAt: true, updatedAt: true } }

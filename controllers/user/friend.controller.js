@@ -93,6 +93,30 @@ export const getMyFrdRequests = catchAsync(async (req, res) => {
   return res.status(httpStatus.OK).send({ results: user });
 });
 
+export const getMyFrdRequestsMobile = catchAsync(async (req, res) => {
+  const userId = req.user._id;
+  const filter = {
+    status: EnumStatusOfFriend.ACCEPTED,
+    $or: [{ friend: userId }, { user: userId }],
+  };
+  const options = {};
+  const user = await friendService.getFriendList(filter, options);
+
+  const updatedData = user.map((frdData) => {
+    let friendList;
+    if (frdData._doc.friend._id.toString() === userId.toString()) {
+      friendList = frdData._doc.user;
+    } else {
+      friendList = frdData._doc.friend;
+    }
+    return {
+      ...frdData,
+      friendList,
+    };
+  });
+
+  return res.status(httpStatus.OK).send({ results: updatedData });
+});
 export const getRejectedFrdRequests = catchAsync(async (req, res) => {
   const userId = req.user._id;
   const filter = {

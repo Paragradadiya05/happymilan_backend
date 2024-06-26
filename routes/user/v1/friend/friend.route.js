@@ -20,6 +20,8 @@ router.get('/get-frd-requests', auth(), friendController.getRequests);
 
 router.get('/get-frds', auth(), friendController.getMyFrdRequests);
 
+router.get('/get-frd-mobile', auth(), friendController.getMyFrdRequestsMobile);
+
 router.get('/get-rejected-frds', auth(), friendController.getRejectedFrdRequests);
 
 router.get('/get-block-list', auth(), friendController.getBlockList);

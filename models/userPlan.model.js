@@ -5,6 +5,7 @@ import enumModel from './enum.model';
 
 const userPlanSchema = new mongoose.Schema(
   {
+    // todo: handle all plan releted edge cases
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
@@ -28,6 +29,10 @@ const userPlanSchema = new mongoose.Schema(
       enum: Object.values(enumModel.EnumOfUserPlan),
       default: 'inactive',
     },
+    // todo : array contain [ status, enddate, startdate , planid ]
+    // statusHistory : {
+    //
+    // }
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );

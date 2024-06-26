@@ -34,3 +34,4 @@ module.exports.offerService = require('./offer.service');
 module.exports.messageConsentservice = require('./messageconsent.service');
 module.exports.paymentHistoryService = require('./paymentHistory.service');
 module.exports.searchHistoryService = require('./searchHistory.service');
+module.exports.userPlanService = require('./userPlan.service');
