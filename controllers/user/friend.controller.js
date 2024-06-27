@@ -2,6 +2,7 @@ import httpStatus from 'http-status';
 import { friendService } from 'services';
 import { catchAsync } from 'utils/catchAsync';
 import { EnumStatusOfFriend } from '../../models/enum.model';
+import { pick } from '../../utils/pick';
 
 export const getFriend = catchAsync(async (req, res) => {
   const { friendId } = req.params;
@@ -94,28 +95,55 @@ export const getMyFrdRequests = catchAsync(async (req, res) => {
 });
 
 export const getMyFrdRequestsMobile = catchAsync(async (req, res) => {
+  const { query } = req;
+  const sortingObj = pick(query, ['sort', 'order']);
+  const sortObj = {
+    [sortingObj.sort]: sortingObj.order,
+  };
+  const options = {
+    sort: sortObj,
+    ...pick(query, ['limit', 'page']),
+    lean: true,
+    populate: [
+      {
+        path: 'friend',
+        populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
+      },
+      {
+        path: 'user',
+        populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
+      },
+    ],
+  };
   const userId = req.user._id;
   const filter = {
     status: EnumStatusOfFriend.ACCEPTED,
     $or: [{ friend: userId }, { user: userId }],
   };
-  const options = {};
-  const user = await friendService.getFriendList(filter, options);
+  const getuser = await friendService.getFriendListWithPagination(filter, options);
 
-  const updatedData = user.map((frdData) => {
+  // console.log('=== var user ===>', user );
+  getuser.results = getuser.results.map((frdData) => {
+    console.log('=== var frdData ===>', frdData);
     let friendList;
-    if (frdData._doc.friend._id.toString() === userId.toString()) {
-      friendList = frdData._doc.user;
+    let userList;
+    if (frdData.friend._id.toString() === userId.toString()) {
+      friendList = frdData.user;
+      userList = frdData.friend;
     } else {
-      friendList = frdData._doc.friend;
+      friendList = frdData.friend;
+      userList = frdData.user;
     }
+
+    const { friend, user, ...restFrdData } = frdData;
     return {
-      ...frdData,
+      ...restFrdData,
       friendList,
+      userList,
     };
   });
 
-  return res.status(httpStatus.OK).send({ results: updatedData });
+  return res.status(httpStatus.OK).send({ results: getuser });
 });
 export const getRejectedFrdRequests = catchAsync(async (req, res) => {
   const userId = req.user._id;
