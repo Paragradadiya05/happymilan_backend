@@ -1,13 +1,17 @@
 import { Subscription } from 'models';
 
-async function checkSubscriptionStatus(subscriptionId) {
+async function checkSubscriptionStatus(userId) {
   try {
-    const subscription = await Subscription.findById(subscriptionId);
-    if (!subscription) {
-      return { success: false, message: 'Subscription not found' };
+    // Find the latest subscription for the user
+    const latestSubscription = await Subscription.findOne({ user: userId })
+      .sort({ createdAt: -1 }) // Sort by createdAt descending to get the latest first
+      .exec();
+
+    if (!latestSubscription) {
+      return { success: false, message: 'No subscription found for the user' };
     }
 
-    const isActive = subscription.status === 'active';
+    const isActive = latestSubscription.status === 'active';
     return { success: true, isActive };
   } catch (error) {
     return { success: false, message: error.message };
