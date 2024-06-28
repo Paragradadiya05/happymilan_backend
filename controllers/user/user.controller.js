@@ -4,6 +4,7 @@ import { catchAsync } from 'utils/catchAsync';
 import { pick } from '../../utils/pick';
 import { EnumStatusOfFriend } from '../../models/enum.model';
 import ApiError from '../../utils/ApiError';
+import { Subscription } from '../../models';
 
 export const get = catchAsync(async (req, res) => {
   const { userId } = req.params;
@@ -147,4 +148,32 @@ export const getUserByGender = catchAsync(async (req, res) => {
   const options = {};
   const userdata = await userService.getGenderList(filter, options);
   return res.status(httpStatus.OK).send({ results: userdata });
+});
+
+async function checkSubscriptionStatus(userId) {
+  try {
+    // Find the latest subscription for the user
+    const latestSubscription = await Subscription.findOne({ user: userId })
+      .sort({ createdAt: -1 }) // Sort by createdAt descending to get the latest first
+      .exec();
+
+    if (!latestSubscription) {
+      return { success: false, message: 'No subscription found for the user' };
+    }
+
+    const isActive = latestSubscription.status === 'active';
+    return { success: true, isActive };
+  } catch (error) {
+    return { success: false, message: error.message };
+  }
+}
+
+console.log('===== checkSubscriptionStatus ====>', checkSubscriptionStatus);
+
+export const checkPlan = catchAsync(async (req, res) => {
+  // const viewer = req.body.viewerId;
+  const userId = req.user._id;
+
+  const user = await checkSubscriptionStatus(userId);
+  return res.status(httpStatus.OK).send({ results: user });
 });

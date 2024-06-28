@@ -15,7 +15,12 @@ router
    * getUser
    * */
   .get(validate(userValidation.getUser), userController.list);
-
+router
+  .route('/checkPlan')
+  /**
+   * getUserByUserUniqueId
+   * */
+  .get(auth(), userController.checkPlan);
 router
   .route('/users-not-frd')
   /**
@@ -57,4 +62,5 @@ router
    * getUserByUserUniqueId
    * */
   .get(auth(), validate(userValidation.get), userController.getUnique);
+
 export default router;
