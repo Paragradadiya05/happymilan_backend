@@ -23,6 +23,6 @@ router.get('/get-plan', auth(), planController.listPlan);
 /**
  * update plan
  * */
-router.put('/update-plan/:planId', auth('admin'), validate(planValidation.updatePlan), planController.update);
+router.put('/update-plan/:planId', auth(['admin']), validate(planValidation.updatePlan), planController.update);
 
 export default router;

@@ -7,6 +7,6 @@ const multer = require('multer');
 
 const upload = multer();
 
-router.post('/xlsx', auth('admin'), upload.single('uploaded_file'), xlxsController.uploadxlsx);
+router.post('/xlsx', auth(['admin']), upload.single('uploaded_file'), xlxsController.uploadxlsx);
 
 module.exports = router;

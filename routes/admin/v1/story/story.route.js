@@ -8,18 +8,18 @@ const router = express.Router();
 /**
  * create story
  * */
-router.post('/create-story', auth('admin'), validate(storyValidation.createStory), storyController.create);
+router.post('/create-story', auth(['admin']), validate(storyValidation.createStory), storyController.create);
 /**
  * get storu
  * */
-router.get('/get-story', auth('admin'), validate(storyValidation.getStory), storyController.list);
+router.get('/get-story', auth(['admin']), validate(storyValidation.getStory), storyController.list);
 /**
  * update story
  * */
-router.put('/update-story/:storyId', auth('admin'), validate(storyValidation.updateStory), storyController.update);
+router.put('/update-story/:storyId', auth(['admin']), validate(storyValidation.updateStory), storyController.update);
 /**
  * deleteTestById
  * */
-router.delete('/delete-story/:storyId', auth('admin'), validate(storyValidation.deleteStoryById), storyController.remove);
+router.delete('/delete-story/:storyId', auth(['admin']), validate(storyValidation.deleteStoryById), storyController.remove);
 
 export default router;

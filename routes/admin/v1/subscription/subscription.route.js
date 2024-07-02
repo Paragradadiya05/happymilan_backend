@@ -10,7 +10,7 @@ const router = express.Router();
  * */
 router.post(
   '/create-subscription',
-  auth('admin'),
+  auth(['admin']),
   validate(subscriptionValidation.createSubcription),
   subscriptionController.create
 );
@@ -19,7 +19,7 @@ router.post(
  * */
 router.get(
   '/get-subscription',
-  auth('admin'),
+  auth(['admin']),
   validate(subscriptionValidation.subscriptionlist),
   subscriptionController.list
 );
@@ -28,7 +28,7 @@ router.get(
  * */
 router.put(
   '/update-subscription/:subscriptionId',
-  auth('admin'),
+  auth(['admin']),
   validate(subscriptionValidation.updatesubscription),
   subscriptionController.update
 );

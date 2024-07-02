@@ -10,7 +10,12 @@ export const createOrder = {
 
 export const orderComplete = {
   query: Joi.object().keys({
-    razorpay_payment_id: Joi.objectId().required(),
     paymentHistoryToken: Joi.string().required(),
+    authToken: Joi.string().required(),
   }),
+  body: Joi.object()
+    .keys({
+      razorpay_payment_id: Joi.string().required(),
+    })
+    .unknown(true),
 };

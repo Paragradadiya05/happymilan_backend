@@ -8,18 +8,18 @@ const router = express.Router();
 /**
  * create blog
  * */
-router.post('/create-blog', auth('admin'), validate(blogValidation.createBlog), blogController.create);
+router.post('/create-blog', auth(['admin']), validate(blogValidation.createBlog), blogController.create);
 /**
  * get blog
  * */
-router.get('/get-blog', auth('admin'), validate(blogValidation.getBlog), blogController.list);
+router.get('/get-blog', auth(['admin']), validate(blogValidation.getBlog), blogController.list);
 /**
  * update blog
  * */
-router.put('/update-blog/:blogId', auth('admin'), validate(blogValidation.updateBlog), blogController.update);
+router.put('/update-blog/:blogId', auth(['admin']), validate(blogValidation.updateBlog), blogController.update);
 /**
  * deleteblogById
  * */
-router.delete('/delete-blog/:blogId', auth('admin'), validate(blogValidation.deleteBlogById), blogController.remove);
+router.delete('/delete-blog/:blogId', auth(['admin']), validate(blogValidation.deleteBlogById), blogController.remove);
 
 export default router;

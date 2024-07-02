@@ -54,18 +54,19 @@ export const complete = catchAsync(async (req, res) => {
     const paymentHistoryToken = jwt.verify(req.query.paymentHistoryToken, 'PAYMENT'); // todo : make this from env
 
     // todo:get plan here by populate
-    const getPaymentHistory = await paymentHistoryService
-      .updatePaymentHistory(
-        { _id: paymentHistoryToken.data },
-        {
-          $set: { status: paymentDocument.status, razorpayLatestResponse: paymentDocument },
-          $push: { razorpayResponses: paymentDocument },
+    const getPaymentHistory = await paymentHistoryService.updatePaymentHistory(
+      { _id: paymentHistoryToken.data },
+      {
+        $set: { status: paymentDocument.status, razorpayLatestResponse: paymentDocument },
+        $push: { razorpayResponses: paymentDocument },
+      },
+      {
+        new: true,
+        populate: {
+          path: 'planId',
         },
-        {
-          new: true,
-        }
-      )
-      .populate('planId');
+      }
+    );
 
     // todo :  make function for calculated date based on plan details.
     const { startDate, endDate } = calculateDates(paymentHistoryToken.data.planDuration);

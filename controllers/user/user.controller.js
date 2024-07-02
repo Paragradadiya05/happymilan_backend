@@ -168,8 +168,6 @@ async function checkSubscriptionStatus(userId) {
   }
 }
 
-console.log('===== checkSubscriptionStatus ====>', checkSubscriptionStatus);
-
 export const checkPlan = catchAsync(async (req, res) => {
   // const viewer = req.body.viewerId;
   const userId = req.user._id;

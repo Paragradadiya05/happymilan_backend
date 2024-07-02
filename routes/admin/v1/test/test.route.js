@@ -10,29 +10,29 @@ router
   /**
    * createTest
    * */
-  .post(auth('admin'), validate(testValidation.createTest), testController.create)
+  .post(auth(['admin']), validate(testValidation.createTest), testController.create)
   /**
    * getTest
    * */
-  .get(auth('admin'), validate(testValidation.getTest), testController.list);
+  .get(auth(['admin']), validate(testValidation.getTest), testController.list);
 router
   .route('/paginated')
   /**
    * getTestPaginated
    * */
-  .get(auth('admin'), validate(testValidation.paginatedTest), testController.paginate);
+  .get(auth(['admin']), validate(testValidation.paginatedTest), testController.paginate);
 router
   .route('/:testId')
   /**
    * updateTest
    * */
-  .put(auth('admin'), validate(testValidation.updateTest), testController.update)
+  .put(auth(['admin']), validate(testValidation.updateTest), testController.update)
   /**
    * deleteTestById
    * */
-  .delete(auth('admin'), validate(testValidation.deleteTestById), testController.remove)
+  .delete(auth(['admin']), validate(testValidation.deleteTestById), testController.remove)
   /**
    * getTestById
    * */
-  .get(auth('admin'), validate(testValidation.getTestById), testController.get);
+  .get(auth(['admin']), validate(testValidation.getTestById), testController.get);
 export default router;
