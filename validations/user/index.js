@@ -49,3 +49,7 @@ module.exports.messageconsentValidation = require('./messageconsent.validation')
 module.exports.orderValidation = require('./order.validation');
 
 module.exports.searchHistoryValidation = require('./searchHistory.validation');
+
+module.exports.spamUserValidation = require('./spamUser.validation');
+
+module.exports.storyViewValidation = require('./storyview.valiodation');

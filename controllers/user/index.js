@@ -24,3 +24,5 @@ module.exports.offerController = require('./offer.controller');
 module.exports.messageconsentController = require('./messageconsent.controller');
 module.exports.completeController = require('./razorpay.controller');
 module.exports.searchHistoryController = require('./searchHistory.controller');
+module.exports.spamUserController = require('./spamuser.controller');
+module.exports.storyViewController = require('./storyview.controller');

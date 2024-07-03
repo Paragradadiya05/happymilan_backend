@@ -217,6 +217,14 @@ const EnumOfUserPlan = {
   INACTIVE: 'inactive',
   EXPIRED: 'expired',
 };
+
+const EnumOfReason = {
+  JUST_DONT_LIKE_IT: 'just-dont-like-it',
+  ITS_SPAM: 'its-spam',
+  NUDITY_OR_SEXUAL_ACTIVITY: 'nudity-or-sexual-activity',
+  BULLYING_OR_HARASSMENT: 'bullying-or-harassment',
+  SCAM_OR_FRAUD: 'scam-or-fraud',
+};
 module.exports = {
   EnumCodeTypeOfCode,
   EnumRoleOfUser,
@@ -246,4 +254,5 @@ module.exports = {
   EnumOfChatType,
   EnumOfOffer,
   EnumOfUserPlan,
+  EnumOfReason,
 };

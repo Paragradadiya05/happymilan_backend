@@ -15,6 +15,7 @@ export const searchUser = catchAsync(async (req, res) => {
     maxHeight,
     currentCountry,
     currentCity,
+    state,
   } = req.body;
 
   if (maritalStatus && !Array.isArray(maritalStatus)) {
@@ -67,7 +68,16 @@ export const searchUser = catchAsync(async (req, res) => {
       return res.status(httpStatus.BAD_REQUEST).send({ error: `Invalid currentCountry values` });
     }
   }
-
+  if (state && !Array.isArray(state)) {
+    return res.status(httpStatus.BAD_REQUEST).send({ error: 'state must be an array' });
+  }
+  if (state) {
+    const validStateValues = Object.values(enumModel.EnumOfState);
+    const invalidValues = state.filter((value) => !validStateValues.includes(value));
+    if (invalidValues.length > 0) {
+      return res.status(httpStatus.BAD_REQUEST).send({ error: `Invalid state values` });
+    }
+  }
   const filter = {
     ...((minAge || maxAge) && {
       dateOfBirth: {
@@ -90,9 +100,10 @@ export const searchUser = catchAsync(async (req, res) => {
           $lte: maxHeight, // Maximum height
         },
       }),
+    ...(state && state.length > 0 && { state: { $in: state } }),
   };
 
-  const user = await userService.getUserListForSearch(filter, { currentCountry, currentCity });
+  const user = await userService.getUserListForSearch(filter, { currentCountry, currentCity, state });
   return res.status(httpStatus.OK).send({ results: user });
 });
 

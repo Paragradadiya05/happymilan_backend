@@ -30,3 +30,5 @@ module.exports.PaymentDetails = require('./paymentdetails.model');
 module.exports.PaymentHistory = require('./paymentHistory.model');
 module.exports.UserPlan = require('./userPlan.model');
 module.exports.SearchHistory = require('./searchHistory.model');
+module.exports.SpamUser = require('./spamuser.model');
+module.exports.StoryView = require('./storyview.model');
