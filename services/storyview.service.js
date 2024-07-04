@@ -1,7 +1,7 @@
-import { Story, StoryView, User } from '../models';
+import { Status, StoryView, User } from '../models';
 
 export async function createStoryView(body = {}) {
-  const storyExists = await Story.findOne({ _id: body.storyId });
+  const storyExists = await Status.findOne({ _id: body.statusId });
   if (!storyExists) {
     throw new Error('Story not found ');
   }

@@ -4,7 +4,7 @@ Joi.objectId = require('joi-objectid')(Joi);
 
 export const createview = {
   body: Joi.object().keys({
-    storyId: Joi.objectId().required(),
+    statusId: Joi.objectId().required(),
     viewerId: Joi.objectId().required(),
   }),
 };

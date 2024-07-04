@@ -4,7 +4,7 @@ import { toJSON } from 'models/plugins';
 
 const StoryViewSchema = new mongoose.Schema(
   {
-    storyId: {
+    statusId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Story',
     },
