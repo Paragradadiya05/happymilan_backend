@@ -16,7 +16,7 @@ router
    * */
   .get(auth(), storyViewController.list);
 router
-  .route('/paginated')
+  .route('/paginated/:statusId')
   /**
    * getFriendPaginated
    * */

@@ -11,6 +11,9 @@ export const createview = {
 
 export const paginated = {
   body: Joi.object().keys({}).unknown(true),
+  params: Joi.object().keys({
+    statusId: Joi.objectId().required(),
+  }),
   query: Joi.object()
     .keys({
       page: Joi.number().default(1),
