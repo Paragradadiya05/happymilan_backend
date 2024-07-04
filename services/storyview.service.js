@@ -14,11 +14,13 @@ export async function createStoryView(body = {}) {
 }
 
 export async function getList(filter, options = {}) {
-  const Storyview = await StoryView.find(filter, options.projection, options).populate('storyId').populate('viewerId');
+  const Storyview = await StoryView.find(filter, options.projection, options).populate('statusId').populate('viewerId');
   return Storyview;
 }
 
 export async function getListWithPagination(filter, options = {}) {
+  // eslint-disable-next-line no-param-reassign
+  options.populate = [{ path: 'statusId' }, { path: 'viewerId' }];
   const Storyview = await StoryView.paginate(filter, options);
   return Storyview;
 }

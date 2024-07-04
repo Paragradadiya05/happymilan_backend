@@ -6,7 +6,7 @@ const StoryViewSchema = new mongoose.Schema(
   {
     statusId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Story',
+      ref: 'Status',
     },
     viewerId: {
       type: mongoose.Schema.Types.ObjectId,
