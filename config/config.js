@@ -41,6 +41,8 @@ const envVarsSchema = Joi.object()
     STRIPE_GATEWAY_ID: Joi.string().required().description('Stripe Gateway Id required'),
     RAZORPAY_KEY_ID: Joi.string().required().description('razorpay Id required'),
     RAZORPAY_KEY_SECRET: Joi.string().required().description('razorpay secrete required'),
+    FRONTEND_URL: Joi.string().required().description('frontend url'),
+    PAYMENT_PATH: Joi.string().required().description('paymentPath '),
   })
   .unknown();
 const { value: envVars, error } = envVarsSchema.prefs({ errors: { label: 'key' } }).validate(process.env);
@@ -128,4 +130,6 @@ export default {
     key_id: envVars.RAZORPAY_KEY_ID,
     key_secret: envVars.RAZORPAY_KEY_SECRET,
   },
+  frontendUrl: envVars.FRONTEND_URL,
+  paymentPath: envVars.PAYMENT_PATH,
 };

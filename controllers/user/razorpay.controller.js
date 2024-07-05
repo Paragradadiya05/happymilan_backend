@@ -79,7 +79,7 @@ export const complete = catchAsync(async (req, res) => {
     });
 
     // update user plan here
-    res.redirect('http://localhost:3000/is-order-complete'); // todo : add url from env here TO: kuldip
+    res.redirect(`${config.frontendUrl}${config.paymentPath}`); // todo : add url from env here TO: kuldip
   } else {
     // todo : handle error here with help of fe side and also update payment
     // Redirect to homepage if payment status is not captured
