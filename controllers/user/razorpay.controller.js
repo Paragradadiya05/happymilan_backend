@@ -79,7 +79,8 @@ export const complete = catchAsync(async (req, res) => {
     });
 
     // update user plan here
-    res.redirect(`${config.frontendUrl}${config.paymentPath}`); // todo : add url from env here TO: kuldip
+    console.log('=====redirect====>', `${config.frontendUrl}${config.paymentPath}`);
+    res.redirect(`${config.frontendUrl}${config.paymentPath}`);
   } else {
     // todo : handle error here with help of fe side and also update payment
     // Redirect to homepage if payment status is not captured
