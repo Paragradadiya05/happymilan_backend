@@ -35,13 +35,19 @@ export const list = catchAsync(async (req, res) => {
   return res.status(httpStatus.OK).send({ results: status });
 });
 
+// export const allList = catchAsync(async (req, res) => {
+//   const filter = {};
+//   const options = {};
+//   const status = await statusService.getStatusList(filter, options);
+//   return res.status(httpStatus.OK).send({ results: status });
+// });
+
 export const allList = catchAsync(async (req, res) => {
-  const filter = {};
+  const userId = req.user._id; // Assuming user ID is stored in req.user._id
   const options = {};
-  const status = await statusService.getStatusList(filter, options);
+  const status = await statusService.getStatusListFrd(userId, options);
   return res.status(httpStatus.OK).send({ results: status });
 });
-
 export const remove = catchAsync(async (req, res) => {
   const { statusId } = req.params;
   const filter = {
