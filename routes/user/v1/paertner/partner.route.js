@@ -16,6 +16,12 @@ router
    * */
   .get(auth(), validate(partnerValidation.getPartnerpre), partnerController.listPartner);
 router
+  .route('/matches')
+  /**
+   * getUserPartnerPreDetailById
+   * */
+  .get(auth(), partnerController.getMatch);
+router
   .route('/:PartnerId')
   /**
    * updateUserPartnerPreDetail

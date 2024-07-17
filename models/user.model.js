@@ -268,7 +268,7 @@ const UserSchema = new mongoose.Schema(
     // fitness: {
     //   type: String,
     // },
-    Age: {
+    age: {
       type: Number,
     },
     weight: {
@@ -298,6 +298,10 @@ const UserSchema = new mongoose.Schema(
     },
     userUniqueId: {
       type: String,
+    },
+    diet: {
+      type: String,
+      enum: Object.values(enumModel.EnumOfDiet),
     },
     userProfilePic: [UserImagesSchema],
     userProfileVideo: [UserVideoSchema],

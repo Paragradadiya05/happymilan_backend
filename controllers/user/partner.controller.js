@@ -64,3 +64,9 @@ export const getPartnerById = catchAsync(async (req, res) => {
   const partner = await partnerservice.getOne(filter, options);
   return res.status(httpStatus.OK).send({ results: partner });
 });
+
+export const getMatch = catchAsync(async (req, res) => {
+  const userId = req.user._id;
+  const matchedUsers = await partnerservice.getMatchedUsers(userId);
+  return res.status(httpStatus.OK).send({ results: matchedUsers });
+});
