@@ -51,3 +51,12 @@ export const respondFriendRequest = {
     status: Joi.string().valid(...Object.values(enumFields.EnumStatusOfFriend)),
   }),
 };
+
+export const getMyFrdRequestsMobile = {
+  query: Joi.object()
+    .keys({
+      page: Joi.number().default(1),
+      limit: Joi.number().default(10).max(100),
+    })
+    .unknown(true),
+};

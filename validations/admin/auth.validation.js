@@ -23,3 +23,10 @@ export const refreshTokens = {
     refreshToken: Joi.string().required(),
   }),
 };
+
+export const update = {
+  body: Joi.object().keys({}).unknown(true),
+  params: Joi.object().keys({
+    userId: Joi.objectId().required(),
+  }),
+};

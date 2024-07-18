@@ -286,3 +286,8 @@ export const createSocialUser = async (accessToken, refreshToken, profile, provi
     });
   });
 };
+
+export async function updateuser(filter, body, options = {}) {
+  const user = await User.findOneAndUpdate(filter, body, options);
+  return user;
+}

@@ -44,3 +44,15 @@ export const refreshTokens = catchAsync(async (req, res) => {
   const tokens = await authService.refreshAuth(req.body.refreshToken);
   res.status(httpStatus.OK).send({ results: { ...tokens } });
 });
+
+export const updateUserInfo = catchAsync(async (req, res) => {
+  const { body } = req;
+  body.updatedBy = req.user;
+  const { userId } = req.params;
+  const filter = {
+    _id: userId,
+  };
+  const options = { new: true };
+  const product = await authService.updateuser(filter, body, options);
+  return res.status(httpStatus.OK).send({ results: product });
+});

@@ -2,7 +2,8 @@ import express from 'express';
 import validate from 'middlewares/validate';
 import { authValidation } from 'validations/admin';
 import { authController } from 'controllers/admin';
-// import verifyCaptcha from 'middlewares/captcha';
+import auth from 'middlewares/auth';
+
 const router = express.Router();
 
 /**
@@ -19,4 +20,8 @@ router.post('/login', validate(authValidation.login), authController.login);
  * Get the Refresh Token for the User
  */
 router.post('/refresh-tokens', validate(authValidation.refreshTokens), authController.refreshTokens);
+/**
+ * update the  UserInfo
+ */
+router.put('/update-user/:userId', auth(['admin']), validate(authValidation.update), authController.updateUserInfo);
 export default router;
