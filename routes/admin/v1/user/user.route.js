@@ -15,9 +15,6 @@ router
    * getUser
    * */
   .get(auth(['admin']), validate(userValidation.getUser), userController.list);
-// todo : validate this api
-//  and give to fe side in postman also add response based on fe dashboard and add field according to that.
-//  make aggregation query if require
 router
   .route('/paginated')
   /**
@@ -25,19 +22,16 @@ router
    * */
   .get(auth(['admin']), validate(userValidation.paginatedUser), userController.paginate);
 
-// todo : validate this api and give to fe side in postman
 router
   .route('/:userId')
   /**
    * updateUser
    * */
   .put(auth(['admin']), validate(userValidation.updateUser), userController.update)
-  // todo : validate this api and give to fe side in postman
   /**
    * deleteUserById
    * */
   .delete(auth(['admin']), validate(userValidation.deleteUserById), userController.remove)
-  // todo : validate this api and give to fe side in postman
   /**
    * getUserById
    * */
