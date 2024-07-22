@@ -31,7 +31,7 @@ const UserPartnerSchema = new mongoose.Schema(
       type: [String],
     },
     income: {
-      type: String,
+      type: Number,
     },
     creative: {
       type: [String],

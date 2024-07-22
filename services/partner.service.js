@@ -113,11 +113,25 @@ export async function getMatchedUsers(userId) {
       },
     },
     {
+      $lookup: {
+        from: 'UserProfessionalDetail',
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'userProfessional',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userProfessional', // Deconstructs the 'address' array field
+        preserveNullAndEmptyArrays: true, // If you want to exclude documents with no address
+      },
+    },
+    {
       $addFields: {
         matchData: {
           $let: {
             vars: {
-              totalCriteria: 4, // Update to the total number of criteria used
+              totalCriteria: 6, // Update to the total number of criteria used
               matchedCriteria: {
                 $add: [
                   {
@@ -148,9 +162,9 @@ export async function getMatchedUsers(userId) {
                   // { $cond: [{ $in: ['$address.state', userPartnerPreferences.state] }, 1, 0] },
                   { $cond: [{ $in: ['$address.currentCity', userPartnerPreferences.city] }, 1, 0] },
                   // Add additional conditions as needed
-                  // { $cond: [{ $eq: ['$income', userPartnerPreferences.income] }, 1, 0] },
+                  { $cond: [{ $eq: ['$userProfessional.currentSalary', userPartnerPreferences.income] }, 1, 0] },
                   // { $cond: [{ $in: ['$creative', userPartnerPreferences.creative] }, 1, 0] },
-                  // { $cond: [{ $in: ['$diet', userPartnerPreferences.diet] }, 1, 0] },
+                  { $cond: [{ $in: ['$diet', userPartnerPreferences.diet] }, 1, 0] },
                 ],
               },
             },
@@ -170,13 +184,13 @@ export async function getMatchedUsers(userId) {
         _id: 1,
         age: 1,
         height: 1,
+        diet: 1,
         'address._id': 1,
         'address.currentResidenceAddress': 1,
         'address.currentCity': 1,
         'address.state': 1,
         'address.currentCountry': 1,
-        'address.createdAt': 1,
-        'address.updatedAt': 1,
+        'userProfessional.currentSalary': 1,
         matchPercentage: '$matchData.matchPercentage',
         matchedCriteria: '$matchData.matchedCriteria',
       },
