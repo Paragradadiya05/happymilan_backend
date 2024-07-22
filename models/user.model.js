@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import mongoosePaginateV2 from 'mongoose-paginate-v2';
 import { softDelete, toJSON } from 'models/plugins';
-import enumModel from 'models/enum.model';
+import enumModel, { EnumOfPlatformType } from 'models/enum.model';
 import bcrypt from 'bcryptjs';
 
 const CodeSchema = new mongoose.Schema({
@@ -306,6 +306,11 @@ const UserSchema = new mongoose.Schema(
     userProfilePic: [UserImagesSchema],
     userProfileVideo: [UserVideoSchema],
     profileHideAndDelete: [ProfileHideAndDelete],
+    platform: {
+      type: String,
+      enum: Object.values(enumModel.EnumOfPlatformType),
+      default: EnumOfPlatformType.HAPPY_MILAN,
+    },
   },
 
   { timestamps: { createdAt: true, updatedAt: true } }

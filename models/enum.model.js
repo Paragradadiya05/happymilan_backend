@@ -225,6 +225,13 @@ const EnumOfReason = {
   BULLYING_OR_HARASSMENT: 'bullying-or-harassment',
   SCAM_OR_FRAUD: 'scam-or-fraud',
 };
+
+// todo : add this enum in data base and handle from main admin panel
+const EnumOfPlatformType = {
+  HAPPY_MILAN: 'happyMilan',
+  BUSINESS_PLATFORM: 'businessPlatform',
+};
+
 module.exports = {
   EnumCodeTypeOfCode,
   EnumRoleOfUser,
@@ -255,4 +262,5 @@ module.exports = {
   EnumOfOffer,
   EnumOfUserPlan,
   EnumOfReason,
+  EnumOfPlatformType,
 };

@@ -2,6 +2,7 @@ import httpStatus from 'http-status';
 import mongoose from 'mongoose';
 import { Partner, User } from '../models';
 import ApiError from '../utils/ApiError';
+import { EnumOfPlatformType } from '../models/enum.model';
 
 export async function getOne(query, options = {}) {
   const userPartnerDetail = await Partner.findOne(query, options.projection, options);
@@ -58,199 +59,130 @@ export async function removeManyPartner(filter) {
 }
 
 export async function getMatchedUsers(userId) {
-  try {
-    const currentUser = await User.findById(userId).populate('userPartner').populate('address');
+  const userPartnerPreferences = await Partner.findOne({ userId });
 
-    if (!currentUser) {
-      throw new Error('User not found');
-    }
-    console.log('=====currentUser====>', currentUser);
-    const partnerPreferences = currentUser.userPartner;
+  if (!userPartnerPreferences) {
+    throw new Error('User Partner Preferences not found');
+  }
 
-    if (!partnerPreferences) {
-      throw new Error('UserPartner preferences not found');
-    }
-
-    const pipeline = [
-      {
-        $match: {
-          _id: { $ne: mongoose.Types.ObjectId(userId) },
-          isProfileVisible: true,
-        },
+  const pipeline = [
+    {
+      $match: {
+        _id: { $ne: mongoose.Types.ObjectId(userId) }, // Exclude the current user
+        platform: { $eq: EnumOfPlatformType.HAPPY_MILAN },
       },
-      {
-        $addFields: {
-          matchPercentage: {
-            $let: {
-              vars: {
-                totalFields: {
-                  $add: [
-                    { $cond: [{ $ifNull: ['$dateOfBirth', false] }, 1, 0] },
-                    { $cond: [{ $ifNull: ['$height', false] }, 1, 0] },
-                    { $cond: [{ $ifNull: ['$address.currentCountry', false] }, 1, 0] },
-                    { $cond: [{ $ifNull: ['$address.currentState', false] }, 1, 0] },
-                    { $cond: [{ $ifNull: ['$address.currentCity', false] }, 1, 0] },
-                    { $cond: [{ $ifNull: ['$userProfessional.currentSalary', false] }, 1, 0] },
-                    { $cond: [{ $ifNull: ['$hobbies.category.creative', false] }, 1, 0] },
-                    { $cond: [{ $ifNull: ['$diet', false] }, 1, 0] },
-                  ],
-                },
-                matchedFields: {
-                  $add: [
-                    {
-                      $cond: [
-                        {
-                          $and: [
-                            { $ifNull: ['$dateOfBirth', false] },
-                            {
-                              $gte: [
-                                { $subtract: [{ $year: new Date() }, { $year: '$dateOfBirth' }] },
-                                partnerPreferences.age.min,
-                              ],
-                            },
-                            {
-                              $lte: [
-                                { $subtract: [{ $year: new Date() }, { $year: '$dateOfBirth' }] },
-                                partnerPreferences.age.max,
-                              ],
-                            },
-                          ],
-                        },
-                        1,
-                        0,
-                      ],
-                    },
-                    {
-                      $cond: [
-                        {
-                          $and: [
-                            { $ifNull: ['$height', false] },
-                            { $gte: ['$height', partnerPreferences.height.min] },
-                            { $lte: ['$height', partnerPreferences.height.max] },
-                          ],
-                        },
-                        1,
-                        0,
-                      ],
-                    },
-                    {
-                      $cond: [
-                        {
-                          $and: [
-                            { $ifNull: ['$address.currentCountry', false] },
-                            { $in: ['$address.currentCountry', partnerPreferences.country] },
-                          ],
-                        },
-                        1,
-                        0,
-                      ],
-                    },
-                    {
-                      $cond: [
-                        {
-                          $and: [
-                            { $ifNull: ['$address.currentState', false] },
-                            { $in: ['$address.currentState', partnerPreferences.state] },
-                          ],
-                        },
-                        1,
-                        0,
-                      ],
-                    },
-                    {
-                      $cond: [
-                        {
-                          $and: [
-                            { $ifNull: ['$address.currentCity', false] },
-                            { $in: ['$address.currentCity', partnerPreferences.city] },
-                          ],
-                        },
-                        1,
-                        0,
-                      ],
-                    },
-                    {
-                      $cond: [
-                        {
-                          $and: [
-                            { $ifNull: ['$userProfessional.currentSalary', false] },
-                            { $eq: ['$userProfessional.currentSalary', partnerPreferences.income] },
-                          ],
-                        },
-                        1,
-                        0,
-                      ],
-                    },
-                    {
-                      $cond: [
-                        {
-                          $and: [
-                            { $ifNull: ['$hobbies.category', false] },
-                            { $setIsSubset: [partnerPreferences.creative, '$hobbies.category.creative'] },
-                          ],
-                        },
-                        1,
-                        0,
-                      ],
-                    },
-                    {
-                      $cond: [
-                        {
-                          $and: [{ $ifNull: ['$diet', false] }, { $eq: ['$diet', partnerPreferences.diet] }],
-                        },
-                        1,
-                        0,
-                      ],
-                    },
-                  ],
-                },
-              },
-              in: {
-                $multiply: [
-                  {
-                    $cond: [
-                      { $eq: ['$$totalFields', 0] },
-                      0,
-                      {
-                        $divide: ['$$matchedFields', '$$totalFields'],
-                      },
-                    ],
-                  },
-                  100,
+    },
+    {
+      $lookup: {
+        from: 'addresses', // Assuming the collection name for Address is 'addresses'
+        localField: 'address',
+        foreignField: '_id',
+        as: 'address',
+      },
+    },
+    {
+      $addFields: {
+        age: {
+          $cond: {
+            if: { $and: [{ $ne: ['$dateOfBirth', null] }, { $ne: ['$dateOfBirth', ''] }] },
+            then: {
+              $floor: {
+                $divide: [
+                  { $subtract: [new Date(), '$dateOfBirth'] },
+                  31556952000, // Average milliseconds in a year considering leap years
                 ],
               },
+            },
+            else: null, // Handle cases where dateOfBirth is missing or invalid
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: 'Address',
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'address',
+      },
+    },
+    {
+      $unwind: {
+        path: '$address', // Deconstructs the 'address' array field
+        preserveNullAndEmptyArrays: true, // If you want to exclude documents with no address
+      },
+    },
+    {
+      $addFields: {
+        matchData: {
+          $let: {
+            vars: {
+              totalCriteria: 4, // Update to the total number of criteria used
+              matchedCriteria: {
+                $add: [
+                  {
+                    $cond: [
+                      {
+                        $and: [
+                          { $gte: ['$age', userPartnerPreferences.age.min] },
+                          { $lte: ['$age', userPartnerPreferences.age.max] },
+                        ],
+                      },
+                      1,
+                      0,
+                    ],
+                  },
+                  {
+                    $cond: [
+                      {
+                        $and: [
+                          { $gte: ['$height', userPartnerPreferences.height.min] },
+                          { $lte: ['$height', userPartnerPreferences.height.max] },
+                        ],
+                      },
+                      1,
+                      0,
+                    ],
+                  },
+                  { $cond: [{ $in: ['$address.currentCountry', userPartnerPreferences.country] }, 1, 0] },
+                  // { $cond: [{ $in: ['$address.state', userPartnerPreferences.state] }, 1, 0] },
+                  { $cond: [{ $in: ['$address.currentCity', userPartnerPreferences.city] }, 1, 0] },
+                  // Add additional conditions as needed
+                  // { $cond: [{ $eq: ['$income', userPartnerPreferences.income] }, 1, 0] },
+                  // { $cond: [{ $in: ['$creative', userPartnerPreferences.creative] }, 1, 0] },
+                  // { $cond: [{ $in: ['$diet', userPartnerPreferences.diet] }, 1, 0] },
+                ],
+              },
+            },
+            in: {
+              matchPercentage: {
+                $multiply: [{ $divide: ['$$matchedCriteria', '$$totalCriteria'] }, 100],
+              },
+              matchedCriteria: '$$matchedCriteria',
             },
           },
         },
       },
-      {
-        $match: {
-          matchPercentage: { $gt: 0 },
-        },
+    },
+    {
+      // todo : update projection based on fe requirements
+      $project: {
+        _id: 1,
+        age: 1,
+        height: 1,
+        'address._id': 1,
+        'address.currentResidenceAddress': 1,
+        'address.currentCity': 1,
+        'address.state': 1,
+        'address.currentCountry': 1,
+        'address.createdAt': 1,
+        'address.updatedAt': 1,
+        matchPercentage: '$matchData.matchPercentage',
+        matchedCriteria: '$matchData.matchedCriteria',
       },
-      {
-        $sort: { matchPercentage: -1 },
-      },
-      {
-        $project: {
-          _id: 1,
-          name: 1,
-          dateOfBirth: 1,
-          height: 1,
-          'address.currentCountry': 1,
-          'address.currentState': 1,
-          'address.currentCity': 1,
-          'userProfessional.currentSalary': 1,
-          'hobbies.category.creative': 1,
-          diet: 1,
-          matchPercentage: 1,
-        },
-      },
-    ];
-
-    const matchedUsers = await User.aggregate(pipeline).exec();
-    return matchedUsers;
-  } catch (error) {
-    throw new Error(`Error in getMatchedUsers: ${error.message}`);
-  }
+    },
+    { $sort: { matchPercentage: -1 } }, // Sort by match percentage in descending order
+  ];
+  const matchedUsers = await User.aggregate(pipeline).exec();
+  return matchedUsers;
 }
