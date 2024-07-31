@@ -110,4 +110,10 @@ export const get = {
 
 export const getUserByGender = {
   params: Joi.object().keys({}),
+  query: Joi.object()
+    .keys({
+      page: Joi.number().default(1),
+      limit: Joi.number().default(10).max(100),
+    })
+    .unknown(true),
 };
