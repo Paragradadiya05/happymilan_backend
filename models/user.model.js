@@ -311,6 +311,10 @@ const UserSchema = new mongoose.Schema(
       enum: Object.values(enumModel.EnumOfPlatformType),
       default: EnumOfPlatformType.HAPPY_MILAN,
     },
+    isUserActive: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   { timestamps: { createdAt: true, updatedAt: true } }

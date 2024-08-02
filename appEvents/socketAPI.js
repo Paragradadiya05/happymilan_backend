@@ -449,6 +449,7 @@ io.use(initSubscription).on('connection', function (socket) {
       });
     }
   });
+
   socket.on('updateUserLike', async (data) => {
     try {
       const { userId, page, limit, likedUserId, isLike } = data;
@@ -507,6 +508,56 @@ io.use(initSubscription).on('connection', function (socket) {
         data: {
           status: false,
           message: error.message || 'Failed to update like',
+        },
+      });
+    }
+  });
+
+  socket.on('userActive', async () => {
+    try {
+      // add user status in user model
+      const userId = socket.user;
+      // TODO : make event for this, so we can update it from login and logout time also
+      await userService.updateUser({ _id: userId }, { isUserActive: true });
+
+      socket.emit('onlineUser', {
+        data: {
+          success: true,
+          message: 'user online',
+        },
+      });
+    } catch (e) {
+      socket.emit('onlineUser', {
+        data: {
+          success: false,
+          message: 'user online',
+          error: e,
+        },
+      });
+    }
+    // add event while user comes onlie (from mobile or web)
+    // when user gets offline at that time hit socket and makes inactive status in user data
+  });
+
+  socket.on('userInActive', async () => {
+    try {
+      // add user status in user model
+      const userId = socket.user;
+      // TODO : make an event for this, so we can update it from login and logout time also
+      await userService.updateUser({ _id: userId }, { isUserActive: false });
+
+      socket.emit('onlineUser', {
+        data: {
+          success: true,
+          message: 'user offline',
+        },
+      });
+    } catch (e) {
+      socket.emit('onlineUser', {
+        data: {
+          success: false,
+          message: 'user offline',
+          error: e,
         },
       });
     }
