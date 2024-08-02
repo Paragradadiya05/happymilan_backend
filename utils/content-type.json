@@ -83,5 +83,10 @@
     "key": "mkv",
     "extension": ".mkv",
     "mimeType": "video/x-matroska"
+  },
+  {
+    "key": "mp4",
+    "extension": ".mp4",
+    "mimeType": "audio/mp4"
   }
 ]
