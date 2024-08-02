@@ -334,6 +334,7 @@ export async function getGenderListV2(filter, options = {}) {
         matchedCriteria: '$matchData.matchedCriteria',
         'friendsDetails.status': 1,
         'friendsDetails._id': 1,
+        isUserActive: 1,
       },
     },
     { $sort: { matchPercentage: -1 } }, // Sort by match percentage in descending order
@@ -513,6 +514,7 @@ export async function getUserWithPartnerPrefScore(filter) {
         matchedCriteria: '$matchData.matchedCriteria',
         'friendsDetails.status': 1,
         'friendsDetails._id': 1,
+        isUserActive: 1,
       },
     },
   ];
