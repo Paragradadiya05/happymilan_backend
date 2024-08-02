@@ -58,6 +58,14 @@ const MessageSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    replyMessageId: {
+      type: ObjectId,
+      ref: 'Message',
+    },
+    isMessageReply: {
+      type: Boolean,
+      default: false,
+    },
     // emoji , pic
   },
   { timestamps: { createdAt: true, updatedAt: true } }

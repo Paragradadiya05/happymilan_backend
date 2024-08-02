@@ -12,9 +12,11 @@ const StorySchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Users',
     },
-    images: {
-      type: mongoose.Mixed,
-    },
+    images: [
+      {
+        type: mongoose.Mixed,
+      },
+    ],
     content: {
       type: String,
     },

@@ -6,6 +6,9 @@ import { uploadChatContent } from '../services/s3.service';
 import { EnumOfChatType } from '../models/enum.model';
 import { Like, User } from '../models';
 
+// eslint-disable-next-line import/no-extraneous-dependencies
+const { ObjectId } = require('mongodb');
+
 const { initSubscription } = require('./subscriptions');
 
 const io = socketIO();
@@ -21,9 +24,27 @@ io.use(initSubscription).on('connection', function (socket) {
 
   socket.on('uploadContent', async (data) => {
     try {
-      const { from, to, message, type, fileName } = data;
+      const { from, to, message, type, fileName, replyMessageId } = data;
       if (!from || !to || !type) {
         throw new Error('');
+      }
+
+      // if a message is reply message, then we have to add a message id of replayed a message in body of the same message and give a flag to that.
+      if (replyMessageId) {
+        if (!ObjectId.isValid(replyMessageId)) {
+          const validateMessageAvailableOrNot = await messageservice.findMessageById(replyMessageId);
+          if (!validateMessageAvailableOrNot) {
+            socket.emit('message', {
+              from,
+              to,
+              // sendMessage,
+              data: {
+                success: false,
+                message: 'Add valid reply message id',
+              },
+            });
+          }
+        }
       }
 
       const getUserToSendMessage = await userService.getOne({ _id: to });
@@ -39,6 +60,7 @@ io.use(initSubscription).on('connection', function (socket) {
         fileUrl: result.url.split('?')[0],
         sendAt: Date.now(),
         type,
+        ...(replyMessageId && { replyMessageId, isMessageReply: true }),
       };
       const chatMessage = await messageservice.createMessage(createMessageBody);
 
@@ -65,10 +87,29 @@ io.use(initSubscription).on('connection', function (socket) {
     // to: => receiver message user
     // message : => message that sent from user
     try {
-      const { from, to, message, page, limit, type, messageId } = data;
+      const { from, to, message, page, limit, type, messageId, replyMessageId } = data;
       if (!from || !to || (!message && !type)) {
         throw new Error('');
       }
+
+      // if a message is reply message then we have to add a message id of replayed message in body of the same message and give a flag to that.
+      if (replyMessageId) {
+        if (!ObjectId.isValid(replyMessageId)) {
+          const validateMessageAvailableOrNot = await messageservice.findMessageById(replyMessageId);
+          if (!validateMessageAvailableOrNot) {
+            socket.emit('message', {
+              from,
+              to,
+              // sendMessage,
+              data: {
+                success: false,
+                message: 'Add valid reply message id',
+              },
+            });
+          }
+        }
+      }
+
       const getUserToSendMessage = await userService.getOne({ _id: to });
       if (!getUserToSendMessage) {
         throw new ApiError(httpStatus.NOT_FOUND, 'user not fount, please login back');
@@ -80,6 +121,7 @@ io.use(initSubscription).on('connection', function (socket) {
         message: message || '',
         sendAt: Date.now(),
         ...(type && { type }),
+        ...(replyMessageId && { replyMessageId, isMessageReply: true }),
       };
       // here we need to check if type is image or video then a message is already created so not need to send it again to another user
       if (type && [EnumOfChatType.IMAGE, EnumOfChatType.VIDEO, EnumOfChatType.DOC, EnumOfChatType.AUDIO].includes(type)) {
@@ -206,6 +248,18 @@ io.use(initSubscription).on('connection', function (socket) {
         message: e.message,
       });
     }
+  });
+
+  socket.on('getCountOfUnReadMessageForUser', async () => {
+    const getUnreadMessageCount = await messageservice.getUnreadMessageCountForUser(socket.user);
+    socket.emit('unreadMessageCount', {
+      userId: socket.user,
+      data: {
+        message: 'getting unread message count',
+        success: true,
+        getUnreadMessageCount,
+      },
+    });
   });
 
   socket.on('DeleteMessage', async (data) => {

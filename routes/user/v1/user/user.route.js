@@ -40,11 +40,11 @@ router
   /**
    * updateUser
    * */
-  .put(validate(userValidation.updateUser), userController.update)
+  .put(auth(), validate(userValidation.updateUser), userController.update)
   /**
    * getUserById
    * */
-  .get(validate(userValidation.getUserById), userController.get);
+  .get(auth(), validate(userValidation.getUserById), userController.get);
 router
   .route('/delete-profile-image/:userId')
   /**

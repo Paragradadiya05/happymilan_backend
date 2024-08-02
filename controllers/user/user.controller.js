@@ -8,11 +8,13 @@ import { Subscription } from '../../models';
 
 export const get = catchAsync(async (req, res) => {
   const { userId } = req.params;
+  const currentUserId = req.user;
   const filter = {
     _id: userId,
+    currentUserId,
   };
   const options = {};
-  const user = await userService.getOne(filter, options);
+  const user = await userService.getUserWithPartnerPrefScore(filter, options);
   return res.status(httpStatus.OK).send({ results: user });
 });
 

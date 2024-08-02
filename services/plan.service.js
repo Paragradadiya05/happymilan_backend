@@ -10,6 +10,11 @@ export async function getPlanList(filter, options = {}) {
   return plan;
 }
 
+export async function getPlanById(planId, options = {}) {
+  const plan = await Plan.findById(planId, options);
+  return plan;
+}
+
 export async function updatePlan(filter, body, options = {}) {
   const plan = await Plan.findOneAndUpdate(filter, body, options);
   return plan;

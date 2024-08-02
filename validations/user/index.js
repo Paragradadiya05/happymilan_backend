@@ -53,3 +53,5 @@ module.exports.searchHistoryValidation = require('./searchHistory.validation');
 module.exports.spamUserValidation = require('./spamUser.validation');
 
 module.exports.storyViewValidation = require('./storyview.valiodation');
+
+module.exports.planValidation = require('./plan.validation');
