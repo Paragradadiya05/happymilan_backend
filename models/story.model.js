@@ -31,6 +31,10 @@ const StorySchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    createByAdmin: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );

@@ -4,9 +4,12 @@ Joi.objectId = require('joi-objectid')(Joi);
 
 export const createStory = {
   body: Joi.object().keys({
+    userId: Joi.objectId().required(),
+    partnerUserId: Joi.objectId().required(),
     images: Joi.any().required(),
     content: Joi.string().required(),
     title: Joi.string().required(),
+    createByAdmin: Joi.boolean(),
   }),
 };
 
