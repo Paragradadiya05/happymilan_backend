@@ -127,7 +127,7 @@ export const deleteUserImage = catchAsync(async (req, res) => {
 });
 
 export const remove = catchAsync(async (req, res) => {
-  const { userId } = req.params;
+  const userId = req.user._id;
   const filter = {
     _id: userId,
   };
@@ -158,6 +158,14 @@ export const getUserByGender = catchAsync(async (req, res) => {
   };
   const userdata = await userService.getGenderListV2(filter, options);
   return res.status(httpStatus.OK).send({ results: userdata });
+});
+
+export const getMatchUser = catchAsync(async (req, res) => {
+  const { user } = req;
+  const { userId } = req.params;
+
+  const result = await userService.getMatchUser({ userId, user: user._id });
+  return res.status(httpStatus.OK).send({ results: result });
 });
 
 async function checkSubscriptionStatus(userId) {

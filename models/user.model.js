@@ -92,16 +92,18 @@ const ProfileHideAndDelete = new mongoose.Schema(
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );
-const hobbiesSchema = new mongoose.Schema({
-  category: {
-    type: String,
-    required: true,
-  },
-  values: {
-    type: [String],
-    required: true,
-  },
-});
+
+// todo : updated in new flow.
+// const hobbiesSchema = new mongoose.Schema({
+//   category: {
+//     type: String,
+//     required: true,
+//   },
+//   values: {
+//     type: [String],
+//     required: true,
+//   },
+// });
 const UserSchema = new mongoose.Schema(
   {
     /**
@@ -215,14 +217,14 @@ const UserSchema = new mongoose.Schema(
       type: String,
       enum: Object.values(enumModel.EnumOfReligion),
     },
-    cast: {
+    caste: {
       type: String,
     },
     appUsesType: {
       type: String,
       enum: Object.values(enumModel.EnumAppUsesTypeOfUsers),
     },
-    hobbies: [hobbiesSchema],
+    hobbies: [String], // todo : this is changed in new flow. so we can remove old flow for now.
     interest: {
       type: String,
     },
@@ -314,6 +316,20 @@ const UserSchema = new mongoose.Schema(
     isUserActive: {
       type: Boolean,
       default: false,
+    },
+    /**
+     * created By
+     * */
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Users',
+    },
+    /**
+     * updated By
+     * */
+    updatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Users',
     },
   },
 

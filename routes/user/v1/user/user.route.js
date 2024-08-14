@@ -11,10 +11,16 @@ router
    * createUser
    * */
   .post(validate(userValidation.createUser), userController.create)
+
+  /**
+   * deleteUserById
+   * */
+  .delete(auth(), validate(userValidation.deleteUser), userController.remove)
   /**
    * getUser
    * */
   .get(validate(userValidation.getUser), userController.list);
+
 router
   .route('/checkPlan')
   /**
@@ -34,7 +40,9 @@ router
    * getUserPaginated
    * */
   .get(validate(userValidation.paginatedUser), userController.paginate);
+
 router.route('/getUserByGender').get(auth(), validate(userValidation.getUserByGender), userController.getUserByGender);
+
 router
   .route('/:userId')
   /**
@@ -45,17 +53,15 @@ router
    * getUserById
    * */
   .get(auth(), validate(userValidation.getUserById), userController.get);
+
+router.route('/get-match-user/:userId').get(auth(), validate(userValidation.getMatchUser), userController.getMatchUser);
+
 router
   .route('/delete-profile-image/:userId')
   /**
    * updateUser
    * */
-  .post(validate(userValidation.deleteUserImages), userController.deleteUserImage)
-
-  /**
-   * deleteUserById
-   * */
-  .delete(validate(userValidation.deleteUserById), userController.remove);
+  .post(validate(userValidation.deleteUserImages), userController.deleteUserImage);
 router
   .route('/userUniqueId/:userUniqueId')
   /**

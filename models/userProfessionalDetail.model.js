@@ -26,6 +26,20 @@ const UserProfessionalDetailSchema = new mongoose.Schema(
     workCountry: {
       type: String,
     },
+    /**
+     * created By
+     * */
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Users',
+    },
+    /**
+     * updated By
+     * */
+    updatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Users',
+    },
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );

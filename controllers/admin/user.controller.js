@@ -1,6 +1,7 @@
 import httpStatus from 'http-status';
-import { userService } from 'services';
+import { addressService, educationservice, userProfessionalDetailService, userService } from 'services';
 import { catchAsync } from 'utils/catchAsync';
+import mongoose from 'mongoose';
 import { pick } from '../../utils/pick';
 
 export const get = catchAsync(async (req, res) => {
@@ -60,4 +61,59 @@ export const remove = catchAsync(async (req, res) => {
   };
   const user = await userService.removeUser(filter);
   return res.status(httpStatus.OK).send({ results: user });
+});
+
+export const createUser = catchAsync(async (req, res) => {
+  const adminUserId = req.user._id;
+  const { generalDetails, contactDetails, hobbies, address, eductionDetails, professionalDetails } = req.body;
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const options = {};
+
+    // Create user
+    const user = await userService.createUser(
+      { ...generalDetails, ...contactDetails, hobbies, createdBy: adminUserId, updatedBy: adminUserId },
+      options
+    );
+
+    const crateAddress = await addressService.createAddress({ ...address, createdBy: adminUserId, updatedBy: adminUserId });
+    const createUserEducation = await educationservice.createEducation({
+      ...eductionDetails,
+      userId: user._id,
+      createdBy: adminUserId,
+      updatedBy: adminUserId,
+    });
+    const createProfessionalDetail = await userProfessionalDetailService.createUserProfessionalDetail({
+      userId: user._id,
+      ...professionalDetails,
+      createdBy: adminUserId,
+      updatedBy: adminUserId,
+    });
+
+    // update user here
+    const updateUser = await userService.updateUserForAuth(
+      { _id: user._id },
+      {
+        address: crateAddress._id,
+        userEducation: createUserEducation._id,
+        userProfessional: createProfessionalDetail._id,
+        createdBy: adminUserId,
+        updatedBy: adminUserId,
+      }
+    );
+
+    // Commit the transaction
+    await session.commitTransaction();
+    session.endSession();
+    return res.status(httpStatus.OK).send({ results: updateUser });
+  } catch (e) {
+    // If any operation fails, abort the transaction
+    await session.abortTransaction();
+    session.endSession();
+    console.error('Transaction error:', e); // todo : add logger here
+    return res.status(httpStatus.BAD_REQUEST).send({ error: 'Something went wrong Create User Transaction error:', e });
+  }
 });

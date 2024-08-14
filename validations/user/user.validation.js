@@ -78,6 +78,12 @@ export const deleteUserById = {
   }),
 };
 
+export const deleteUser = {
+  params: Joi.object().keys({
+    userId: Joi.objectId().required(),
+  }),
+};
+
 export const getUser = {
   body: Joi.object().keys({}).unknown(true),
 };
@@ -116,4 +122,9 @@ export const getUserByGender = {
       limit: Joi.number().default(10).max(100),
     })
     .unknown(true),
+};
+export const getMatchUser = {
+  params: Joi.object().keys({
+    userId: Joi.objectId().required(),
+  }),
 };

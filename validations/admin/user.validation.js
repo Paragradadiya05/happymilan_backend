@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import enumFields from 'models/enum.model';
+import enumFields, { EnumGenderOfUsers, EnumOfCurrentCountry } from 'models/enum.model';
 
 Joi.objectId = require('joi-objectid')(Joi);
 
@@ -80,4 +80,64 @@ export const paginatedUser = {
       limit: Joi.number().default(10).max(100),
     })
     .unknown(true),
+};
+
+export const createUserWithAllModelData = {
+  body: Joi.object().keys({
+    generalDetails: Joi.object()
+      .keys({
+        firstName: Joi.string().required(),
+        lastName: Joi.string().required(),
+        gender: Joi.string()
+          .valid(...Object.values(EnumGenderOfUsers))
+          .required(),
+        dateOfBirth: Joi.date().required(),
+        birthTime: Joi.string().required(),
+        religion: Joi.string().required(),
+        caste: Joi.string().allow(null, ''),
+        height: Joi.number().required(),
+        weight: Joi.number().required(),
+      })
+      .required(),
+
+    address: Joi.object()
+      .keys({
+        currentResidenceAddress: Joi.string().required(),
+        currentCity: Joi.string().required(),
+        currentCountry: Joi.string()
+          .valid(...Object.values(EnumOfCurrentCountry))
+          .required(),
+      })
+      .required(),
+
+    contactDetails: Joi.object()
+      .keys({
+        mobileNumber: Joi.number().required(), // todo : add num validation here
+        homeMobileNumber: Joi.number().required().allow(null, ''),
+        email: Joi.string().email().required(),
+      })
+      .required(),
+
+    eductionDetails: Joi.object()
+      .keys({
+        degree: Joi.string().required(),
+        collage: Joi.string().required(),
+        city: Joi.string().required(),
+        state: Joi.string().required(),
+        country: Joi.string().required(),
+      })
+      .required(),
+
+    professionalDetails: Joi.object()
+      .keys({
+        companyName: Joi.string().required(),
+        jobTitle: Joi.string().required(),
+        jobType: Joi.string().valid('Full-time', 'Part-time', 'Contract', 'Internship').required(),
+        currentSalary: Joi.number().required(),
+        workCity: Joi.string().required(),
+        workCountry: Joi.string().required(),
+      })
+      .required(),
+    hobbies: Joi.array().items(Joi.string()).required(),
+  }),
 };

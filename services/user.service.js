@@ -345,6 +345,219 @@ export async function getGenderListV2(filter, options = {}) {
   return matchedUsers;
 }
 
+export async function getMatchUser(filter) {
+  const userPartnerPreferences = await Partner.findOne({ userId: filter.user });
+  if (!userPartnerPreferences) {
+    throw new Error('User Partner Preferences not found. Please add Partner Preference first');
+  }
+  const pipeline = [
+    {
+      $match: {
+        _id: { $eq: mongoose.Types.ObjectId(filter.userId) }, // Exclude the current user
+        platform: { $eq: EnumOfPlatformType.HAPPY_MILAN },
+      },
+    },
+    {
+      $lookup: {
+        from: 'Friend', // The collection name for Friend model
+        let: {
+          currentUserId: '$_id', // Reference to current document's userId
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $eq: ['$user', filter.user] }, { $eq: ['$friend', '$$currentUserId'] }],
+              },
+            },
+          },
+        ],
+        as: 'friendsDetails',
+      },
+    },
+    {
+      $unwind: {
+        path: '$friendsDetails',
+        preserveNullAndEmptyArrays: true, // Include users with no matching friends
+      },
+    },
+    {
+      $match: {
+        'friendsDetails.status': { $ne: EnumStatusOfFriend.BLOCKED },
+      },
+    },
+    {
+      $addFields: {
+        age: {
+          $cond: {
+            if: { $and: [{ $ne: ['$dateOfBirth', null] }, { $ne: ['$dateOfBirth', ''] }] },
+            then: {
+              $floor: {
+                $divide: [
+                  { $subtract: [new Date(), '$dateOfBirth'] },
+                  31556952000, // Average milliseconds in a year considering leap years
+                ],
+              },
+            },
+            else: null, // Handle cases where dateOfBirth is missing or invalid
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: 'Address',
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'address',
+      },
+    },
+    {
+      $unwind: {
+        path: '$address', // Deconstructs the 'address' array field
+        preserveNullAndEmptyArrays: true, // If you want to exclude documents with no address
+      },
+    },
+    {
+      $addFields: {
+        matchData: {
+          $let: {
+            vars: {
+              totalCriteria: 4,
+              matchedCriteria: {
+                $add: [
+                  {
+                    $cond: [
+                      {
+                        $and: [
+                          { $gte: ['$age', userPartnerPreferences.age.min] },
+                          { $lte: ['$age', userPartnerPreferences.age.max] },
+                        ],
+                      },
+                      1,
+                      0,
+                    ],
+                  },
+                  {
+                    $cond: [
+                      {
+                        $and: [
+                          { $gte: ['$height', userPartnerPreferences.height.min] },
+                          { $lte: ['$height', userPartnerPreferences.height.max] },
+                        ],
+                      },
+                      1,
+                      0,
+                    ],
+                  },
+                  { $cond: [{ $in: ['$address.currentCountry', userPartnerPreferences.country] }, 1, 0] },
+                  { $cond: [{ $in: ['$address.currentCity', userPartnerPreferences.city] }, 1, 0] },
+                ],
+              },
+              matchedFields: {
+                $filter: {
+                  input: [
+                    {
+                      field: 'age',
+                      isMatched: {
+                        $and: [
+                          { $gte: ['$age', userPartnerPreferences.age.min] },
+                          { $lte: ['$age', userPartnerPreferences.age.max] },
+                        ],
+                      },
+                    },
+                    {
+                      field: 'height',
+                      isMatched: {
+                        $and: [
+                          { $gte: ['$height', userPartnerPreferences.height.min] },
+                          { $lte: ['$height', userPartnerPreferences.height.max] },
+                        ],
+                      },
+                    },
+                    {
+                      field: 'currentCountry',
+                      isMatched: { $in: ['$address.currentCountry', userPartnerPreferences.country] },
+                    },
+                    {
+                      field: 'currentCity',
+                      isMatched: { $in: ['$address.currentCity', userPartnerPreferences.city] },
+                    },
+                  ],
+                  as: 'match',
+                  cond: '$$match.isMatched',
+                },
+              },
+            },
+            in: {
+              matchPercentage: {
+                $multiply: [{ $divide: ['$$matchedCriteria', '$$totalCriteria'] }, 100],
+              },
+              matchedCriteria: '$$matchedCriteria',
+              matchedFields: '$$matchedFields',
+            },
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        age: 1,
+        height: 1,
+        'address._id': 1,
+        'address.currentResidenceAddress': 1,
+        'address.currentCity': 1,
+        'address.state': 1,
+        'address.currentCountry': 1,
+        'address.createdAt': 1,
+        'address.updatedAt': 1,
+        name: 1,
+        email: 1,
+        mobileNumber: 1,
+        emailVerified: 1,
+        maritalStatus: 1,
+        displayName: 1,
+        firstName: 1,
+        lastName: 1,
+        gender: 1,
+        dateOfBirth: 1,
+        randomId: 1,
+        birthTime: 1,
+        religion: 1,
+        cast: 1,
+        hobbies: 1,
+        interest: 1,
+        homeMobileNumber: 1,
+        creatingProfileFor: 1,
+        writeBoutYourSelf: 1,
+        hideProfileDuration: 1,
+        community: 1,
+        motherTongue: 1,
+        weight: 1,
+        userPartner: 1,
+        userEducation: 1,
+        userProfessional: 1,
+        profilePic: 1,
+        userUniqueId: 1,
+        diet: 1,
+        userProfilePic: 1,
+        userProfileVideo: 1,
+        profileHideAndDelete: 1,
+        matchPercentage: '$matchData.matchPercentage',
+        matchedCriteria: '$matchData.matchedCriteria',
+        matchedFields: '$matchData.matchedFields', // Add matchedFields to output
+        'friendsDetails.status': 1,
+        'friendsDetails._id': 1,
+        isUserActive: 1,
+      },
+    },
+    { $sort: { matchPercentage: -1 } }, // Sort by match percentage in descending order
+  ];
+  const matchedUsers = await User.aggregate(pipeline).exec();
+  return matchedUsers;
+}
+
 export async function getUserWithPartnerPrefScore(filter) {
   const userId = filter._id;
   const userPartnerPreferences = await Partner.findOne({ userId: filter.currentUserId });

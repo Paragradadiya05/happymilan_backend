@@ -36,4 +36,12 @@ router
    * getUserById
    * */
   .get(auth(['admin']), validate(userValidation.getUserById), userController.get);
+
+router
+  .route('/create-user')
+  /**
+   * createUser for happy milan
+   * */
+  .post(auth(['admin']), validate(userValidation.createUserWithAllModelData), userController.createUser);
+
 export default router;
