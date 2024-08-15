@@ -567,16 +567,14 @@ export async function getUserWithPartnerPrefScore(filter) {
   const pipeline = [
     {
       $match: {
-        _id: { $eq: mongoose.Types.ObjectId(userId) }, // Exclude the current user
+        _id: { $eq: mongoose.Types.ObjectId(userId) },
         platform: { $eq: EnumOfPlatformType.HAPPY_MILAN },
       },
     },
     {
       $lookup: {
-        from: 'Friend', // The collection name for Friend model
-        let: {
-          currentUserId: '$_id', // Reference to current document's userId
-        },
+        from: 'Friend',
+        let: { currentUserId: '$_id' },
         pipeline: [
           {
             $match: {
@@ -592,7 +590,7 @@ export async function getUserWithPartnerPrefScore(filter) {
     {
       $unwind: {
         path: '$friendsDetails',
-        preserveNullAndEmptyArrays: true, // Include users with no matching friends
+        preserveNullAndEmptyArrays: true,
       },
     },
     {
@@ -607,13 +605,10 @@ export async function getUserWithPartnerPrefScore(filter) {
             if: { $and: [{ $ne: ['$dateOfBirth', null] }, { $ne: ['$dateOfBirth', ''] }] },
             then: {
               $floor: {
-                $divide: [
-                  { $subtract: [new Date(), '$dateOfBirth'] },
-                  31556952000, // Average milliseconds in a year considering leap years
-                ],
+                $divide: [{ $subtract: [new Date(), '$dateOfBirth'] }, 31556952000],
               },
             },
-            else: null, // Handle cases where dateOfBirth is missing or invalid
+            else: null,
           },
         },
       },
@@ -628,8 +623,53 @@ export async function getUserWithPartnerPrefScore(filter) {
     },
     {
       $unwind: {
-        path: '$address', // Deconstructs the 'address' array field
-        preserveNullAndEmptyArrays: true, // If you want to exclude documents with no address
+        path: '$address',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    // Populate userPartner field
+    {
+      $lookup: {
+        from: 'UserPartner',
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'userPartner',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userPartner',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    // Populate userProfessional field
+    {
+      $lookup: {
+        from: 'UserProfessionalDetail',
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'userProfessional',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userProfessional',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    // Populate userEducation field
+    {
+      $lookup: {
+        from: 'UserEducation',
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'userEducation',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userEducation',
+        preserveNullAndEmptyArrays: true,
       },
     },
     {
@@ -637,7 +677,7 @@ export async function getUserWithPartnerPrefScore(filter) {
         matchData: {
           $let: {
             vars: {
-              totalCriteria: 4, // Update to the total number of criteria used
+              totalCriteria: 4,
               matchedCriteria: {
                 $add: [
                   {
@@ -714,9 +754,9 @@ export async function getUserWithPartnerPrefScore(filter) {
         community: 1,
         motherTongue: 1,
         weight: 1,
-        userPartner: 1,
-        userEducation: 1,
-        userProfessional: 1,
+        userPartner: 1, // Populated field
+        userProfessional: 1, // Populated field
+        userEducation: 1, // Populated field
         profilePic: 1,
         userUniqueId: 1,
         diet: 1,
