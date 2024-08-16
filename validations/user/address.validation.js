@@ -10,6 +10,7 @@ export const createAddress = {
     originResidenceAddress: Joi.string(),
     originCity: Joi.string(),
     originCountry: Joi.string(),
+    currentState: Joi.string(),
   }),
 };
 
@@ -21,6 +22,7 @@ export const updateAddress = {
     originResidenceAddress: Joi.string(),
     originCity: Joi.string(),
     originCountry: Joi.string(),
+    currentState: Joi.string(),
   }),
   params: Joi.object().keys({
     addressId: Joi.objectId().required(),

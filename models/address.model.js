@@ -28,6 +28,9 @@ const AddressSchema = new mongoose.Schema(
     originCountry: {
       type: String,
     },
+    currentState: {
+      type: String,
+    },
     /**
      * created By
      * */

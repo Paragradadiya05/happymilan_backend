@@ -754,9 +754,9 @@ export async function getUserWithPartnerPrefScore(filter) {
         community: 1,
         motherTongue: 1,
         weight: 1,
-        userPartner: 1, // Populated field
-        userProfessional: 1, // Populated field
-        userEducation: 1, // Populated field
+        userPartner: 1,
+        userProfessional: 1,
+        userEducation: 1,
         profilePic: 1,
         userUniqueId: 1,
         diet: 1,
