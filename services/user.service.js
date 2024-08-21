@@ -4,8 +4,9 @@ import { Partner, User } from 'models';
 import _ from 'lodash';
 import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
+import moment from 'moment';
 import { notificationService } from './index';
-import { EnumGenderOfUsers, EnumOfPlatformType, EnumStatusOfFriend } from '../models/enum.model';
+import enumModel, { EnumGenderOfUsers, EnumOfPlatformType, EnumStatusOfFriend } from '../models/enum.model';
 
 export async function getUserById(id, options = {}) {
   const user = await User.findById(id, options.projection, options);
@@ -773,4 +774,42 @@ export async function getUserWithPartnerPrefScore(filter) {
   ];
   const matchedUser = await User.aggregate(pipeline).exec();
   return matchedUser;
+}
+
+export async function getUserCounts(appUsesType) {
+  const filter = appUsesType ? { appUsesType } : {};
+
+  const totalUsers = await User.countDocuments(filter);
+  const activeUsers = totalUsers;
+
+  const oneWeekAgo = moment().subtract(7, 'days').toDate();
+
+  const lastWeekRegisteredUsers = await User.countDocuments({
+    ...filter,
+    createdAt: { $gte: oneWeekAgo },
+  });
+
+  const onlineUsers = await User.countDocuments({
+    ...filter,
+    isUserActive: true,
+  });
+
+  const totalMaleUsers = await User.countDocuments({
+    ...filter,
+    gender: enumModel.EnumGenderOfUsers.MALE,
+  });
+
+  const totalFemaleUsers = await User.countDocuments({
+    ...filter,
+    gender: enumModel.EnumGenderOfUsers.FEMALE,
+  });
+
+  return {
+    totalUsers,
+    activeUsers,
+    lastWeekRegisteredUsers,
+    onlineUsers,
+    totalMaleUsers,
+    totalFemaleUsers,
+  };
 }

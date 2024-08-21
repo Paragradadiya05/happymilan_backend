@@ -117,3 +117,30 @@ export const createUser = catchAsync(async (req, res) => {
     return res.status(httpStatus.BAD_REQUEST).send({ error: 'Something went wrong Create User Transaction error:', e });
   }
 });
+
+export const dashboard = catchAsync(async (req, res) => {
+  const { appUsesType } = req.params;
+
+  const { totalUsers, activeUsers, lastWeekRegisteredUsers, onlineUsers, totalMaleUsers, totalFemaleUsers } =
+    await userService.getUserCounts(appUsesType);
+
+  const totalRevenueGenerated = 100000;
+  const totalDonationCollection = 10000;
+  const goldPlan = 1200;
+  const silverPlan = 2300;
+  const PlatinumPlan = 2300;
+
+  return res.status(httpStatus.OK).send({
+    totalUsers,
+    activeUsers,
+    lastWeekRegisteredUsers,
+    onlineUsers,
+    totalMaleUsers,
+    totalFemaleUsers,
+    totalRevenueGenerated,
+    totalDonationCollection,
+    goldPlan,
+    silverPlan,
+    PlatinumPlan,
+  });
+});

@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import enumFields, { EnumGenderOfUsers, EnumOfCurrentCountry } from 'models/enum.model';
+import enumFields, { EnumAppUsesTypeOfUsers, EnumGenderOfUsers, EnumOfCurrentCountry } from 'models/enum.model';
 
 Joi.objectId = require('joi-objectid')(Joi);
 
@@ -139,5 +139,13 @@ export const createUserWithAllModelData = {
       })
       .required(),
     hobbies: Joi.array().items(Joi.string()).required(),
+  }),
+};
+
+export const dashboard = {
+  params: Joi.object().keys({
+    appUsesType: Joi.string()
+      .valid(...Object.values(EnumAppUsesTypeOfUsers))
+      .optional(),
   }),
 };
