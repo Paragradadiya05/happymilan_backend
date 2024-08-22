@@ -24,3 +24,8 @@ export async function getPlan(filter, options = {}) {
   const plan = await Plan.findOne(filter, options.projection, options);
   return plan;
 }
+
+export async function removeplan(filter) {
+  const plan = await Plan.findOneAndRemove(filter);
+  return plan;
+}

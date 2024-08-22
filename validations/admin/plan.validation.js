@@ -29,3 +29,10 @@ export const updatePlan = {
     planId: Joi.objectId().required(),
   }),
 };
+
+export const deletePlan = {
+  body: Joi.object().keys({}),
+  params: Joi.object().keys({
+    planId: Joi.objectId().required(),
+  }),
+};

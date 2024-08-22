@@ -24,5 +24,8 @@ router.get('/get-plan', auth(), planController.listPlan);
  * update plan
  * */
 router.put('/update-plan/:planId', auth(['admin']), validate(planValidation.updatePlan), planController.update);
-
+/**
+ * update plan
+ * */
+router.delete('/delete-plan/:planId', auth(['admin']), validate(planValidation.deletePlan), planController.Delete);
 export default router;

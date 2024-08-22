@@ -26,3 +26,12 @@ export const update = catchAsync(async (req, res) => {
   const plan = await planservice.updatePlan(filter, body, options);
   return res.status(httpStatus.OK).send({ results: plan });
 });
+
+export const Delete = catchAsync(async (req, res) => {
+  const { planId } = req.params;
+  const filter = {
+    _id: planId,
+  };
+  const plan = await planservice.removeplan(filter);
+  return res.status(httpStatus.OK).send({ results: plan });
+});
