@@ -45,10 +45,9 @@ const EnumCreatingProfileFor = {
 };
 
 const EnumOfPlan = {
-  FREE: 'free',
-  PAID: 'paid',
+  GOLD: 'gold',
+  PLATINUM: 'Platinum',
   SILVER: 'silver',
-  PREMIUM: 'premium',
 };
 const EnumOfOnlineSupport = {
   YES: 'yes',
@@ -56,6 +55,8 @@ const EnumOfOnlineSupport = {
 };
 const EnumOfPlanDuration = {
   MONTHLY: 'monthly',
+  TWO_MONTHLY: 'two-month',
+  THREE_MONTHLY: 'three-month',
   YEARLY: 'yearly',
   QUARTERLY: 'quarterly',
   BIANNUAL: 'biannual',

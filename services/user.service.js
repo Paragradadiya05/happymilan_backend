@@ -241,6 +241,20 @@ export async function getGenderListV2(filter, options = {}) {
       },
     },
     {
+      $lookup: {
+        from: 'UserProfessionalDetail',
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'userProfessional',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userProfessional', // Deconstructs the 'address' array field
+        preserveNullAndEmptyArrays: true, // If you want to exclude documents with no address
+      },
+    },
+    {
       $addFields: {
         matchData: {
           $let: {
@@ -324,7 +338,13 @@ export async function getGenderListV2(filter, options = {}) {
         weight: 1,
         userPartner: 1,
         userEducation: 1,
-        userProfessional: 1,
+        'userProfessional._id': 1,
+        'userProfessional.jobTitle': 1,
+        'userProfessional.jobType': 1,
+        'userProfessional.companyName': 1,
+        'userProfessional.currentSalary': 1,
+        'userProfessional.workCity': 1,
+        'userProfessional.workCountry': 1,
         profilePic: 1,
         userUniqueId: 1,
         diet: 1,

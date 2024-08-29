@@ -17,6 +17,12 @@ const calculateDates = (planDuration) => {
     case EnumOfPlanDuration.MONTHLY:
       endDate.setMonth(endDate.getMonth() + 1);
       break;
+    case EnumOfPlanDuration.TWO_MONTHLY:
+      endDate.setMonth(endDate.getMonth() + 2);
+      break;
+    case EnumOfPlanDuration.THREE_MONTHLY:
+      endDate.setMonth(endDate.getMonth() + 3);
+      break;
     case EnumOfPlanDuration.YEARLY:
       endDate.setFullYear(endDate.getFullYear() + 1);
       break;
