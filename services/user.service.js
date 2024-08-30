@@ -181,6 +181,54 @@ export async function getGenderListV2(filter, options = {}) {
     },
     {
       $lookup: {
+        from: 'likes', // // The collection name for Like model
+        let: {
+          currentUserIdForLike: '$_id', // Reference to current document's userId
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $eq: ['$user', filter.userId] }, { $eq: ['$likedUserId', '$$currentUserIdForLike'] }],
+              },
+            },
+          },
+        ],
+        as: 'userLikeDetails',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userLikeDetails',
+        preserveNullAndEmptyArrays: true, // Include users with no matching friends
+      },
+    },
+    {
+      $lookup: {
+        from: 'shortlists', // // The collection name for Like model
+        let: {
+          currentUserIdForShortList: '$_id', // Reference to current document's userId
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $eq: ['$userId', filter.userId] }, { $eq: ['$shortlistId', '$$currentUserIdForShortList'] }],
+              },
+            },
+          },
+        ],
+        as: 'userShortListDetails',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userShortListDetails',
+        preserveNullAndEmptyArrays: true, // Include users with no matching friends
+      },
+    },
+    {
+      $lookup: {
         from: 'Friend', // The collection name for Friend model
         let: {
           currentUserId: '$_id', // Reference to current document's userId
@@ -356,6 +404,11 @@ export async function getGenderListV2(filter, options = {}) {
         'friendsDetails.status': 1,
         'friendsDetails._id': 1,
         isUserActive: 1,
+        'userLikeDetails.isLike': 1,
+        'userLikeDetails.user': 1,
+        'userLikeDetails.likedUserId': 1,
+        'userShortListDetails.userId': 1,
+        'userShortListDetails.shortlistId': 1,
       },
     },
     { $sort: { matchPercentage: -1 } }, // Sort by match percentage in descending order

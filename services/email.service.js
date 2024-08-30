@@ -268,11 +268,11 @@ export const sendResetPasswordEmail = async (to, token) => {
  * @param {string} token
  * @returns {Promise}
  */
-export const sendEmailVerificationEmail = async (user, token) => {
+export const sendEmailVerificationEmail = async (user, token, password = '') => {
   const { email: to, name } = user;
   const subject = 'Welcome to the Swaray Family!';
   // replace this url with the link to the reset password page of your front-end app
-  const resetPasswordUrl = `${config.front.url}/v1/client/auth/verify-email?token=${token}`;
+  const resetPasswordUrl = `${config.front.url}v1/user/auth/verify-email?token=${token}`;
   const text = `
 <html lang="en">
 <head>
@@ -308,6 +308,13 @@ text-align: center
 <div>Dear ${name},</div>
 <br>
   <div>We’re super excited that you’ve decided to join Swaray for Video Chat That’s Built to Party!</div><br>
+  
+   <div v-if=${password}>
+    <p>your Password: ${password}</p>
+    <p>your Email: ${to}</p>
+  </div>
+  </div><br>
+  <div></div><br>
   <div>You’re just one step away from getting access to fun, exciting, party and drinking games and Swaray’s legendary shared music experience.</div><br>
   <div>All you have to do is click the link below to confirm it’s you and you’re in!</div><br>
   <div><a   target="_blank" href="${resetPasswordUrl}" id="verifyButton" class="btn btn-primary" >Click here to Verify</a></div><br>

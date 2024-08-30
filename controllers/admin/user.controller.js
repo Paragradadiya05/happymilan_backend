@@ -1,8 +1,16 @@
 import httpStatus from 'http-status';
-import { addressService, educationservice, userProfessionalDetailService, userService } from 'services';
+import {
+  addressService,
+  educationservice,
+  emailService,
+  tokenService,
+  userProfessionalDetailService,
+  userService,
+} from 'services';
 import { catchAsync } from 'utils/catchAsync';
 import mongoose from 'mongoose';
 import { pick } from '../../utils/pick';
+import { generatePassword } from '../../utils/passwordGenerator';
 
 export const get = catchAsync(async (req, res) => {
   const { userId } = req.params;
@@ -93,10 +101,13 @@ export const createUser = catchAsync(async (req, res) => {
       updatedBy: adminUserId,
     });
 
+    const password = generatePassword(9);
+
     // update user here
     const updateUser = await userService.updateUserForAuth(
       { _id: user._id },
       {
+        password,
         address: crateAddress._id,
         userEducation: createUserEducation._id,
         userProfessional: createProfessionalDetail._id,
@@ -104,7 +115,10 @@ export const createUser = catchAsync(async (req, res) => {
         updatedBy: adminUserId,
       }
     );
+    const token = await tokenService.generateVerifyEmailToken(user.email);
 
+    // Send verification email
+    await emailService.sendEmailVerificationEmail(user, token, password);
     // Commit the transaction
     await session.commitTransaction();
     session.endSession();
