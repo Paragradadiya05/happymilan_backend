@@ -39,3 +39,8 @@ export async function getProfileViewer(filter, options = {}) {
   const user = await ProfileView.find(filter, options.projection, options).populate('user').populate('viewerId');
   return user;
 }
+
+export async function getProfileViewertWithPagination(filter, options = {}) {
+  const user = await ProfileView.paginate(filter, options);
+  return user;
+}

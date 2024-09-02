@@ -18,5 +18,11 @@ router.get(
   validate(profileviewerValidation.GetProfileviwer),
   pofileviewerController.getProfileViewer
 );
+router.get(
+  '/get-profile-viewerV2/:userId',
+  auth(),
+  validate(profileviewerValidation.GetProfileviwer),
+  pofileviewerController.getProfileViewerV2
+);
 
 module.exports = router;
