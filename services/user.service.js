@@ -9,7 +9,12 @@ import { notificationService } from './index';
 import enumModel, { EnumGenderOfUsers, EnumOfPlatformType, EnumStatusOfFriend } from '../models/enum.model';
 
 export async function getUserById(id, options = {}) {
-  const user = await User.findById(id, options.projection, options);
+  const user = await User.findById(id, options.projection, options)
+    .populate('address')
+    .populate('userPartner')
+    .populate('userEducation')
+    .populate('userProfessional')
+    .exec();
   return user;
 }
 // todo:check populate in database

@@ -4,6 +4,7 @@ import auth from 'middlewares/auth';
 import validate from 'middlewares/validate';
 import { authValidation } from 'validations/user';
 import { authController } from 'controllers/user';
+
 // import verifyCaptcha from 'middlewares/captcha';
 const router = express.Router();
 /**
@@ -139,4 +140,5 @@ router.post(
   passport.authenticate('github', { session: false }),
   authController.socialLogin
 );
+router.put('/update-password', auth(), validate(authValidation.updatepss), authController.updatepsss);
 module.exports = router;

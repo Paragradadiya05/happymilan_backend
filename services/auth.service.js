@@ -291,3 +291,26 @@ export async function updateuser(filter, body, options = {}) {
   const user = await User.findOneAndUpdate(filter, body, options);
   return user;
 }
+
+export const updatepss = async (resetPasswordRequest) => {
+  const { oldPassword, newPassword } = resetPasswordRequest;
+
+  // Assuming user is already authenticated, and we have user ID in context (e.g., req.user)
+  const { userId } = resetPasswordRequest; // replace this with your user identification method
+  const user = await userService.getOne({ _id: userId });
+
+  if (!user) {
+    throw new Error('User not found.');
+  }
+
+  // Check if the old password is correct
+  const isPasswordMatch = await bcrypt.compare(oldPassword, user.password);
+  if (!isPasswordMatch) {
+    throw new Error('Old password is incorrect.');
+  }
+
+  // Update the user's password
+  await userService.updateUser({ _id: userId }, { password: newPassword });
+
+  return { success: true, message: 'Password has been reset successfully' };
+};

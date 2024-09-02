@@ -28,3 +28,8 @@ export async function removeshotylist(filter = {}) {
   const user = await Shortlist.findOneAndRemove(filter);
   return user;
 }
+
+export async function getshortListWithPagination(filter, options = {}) {
+  const user = await Shortlist.paginate(filter, options);
+  return user;
+}

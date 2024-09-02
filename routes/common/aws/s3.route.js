@@ -10,7 +10,7 @@ const router = express();
  * */
 router.post('/presignedurl', auth(), validate(s3Validation.preSignedPutUrl), s3Controller.preSignedPutUrl);
 
-router.post('/presignedurlv2', validate(s3Validation.preSignedPutUrlv2), s3Controller.preSignedPutUrlv2);
+router.post('/presignedurlv2', auth(), validate(s3Validation.preSignedPutUrlv2), s3Controller.preSignedPutUrlv2);
 
 router.post('/send-proposal', validate(s3Validation.sendProposal), s3Controller.sendProposal);
 

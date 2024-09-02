@@ -21,4 +21,10 @@ router.delete(
   validate(shortlistValidation.deleteShortlistByUser),
   shortlistController.deleteShortlistByUser
 );
+router.get(
+  '/get-short-list-paginat/:userId',
+  auth(),
+  validate(shortlistValidation.GetShortlistByUser),
+  shortlistController.getShortlistPagination
+);
 module.exports = router;

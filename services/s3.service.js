@@ -7,7 +7,7 @@ import axios from 'axios';
 import jimp from 'jimp';
 import { asyncForEach } from 'utils/common';
 import ApiError from 'utils/ApiError';
-import { TempS3, User, Mntech, Status } from 'models';
+import { TempS3, User, Status } from 'models';
 import config from 'config/config';
 import allowedContentType from 'utils/content-type.json';
 import { EnumOfImageTypes } from '../models/enum.model';
@@ -291,32 +291,37 @@ export const createThumbnails = async ({ url, resolutions = [] }) => {
 export const validateExtensionForPutObjectv2 = async (preSignedReq) => {
   const ssExtensionsContentType = allowedContentType.map((ele) => ele.mimeType);
   const ssExtensions = allowedContentType.map((ele) => ele.key);
-  // this is the number of unwanted file that is not used in system but uploaded in server
+
   let extensionOfKey = preSignedReq.key.split('.');
   extensionOfKey = extensionOfKey[extensionOfKey.length - 1];
+
   if (!extensionOfKey) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'invalid key');
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid key');
   }
+
   if (ssExtensionsContentType.includes(preSignedReq.contentType) && ssExtensions.includes(extensionOfKey)) {
     Object.assign(preSignedReq, {
       key: `name/${preSignedReq.name}/${mongoose.Types.ObjectId()}/${preSignedReq.key}`,
     });
   } else {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'invalid content-type');
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid content-type');
   }
+
   const url = await getSignedUrlPutObject(preSignedReq.key, preSignedReq.contentType, true);
+
   const tempS3Body = {
     name: preSignedReq.name,
     url: url.split('?')[0],
     key: preSignedReq.key,
   };
-  // eslint-disable-next-line new-cap
-  const tempS3 = new Mntech(tempS3Body);
 
-  // here we are updating all image to the specific user
+  const tempS3 = new TempS3(tempS3Body);
 
   await tempS3.save();
-  return { url, key: preSignedReq.key };
+
+  const imageUrl = tempS3Body.url;
+
+  return { url, key: preSignedReq.key, imageUrl };
 };
 
 /*

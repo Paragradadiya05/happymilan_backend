@@ -185,6 +185,7 @@ const EnumOfReasonForProfileDelete = {
 
 const EnumOfImageTypes = {
   PROFILE_IMAGE: 'profileImage',
+  BLOG_IMAGE: 'blogImage',
   STATUS_IMAGE: 'statusImage',
   PROFILE_VIDEO: 'profileVideo',
 };

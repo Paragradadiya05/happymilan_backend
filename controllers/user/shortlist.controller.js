@@ -1,6 +1,7 @@
 import httpStatus from 'http-status';
 import { catchAsync } from '../../utils/catchAsync';
 import { shortlistervice } from '../../services';
+import { pick } from '../../utils/pick';
 
 export const createShortlist = catchAsync(async (req, res) => {
   const userId = req.user._id;
@@ -36,5 +37,20 @@ export const deleteShortlistByUser = catchAsync(async (req, res) => {
     _id: id,
   };
   const escalate = await shortlistervice.removeshotylist(filter);
+  return res.status(httpStatus.OK).send({ results: escalate });
+});
+
+export const getShortlistPagination = catchAsync(async (req, res) => {
+  const { userId } = req.params;
+  const { query } = req;
+  const sortingObj = pick(query, ['sort', 'order']);
+  const sortObj = {
+    [sortingObj.sort]: sortingObj.order,
+  };
+  const filter = {
+    userId,
+  };
+  const options = { sort: sortObj, ...pick(query, ['limit', 'page']) };
+  const escalate = await shortlistervice.getshortListWithPagination(filter, options);
   return res.status(httpStatus.OK).send({ results: escalate });
 });

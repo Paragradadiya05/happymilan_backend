@@ -166,3 +166,94 @@ export const getRequestedFriend = catchAsync(async (req, res) => {
   const user = await friendService.getFriendList(filter, options);
   return res.status(httpStatus.OK).send({ results: user });
 });
+
+export const getRequestedFriendv2 = catchAsync(async (req, res) => {
+  const userId = req.user._id;
+  const { query } = req;
+  const sortingObj = pick(query, ['sort', 'order']);
+  const sortObj = {
+    [sortingObj.sort]: sortingObj.order,
+  };
+  const options = {
+    sort: sortObj,
+    ...pick(query, ['limit', 'page']),
+    lean: true,
+    populate: [
+      {
+        path: 'friend',
+        populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
+      },
+      {
+        path: 'user',
+        populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
+      },
+    ],
+  };
+  const filter = {
+    user: userId,
+    status: EnumStatusOfFriend.REQUESTED,
+  };
+  const user = await friendService.getFriendListWithPagination(filter, options);
+  return res.status(httpStatus.OK).send({ results: user });
+});
+
+export const getRejectedFrdRequestsv2 = catchAsync(async (req, res) => {
+  const userId = req.user._id;
+  const { query } = req;
+  const sortingObj = pick(query, ['sort', 'order']);
+  const sortObj = {
+    [sortingObj.sort]: sortingObj.order,
+  };
+  const filter = {
+    status: EnumStatusOfFriend.REJECTED,
+    $or: [{ friend: userId }, { user: userId }],
+  };
+  const options = {
+    sort: sortObj,
+    ...pick(query, ['limit', 'page']),
+    lean: true,
+    populate: [
+      {
+        path: 'friend',
+        populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
+      },
+      {
+        path: 'user',
+        populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
+      },
+    ],
+  };
+  const user = await friendService.getFriendListWithPagination(filter, options);
+  return res.status(httpStatus.OK).send({ results: user });
+});
+
+export const getBlockListv2 = catchAsync(async (req, res) => {
+  const { query } = req;
+  const sortingObj = pick(query, ['sort', 'order']);
+  const sortObj = {
+    [sortingObj.sort]: sortingObj.order,
+  };
+  const options = {
+    sort: sortObj,
+    ...pick(query, ['limit', 'page']),
+    lean: true,
+    populate: [
+      {
+        path: 'friend',
+        populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
+      },
+      {
+        path: 'user',
+        populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
+      },
+    ],
+  };
+  const userId = req.user._id;
+  const filter = {
+    user: userId,
+    status: EnumStatusOfFriend.BLOCKED,
+  };
+  const user = await friendService.getFriendListWithPagination(filter, options);
+
+  return res.status(httpStatus.OK).send({ results: user });
+});
