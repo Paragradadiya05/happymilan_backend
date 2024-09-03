@@ -93,7 +93,8 @@ export async function createFriend(body = {}, user) {
             _id: createNotificationForUser._id.toString(),
             userId: createNotificationForUser.userId.toString(),
             otherUserId: createNotificationForUser.otherUserId.toString(),
-            body: EnumOfNotification.REQUEST_SENT,
+            body: `${EnumOfNotification.REQUEST_SENT} to ${getFrdUser.name}`, // parag send friend request.
+            title: EnumOfNotification.REQUEST_SENT,
           },
         });
       });
@@ -105,6 +106,7 @@ export async function createFriend(body = {}, user) {
       otherUserId: body.friend,
       body: EnumOfNotification.REQUEST_RECEIVED,
     });
+
     if (getFrdUser.deviceTokens.length) {
       await getFrdUser.deviceTokens.map(async (fcmToken) => {
         await sendNotification(fcmToken.deviceToken, {
@@ -112,7 +114,8 @@ export async function createFriend(body = {}, user) {
             _id: createNotificationForReceiver._id.toString(),
             userId: createNotificationForReceiver.userId.toString(),
             otherUserId: createNotificationForReceiver.otherUserId.toString(),
-            body: EnumOfNotification.REQUEST_RECEIVED,
+            body: `${EnumOfNotification.REQUEST_RECEIVED} from ${user.name}`,
+            title: EnumOfNotification.REQUEST_RECEIVED,
           },
         });
       });
@@ -147,7 +150,8 @@ export async function createFriend(body = {}, user) {
             _id: createNotificationForUser._id.toString(),
             userId: createNotificationForUser.userId.toString(),
             otherUserId: createNotificationForUser.otherUserId.toString(),
-            body: EnumOfNotification.REQUEST_SENT,
+            body: `${EnumOfNotification.REQUEST_SENT} to ${getFrdUser.name}`,
+            title: EnumOfNotification.REQUEST_SENT,
           },
         },
         {}
@@ -167,7 +171,8 @@ export async function createFriend(body = {}, user) {
           _id: createNotificationForReceiver._id.toString(),
           userId: createNotificationForReceiver.userId.toString(),
           otherUserId: createNotificationForReceiver.otherUserId.toString(),
-          body: EnumOfNotification.REQUEST_RECEIVED,
+          body: `${EnumOfNotification.REQUEST_RECEIVED} from ${user.name}`,
+          title: EnumOfNotification.REQUEST_RECEIVED,
           createdAt: createNotificationForReceiver.createdAt.toString(),
           updatedAt: createNotificationForReceiver.updatedAt.toString(),
         },
@@ -239,30 +244,31 @@ export async function respondFriendRequest(request, status, userId = {}) {
     if (status === 'accepted') {
       // await Notification.create({ userId: user, body: `Friend request accepted` });
       const createNotificationForAccepted = await Notification.create({
-        userId: user,
+        userId: user._id,
         body: EnumOfNotification.REQUEST_ACCEPTED,
       });
-      console.log('===== request accepted noti ====>', createNotificationForAccepted);
+
+      const frdUserData = await User.findById(friendRequest.user);
+
       // send notification
       // check if usr hase deice token or not
-      console.log('=====request accepted deviceTokens ====>', user);
-      console.log('=== request accepted deviceTokens.length ===>', user.deviceTokens.length);
-      if (user && user.deviceTokens && user.deviceTokens.length) {
-        const deviceToken = user.deviceTokens.map((fcmToken) => fcmToken.deviceToken);
-        console.log('=== request accepted deviceToken ===>', deviceToken);
-        await sendNotification(
-          deviceToken,
-          {
-            data: {
-              _id: createNotificationForAccepted._id.toString(),
-              userId: createNotificationForAccepted.userId.toString(),
-              body: EnumOfNotification.REQUEST_ACCEPTED,
-              createdAt: createNotificationForAccepted.createdAt.toString(),
-              updatedAt: createNotificationForAccepted.updatedAt.toString(),
+      if (frdUserData && frdUserData.deviceTokens && frdUserData.deviceTokens.length) {
+        await frdUserData.deviceTokens.map(async (fcmToken) => {
+          await sendNotification(
+            fcmToken.deviceToken,
+            {
+              data: {
+                _id: createNotificationForAccepted._id.toString(),
+                userId: createNotificationForAccepted.userId.toString(),
+                body: `${EnumOfNotification.REQUEST_ACCEPTED} of ${user.name}`,
+                title: EnumOfNotification.REQUEST_ACCEPTED,
+                createdAt: createNotificationForAccepted.createdAt.toString(),
+                updatedAt: createNotificationForAccepted.updatedAt.toString(),
+              },
             },
-          },
-          {}
-        );
+            {}
+          );
+        });
       }
     }
 
