@@ -56,7 +56,7 @@ export const removeFriend = catchAsync(async (req, res) => {
 
 export const respondFriendRequest = catchAsync(async (req, res) => {
   const { request, status, user } = req.body;
-  req.body.user = request;
+  // req.body.user = request;
   await friendService.respondFriendRequest(request, status, user);
   return res.status(httpStatus.OK).send({ success: true });
 });
