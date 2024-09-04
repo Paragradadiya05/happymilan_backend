@@ -141,4 +141,7 @@ router.post(
   authController.socialLogin
 );
 router.put('/update-password', auth(), validate(authValidation.updatepss), authController.updatepsss);
+
+router.post('/generate-qr', auth(), authController.generateQR);
+router.post('/trigger-login', auth(), validate(authValidation.triggerLoginValidation), authController.triggerLogin);
 module.exports = router;

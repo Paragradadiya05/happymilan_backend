@@ -1,18 +1,32 @@
 import httpStatus from 'http-status';
 import ApiError from 'utils/ApiError';
 import _ from 'lodash';
-import { User, Token, Notification } from 'models';
-import { userService, tokenService, emailService } from 'services';
-import { EnumTypeOfToken, EnumCodeTypeOfCode, EnumOfNotification } from 'models/enum.model';
+import { Notification, Token, User } from 'models';
+import { emailService, tokenService, userService } from 'services';
+import { EnumCodeTypeOfCode, EnumOfNotification, EnumTypeOfToken } from 'models/enum.model';
 import bcrypt from 'bcryptjs';
 import { generateOtp } from 'utils/common';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import Pusher from 'pusher';
+import jwt from 'jsonwebtoken';
+import config from 'config/config';
+import mongoose from 'mongoose';
 import { sendNotification } from './notification.service';
+
 /**
  * Login with username and password
  * @param {string} email
  * @param {string} password
  * @returns {Promise<User>}
  */
+
+const pusher = new Pusher({
+  appId: '1859353',
+  key: '46b85f99650ffbce8c4d',
+  secret: '31f21ad701dc307eb48f',
+  cluster: 'ap2',
+  useTLS: true,
+});
 export const loginUserWithEmailAndPassword = async (email, password) => {
   const user = await userService.getOne({ email });
   if (!user) {
@@ -313,4 +327,36 @@ export const updatepss = async (resetPasswordRequest) => {
   await userService.updateUser({ _id: userId }, { password: newPassword });
 
   return { success: true, message: 'Password has been reset successfully' };
+};
+
+export const generateQR = async () => {
+  const token = jwt.sign({}, config.jwt.secret, { expiresIn: `${config.jwt.verifyEmailExpirationMinutes}m` });
+  // eslint-disable-next-line no-use-before-define
+  const channelDataHash = generateChannelDataHash(); // Implement your hash generation logic
+  return { channel: channelDataHash, token };
+};
+// Trigger login event
+/**
+ * Trigger a login event using Pusher
+ * @param {string} channel - The channel to trigger the event on
+ * @param {string} token - The token to send with the event
+ * @param {string} authToken - The authentication token
+ * @param user
+ * @returns {Promise<Object>} - The response from Pusher
+ */
+export const triggerLogin = async (channel, token, user, authToken) => {
+  try {
+    // Include user information in the Pusher event if needed
+    return await pusher.trigger(channel, 'login-event', {
+      token,
+      user,
+      authToken,
+    });
+  } catch (error) {
+    console.error('Error triggering Pusher event:', error);
+    throw new Error('Failed to trigger Pusher event');
+  }
+};
+const generateChannelDataHash = () => {
+  return mongoose.Types.ObjectId().toHexString();
 };

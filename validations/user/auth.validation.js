@@ -157,3 +157,10 @@ export const updatepss = {
     newPassword: Joi.string().required(),
   }),
 };
+
+export const triggerLoginValidation = {
+  body: Joi.object().keys({
+    channel: Joi.string().required(),
+    token: Joi.string().required(),
+  }),
+};

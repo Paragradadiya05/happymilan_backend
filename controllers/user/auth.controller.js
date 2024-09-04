@@ -368,3 +368,37 @@ export const updatepsss = catchAsync(async (req, res) => {
 
   res.status(httpStatus.OK).send({ results: { success: true, message: 'Password has been reset successfully' } });
 });
+
+export const generateQR = catchAsync(async (req, res) => {
+  const { channel, token } = await authService.generateQR();
+  return res.status(httpStatus.OK).json({
+    success: true,
+    msg: 'QR DATA Created',
+    data: {
+      channel,
+      token,
+    },
+  });
+});
+
+export const triggerLogin = catchAsync(async (req, res) => {
+  const { channel, token } = req.body;
+  const { authToken } = req.header;
+
+  try {
+    const response = await authService.triggerLogin(channel, token, req.user, authToken);
+    return res.status(httpStatus.OK).json({
+      success: true,
+      msg: 'Token Triggered',
+      data: {
+        response,
+      },
+    });
+  } catch (error) {
+    console.error('Error triggering login:', error);
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      msg: 'Failed to trigger token',
+    });
+  }
+});
