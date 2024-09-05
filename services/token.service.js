@@ -139,9 +139,22 @@ export const verifyResetOtp = async (email, otp) => {
   if (otpCodeIndex === -1 || user.codes[otpCodeIndex].expirationDate < Date.now()) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'OTP is invalid');
   }
-  // Update the user document
+  // Update the user document // todo : check if update user needed ot not.
   await userService.updateUser({ email }, { $set: { codes: user.codes } });
   // await user.save();
+  return user;
+};
+
+export const verifyResetOtpForChangeEmailOrNumber = async (user, otp) => {
+  // Find the OTP code in the user's codes array
+  const otpCodeIndex = _.findIndex(
+    user.codes,
+    (code) => code.code === otp.toString() && code.codeType === EnumCodeTypeOfCode.RESET_LOGIN_CRED
+  );
+  if (otpCodeIndex === -1 || user.codes[otpCodeIndex].expirationDate < Date.now()) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'OTP is invalid');
+  }
+  // Update the user document // todo : check if update user needed ot not.
   return user;
 };
 

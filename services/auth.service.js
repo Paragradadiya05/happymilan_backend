@@ -360,3 +360,37 @@ export const triggerLogin = async (channel, token, user, authToken) => {
 const generateChannelDataHash = () => {
   return mongoose.Types.ObjectId().toHexString();
 };
+
+export const updateEmailAndMobile = async ({ email, mobileNumber, user }) => {
+  const otp = generateOtp();
+  const body = {
+    $push: {
+      codes: {
+        code: otp,
+        expirationDate: Date.now() + 10 * 60 * 1000,
+        used: false,
+        codeType: EnumCodeTypeOfCode.RESET_LOGIN_CRED,
+      },
+    },
+  };
+  if (email && email.currentEmail === user.email) {
+    await userService.updateUser({ email: user.email }, body, { new: true });
+    await emailService.sendResetEmailOtp(email.newEmail, otp, 'Email');
+    // create jwt payload with otp data
+  }
+  if (mobileNumber && mobileNumber.currentMobileNumber === user.mobileNumber) {
+    // todo : after we add mobile otp flow we need to add code here for reset mobile number
+  }
+  return user;
+};
+
+export const verifyOtpForUpdatePasswordEnaEmail = async ({ email, mobileNumber, user }) => {
+  console.log('=== var mobileNumber ===>', mobileNumber);
+  if (email && email.currentEmail === user.email) {
+    // verify otp
+    await tokenService.verifyResetOtpForChangeEmailOrNumber(user, email.otp);
+
+    // update user
+    return userService.updateUser({ email: user.email }, { email: email.newEmail });
+  }
+};

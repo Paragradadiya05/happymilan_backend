@@ -24,7 +24,6 @@ export const sendEmail = async (emailParams) => {
     msg.html = text;
   }
 
-  console.log(' === variable ===> here  ', msg);
   await transport.sendMail(msg);
 };
 
@@ -807,6 +806,229 @@ text-align: center
   </div>
   </body>
   </html>
+`;
+  await sendEmail({ to, subject, text, isHtml: true });
+};
+
+/**
+ * Send reset password email
+ * @param {string} to
+ * @param {number} otp
+ * @param {string} emailOrMobileTag
+ * @returns {Promise}
+ */
+export const sendResetEmailOtp = async (to, otp, emailOrMobileTag) => {
+  console.log('=== var to ===>', to);
+
+  const subject = `Reset ${emailOrMobileTag}`;
+  // replace this url with the link to the reset password page of your front-end app
+  // const resetPasswordUrl = `http://link-to-app/reset-password?token=${token}`;
+  const text = `
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap">
+ <title></title>
+
+ <style type="text/css">
+ .btn {
+    display: inline-block;
+    color: #ffffff !important;
+    justify-items: center;
+    padding-top: 15px;
+    white-space: nowrap;
+    vertical-align: middle;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none; 
+    user-select: none;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    background: linear-gradient(123.55deg, #0F52BA 0%, #8225AF 81.56%);
+    width: 175px;
+    height: 38px;
+    border-radius: 10px;
+    align-content: center;
+    text-align: center;
+    font-family: Poppins;
+    box-shadow: none;
+    text-decoration: none;
+    }
+   
+        #parrent {
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+            border-radius: 14px;
+            border: 1px solid #E2E2E2;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #logo img {
+            align-items: center;
+            margin-left: 280px;
+            padding-top: 30px;
+            height: 32px;
+            width: 130px;
+        }
+
+        #content div {
+            width: 622px;
+        }
+
+        #content div p {
+            color: #000;
+            font-family: Poppins;
+            font-size: 14px;
+            font-style: normal;
+            /*font-weight: 400;*/
+            line-height: normal;
+        }
+
+        #content {
+            margin-left: 40px;
+            margin-top: 30px;
+        }
+
+        #OTP-Text {
+            background: linear-gradient(97deg, #0F52BA 5.37%, #BA0FA9 20.06%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-family: Poppins;
+            font-size: 24px;
+            font-style: normal;
+            font-weight: 700;
+            line-height: normal;
+        }
+
+        #footer-box {
+            display: flex;
+            justify-content: center;
+        }
+
+        #footer {
+            width: 607px;
+            height: 60px;
+            border-top: 1px solid #E2E2E2;
+            text-align: center;
+            padding-top: 10px;
+            margin-top: 30px;
+
+        }
+
+        #footer-content {
+            width: 600px;
+        }
+
+
+        #footer div {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #footer div #ul-1 {
+            list-style-type: none;
+            position: relative;
+            left: -30px;
+        }
+
+        #footer div #ul-1 li span {
+            color: #000;
+            font-family: Poppins;
+            font-size: 10px;
+            font-style: normal;
+            /*font-weight: 400;*/
+            line-height: normal;
+        }
+
+        #footer div #ul-2 li span {
+            color: #0F52BA;
+            font-family: Poppins;
+            font-size: 10px;
+            font-style: normal;
+            /*font-weight: 900;*/
+            line-height: normal;
+        }
+
+
+        #footer div #ul-2 li {
+            list-style-type: none;
+            display: flex;
+            gap: 20px;
+        }
+
+        #footer div #ul-2 {
+            display: flex;
+            gap: 40px;
+            justify-content: space-between;
+        }
+
+        @media only screen and (max-width: 600px) {
+            #parrent {
+                margin-left: 0;
+            }
+
+            #footer-content {
+                width: 350px;
+            }
+
+            #logo img {
+                align-items: center;
+                margin-left: 270px;
+                padding-top: 30px;
+                height: 32px;
+                width: 130px;
+            }
+
+        }
+    </style>
+</style>
+</head>
+<body>
+ <div>
+
+ <div id="parrent">
+ <div id="logo">
+   <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/users/65e991ad15835e46f0861b8b/65eff3406145b642700c32ba/logo.jpg" alt="logo"/>
+ </div>
+ <div id="content">
+ <div>
+     <p>Dear User,</p>
+     <p>We received a request to reset the emai of mobile number for your account. If you initiated this request,
+                 please use the following link to reset your cred:
+                 otp for change cred: ${otp}
+     </p>
+      <p>Note : Please note that the cred reset link is valid for a limited time. After clicking the
+                        link, you will be prompted to create a new cred .</p>
+  </div>
+  </div>
+  <div id="footer-box">
+  <div id="footer">
+  <div id="footer-content">
+   <ul id="ul-1">
+     <li>
+       <span>Copyright 2023 MN Techgroup India</span>
+     </li>
+   </ul>
+   <ul id="ul-2">
+       <li>
+        <span>Privacy Policy</span>
+        </li>
+        <li><span>Terms of Use</span></li>
+
+   </ul>
+
+ </div>
+ </div>
+ </div>
+ </div>
+ </div>
+</body>
+</html>
 `;
   await sendEmail({ to, subject, text, isHtml: true });
 };

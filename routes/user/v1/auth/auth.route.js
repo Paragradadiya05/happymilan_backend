@@ -51,12 +51,12 @@ router.get('/me', auth(), authController.userInfo);
 router.put('/update-user', auth(), authController.updateUserInfo);
 /**
  * OTP-based verification
- * When User Forgot Password call this API and he get the OTP in his Email to reset Password
+ * When User Forgot to Password call this API and he gets the OTP in his Email to reset Password
  */
 router.post('/forgot-password', validate(authValidation.forgotPassword), authController.forgotPassword);
 /**
  * Token-based Verification
- * When User Forgot Password call this API, and user get the verification email to reset Password
+ * When User Forgot to Password call this API, and user gets the verification email to reset Password
  */
 router.post('/forgot-password-based-on-token', validate(authValidation.forgotPassword), authController.forgotPasswordToken);
 /**
@@ -140,8 +140,43 @@ router.post(
   passport.authenticate('github', { session: false }),
   authController.socialLogin
 );
+
+/**
+ * update password of user
+ */
 router.put('/update-password', auth(), validate(authValidation.updatepss), authController.updatepsss);
 
+/**
+ * Generate qr code in react/next app for web qr based user login
+ */
 router.post('/generate-qr', auth(), authController.generateQR);
+
+/**
+ * trigger login event in web after qr scanned by mobile
+ * this api calls from mobile side
+ */
 router.post('/trigger-login', auth(), validate(authValidation.triggerLoginValidation), authController.triggerLogin);
+
+/**
+ * send otp for change email and mobile number
+ *
+ */
+router.post(
+  '/send-otp-change-email',
+  auth(),
+  validate(authValidation.updateEmailAndMobile),
+  authController.updateEmailAndMobile
+);
+
+/**
+ * verify otp for change email and number
+ *
+ */
+router.post(
+  '/verify-otp-change-email',
+  auth(),
+  validate(authValidation.verifyEmailAndMobile),
+  authController.verifyEmailAndMobile
+);
+
 module.exports = router;

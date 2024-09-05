@@ -402,3 +402,30 @@ export const triggerLogin = catchAsync(async (req, res) => {
     });
   }
 });
+
+export const updateEmailAndMobile = catchAsync(async (req, res) => {
+  const { email, mobileNumber } = req.body;
+  const { user } = req;
+  if (email && email.currentEmail !== user.email) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'your current email is wrong. please add right current email');
+  }
+  if (email && email.newEmail === user.email) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'your new email can not be same as your old email');
+  }
+  if (mobileNumber && email.currentMobileNumber !== user.mobileNumber) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'your current mobile number is wrong. please add right current number');
+  }
+  if (mobileNumber && email.newMobileNumber === user.mobileNumber) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'your new mobile number can not be same as your old mobile number');
+  }
+  await authService.updateEmailAndMobile({ email, mobileNumber, user });
+  res.status(httpStatus.OK).send({ results: { success: true, message: 'otp send successfully' } });
+});
+
+export const verifyEmailAndMobile = catchAsync(async (req, res) => {
+  const { email, mobileNumber } = req.body;
+  const { user } = req;
+  // const result =
+  await authService.verifyOtpForUpdatePasswordEnaEmail({ email, mobileNumber, user });
+  res.status(httpStatus.OK).send({ results: { success: true, message: 'email has been reset successfully' } });
+});
