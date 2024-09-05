@@ -50,7 +50,14 @@ export const getShortlistPagination = catchAsync(async (req, res) => {
   const filter = {
     userId,
   };
-  const options = { sort: sortObj, ...pick(query, ['limit', 'page']) };
+  const options = {
+    sort: sortObj,
+    ...pick(query, ['limit', 'page']),
+    populate: {
+      path: 'shortlistId',
+      populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
+    },
+  };
   const escalate = await shortlistervice.getshortListWithPagination(filter, options);
   return res.status(httpStatus.OK).send({ results: escalate });
 });

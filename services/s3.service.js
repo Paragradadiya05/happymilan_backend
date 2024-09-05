@@ -324,6 +324,41 @@ export const validateExtensionForPutObjectv2 = async (preSignedReq) => {
   return { url, key: preSignedReq.key, imageUrl };
 };
 
+export const validateExtensionForPutObjectForKyc = async (preSignedReq) => {
+  const ssExtensionsContentType = allowedContentType.map((ele) => ele.mimeType);
+  const ssExtensions = allowedContentType.map((ele) => ele.key);
+
+  let extensionOfKey = preSignedReq.key.split('.');
+  extensionOfKey = extensionOfKey[extensionOfKey.length - 1];
+
+  if (!extensionOfKey) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid key');
+  }
+
+  if (ssExtensionsContentType.includes(preSignedReq.contentType) && ssExtensions.includes(extensionOfKey)) {
+    Object.assign(preSignedReq, {
+      key: `KycDoc/${preSignedReq.name}/${mongoose.Types.ObjectId()}/${preSignedReq.key}`,
+    });
+  } else {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid content-type');
+  }
+
+  const url = await getSignedUrlPutObject(preSignedReq.key, preSignedReq.contentType, true);
+
+  const tempS3Body = {
+    name: preSignedReq.name,
+    url: url.split('?')[0],
+    key: preSignedReq.key,
+  };
+
+  const tempS3 = new TempS3(tempS3Body);
+
+  await tempS3.save();
+
+  const docUrl = tempS3Body.url;
+
+  return { url, key: preSignedReq.key, docUrl };
+};
 /*
  * this function for create url for chat related content for use-only socket
  * */

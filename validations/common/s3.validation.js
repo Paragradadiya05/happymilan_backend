@@ -23,6 +23,13 @@ export const preSignedPutUrlv2 = {
   }),
 };
 
+export const UploadKycDoc = {
+  body: Joi.object().keys({
+    name: Joi.string().required(),
+    key: Joi.string().required(),
+    contentType: Joi.string(),
+  }),
+};
 export const sendProposal = {
   body: Joi.object().keys({
     name: Joi.string().required(),

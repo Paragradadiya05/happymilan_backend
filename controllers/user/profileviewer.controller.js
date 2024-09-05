@@ -34,6 +34,10 @@ export const getProfileViewerV2 = catchAsync(async (req, res) => {
     sort: sortObj,
     ...pick(query, ['limit', 'page']),
     lean: true,
+    populate: {
+      path: 'viewerId',
+      populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
+    },
   };
   const user = await profileviewerservice.getProfileViewertWithPagination(filter, options);
   return res.status(httpStatus.OK).send({ results: user });

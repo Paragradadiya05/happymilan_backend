@@ -26,6 +26,7 @@ import razorpayRoute from './v1/razorpay/ordercomplete.route';
 import searchHistoryRoute from './v1/searchHistory/searchHistory.route';
 import spamUserRoute from './v1/spamUser/spamuser.route';
 import storyViewRoute from './v1/storyview/storyview.route';
+import KycRoute from './v1/kyc/kyc.route';
 
 const router = express.Router();
 router.use('/user', userRoutes);
@@ -55,6 +56,7 @@ router.use('/razorpay', razorpayRoute);
 router.use('/search-history', searchHistoryRoute);
 router.use('/spam', spamUserRoute);
 router.use('/story-view', storyViewRoute);
+router.use('/kyc', KycRoute);
 
 // router.use('/userEducation', userEducationRoutes);
 // router.use('/commentOnStory', commentOnStoryRoutes);

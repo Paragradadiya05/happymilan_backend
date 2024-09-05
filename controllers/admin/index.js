@@ -7,3 +7,4 @@ module.exports.planController = require('./plan.controller');
 module.exports.subscriptionController = require('./subscription.controller');
 module.exports.xlxsController = require('./uploadxlsx.controller');
 module.exports.roleController = require('./role.controller');
+module.exports.KycController = require('./kyc.controller');

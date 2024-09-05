@@ -12,6 +12,8 @@ router.post('/presignedurl', auth(), validate(s3Validation.preSignedPutUrl), s3C
 
 router.post('/presignedurlv2', auth(), validate(s3Validation.preSignedPutUrlv2), s3Controller.preSignedPutUrlv2);
 
+router.post('/uploadkycdoc', auth(), validate(s3Validation.UploadKycDoc), s3Controller.UploadKycDoc);
+
 router.post('/send-proposal', validate(s3Validation.sendProposal), s3Controller.sendProposal);
 
 module.exports = router;
