@@ -1,4 +1,5 @@
 import Joi from 'joi';
+import enumFields from '../../models/enum.model';
 
 Joi.objectId = require('joi-objectid')(Joi);
 
@@ -23,6 +24,11 @@ export const getPlanById = {
   }),
 };
 
+export const getPlanByName = {
+  params: Joi.object().keys({
+    planName: Joi.string().valid(...Object.values(enumFields.EnumOfPlan)),
+  }),
+};
 // export const deleteTestById = {
 //   params: Joi.object().keys({
 //     testId: Joi.objectId().required(),

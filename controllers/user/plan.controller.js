@@ -15,3 +15,11 @@ export const getPlanById = catchAsync(async (req, res) => {
   const plan = await planservice.getPlanById(planId, options);
   return res.status(httpStatus.OK).send({ results: plan });
 });
+
+export const getPlanByName = catchAsync(async (req, res) => {
+  const { planName } = req.params;
+  const filter = { planName };
+  const options = {};
+  const plan = await planservice.getPlanList(filter, options);
+  return res.status(httpStatus.OK).send({ results: plan });
+});
