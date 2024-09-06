@@ -383,7 +383,7 @@ export const generateQR = catchAsync(async (req, res) => {
 
 export const triggerLogin = catchAsync(async (req, res) => {
   const { channel, token } = req.body;
-  const { authToken } = req.header;
+  const authToken = req.headers.authorization;
 
   try {
     const response = await authService.triggerLogin(channel, token, req.user, authToken);
