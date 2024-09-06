@@ -149,7 +149,7 @@ router.put('/update-password', auth(), validate(authValidation.updatepss), authC
 /**
  * Generate qr code in react/next app for web qr based user login
  */
-router.post('/generate-qr', auth(), authController.generateQR);
+router.post('/generate-qr', authController.generateQR);
 
 /**
  * trigger login event in web after qr scanned by mobile
