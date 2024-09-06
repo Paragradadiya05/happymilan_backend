@@ -392,6 +392,7 @@ export const triggerLogin = catchAsync(async (req, res) => {
       msg: 'Token Triggered',
       data: {
         response,
+        authToken,
       },
     });
   } catch (error) {
