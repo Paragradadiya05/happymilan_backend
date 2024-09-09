@@ -427,27 +427,33 @@ export async function getGenderListV2(filter, options = {}) {
       },
     },
     {
-      $unwind: {
-        path: '$metadata',
-        preserveNullAndEmptyArrays: true, // To handle cases when no results are found
-      },
-    },
-    {
       $addFields: {
         totalPages: {
-          $ceil: { $divide: ['$metadata.total', limit] }, // Calculate total pages
+          $cond: {
+            if: { $gt: [{ $ifNull: [{ $arrayElemAt: ['$metadata.total', 0] }, 0] }, 0] },
+            then: {
+              $ceil: { $divide: [{ $arrayElemAt: ['$metadata.total', 0] }, limit] }, // Calculate total pages
+            },
+            else: 0,
+          },
         },
         currentPage: page,
       },
     },
+    {
+      $project: {
+        metadata: 0, // Exclude metadata from final output
+      },
+    },
   ];
+
   const result = await User.aggregate(pipeline).exec();
-  const { data, metadata } = result[0] || { data: [], metadata: { total: 0 } };
+  const { data, totalPages, currentPage } = result[0] || { data: [], totalPages: 0, currentPage: 1 };
 
   return {
-    total: metadata.total || 0,
-    totalPages: metadata.totalPages || 0,
-    currentPage: metadata.currentPage || 1,
+    total: totalPages * limit, // Calculate total based on pages and limit
+    totalPages,
+    currentPage,
     users: data,
   };
 }
