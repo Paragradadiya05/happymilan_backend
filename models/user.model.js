@@ -211,8 +211,7 @@ const UserSchema = new mongoose.Schema(
       type: String,
     },
     birthTime: {
-      type: String,
-      match: /^(0?[1-9]|1[0-2]):([0-5]\d)\s?(AM|PM)$/i, // Matches 12-hour format with AM/PM
+      type: Date,
     },
     religion: {
       type: String,
