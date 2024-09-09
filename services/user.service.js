@@ -416,12 +416,40 @@ export async function getGenderListV2(filter, options = {}) {
         'userShortListDetails.shortlistId': 1,
       },
     },
-    { $sort: { matchPercentage: -1 } }, // Sort by match percentage in descending order
-    { $skip: (page - 1) * limit }, // Skip documents for pagination
-    { $limit: limit }, // Limit the number of documents for pagination
+    {
+      $facet: {
+        metadata: [{ $count: 'total' }], // Count the total number of documents
+        data: [
+          { $sort: { matchPercentage: -1 } }, // Sort by match percentage in descending order
+          { $skip: (page - 1) * limit }, // Skip documents for pagination
+          { $limit: limit }, // Limit the number of documents for pagination
+        ],
+      },
+    },
+    {
+      $unwind: {
+        path: '$metadata',
+        preserveNullAndEmptyArrays: true, // To handle cases when no results are found
+      },
+    },
+    {
+      $addFields: {
+        totalPages: {
+          $ceil: { $divide: ['$metadata.total', limit] }, // Calculate total pages
+        },
+        currentPage: page,
+      },
+    },
   ];
-  const matchedUsers = await User.aggregate(pipeline).exec();
-  return matchedUsers;
+  const result = await User.aggregate(pipeline).exec();
+  const { data, metadata } = result[0] || { data: [], metadata: { total: 0 } };
+
+  return {
+    total: metadata.total || 0,
+    totalPages: metadata.totalPages || 0,
+    currentPage: metadata.currentPage || 1,
+    users: data,
+  };
 }
 
 export async function getMatchUser(filter) {
