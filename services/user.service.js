@@ -176,6 +176,8 @@ export async function getGenderListV2(filter, options = {}) {
     throw new Error('User Partner Preferences not found. Please add Partner Preference first');
   }
 
+  const skip = (page - 1) * limit;
+
   const pipeline = [
     {
       $match: {
@@ -417,8 +419,55 @@ export async function getGenderListV2(filter, options = {}) {
       },
     },
     { $sort: { matchPercentage: -1 } }, // Sort by match percentage in descending order
-    { $skip: (page - 1) * limit }, // Skip documents for pagination
-    { $limit: limit }, // Limit the number of documents for pagination
+    // { $skip: (page - 1) * limit }, // Skip documents for pagination
+    // { $skip: skip },
+    // { $limit: limit }, // Limit the number of documents for pagination
+    // {
+    //   $facet: {
+    //     paginatedResults: [{ $skip: skip }, { $limit: limit }],
+    //     totalCount: [{ $count: 'count' }],
+    //   },
+    // },
+    // {
+    //   $addFields: {
+    //     totalDocs: { $arrayElemAt: ['$totalCount.count', 0] },
+    //     totalPages: {
+    //       $ceil: {
+    //         $divide: [{ $arrayElemAt: ['$totalCount.count', 0] }, limit],
+    //       },
+    //     },
+    //     currentPage: page,
+    //   },
+    // },
+
+    // Facet stage: Use facet to divide the pipeline into two outputs
+    {
+      $facet: {
+        // Facet for paginated results
+        paginatedResults: [{ $skip: skip }, { $limit: limit }],
+        // Facet for counting total documents
+        totalCount: [{ $count: 'count' }],
+      },
+    },
+    // Unwind totalCount array to get the actual count value
+    {
+      $unwind: {
+        path: '$totalCount',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    // Add pagination details
+    {
+      $addFields: {
+        totalDocs: { $ifNull: ['$totalCount.count', 0] },
+        totalPages: {
+          $ceil: {
+            $divide: ['$totalCount.count', limit],
+          },
+        },
+        currentPage: page,
+      },
+    },
   ];
   const matchedUsers = await User.aggregate(pipeline).exec();
   return matchedUsers;
