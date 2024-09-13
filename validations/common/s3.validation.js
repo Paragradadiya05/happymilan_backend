@@ -42,3 +42,11 @@ export const sendProposal = {
     }),
   }),
 };
+
+export const UploadStoryImg = {
+  body: Joi.object().keys({
+    name: Joi.string().required(),
+    key: Joi.string().required(),
+    contentType: Joi.string(),
+  }),
+};
