@@ -26,3 +26,4 @@ module.exports.completeController = require('./razorpay.controller');
 module.exports.searchHistoryController = require('./searchHistory.controller');
 module.exports.spamUserController = require('./spamuser.controller');
 module.exports.storyViewController = require('./storyview.controller');
+module.exports.KycController = require('./kyc.controller');

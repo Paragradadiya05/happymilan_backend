@@ -13,3 +13,5 @@ module.exports.planValidation = require('./plan.validation');
 module.exports.subscriptionValidation = require('./subscription.validation');
 
 module.exports.roleValidation = require('./role.validation');
+
+module.exports.KycValidation = require('./kyc.validation');

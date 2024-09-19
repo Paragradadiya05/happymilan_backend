@@ -10,4 +10,6 @@ router.get('/get-plan', auth(), planController.listPlan);
 
 router.get('/get-plan/:planId', auth(), validate(planValidation.getPlanById), planController.getPlanById);
 
+router.get('/get-plan-by-name/:planName', auth(), validate(planValidation.getPlanByName), planController.getPlanByName);
+
 module.exports = router;

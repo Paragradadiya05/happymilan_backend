@@ -9,6 +9,7 @@ import subscriptionRoutes from './v1/subscription/subscription.route';
 import xlsxRoutes from './v1/uploadxlsx/uploadxlsx.route';
 import roleRoutes from './v1/Role/role.route';
 import dashboardRoutes from './v1/dashboard/dashboard.route';
+import KycRoute from './v1/kyc/kyc.route';
 
 const router = express.Router();
 router.use('/user', userRoutes);
@@ -21,5 +22,6 @@ router.use('/subscription', subscriptionRoutes);
 router.use('/upload', xlsxRoutes);
 router.use('/role', roleRoutes);
 router.use('/dashboard', dashboardRoutes);
+router.use('/kyc', KycRoute);
 
 module.exports = router;

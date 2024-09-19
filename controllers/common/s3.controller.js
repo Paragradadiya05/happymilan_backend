@@ -14,6 +14,11 @@ export const preSignedPutUrlv2 = catchAsync(async (req, res) => {
   const s3PutObject = await s3Service.validateExtensionForPutObjectv2(body, user);
   return res.status(httpStatus.OK).send({ results: s3PutObject });
 });
+export const UploadKycDoc = catchAsync(async (req, res) => {
+  const { body, user } = req;
+  const s3PutObject = await s3Service.validateExtensionForPutObjectForKyc(body, user);
+  return res.status(httpStatus.OK).send({ results: s3PutObject });
+});
 
 export const sendProposal = catchAsync(async (req, res) => {
   const emailSendBody = {
@@ -24,5 +29,11 @@ export const sendProposal = catchAsync(async (req, res) => {
     attachments: [{ filename: req.body.filename, content: req.body.content }],
   };
   const s3PutObject = await sendMail(emailSendBody);
+  return res.status(httpStatus.OK).send({ results: s3PutObject });
+});
+
+export const UploadStoryImg = catchAsync(async (req, res) => {
+  const { body, user } = req;
+  const s3PutObject = await s3Service.validateExtensionForPutObjectForStory(body, user);
   return res.status(httpStatus.OK).send({ results: s3PutObject });
 });

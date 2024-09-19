@@ -186,7 +186,6 @@ const EnumOfReasonForProfileDelete = {
 
 const EnumOfImageTypes = {
   PROFILE_IMAGE: 'profileImage',
-  BLOG_IMAGE: 'blogImage',
   STATUS_IMAGE: 'statusImage',
   PROFILE_VIDEO: 'profileVideo',
 };
@@ -234,7 +233,12 @@ const EnumOfPlatformType = {
   HAPPY_MILAN: 'happyMilan',
   BUSINESS_PLATFORM: 'businessPlatform',
 };
-
+const EnumOfKyc = {
+  PASSPORT: 'passport',
+  DRIVING_LICENSE: 'driving-license',
+  AADHAR_CARD: 'aadhar-card',
+  ELECTION_CARD: 'election-card',
+};
 module.exports = {
   EnumCodeTypeOfCode,
   EnumRoleOfUser,
@@ -266,4 +270,5 @@ module.exports = {
   EnumOfUserPlan,
   EnumOfReason,
   EnumOfPlatformType,
+  EnumOfKyc,
 };
