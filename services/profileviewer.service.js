@@ -36,7 +36,15 @@ export async function createprofileviewer(body = {}, user) {
   });
 }
 export async function getProfileViewer(filter, options = {}) {
-  const user = await ProfileView.find(filter, options.projection, options).populate('user').populate('viewerId');
+  const user = await ProfileView.find(filter, options.projection, options)
+    .populate({
+      path: 'user',
+      populate: [{ path: 'address' }, { path: 'userProfessional' }],
+    })
+    .populate({
+      path: 'viewerId',
+      populate: [{ path: 'address' }, { path: 'userProfessional' }],
+    });
   return user;
 }
 
