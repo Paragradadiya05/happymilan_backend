@@ -92,7 +92,23 @@ const ProfileHideAndDelete = new mongoose.Schema(
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );
-
+const datingData = new mongoose.Schema(
+  {
+    Ethnicity: {
+      type: String,
+    },
+    educationLevel: {
+      type: String,
+    },
+    CurrentlyLiving: {
+      type: String,
+    },
+    Occupation: {
+      type: String,
+    },
+  },
+  { timestamps: { createdAt: true, updatedAt: true } }
+);
 // todo : updated in new flow.
 // const hobbiesSchema = new mongoose.Schema({
 //   category: {
@@ -220,6 +236,9 @@ const UserSchema = new mongoose.Schema(
     caste: {
       type: String,
     },
+    ShortBio: {
+      type: String,
+    },
     appUsesType: {
       type: String,
       enum: Object.values(enumModel.EnumAppUsesTypeOfUsers),
@@ -298,6 +317,9 @@ const UserSchema = new mongoose.Schema(
     profilePic: {
       type: String,
     },
+    shortBio: {
+      type: String,
+    },
     userUniqueId: {
       type: String,
     },
@@ -308,6 +330,7 @@ const UserSchema = new mongoose.Schema(
     userProfilePic: [UserImagesSchema],
     userProfileVideo: [UserVideoSchema],
     profileHideAndDelete: [ProfileHideAndDelete],
+    datingData: [datingData],
     platform: {
       type: String,
       enum: Object.values(enumModel.EnumOfPlatformType),
