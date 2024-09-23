@@ -22,9 +22,7 @@ export const createPartnerpre = {
       .required(),
     city: Joi.array().items(Joi.string()).required(),
     income: Joi.number().required(),
-    creative: Joi.array()
-      .items(Joi.string().valid(...Object.values(enumModel.EnumOfCreative)))
-      .required(),
+    creative: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfCreative))),
     fun: Joi.array().items(Joi.string()).required(),
     diet: Joi.array()
       .items(Joi.string().valid(...Object.values(enumModel.EnumOfDiet)))
