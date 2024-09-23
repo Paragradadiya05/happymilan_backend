@@ -23,6 +23,11 @@ const EnumTypeOfToken = {
 const EnumAppUsesTypeOfUsers = {
   MARRIAGE: 'marriage',
   DATING: 'dating',
+  CASUAL_DATING: 'casualDating',
+  LONG_TERM_RELATIONSHIP: 'long-Term-Relationship',
+  FRIENDSHIP: 'friendship',
+  OPEN_TO_EXPLORING: 'OpenToExploring',
+  JUST_CHATTING: 'just-chatting',
 };
 const EnumGenderOfUsers = {
   MALE: 'male',
