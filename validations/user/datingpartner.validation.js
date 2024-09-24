@@ -1,0 +1,56 @@
+import Joi from 'joi';
+import enumModel from '../../models/enum.model';
+
+Joi.objectId = require('joi-objectid')(Joi);
+// Professional
+export const createPartnerpre = {
+  body: Joi.object().keys({
+    userId: Joi.objectId(),
+    age: Joi.object({
+      min: Joi.number().required(),
+      max: Joi.number().required(),
+    }),
+    distanceRange: Joi.object({
+      min: Joi.number().required(),
+      max: Joi.number().required(),
+    }),
+    appUsesType: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumAppUsesTypeOfUsers))),
+  }),
+};
+
+export const updatePartnerpre = {
+  body: Joi.object().keys({
+    userId: Joi.objectId(),
+    age: Joi.object({
+      min: Joi.number().required(),
+      max: Joi.number().required(),
+    }),
+    distanceRange: Joi.object({
+      min: Joi.number().required(),
+      max: Joi.number().required(),
+    }),
+    appUsesType: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumAppUsesTypeOfUsers))),
+  }),
+};
+
+export const getPartnerpreById = {
+  params: Joi.object().keys({
+    userId: Joi.objectId().required(),
+  }),
+};
+
+export const deletePartnerpreById = {
+  params: Joi.object().keys({
+    PartnerId: Joi.objectId().required(),
+  }),
+};
+
+export const getPartnerpre = {
+  body: Joi.object().keys({}).unknown(true),
+};
+
+export const getById = {
+  params: Joi.object().keys({
+    PartnerId: Joi.objectId().required(),
+  }),
+};

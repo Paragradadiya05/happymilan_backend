@@ -27,6 +27,7 @@ import searchHistoryRoute from './v1/searchHistory/searchHistory.route';
 import spamUserRoute from './v1/spamUser/spamuser.route';
 import storyViewRoute from './v1/storyview/storyview.route';
 import KycRoute from './v1/kyc/kyc.route';
+import datingPartnerRoute from './v1/datingpartner/datinfpartner.route';
 
 const router = express.Router();
 router.use('/user', userRoutes);
@@ -57,6 +58,7 @@ router.use('/search-history', searchHistoryRoute);
 router.use('/spam', spamUserRoute);
 router.use('/story-view', storyViewRoute);
 router.use('/kyc', KycRoute);
+router.use('/dating-partner', datingPartnerRoute);
 
 // router.use('/userEducation', userEducationRoutes);
 // router.use('/commentOnStory', commentOnStoryRoutes);
