@@ -4,7 +4,7 @@ import { toJSON } from 'models/plugins';
 import enumModel from './enum.model';
 
 // todo : add unique in user partner in userid
-const UserPartnerSchema = new mongoose.Schema(
+const UserdatingPartnerSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -26,7 +26,8 @@ const UserPartnerSchema = new mongoose.Schema(
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );
-UserPartnerSchema.plugin(toJSON);
-UserPartnerSchema.plugin(mongoosePaginateV2);
-const UserPartnerModel = mongoose.models.UserPartner || mongoose.model('UserPartner', UserPartnerSchema, 'UserPartner');
-module.exports = UserPartnerModel;
+UserdatingPartnerSchema.plugin(toJSON);
+UserdatingPartnerSchema.plugin(mongoosePaginateV2);
+const UserDatingPartnerModel =
+  mongoose.models.UserDatingPartner || mongoose.model('UserDatingPartner', UserdatingPartnerSchema, 'UserDatingPartner');
+module.exports = UserDatingPartnerModel;
