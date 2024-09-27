@@ -23,11 +23,6 @@ const EnumTypeOfToken = {
 const EnumAppUsesTypeOfUsers = {
   MARRIAGE: 'marriage',
   DATING: 'dating',
-  CASUAL_DATING: 'casualDating',
-  LONG_TERM_RELATIONSHIP: 'long-Term-Relationship',
-  FRIENDSHIP: 'friendship',
-  OPEN_TO_EXPLORING: 'OpenToExploring',
-  JUST_CHATTING: 'just-chatting',
 };
 const EnumGenderOfUsers = {
   MALE: 'male',
@@ -244,6 +239,16 @@ const EnumOfKyc = {
   AADHAR_CARD: 'aadhar-card',
   ELECTION_CARD: 'election-card',
 };
+const EnumOfInterest = {
+  MEET_NEW_FRIENDS: 'meet-new-friends',
+  LOOKING_FOR_LOVE: 'looking-for-love',
+  MOVIE_DATE: 'movie-date',
+  FOODIES: 'foodies',
+  TRAVEL_BUDDIES: 'travel-buddies',
+  GAME_LOVER: 'game-lover',
+  CHITCHAT: 'chit-chat',
+  ADVENTUROUS: 'adventurous',
+};
 module.exports = {
   EnumCodeTypeOfCode,
   EnumRoleOfUser,
@@ -276,4 +281,5 @@ module.exports = {
   EnumOfReason,
   EnumOfPlatformType,
   EnumOfKyc,
+  EnumOfInterest,
 };
