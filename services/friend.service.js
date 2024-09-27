@@ -1,6 +1,6 @@
 import ApiError from 'utils/ApiError';
 import httpStatus from 'http-status';
-import { Friend, Notification, User } from 'models';
+import { Friend, Notification, Partner, User } from 'models';
 import { EnumOfNotification, EnumStatusOfFriend } from '../models/enum.model';
 import { sendNotification } from './notification.service';
 
@@ -227,6 +227,114 @@ export async function aggregateFriendWithPagination(query, options = {}) {
   return friend;
 }
 
+async function calculateMatchScore(friendId, userPartnerPreferences) {
+  const matchData = await User.aggregate([
+    {
+      $match: {
+        _id: friendId,
+      },
+    },
+    {
+      $lookup: {
+        from: 'addresses',
+        localField: 'address',
+        foreignField: '_id',
+        as: 'address',
+      },
+    },
+    {
+      $addFields: {
+        age: {
+          $cond: {
+            if: { $and: [{ $ne: ['$dateOfBirth', null] }, { $ne: ['$dateOfBirth', ''] }] },
+            then: {
+              $floor: {
+                $divide: [
+                  { $subtract: [new Date(), '$dateOfBirth'] },
+                  31556952000, // Average milliseconds in a year
+                ],
+              },
+            },
+            else: null,
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: 'UserProfessionalDetail',
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'userProfessional',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userProfessional',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $addFields: {
+        matchData: {
+          $let: {
+            vars: {
+              totalCriteria: 6,
+              matchedCriteria: {
+                $add: [
+                  {
+                    $cond: [
+                      {
+                        $and: [
+                          { $gte: ['$age', userPartnerPreferences.age.min] },
+                          { $lte: ['$age', userPartnerPreferences.age.max] },
+                        ],
+                      },
+                      1,
+                      0,
+                    ],
+                  },
+                  {
+                    $cond: [
+                      {
+                        $and: [
+                          { $gte: ['$height', userPartnerPreferences.height.min] },
+                          { $lte: ['$height', userPartnerPreferences.height.max] },
+                        ],
+                      },
+                      1,
+                      0,
+                    ],
+                  },
+                  { $cond: [{ $in: ['$address.currentCountry', userPartnerPreferences.country] }, 1, 0] },
+                  { $cond: [{ $in: ['$address.currentCity', userPartnerPreferences.city] }, 1, 0] },
+                  { $cond: [{ $eq: ['$userProfessional.currentSalary', userPartnerPreferences.income] }, 1, 0] },
+                  { $cond: [{ $in: ['$diet', userPartnerPreferences.diet] }, 1, 0] },
+                ],
+              },
+            },
+            in: {
+              matchPercentage: {
+                $multiply: [{ $divide: ['$$matchedCriteria', '$$totalCriteria'] }, 100],
+              },
+              matchedCriteria: '$$matchedCriteria',
+            },
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        matchPercentage: '$matchData.matchPercentage',
+        matchedCriteria: '$matchData.matchedCriteria',
+      },
+    },
+  ]);
+
+  // Safely return match percentage or 0 if no matchData found
+  return Array.isArray(matchData) && matchData.length > 0 ? matchData[0].matchPercentage : 0;
+}
+
 export async function respondFriendRequest(request, status, userId = {}) {
   const user = await User.findById(userId);
 
@@ -278,3 +386,41 @@ export async function respondFriendRequest(request, status, userId = {}) {
     });
   }
 }
+
+export async function getFriendv2(filter, options = {}, userId) {
+  const friends = await Friend.find(filter, options.projection, options)
+    .populate({
+      path: 'friend',
+      populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
+    })
+    .populate({
+      path: 'user',
+      populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
+    })
+    .exec();
+
+  // Get user partner preferences for match score
+  const userPartnerPreferences = await Partner.findOne({ userId });
+
+  if (!userPartnerPreferences) {
+    throw new Error('User Partner Preferences not found');
+  }
+
+  // Iterate over each friend to calculate the match score
+  const friendsWithMatchScore = await Promise.all(
+    friends.map(async (friend) => {
+      const friendId = friend.friend ? friend.friend._id : friend.user._id;
+
+      const matchScore = await calculateMatchScore(friendId, userPartnerPreferences);
+
+      return {
+        ...friend.toObject(),
+        matchScore,
+      };
+    })
+  );
+
+  return friendsWithMatchScore;
+}
+
+// Function to calculate match score for each friend

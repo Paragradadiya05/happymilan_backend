@@ -3,6 +3,7 @@ import { friendService } from 'services';
 import { catchAsync } from 'utils/catchAsync';
 import { EnumStatusOfFriend } from '../../models/enum.model';
 import { pick } from '../../utils/pick';
+import { Shortlist } from '../../models';
 
 export const getFriend = catchAsync(async (req, res) => {
   const { friendId } = req.params;
@@ -85,15 +86,26 @@ export const getRequests = catchAsync(async (req, res) => {
 
 export const getMyFrdRequests = catchAsync(async (req, res) => {
   const userId = req.user._id;
-  const filter = {
+
+  // Filter for friend list
+  const friendFilter = {
     status: EnumStatusOfFriend.ACCEPTED,
     $or: [{ friend: userId }, { user: userId }],
   };
   const options = {};
-  const user = await friendService.getFriendList(filter, options);
-  return res.status(httpStatus.OK).send({ results: user });
-});
 
+  // Fetch friend data
+  const friends = await friendService.getFriendv2(friendFilter, options, userId);
+
+  // Fetch shortlist data for the user
+  const shortlist = await Shortlist.find({ userId }).populate('shortlistId').exec();
+
+  // Combine the results
+  return res.status(httpStatus.OK).send({
+    friends,
+    shortlists: shortlist,
+  });
+});
 export const getMyFrdRequestsMobile = catchAsync(async (req, res) => {
   const { query } = req;
   const sortingObj = pick(query, ['sort', 'order']);
