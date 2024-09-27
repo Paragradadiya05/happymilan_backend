@@ -19,7 +19,7 @@ const UserdatingPartnerSchema = new mongoose.Schema(
       min: Number,
       max: Number,
     },
-    InterestedIn: {
+    interestedIn: {
       type: [String],
       enum: Object.values(enumModel.EnumAppUsesTypeOfUsers),
     },
