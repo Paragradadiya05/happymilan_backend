@@ -324,15 +324,24 @@ async function calculateMatchScore(friendId, userPartnerPreferences) {
       },
     },
     {
+      $lookup: {
+        from: 'shortlists',
+        localField: '_id', // Friend's userId
+        foreignField: 'shortlistId',
+        as: 'shortlistData',
+      },
+    },
+    {
       $project: {
         matchPercentage: '$matchData.matchPercentage',
         matchedCriteria: '$matchData.matchedCriteria',
+        shortlistData: 1, // Include the shortlist data in the result
       },
     },
   ]);
 
   // Safely return match percentage or 0 if no matchData found
-  return Array.isArray(matchData) && matchData.length > 0 ? matchData[0].matchPercentage : 0;
+  return Array.isArray(matchData) && matchData.length > 0 ? matchData[0] : { matchPercentage: 0, shortlistData: [] };
 }
 
 export async function respondFriendRequest(request, status, userId = {}) {
