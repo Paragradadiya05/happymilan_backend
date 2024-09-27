@@ -21,7 +21,7 @@ const UserdatingPartnerSchema = new mongoose.Schema(
     },
     interestedIn: {
       type: [String],
-      enum: Object.values(enumModel.EnumAppUsesTypeOfUsers),
+      enum: Object.values(enumModel.EnumOfInterest),
     },
   },
   { timestamps: { createdAt: true, updatedAt: true } }
