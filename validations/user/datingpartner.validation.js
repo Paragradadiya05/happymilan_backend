@@ -14,7 +14,7 @@ export const createPartnerpre = {
       min: Joi.number().required(),
       max: Joi.number().required(),
     }),
-    InterestedIn: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfInterest))),
+    interestedIn: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfInterest))),
   }),
 };
 
@@ -29,7 +29,7 @@ export const updatePartnerpre = {
       min: Joi.number().required(),
       max: Joi.number().required(),
     }),
-    InterestedIn: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfInterest))),
+    interestedIn: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfInterest))),
   }),
 };
 
