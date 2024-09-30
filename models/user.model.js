@@ -96,7 +96,7 @@ const datingData = new mongoose.Schema(
   {
     interestedIn: {
       type: String,
-      enum: Object.values(enumModel.EnumOfInterest),
+      enum: Object.values(enumModel.EnumAppUsesTypeOfDating),
     },
     Ethnicity: {
       type: String,
