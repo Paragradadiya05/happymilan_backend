@@ -94,6 +94,10 @@ const ProfileHideAndDelete = new mongoose.Schema(
 );
 const datingData = new mongoose.Schema(
   {
+    interestedIn: {
+      type: String,
+      enum: Object.values(enumModel.EnumOfInterest),
+    },
     Ethnicity: {
       type: String,
     },
