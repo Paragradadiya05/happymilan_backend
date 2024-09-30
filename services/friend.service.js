@@ -334,8 +334,7 @@ async function calculateMatchScore(friendId, userPartnerPreferences) {
     {
       $project: {
         matchPercentage: '$matchData.matchPercentage',
-        matchedCriteria: '$matchData.matchedCriteria',
-        shortlistData: 1, // Include the shortlist data in the result
+        matchedCriteria: '$matchData.matchedCriteria', // Include the shortlist data in the result
       },
     },
   ]);
