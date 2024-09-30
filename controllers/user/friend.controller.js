@@ -98,7 +98,7 @@ export const getMyFrdRequests = catchAsync(async (req, res) => {
   const friends = await friendService.getFriendv2(friendFilter, options, userId);
 
   // Fetch shortlist data for the user
-  const shortlist = await Shortlist.find({ userId }).populate('shortlistId').exec();
+  const shortlist = await Shortlist.find({ userId });
 
   // Combine the results
   return res.status(httpStatus.OK).send({
