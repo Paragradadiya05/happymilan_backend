@@ -1,6 +1,6 @@
 import ApiError from 'utils/ApiError';
 import httpStatus from 'http-status';
-import { Friend, Notification, Partner, User } from 'models';
+import { Friend, Notification, Partner, Shortlist, User } from 'models';
 import { EnumOfNotification, EnumStatusOfFriend } from '../models/enum.model';
 import { sendNotification } from './notification.service';
 
@@ -334,7 +334,8 @@ async function calculateMatchScore(friendId, userPartnerPreferences) {
     {
       $project: {
         matchPercentage: '$matchData.matchPercentage',
-        matchedCriteria: '$matchData.matchedCriteria', // Include the shortlist data in the result
+        matchedCriteria: '$matchData.matchedCriteria',
+        shortlistData: 1, // Include the shortlist data in the result
       },
     },
   ]);
@@ -414,16 +415,22 @@ export async function getFriendv2(filter, options = {}, userId) {
     throw new Error('User Partner Preferences not found');
   }
 
-  // Iterate over each friend to calculate the match score
+  // Fetch shortlist data for the user
+  const shortlists = await Shortlist.find({ userId }).select('shortlistId'); // Get only the shortlist IDs
+
+  // Iterate over each friend to calculate the match score and add shortlist data
   const friendsWithMatchScore = await Promise.all(
     friends.map(async (friend) => {
       const friendId = friend.friend ? friend.friend._id : friend.user._id;
 
       const matchScore = await calculateMatchScore(friendId, userPartnerPreferences);
 
+      const isShortlisted = shortlists.some((shortlist) => shortlist.shortlistId.equals(friendId));
+
       return {
         ...friend.toObject(),
         matchScore,
+        isShortlisted, // Indicate if the friend is shortlisted
       };
     })
   );

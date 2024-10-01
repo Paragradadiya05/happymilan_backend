@@ -80,8 +80,9 @@ export const getRequests = catchAsync(async (req, res) => {
     status: EnumStatusOfFriend.REQUESTED,
   };
   const options = {};
-  const user = await friendService.getFriendList(filter, options);
-  return res.status(httpStatus.OK).send({ results: user });
+  const user = await friendService.getFriendv2(filter, options, userId);
+  const shortlist = await Shortlist.find({ userId });
+  return res.status(httpStatus.OK).send({ results: user, shortlists: shortlist });
 });
 
 export const getMyFrdRequests = catchAsync(async (req, res) => {
@@ -106,6 +107,7 @@ export const getMyFrdRequests = catchAsync(async (req, res) => {
     shortlists: shortlist,
   });
 });
+
 export const getMyFrdRequestsMobile = catchAsync(async (req, res) => {
   const { query } = req;
   const sortingObj = pick(query, ['sort', 'order']);
