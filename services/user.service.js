@@ -414,6 +414,7 @@ export async function getGenderListV2(filter, options = {}) {
         'userLikeDetails.isLike': 1,
         'userLikeDetails.user': 1,
         'userLikeDetails.likedUserId': 1,
+        'userLikeDetails._id': 1,
         'userShortListDetails.userId': 1,
         'userShortListDetails.shortlistId': 1,
       },
