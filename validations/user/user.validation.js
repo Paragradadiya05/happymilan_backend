@@ -126,3 +126,13 @@ export const getMatchUser = {
     userId: Joi.objectId().required(),
   }),
 };
+
+export const getUserByGenderDating = {
+  params: Joi.object().keys({}),
+  query: Joi.object()
+    .keys({
+      page: Joi.number().default(1),
+      limit: Joi.number().default(10).max(100),
+    })
+    .unknown(true),
+};

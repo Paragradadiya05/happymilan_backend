@@ -193,3 +193,20 @@ export const checkPlan = catchAsync(async (req, res) => {
   const user = await checkSubscriptionStatus(userId);
   return res.status(httpStatus.OK).send({ results: user });
 });
+
+export const getUserByGenderDating = catchAsync(async (req, res) => {
+  const { user } = req;
+  const { query } = req;
+  const sortingObj = pick(query, ['sort', 'order']);
+  const sortObj = {
+    [sortingObj.sort]: sortingObj.order,
+  };
+  const filter = { gender: user.gender, userId: user._id };
+  const options = {
+    sort: sortObj,
+    ...pick(query, ['limit', 'page']),
+  };
+
+  const userdata = await userService.getDatingPartnerList(filter, options);
+  return res.status(httpStatus.OK).send({ results: userdata });
+});

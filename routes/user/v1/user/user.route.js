@@ -44,6 +44,9 @@ router
 router.route('/getUserByGender').get(auth(), validate(userValidation.getUserByGender), userController.getUserByGender);
 
 router
+  .route('/getUserByGenderDating')
+  .get(auth(), validate(userValidation.getUserByGenderDating), userController.getUserByGenderDating);
+router
   .route('/:userId')
   /**
    * updateUser

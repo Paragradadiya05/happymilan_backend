@@ -1,12 +1,17 @@
 import ApiError from 'utils/ApiError';
 import httpStatus from 'http-status';
-import { Partner, User } from 'models';
+import { Partner, User, Datingpartner } from 'models';
 import _ from 'lodash';
 import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
 import moment from 'moment';
 import { notificationService } from './index';
-import enumModel, { EnumGenderOfUsers, EnumOfPlatformType, EnumStatusOfFriend } from '../models/enum.model';
+import enumModel, {
+  EnumAppUsesTypeOfUsers,
+  EnumGenderOfUsers,
+  EnumOfPlatformType,
+  EnumStatusOfFriend,
+} from '../models/enum.model';
 
 export async function getUserById(id, options = {}) {
   const user = await User.findById(id, options.projection, options)
@@ -417,6 +422,7 @@ export async function getGenderListV2(filter, options = {}) {
         'userLikeDetails._id': 1,
         'userShortListDetails.userId': 1,
         'userShortListDetails.shortlistId': 1,
+        'userShortListDetails._id': 1,
       },
     },
     { $sort: { matchPercentage: -1 } }, // Sort by match percentage in descending order
@@ -940,4 +946,342 @@ export async function getUserCounts(appUsesType) {
     totalMaleUsers,
     totalFemaleUsers,
   };
+}
+
+export async function getDatingPartnerList(filter, options = {}) {
+  const userGender = filter.gender;
+  const { limit = 10, page = 1 } = options;
+
+  let oppositeGender;
+  if (userGender === EnumGenderOfUsers.MALE) {
+    oppositeGender = EnumGenderOfUsers.FEMALE;
+  } else if (userGender === EnumGenderOfUsers.FEMALE) {
+    oppositeGender = EnumGenderOfUsers.MALE;
+  } else {
+    throw new Error('Invalid gender for logged-in user');
+  }
+
+  // Fetch the user's dating partner preferences
+  const userPartnerPreferences = await Datingpartner.findOne({ userId: filter.userId });
+
+  // Log the preferences for debugging
+  console.log('User Dating Partner Preferences:', JSON.stringify(userPartnerPreferences));
+
+  // If no preferences are found, throw an error
+  if (!userPartnerPreferences) {
+    throw new Error('User Dating Preferences not found. Please add preferences first');
+  }
+
+  // Handle potential issues with undefined age ranges
+  if (!userPartnerPreferences.age || !userPartnerPreferences.age.min || !userPartnerPreferences.age.max) {
+    throw new Error('Age preferences (min or max) are missing or invalid in userPartnerPreferences');
+  }
+
+  const skip = (page - 1) * limit;
+
+  const pipeline = [
+    {
+      $match: {
+        _id: { $ne: mongoose.Types.ObjectId(filter.userId) }, // Exclude the current user
+        appUsesType: EnumAppUsesTypeOfUsers.DATING,
+        platform: { $eq: EnumOfPlatformType.HAPPY_MILAN },
+        gender: oppositeGender,
+      },
+    },
+    {
+      $lookup: {
+        from: 'likes',
+        let: { currentUserIdForLike: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $eq: ['$user', filter.userId] }, { $eq: ['$likedUserId', '$$currentUserIdForLike'] }],
+              },
+            },
+          },
+        ],
+        as: 'userLikeDetails',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userLikeDetails',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
+        from: 'shortlists',
+        let: { currentUserIdForShortList: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $eq: ['$userId', filter.userId] }, { $eq: ['$shortlistId', '$$currentUserIdForShortList'] }],
+              },
+            },
+          },
+        ],
+        as: 'userShortListDetails',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userShortListDetails',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
+        from: 'Friend',
+        let: { currentUserId: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $eq: ['$user', filter.userId] }, { $eq: ['$friend', '$$currentUserId'] }],
+              },
+            },
+          },
+        ],
+        as: 'friendsDetails',
+      },
+    },
+    {
+      $unwind: {
+        path: '$friendsDetails',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $match: {
+        'friendsDetails.status': { $ne: EnumStatusOfFriend.BLOCKED },
+      },
+    },
+    {
+      $addFields: {
+        age: {
+          $cond: {
+            if: { $and: [{ $ne: ['$dateOfBirth', null] }, { $ne: ['$dateOfBirth', ''] }] },
+            then: {
+              $floor: {
+                $divide: [
+                  { $subtract: [new Date(), '$dateOfBirth'] },
+                  31556952000, // Average milliseconds in a year (365.25 days)
+                ],
+              },
+            },
+            else: null, // or any default value you'd like to use if dateOfBirth is missing
+          },
+        },
+        matchData: {
+          $let: {
+            vars: {
+              totalCriteria: 2, // Only two criteria: age and interestedIn
+              matchedCriteria: {
+                $add: [
+                  {
+                    $cond: [
+                      {
+                        $and: [
+                          { $gte: ['$age', userPartnerPreferences.age.min] }, // Use calculated age
+                          { $lte: ['$age', userPartnerPreferences.age.max] }, // Use calculated age
+                        ],
+                      },
+                      1, // Increment matched criteria by 1 if age matches
+                      0, // Otherwise, add 0
+                    ],
+                  },
+                  {
+                    // Extract interestedIn from the nested structure
+                    $let: {
+                      vars: {
+                        userInterests: {
+                          $ifNull: ['$datingData.interestedIn', []], // Assuming this is an array
+                        },
+                        preferencesInterests: userPartnerPreferences.interestedIn || [],
+                      },
+                      in: {
+                        // Log the interests being compared
+                        $cond: [
+                          {
+                            $gt: [
+                              {
+                                $size: {
+                                  $setIntersection: [
+                                    {
+                                      $reduce: {
+                                        input: { $ifNull: ['$datingData', []] },
+                                        initialValue: [],
+                                        in: {
+                                          $concatArrays: ['$$value', '$$this.interestedIn'],
+                                        },
+                                      },
+                                    },
+                                    '$$preferencesInterests',
+                                  ],
+                                },
+                              },
+                              0, // Ensure there's at least one common interest
+                            ],
+                          },
+                          1, // Increment matched criteria by 1 if interests overlap
+                          0, // Otherwise, add 0
+                        ],
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+            in: {
+              matchPercentage: {
+                $multiply: [{ $divide: ['$$matchedCriteria', '$$totalCriteria'] }, 100], // Calculate match percentage
+              },
+              matchedCriteria: '$$matchedCriteria', // Total matched criteria count
+              ageMatch: {
+                $cond: [
+                  {
+                    $and: [
+                      { $gte: ['$age', userPartnerPreferences.age.min] },
+                      { $lte: ['$age', userPartnerPreferences.age.max] },
+                    ],
+                  },
+                  true, // Age matches
+                  false, // Age doesn't match
+                ],
+              },
+              interestedInMatch: {
+                // The updated condition for matching interests
+                $cond: [
+                  {
+                    $gt: [
+                      {
+                        $size: {
+                          $setIntersection: [
+                            {
+                              $reduce: {
+                                input: { $ifNull: ['$datingData', []] },
+                                initialValue: [],
+                                in: {
+                                  $concatArrays: ['$$value', '$$this.interestedIn'],
+                                },
+                              },
+                            },
+                            userPartnerPreferences.interestedIn || [],
+                          ],
+                        },
+                      },
+                      0, // Ensure there's at least one common interest
+                    ],
+                  },
+                  true, // InterestedIn matches
+                  false, // InterestedIn doesn't match
+                ],
+              },
+            },
+          },
+        },
+      },
+    },
+
+    {
+      $lookup: {
+        from: 'Address',
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'address',
+      },
+    },
+    {
+      $unwind: {
+        path: '$address',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
+        from: 'UserProfessionalDetail',
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'userProfessional',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userProfessional',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        age: 1,
+        height: 1,
+        name: 1,
+        email: 1,
+        mobileNumber: 1,
+        appUsesType: 1,
+        profilePic: 1,
+        gender: 1, // Assuming gender is required
+        religion: 1,
+        motherTongue: 1,
+        maritalStatus: 1,
+        education: 1,
+        occupation: 1,
+        annualIncome: 1,
+        country: 1,
+        state: 1,
+        city: 1,
+        bio: 1,
+        hobbies: 1,
+        'datingData.interestedIn': 1, // Field for dating preferences from partner model
+        distance: 1, // Assuming this field represents calculated distance
+        'userLikeDetails.isLike': 1,
+        'userLikeDetails.user': 1,
+        'userLikeDetails.likedUserId': 1,
+        'userShortListDetails._id': 1,
+        'userShortListDetails.shortlistId': 1,
+        'friendsDetails.status': 1,
+        'friendsDetails._id': 1,
+        'address.currentCountry': 1,
+        'address.currentCity': 1,
+        'userProfessional.profession': 1,
+        'userProfessional.company': 1,
+        isUserActive: 1,
+      },
+    },
+    { $sort: { matchPercentage: -1 } },
+    {
+      $facet: {
+        paginatedResults: [{ $skip: skip }, { $limit: limit }],
+        totalCount: [{ $count: 'count' }],
+      },
+    },
+    {
+      $unwind: {
+        path: '$totalCount',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $addFields: {
+        totalDocs: { $ifNull: ['$totalCount.count', 0] },
+        totalPages: {
+          $ceil: {
+            $divide: ['$totalCount.count', limit],
+          },
+        },
+        currentPage: page,
+      },
+    },
+  ];
+
+  const matchedUsers = await User.aggregate(pipeline).exec();
+
+  // Log matched users for debugging
+  console.log('Matched Users:', JSON.stringify(matchedUsers));
+
+  return matchedUsers;
 }
