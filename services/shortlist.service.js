@@ -3,7 +3,7 @@ import { Shortlist, User } from '../models';
 import ApiError from '../utils/ApiError';
 
 export async function createshortList(body = {}) {
-  const { userId } = body;
+  const { userId, shortlistId } = body;
 
   console.log('=== var body.user ===>', typeof userId);
 
@@ -12,6 +12,10 @@ export async function createshortList(body = {}) {
   }
   if (userId.toString() === body.shortlistId.toString()) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'not add self in shortliat');
+  }
+  const existingShortlist = await Shortlist.findOne({ userId, shortlistId });
+  if (existingShortlist) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User is already in the shortlist');
   }
   // todo : add condition for redundant data
   return Shortlist.create({
