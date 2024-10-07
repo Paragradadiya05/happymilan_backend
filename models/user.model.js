@@ -110,6 +110,9 @@ const datingData = new mongoose.Schema(
     Occupation: {
       type: String,
     },
+    annualIncome: {
+      type: String,
+    },
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );

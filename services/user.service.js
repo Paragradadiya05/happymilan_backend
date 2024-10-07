@@ -1078,7 +1078,7 @@ export async function getDatingPartnerList(filter, options = {}) {
         matchData: {
           $let: {
             vars: {
-              totalCriteria: 2, // Only two criteria: age and interestedIn
+              totalCriteria: 3, // Now three criteria: age, interestedIn, and preferredLocation
               matchedCriteria: {
                 $add: [
                   {
@@ -1094,16 +1094,14 @@ export async function getDatingPartnerList(filter, options = {}) {
                     ],
                   },
                   {
-                    // Extract interestedIn from the nested structure
                     $let: {
                       vars: {
                         userInterests: {
-                          $ifNull: ['$datingData.interestedIn', []], // Assuming this is an array
+                          $ifNull: ['$datingData.interestedIn', []],
                         },
                         preferencesInterests: userPartnerPreferences.interestedIn || [],
                       },
                       in: {
-                        // Log the interests being compared
                         $cond: [
                           {
                             $gt: [
@@ -1123,14 +1121,24 @@ export async function getDatingPartnerList(filter, options = {}) {
                                   ],
                                 },
                               },
-                              0, // Ensure there's at least one common interest
+                              0,
                             ],
                           },
                           1, // Increment matched criteria by 1 if interests overlap
-                          0, // Otherwise, add 0
+                          0,
                         ],
                       },
                     },
+                  },
+                  {
+                    // Check for location match
+                    $cond: [
+                      {
+                        $in: ['$datingData.CurrentlyLiving', userPartnerPreferences.preferredLocation],
+                      },
+                      1, // Increment matched criteria by 1 if location matches
+                      0,
+                    ],
                   },
                 ],
               },
@@ -1139,7 +1147,7 @@ export async function getDatingPartnerList(filter, options = {}) {
               matchPercentage: {
                 $multiply: [{ $divide: ['$$matchedCriteria', '$$totalCriteria'] }, 100], // Calculate match percentage
               },
-              matchedCriteria: '$$matchedCriteria', // Total matched criteria count
+              matchedCriteria: '$$matchedCriteria',
               ageMatch: {
                 $cond: [
                   {
@@ -1153,7 +1161,6 @@ export async function getDatingPartnerList(filter, options = {}) {
                 ],
               },
               interestedInMatch: {
-                // The updated condition for matching interests
                 $cond: [
                   {
                     $gt: [
@@ -1173,11 +1180,20 @@ export async function getDatingPartnerList(filter, options = {}) {
                           ],
                         },
                       },
-                      0, // Ensure there's at least one common interest
+                      0,
                     ],
                   },
                   true, // InterestedIn matches
                   false, // InterestedIn doesn't match
+                ],
+              },
+              locationMatch: {
+                $cond: [
+                  {
+                    $in: ['$datingData.CurrentlyLiving', userPartnerPreferences.preferredLocation],
+                  },
+                  true, // Location matches
+                  false, // Location doesn't match
                 ],
               },
             },
@@ -1185,7 +1201,6 @@ export async function getDatingPartnerList(filter, options = {}) {
         },
       },
     },
-
     {
       $lookup: {
         from: 'Address',
@@ -1238,7 +1253,7 @@ export async function getDatingPartnerList(filter, options = {}) {
         hobbies: 1,
         'datingData.interestedIn': 1, // Field for dating preferences from partner model
         'datingData.Occupation': 1, // Field for dating preferences from partner model
-        'datingData.CurrentlyLiving': 1, // Field for dating preferences from partner model// Field for dating preferences from partner model
+        'datingData.CurrentlyLiving': 1, // Field for dating preferences from partner model
         distance: 1, // Assuming this field represents calculated distance
         'userLikeDetails.isLike': 1,
         'userLikeDetails.user': 1,
