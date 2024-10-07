@@ -10,10 +10,7 @@ export const createPartnerpre = {
       min: Joi.number().required(),
       max: Joi.number().required(),
     }),
-    distanceRange: Joi.object({
-      min: Joi.number().required(),
-      max: Joi.number().required(),
-    }),
+    preferredLocation: Joi.array().items(Joi.string()),
     interestedIn: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfInterest))),
   }),
 };
@@ -25,10 +22,7 @@ export const updatePartnerpre = {
       min: Joi.number().required(),
       max: Joi.number().required(),
     }),
-    distanceRange: Joi.object({
-      min: Joi.number().required(),
-      max: Joi.number().required(),
-    }),
+    preferredLocation: Joi.array().items(Joi.string()),
     interestedIn: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfInterest))),
   }),
 };

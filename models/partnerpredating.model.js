@@ -15,10 +15,7 @@ const UserdatingPartnerSchema = new mongoose.Schema(
       min: Number,
       max: Number,
     },
-    distanceRange: {
-      min: Number,
-      max: Number,
-    },
+    preferredLocation: [String],
     interestedIn: {
       type: [String],
       enum: Object.values(enumModel.EnumOfInterest),
