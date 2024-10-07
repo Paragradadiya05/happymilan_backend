@@ -1246,6 +1246,7 @@ export async function getDatingPartnerList(filter, options = {}) {
         education: 1,
         occupation: 1,
         annualIncome: 1,
+        userProfilePic: 1,
         country: 1,
         state: 1,
         city: 1,
