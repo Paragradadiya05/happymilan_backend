@@ -136,3 +136,16 @@ export const getUserByGenderDating = {
     })
     .unknown(true),
 };
+
+export const getUserByGenderAndAgeAndMatchDating = {
+  body: Joi.object().keys({
+    minAge: Joi.number().required(),
+    maxAge: Joi.number().required(),
+  }),
+  query: Joi.object()
+    .keys({
+      page: Joi.number().default(1),
+      limit: Joi.number().default(10).max(100),
+    })
+    .unknown(true),
+};

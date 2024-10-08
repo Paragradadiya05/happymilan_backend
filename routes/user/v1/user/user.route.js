@@ -46,6 +46,15 @@ router.route('/getUserByGender').get(auth(), validate(userValidation.getUserByGe
 router
   .route('/getUserByGenderDating')
   .get(auth(), validate(userValidation.getUserByGenderDating), userController.getUserByGenderDating);
+
+router
+  .route('/getUserByGenderDatingAge')
+  .post(
+    auth(),
+    validate(userValidation.getUserByGenderAndAgeAndMatchDating),
+    userController.getUserByGenderAndAgeAndMatchDating
+  );
+
 router
   .route('/:userId')
   /**
