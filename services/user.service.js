@@ -1297,10 +1297,6 @@ export async function getDatingPartnerList(filter, options = {}) {
   ];
 
   const matchedUsers = await User.aggregate(pipeline).exec();
-
-  // Log matched users for debugging
-  console.log('Matched Users:', JSON.stringify(matchedUsers));
-
   return matchedUsers;
 }
 
@@ -1642,9 +1638,5 @@ export async function getDatingPartnerListByAgeAndMatch(filter, ageRange, option
   ];
 
   const matchedUsers = await User.aggregate(pipeline).exec();
-
-  // Log matched users for debugging
-  console.log('Matched Users:', JSON.stringify(matchedUsers));
-
   return matchedUsers;
 }
