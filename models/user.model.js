@@ -279,6 +279,10 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    userPartnerPreCompleted: {
+      type: Boolean,
+      default: false,
+    },
     community: {
       type: String,
       enum: Object.values(enumModel.EnumOfCommunity),
