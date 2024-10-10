@@ -41,10 +41,13 @@ export async function getFriendListWithPagination(filter, options = {}) {
   return friend;
 }
 
-export async function createFriend(body = {}, user) {
+export async function createFriend(body = {}, user, appUsesType) {
   const userId = body.user.toString();
   const friend = body.friend.toString();
-
+  const getUser = await User.findOne({ _id: friend, appUsesType });
+  if (!getUser) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'friend is not exists');
+  }
   // eslint-disable-next-line no-param-reassign
   body.status = EnumStatusOfFriend.REQUESTED;
   if (userId === friend) {
@@ -344,8 +347,8 @@ async function calculateMatchScore(friendId, userPartnerPreferences) {
   return Array.isArray(matchData) && matchData.length > 0 ? matchData[0] : { matchPercentage: 0, shortlistData: [] };
 }
 
-export async function respondFriendRequest(request, status, userId = {}) {
-  const user = await User.findById(userId);
+export async function respondFriendRequest(request, status, userId = {}, appUsesType) {
+  const user = await User.findById(userId, appUsesType);
 
   // Check if user is found
   if (!user) {

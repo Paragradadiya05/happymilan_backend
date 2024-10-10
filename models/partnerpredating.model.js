@@ -3,8 +3,7 @@ import mongoosePaginateV2 from 'mongoose-paginate-v2';
 import { toJSON } from 'models/plugins';
 import enumModel from './enum.model';
 
-// todo : add unique in user partner in userid
-const UserdatingPartnerSchema = new mongoose.Schema(
+const UserDatingPartnerSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -23,8 +22,8 @@ const UserdatingPartnerSchema = new mongoose.Schema(
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );
-UserdatingPartnerSchema.plugin(toJSON);
-UserdatingPartnerSchema.plugin(mongoosePaginateV2);
+UserDatingPartnerSchema.plugin(toJSON);
+UserDatingPartnerSchema.plugin(mongoosePaginateV2);
 const UserDatingPartnerModel =
-  mongoose.models.UserDatingPartner || mongoose.model('UserDatingPartner', UserdatingPartnerSchema, 'UserDatingPartner');
+  mongoose.models.UserDatingPartner || mongoose.model('UserDatingPartner', UserDatingPartnerSchema, 'UserDatingPartner');
 module.exports = UserDatingPartnerModel;

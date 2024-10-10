@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import enumFields from 'models/enum.model';
+import enumFields, { EnumAppUsesTypeOfUsers } from 'models/enum.model';
 import config from '../../config/config';
 
 export const register = {
@@ -17,6 +17,14 @@ export const login = {
     email: Joi.string().required().email(),
     password: Joi.string().required(),
     deviceToken: Joi.string().allow(''),
+  }),
+};
+
+export const me = {
+  query: Joi.object().keys({
+    appUsesType: Joi.string()
+      .valid(...Object.values(EnumAppUsesTypeOfUsers))
+      .optional(),
   }),
 };
 

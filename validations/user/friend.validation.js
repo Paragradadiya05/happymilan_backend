@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import enumFields from 'models/enum.model';
+import enumFields, { EnumAppUsesTypeOfUsers } from 'models/enum.model';
 
 Joi.objectId = require('joi-objectid')(Joi);
 
@@ -9,6 +9,11 @@ export const createFriend = {
     user: Joi.objectId().required(),
     status: Joi.string().valid(...Object.values(enumFields.EnumStatusOfFriend)),
   }),
+  query: Joi.object().keys({
+    appUsesType: Joi.string()
+      .valid(...Object.values(EnumAppUsesTypeOfUsers))
+      .optional(),
+  }),
 };
 
 export const updateFriend = {
@@ -16,17 +21,32 @@ export const updateFriend = {
   params: Joi.object().keys({
     friendId: Joi.objectId().required(),
   }),
+  query: Joi.object().keys({
+    appUsesType: Joi.string()
+      .valid(...Object.values(EnumAppUsesTypeOfUsers))
+      .optional(),
+  }),
 };
 
 export const getFriendById = {
   params: Joi.object().keys({
     friendId: Joi.objectId().required(),
   }),
+  query: Joi.object().keys({
+    appUsesType: Joi.string()
+      .valid(...Object.values(EnumAppUsesTypeOfUsers))
+      .optional(),
+  }),
 };
 
 export const deleteFriendById = {
   params: Joi.object().keys({
     friendId: Joi.objectId().required(),
+  }),
+  query: Joi.object().keys({
+    appUsesType: Joi.string()
+      .valid(...Object.values(EnumAppUsesTypeOfUsers))
+      .optional(),
   }),
 };
 
@@ -50,6 +70,11 @@ export const respondFriendRequest = {
     request: Joi.objectId().required(),
     status: Joi.string().valid(...Object.values(enumFields.EnumStatusOfFriend)),
   }),
+  query: Joi.object().keys({
+    appUsesType: Joi.string()
+      .valid(...Object.values(EnumAppUsesTypeOfUsers))
+      .optional(),
+  }),
 };
 
 export const getMyFrdRequestsMobile = {
@@ -59,4 +84,12 @@ export const getMyFrdRequestsMobile = {
       limit: Joi.number().default(10).max(100),
     })
     .unknown(true),
+};
+
+export const appUsesTypeValidation = {
+  query: Joi.object().keys({
+    appUsesType: Joi.string()
+      .valid(...Object.values(EnumAppUsesTypeOfUsers))
+      .optional(),
+  }),
 };

@@ -1,6 +1,7 @@
 import express from 'express';
 import passport from 'passport';
 import auth from 'middlewares/auth';
+import appUserType from 'middlewares/appUserType';
 import validate from 'middlewares/validate';
 import { authValidation } from 'validations/user';
 import { authController } from 'controllers/user';
@@ -43,12 +44,12 @@ router.post('/login', validate(authValidation.login), authController.login);
 /**
  * get the Current LoggedIn UserInfo
  */
-router.get('/me', auth(), authController.userInfo);
+router.get('/me', auth(), appUserType(), validate(authValidation.me), authController.userInfo);
 /**
  * update the Current UserInfo
- * // todo: need to add validation here for update user
+ * // todo: need to add validation here for update user ALSO  update user based in its uses type like merrage or dating.
  */
-router.put('/update-user', auth(), authController.updateUserInfo);
+router.put('/update-user', auth(), appUserType(), authController.updateUserInfo);
 /**
  * OTP-based verification
  * When User Forgot to Password call this API and he gets the OTP in his Email to reset Password

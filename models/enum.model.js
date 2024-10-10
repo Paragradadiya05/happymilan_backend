@@ -23,6 +23,8 @@ const EnumTypeOfToken = {
 const EnumAppUsesTypeOfUsers = {
   MARRIAGE: 'marriage',
   DATING: 'dating',
+  SOCIAL: 'social',
+  ALL: 'all',
 };
 const EnumGenderOfUsers = {
   MALE: 'male',
@@ -149,6 +151,7 @@ const EnumOfState = {
   IDAHO: 'idaho',
   ILLINOIS: 'illinois',
 };
+
 const EnumOfCountry = {
   INDIA: 'india',
   CANADA: 'canada',

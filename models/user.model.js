@@ -317,6 +317,10 @@ const UserSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'UserPartner',
     },
+    userPartnerPrefForDating: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'UserDatingPartner',
+    },
     userEducation: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'UserEducation',

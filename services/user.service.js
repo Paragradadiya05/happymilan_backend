@@ -19,6 +19,7 @@ export async function getUserById(id, options = {}) {
     .populate('userPartner')
     .populate('userEducation')
     .populate('userProfessional')
+    .populate('userPartnerPrefForDating')
     .exec();
   return user;
 }
@@ -29,6 +30,7 @@ export async function getOne(query, options = {}) {
     .populate('userPartner')
     .populate('userEducation')
     .populate('userProfessional')
+    .populate('userPartnerPrefForDating')
     .exec();
   return user;
 }
@@ -39,7 +41,8 @@ export async function getUserList(filter, options = {}) {
     .populate('address')
     .populate('userEducation')
     .populate('userPartner')
-    .populate('userProfessional');
+    .populate('userProfessional')
+    .populate('userPartnerPrefForDating');
   return user;
 }
 
@@ -158,7 +161,8 @@ export async function getGenderList(filter, options = {}) {
     .populate('address')
     .populate('userEducation')
     .populate('userPartner')
-    .populate('userProfessional');
+    .populate('userProfessional')
+    .populate('userPartnerPrefForDating');
   return user;
 }
 
