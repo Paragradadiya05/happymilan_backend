@@ -15,7 +15,7 @@ export async function createNotification(appUsesType, body = {}) {
 
 export async function getNotification(filter, options = {}) {
   const notification = await Notification.find(filter, options.projection, options).populate({
-    path: 'userId',
+    path: 'otherUserId',
     select: 'name profilePic',
   });
   return notification;
