@@ -93,3 +93,12 @@ export const appUsesTypeValidation = {
       .optional(),
   }),
 };
+export const getRequestedFriendv2 = {
+  query: Joi.object().keys({
+    appUsesType: Joi.string()
+      .valid(...Object.values(EnumAppUsesTypeOfUsers))
+      .optional(),
+    page: Joi.number().default(1),
+    limit: Joi.number().default(10).max(100),
+  }),
+};
