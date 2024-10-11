@@ -141,7 +141,6 @@ export const getMyFrdRequestsMobile = catchAsync(async (req, res) => {
 
   // console.log('=== var user ===>', user );
   getuser.results = getuser.results.map((frdData) => {
-    console.log('=== var frdData ===>', frdData);
     let friendList;
     let userList;
     if (frdData.friend._id.toString() === userId.toString()) {

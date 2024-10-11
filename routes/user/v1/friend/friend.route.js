@@ -3,7 +3,7 @@ import { friendController } from 'controllers/user';
 import { friendValidation } from 'validations/user';
 import validate from 'middlewares/validate';
 import auth from 'middlewares/auth';
-import appUserType from '../../../../middlewares/appUserType';
+import appUserType from 'middlewares/appUserType';
 
 const router = express.Router();
 router
@@ -85,7 +85,7 @@ router.get(
   '/get-request-sentv2',
   auth(),
   appUserType(),
-  validate(friendValidation.appUsesTypeValidation),
+  validate(friendValidation.getRequestedFriendv2),
   friendController.getRequestedFriendv2
 );
 
