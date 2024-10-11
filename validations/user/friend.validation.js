@@ -102,5 +102,5 @@ export const getRequestedFriendv2 = {
         .valid(...Object.values(EnumAppUsesTypeOfUsers))
         .optional(),
     })
-    .unknown(true),
+    .unknown(true), // Allow any unknown query parameters
 };
