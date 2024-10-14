@@ -41,10 +41,14 @@ export async function getFriendListWithPagination(filter, options = {}) {
   return friend;
 }
 
-export async function createFriend(body = {}, user) {
+export async function createFriend(body = {}, user, appUsesType) {
   const userId = body.user.toString();
   const friend = body.friend.toString();
 
+  const getUser = await User.findOne({ _id: friend, appUsesType });
+  if (!getUser) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'friend is not exists');
+  }
   // eslint-disable-next-line no-param-reassign
   body.status = EnumStatusOfFriend.REQUESTED;
   if (userId === friend) {
