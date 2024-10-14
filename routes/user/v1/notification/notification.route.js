@@ -3,6 +3,7 @@ import validate from 'middlewares/validate';
 import { notificationValidation } from 'validations/user';
 import { notificationController } from 'controllers/user';
 import auth from 'middlewares/auth';
+import appUserType from 'middlewares/appUserType';
 
 const router = express.Router();
 router
@@ -10,7 +11,12 @@ router
   /**
    * createNotification
    * */
-  .post(auth(), validate(notificationValidation.createNotification), notificationController.createNotification);
+  .post(
+    auth(),
+    appUserType(),
+    validate(notificationValidation.createNotification),
+    notificationController.createNotification
+  );
 
 /**
  * getNotificationById
@@ -18,6 +24,7 @@ router
 router.get(
   '/get-notification-byid/:userId',
   auth(),
+  appUserType(),
   validate(notificationValidation.getNotificationById),
   notificationController.getNotificationById
 );
@@ -27,12 +34,14 @@ router.get(
 router.get(
   '/get-notification',
   auth(),
+  appUserType(),
   validate(notificationValidation.getNotification),
   notificationController.getNotification
 );
 router.put(
   '/update-notification/:notificationId',
   auth(),
+  appUserType(),
   validate(notificationValidation.updateNotification),
   notificationController.update
 );
@@ -42,6 +51,7 @@ router.put(
 router.delete(
   '/delete-notificationbyId/:notificationId',
   auth(),
+  appUserType(),
   validate(notificationValidation.deleteNotification),
   notificationController.remove
 );
@@ -51,6 +61,7 @@ router.delete(
 router.get(
   '/get-notification/:notificationId',
   auth(),
+  appUserType(),
   validate(notificationValidation.getNotificationId),
   notificationController.getById
 );

@@ -24,7 +24,7 @@ export async function getOne(query, options = {}) {
   const notification = await Notification.findOne(query, options.projection, options);
   return notification;
 }
-export async function updatenotification(filter, body, options = {}) {
+export async function updatenotification(filter, body, appUsesType, options = {}) {
   const notification = await Notification.findOneAndUpdate(filter, body, options);
   return notification;
 }

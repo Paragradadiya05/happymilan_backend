@@ -3,13 +3,15 @@ import { catchAsync } from '../../utils/catchAsync';
 import { likeservice } from '../../services';
 
 export const createLike = catchAsync(async (req, res) => {
-  const like = await likeservice.createLike(req.body, req.user);
+  const { appUsesType } = req.query;
+  const like = await likeservice.createLike(req.body, req.user, appUsesType);
   return res.status(httpStatus.OK).send({ results: like });
 });
 
 export const getLike = catchAsync(async (req, res) => {
   // const viewer = req.body.viewerId;
   const userId = req.user._id;
+
   const filter = {
     user: userId,
   };
@@ -28,11 +30,12 @@ export const remove = catchAsync(async (req, res) => {
 export const updateLike = catchAsync(async (req, res) => {
   const { body } = req;
   const { likeId } = req.params;
+  const { appUsesType } = req.query;
   const filter = {
     _id: likeId,
   };
   const options = { new: true };
-  const like = await likeservice.updateLike(filter, body, options);
+  const like = await likeservice.updateLike(filter, body, options, appUsesType);
   return res.status(httpStatus.OK).send({ results: like });
 });
 export const likeData = catchAsync(async (req, res) => {

@@ -196,6 +196,7 @@ const EnumOfNotification = {
   REQUEST_SENT: 'Request-sent',
   REQUEST_RECEIVED: 'Request-received',
   REQUEST_ACCEPTED: 'request-accepted',
+  LIKE: 'like',
   SOMEONE_LIKED_YOUR_PROFILE: 'someone-liked-your-profile',
   OTP_SEND: 'otp has been sent to your registered email',
   RESET_PASS: 'link has been sent to your registered email',

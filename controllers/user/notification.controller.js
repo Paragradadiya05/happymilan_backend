@@ -4,7 +4,8 @@ import { notificationservice } from '../../services';
 
 export const createNotification = catchAsync(async (req, res) => {
   const options = {};
-  const notification = await notificationservice.createNotification(req.body, options);
+  const { appUsesType } = req.query;
+  const notification = await notificationservice.createNotification(req.body, options, appUsesType);
   return res.status(httpStatus.OK).send({ results: notification });
 });
 
@@ -28,11 +29,12 @@ export const getNotificationById = catchAsync(async (req, res) => {
 export const update = catchAsync(async (req, res) => {
   const { body } = req;
   const { notificationId } = req.params;
+  const { appUsesType } = req.query;
   const filter = {
     _id: notificationId,
   };
   const options = { new: true };
-  const notification = await notificationservice.updatenotification(filter, body, options);
+  const notification = await notificationservice.updatenotification(filter, body, options, appUsesType);
   return res.status(httpStatus.OK).send({ results: notification });
 });
 

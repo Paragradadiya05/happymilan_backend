@@ -381,7 +381,7 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
               data: {
                 _id: createNotificationForAccepted._id.toString(),
                 userId: createNotificationForAccepted.userId.toString(),
-                body: `${EnumOfNotification.REQUEST_ACCEPTED} of ${user.name}`,
+                body: `${EnumOfNotification.REQUEST_ACCEPTED} of ${frdUserData.name}`,
                 title: EnumOfNotification.REQUEST_ACCEPTED,
                 createdAt: createNotificationForAccepted.createdAt.toString(),
                 updatedAt: createNotificationForAccepted.updatedAt.toString(),
@@ -392,7 +392,6 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
         });
       }
     }
-
     return Friend.findByIdAndUpdate(request, {
       $set: { status, lastInitiatorUser: user },
       $push: { statusHistory: { status, initiatorUser: user } },
