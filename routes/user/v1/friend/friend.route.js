@@ -37,7 +37,7 @@ router.get(
   '/get-frd-mobile',
   auth(),
   appUserType(),
-  validate(friendValidation.appUsesTypeValidation),
+  validate(friendValidation.getMyFrdRequestsMobile),
   friendController.getMyFrdRequestsMobile
 );
 

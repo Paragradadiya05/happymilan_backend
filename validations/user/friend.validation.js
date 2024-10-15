@@ -82,6 +82,9 @@ export const getMyFrdRequestsMobile = {
     .keys({
       page: Joi.number().default(1),
       limit: Joi.number().default(10).max(100),
+      appUsesType: Joi.string()
+        .valid(...Object.values(EnumAppUsesTypeOfUsers))
+        .optional(),
     })
     .unknown(true),
 };
