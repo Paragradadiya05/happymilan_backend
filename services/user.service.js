@@ -193,6 +193,7 @@ export async function getGenderListV2(filter, options = {}) {
         _id: { $ne: mongoose.Types.ObjectId(filter.userId) }, // Exclude the current user
         platform: { $eq: EnumOfPlatformType.HAPPY_MILAN },
         gender: oppositeGender,
+        appUsesType: EnumAppUsesTypeOfUsers.MARRIAGE,
       },
     },
     {
