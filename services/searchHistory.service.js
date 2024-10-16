@@ -18,3 +18,8 @@ export async function remove(filter) {
   const searchtHistory = await SearchHistory.findOneAndRemove(filter);
   return searchtHistory;
 }
+
+export async function getWithPagination(filter, options = {}) {
+  const searchtHistory = await SearchHistory.paginate(filter, options);
+  return searchtHistory;
+}

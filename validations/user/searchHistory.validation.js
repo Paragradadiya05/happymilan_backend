@@ -52,4 +52,10 @@ export const getbyuserId = {
   params: Joi.object().keys({
     userId: Joi.objectId().required(),
   }),
+  query: Joi.object()
+    .keys({
+      page: Joi.number().default(1),
+      limit: Joi.number().default(10).max(100),
+    })
+    .unknown(true),
 };

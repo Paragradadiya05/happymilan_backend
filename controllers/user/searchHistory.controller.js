@@ -1,6 +1,7 @@
 import httpStatus from 'http-status';
 import { catchAsync } from '../../utils/catchAsync';
 import { searchHistoryService } from '../../services';
+import { pick } from '../../utils/pick';
 
 export const createSearchHistory = catchAsync(async (req, res) => {
   const { body } = req;
@@ -54,10 +55,15 @@ export const deletebySearchHistoryId = catchAsync(async (req, res) => {
 
 export const getbyuserId = catchAsync(async (req, res) => {
   const { userId } = req.params;
+  const { query } = req;
+  const sortingObj = pick(query, ['sort', 'order']);
+  const sortObj = {
+    [sortingObj.sort]: sortingObj.order,
+  };
   const filter = {
     userId,
   };
-  const options = {};
-  const SearchHistory = await searchHistoryService.getHistory(filter, options);
+  const options = { sort: sortObj, ...pick(query, ['limit', 'page']), lean: true };
+  const SearchHistory = await searchHistoryService.getWithPagination(filter, options);
   return res.status(httpStatus.OK).send({ results: SearchHistory });
 });
