@@ -369,6 +369,10 @@ const UserSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Users',
     },
+    countryCode: {
+      type: Number,
+      default: 91,
+    },
   },
 
   { timestamps: { createdAt: true, updatedAt: true } }
@@ -393,6 +397,11 @@ UserSchema.statics.isEmailTaken = async function (email, excludeUserId) {
   const User = await this.findOne({ email, _id: { $ne: excludeUserId } });
   return !!User;
 };
+UserSchema.statics.isMobileNumberTaken = async function (mobileNumber, excludeUserId) {
+  const user = await this.findOne({ mobileNumber, _id: { $ne: excludeUserId } });
+  return !!user;
+};
+
 UserSchema.pre('save', async function (next) {
   const User = this;
   if (User.isModified('password')) {

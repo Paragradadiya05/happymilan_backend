@@ -3,13 +3,18 @@ import enumFields, { EnumAppUsesTypeOfUsers } from 'models/enum.model';
 import config from '../../config/config';
 
 export const register = {
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string(),
-    name: Joi.string().required(),
-    mobileNumber: Joi.number(),
-    userUniqueId: Joi.string(),
-  }),
+  body: Joi.object()
+    .keys({
+      email: Joi.string().email().optional(), // Optional, but should be a valid email if provided
+      password: Joi.string(),
+      name: Joi.string().required(), // Name is required
+      mobileNumber: Joi.string()
+        .pattern(/^[0-9]{10,15}$/)
+        .optional(), // Optional, but should be valid if provided (between 10-15 digits)
+      userUniqueId: Joi.string().optional(), // Optional field
+      countryCodeId: Joi.objectId().required(),
+    })
+    .xor('email', 'mobileNumber'),
 };
 
 export const login = {

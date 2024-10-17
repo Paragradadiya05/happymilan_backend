@@ -43,6 +43,8 @@ const envVarsSchema = Joi.object()
     RAZORPAY_KEY_SECRET: Joi.string().required().description('razorpay secrete required'),
     FRONTEND_URL: Joi.string().required().description('frontend url'),
     PAYMENT_PATH: Joi.string().required().description('paymentPath '),
+    MSG91_AUTH_KEY: Joi.string().required().description('msg91 auth key '),
+    MSG91_TEMPLATE_ID: Joi.string().required().description('msg91 template id '),
   })
   .unknown();
 const { value: envVars, error } = envVarsSchema.prefs({ errors: { label: 'key' } }).validate(process.env);
@@ -129,6 +131,10 @@ export default {
   razorpay: {
     key_id: envVars.RAZORPAY_KEY_ID,
     key_secret: envVars.RAZORPAY_KEY_SECRET,
+  },
+  mobileOtp: {
+    msg91_auth: envVars.MSG91_AUTH_KEY,
+    msg91_template: envVars.MSG91_TEMPLATE_ID,
   },
   frontendUrl: envVars.FRONTEND_URL,
   paymentPath: envVars.PAYMENT_PATH,

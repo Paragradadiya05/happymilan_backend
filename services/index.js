@@ -39,3 +39,4 @@ module.exports.spamUserService = require('./spamuser.service');
 module.exports.storyViewService = require('./storyview.service');
 module.exports.KycService = require('./kyc.service');
 module.exports.DatingpartnerService = require('./datingpartner.service');
+module.exports.countryCodeService = require('./countryCode.service');

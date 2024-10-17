@@ -2,13 +2,14 @@ import httpStatus from 'http-status';
 import { generateOtp } from 'utils/common';
 import ApiError from 'utils/ApiError';
 import { catchAsync } from 'utils/catchAsync';
-import { authService, tokenService, userService, emailService, pravicyservice } from 'services';
+import { authService, tokenService, userService, emailService, pravicyservice, countryCodeService } from 'services';
 import {
   EnumTypeOfToken,
   EnumCodeTypeOfCode,
   EnumForTimeDurationOfProfileHide,
   EnumOfNotification,
 } from 'models/enum.model';
+import { sendOtpToMobile } from '../../services/mobileotp.service';
 import { Notification } from '../../models';
 import { sendNotification } from '../../services/notification.service';
 
@@ -21,11 +22,17 @@ function generateRandomId() {
   const uniqueId = dateString + randomChars;
   return uniqueId;
 }
-
 export const register = catchAsync(async (req, res) => {
   const { body } = req;
   const userUniqueId = generateRandomId();
-  const user = await userService.createUser({ ...body, userUniqueId });
+
+  const userCountryCode = await countryCodeService.getCountryCodeById(body.countryCodeId);
+  if (!userCountryCode && body.mobileNumber) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'please provide countryCode while using registration with Mobile number ');
+  }
+
+  const user = await userService.createUser({ ...body, userUniqueId, countryCode: userCountryCode.code });
+
   // const emailVerifyToken = await tokenService.generateVerifyEmailToken(user.email);
   // emailService.sendEmailVerificationEmail(user, emailVerifyToken).then().catch();
   const otp = generateOtp();
@@ -38,11 +45,11 @@ export const register = catchAsync(async (req, res) => {
   await user.save();
   // todo : add default question for user are here
 
-  // create privacy policy from here
-  const question = [
+  // Privacy policy questions setup
+  const questions = [
     {
       userId: user._id,
-      question: 'Who can see your mobile Number ?',
+      question: 'Who can see your mobile number?',
       options: [
         { option: 'Visible to all', isSelected: false },
         { option: 'Only visible to registered Members', isSelected: false },
@@ -50,7 +57,7 @@ export const register = catchAsync(async (req, res) => {
     },
     {
       userId: user._id,
-      question: 'Who can see your email address ?',
+      question: 'Who can see your email address?',
       options: [
         { option: 'Visible to all', isSelected: false },
         { option: 'Only visible to registered Members', isSelected: false },
@@ -58,14 +65,15 @@ export const register = catchAsync(async (req, res) => {
     },
     {
       userId: user._id,
-      question: 'profile privacy',
+      question: 'Profile privacy',
       options: [
-        { option: 'Visible to all,including unregistered visitors ', isSelected: false },
+        { option: 'Visible to all, including unregistered visitors', isSelected: false },
         { option: 'Only visible to registered Members', isSelected: false },
       ],
     },
   ];
-  question.forEach((que) => {
+
+  questions.forEach((que) => {
     que.options.forEach((opt) => {
       if (opt.isSelected) {
         console.log(`${que.question}: ${opt.option} true`);
@@ -74,20 +82,45 @@ export const register = catchAsync(async (req, res) => {
       }
     });
   });
-  await pravicyservice.createPrivacy(question);
-  await emailService.sendOtpVerificationEmail(user, otp).then().catch();
+
+  await pravicyservice.createPrivacy(questions);
+
+  // Send OTP based on mobile or email
+  if (user.mobileNumber) {
+    // Send OTP to mobile via MSG91 API
+    try {
+      await sendOtpToMobile(`${user.countryCode}${user.mobileNumber}`, otp); // Call your function to send OTP via MSG91
+      console.log('OTP sent to mobile via MSG91');
+    } catch (error) {
+      console.error('Error sending OTP to mobile:', error);
+      return res.status(httpStatus.INTERNAL_SERVER_ERROR).send({
+        message: 'Error sending OTP to mobile',
+      });
+    }
+  } else if (user.email) {
+    // Send OTP to email
+    try {
+      await emailService.sendOtpVerificationEmail(user, otp);
+      console.log('OTP sent to email');
+    } catch (error) {
+      console.error('Error sending OTP to email:', error);
+      return res.status(httpStatus.INTERNAL_SERVER_ERROR).send({
+        message: 'Error sending OTP to email',
+      });
+    }
+  }
+
+  // Create notification for OTP
   const createNotificationForOtp = await Notification.create({
     userId: user._id,
     body: EnumOfNotification.OTP_SEND,
   });
-  console.log('=====xx====>', createNotificationForOtp);
-  // send notification
-  // check if usr hase deice token or not
-  console.log('===== Otp deviceTokens ====>', user);
-  console.log('=== var Otp deviceTokens.length ===>', user.deviceTokens.length);
+
+  console.log('Notification created for OTP:', createNotificationForOtp);
+
+  // Send notification if device tokens are present
   if (user && user.deviceTokens && user.deviceTokens.length) {
     const deviceToken = user.deviceTokens.map((fcmToken) => fcmToken.deviceToken);
-    console.log('=== var Otp deviceToken name ===>', deviceToken);
     await sendNotification(
       deviceToken,
       {
@@ -102,10 +135,11 @@ export const register = catchAsync(async (req, res) => {
       {}
     );
   }
+
   res.status(httpStatus.OK).send({
     results: {
       success: true,
-      message: 'Email has been sent to your registered email. Please check your email and verify it',
+      message: 'OTP has been sent to your registered mobile or email. Please verify.',
     },
   });
 });

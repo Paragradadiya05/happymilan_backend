@@ -59,3 +59,5 @@ module.exports.planValidation = require('./plan.validation');
 module.exports.KycValidation = require('./kyc.validation');
 
 module.exports.datingPartnerValidation = require('./datingpartner.validation');
+
+module.exports.countryCodeValidation = require('./countryCode.validation');

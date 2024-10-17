@@ -28,3 +28,4 @@ module.exports.spamUserController = require('./spamuser.controller');
 module.exports.storyViewController = require('./storyview.controller');
 module.exports.KycController = require('./kyc.controller');
 module.exports.DatingPartnerController = require('./datingPartner.controller');
+module.exports.CountryCodeController = require('./countryCode.controller');

@@ -28,6 +28,7 @@ import spamUserRoute from './v1/spamUser/spamuser.route';
 import storyViewRoute from './v1/storyview/storyview.route';
 import KycRoute from './v1/kyc/kyc.route';
 import datingPartnerRoute from './v1/datingpartner/datinfpartner.route';
+import countryCodeRoute from './v1/countryCode/countryCode.route';
 
 const router = express.Router();
 router.use('/user', userRoutes);
@@ -59,6 +60,7 @@ router.use('/spam', spamUserRoute);
 router.use('/story-view', storyViewRoute);
 router.use('/kyc', KycRoute);
 router.use('/dating-partner', datingPartnerRoute);
+router.use('/country-code', countryCodeRoute);
 
 // router.use('/userEducation', userEducationRoutes);
 // router.use('/commentOnStory', commentOnStoryRoutes);

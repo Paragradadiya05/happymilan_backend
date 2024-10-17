@@ -34,3 +34,4 @@ module.exports.SpamUser = require('./spamuser.model');
 module.exports.StoryView = require('./storyview.model');
 module.exports.Kyc = require('./kyc.model');
 module.exports.Datingpartner = require('./partnerpredating.model');
+module.exports.CountryCode = require('./countryCode.model');
