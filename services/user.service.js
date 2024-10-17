@@ -379,6 +379,7 @@ export async function getGenderListV2(filter, options = {}) {
         'address.createdAt': 1,
         'address.updatedAt': 1,
         name: 1,
+        appUsesType: 1,
         email: 1,
         mobileNumber: 1,
         emailVerified: 1,
