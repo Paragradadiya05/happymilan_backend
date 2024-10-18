@@ -338,16 +338,13 @@ export const sendVerifyOtp = catchAsync(async (req, res) => {
   const { email, mobileNumber, countryCodeId } = req.body;
 
   // Fetch the user based on email or mobileNumber
+
+  const otp = generateOtp();
   const user = await userService.getOne({ $or: [{ email }, { mobileNumber }] });
   if (!user) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'No user found with this email or mobile number!');
   }
 
-  const otp = generateOtp();
-  const existingOtp = user.codes.find((code) => code.codeType === EnumCodeTypeOfCode.LOGIN && !code.used);
-  if (existingOtp && existingOtp.expirationDate < Date.now()) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'OTP expired');
-  }
   console.log('=====otp====>', otp);
   // Push the new OTP to the user codes
   user.codes.push({
