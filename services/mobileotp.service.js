@@ -1,4 +1,6 @@
 import config from 'config/config';
+import httpStatus from 'http-status';
+import ApiError from '../utils/ApiError';
 
 const axios = require('axios');
 
@@ -26,5 +28,25 @@ export const sendOtpToMobile = async (mobileNumber, otp) => {
   } catch (error) {
     console.error('Error sending OTP via MSG91:', error.response ? error.response.data : error.message);
     throw error;
+  }
+};
+
+export const resendOtpToMobile = async (mobileNumber) => {
+  const msg91AuthKey = config.mobileOtp.msg91_auth; // Your MSG91 auth key
+  const retryType = 'text'; // Type of retry, could also be 'voice'
+
+  const url = `https://control.msg91.com/api/v5/otp/retry?authkey=${msg91AuthKey}&retrytype=${retryType}&mobile=${mobileNumber}`;
+
+  try {
+    const response = await axios.get(url, {
+      headers: {
+        'Content-Type': 'application/JSON',
+      },
+    });
+    console.log('OTP resend successful via MSG91:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error resending OTP via MSG91:', error.response ? error.response.data : error.message);
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Error resending OTP to mobile');
   }
 };

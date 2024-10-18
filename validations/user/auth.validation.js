@@ -109,9 +109,13 @@ export const changePassword = {
 };
 
 export const sendVerifyEmail = {
-  body: Joi.object().keys({
-    email: Joi.string().email().required(),
-  }),
+  body: Joi.object()
+    .keys({
+      email: Joi.string().email().optional(),
+      mobileNumber: Joi.string().optional(),
+      countryCodeId: Joi.objectId().optional(),
+    })
+    .or('email', 'mobileNumber'), // At least one of email or mobileNumber is required
 };
 
 export const updateEmailAndMobile = {

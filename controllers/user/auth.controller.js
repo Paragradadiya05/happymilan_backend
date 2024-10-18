@@ -9,7 +9,7 @@ import {
   EnumForTimeDurationOfProfileHide,
   EnumOfNotification,
 } from 'models/enum.model';
-import { sendOtpToMobile } from '../../services/mobileotp.service';
+import { resendOtpToMobile, sendOtpToMobile } from '../../services/mobileotp.service';
 import { Notification } from '../../models';
 import { sendNotification } from '../../services/notification.service';
 
@@ -325,29 +325,67 @@ export const updateUserInfo = catchAsync(async (req, res) => {
 });
 
 export const sendVerifyOtp = catchAsync(async (req, res) => {
-  const { email } = req.body;
-  const otp = generateOtp();
-  const user = await userService.getOne({ email });
+  const { email, mobileNumber, countryCodeId } = req.body;
+
+  // Fetch the user based on email or mobileNumber
+  const user = await userService.getOne({ $or: [{ email }, { mobileNumber }] });
   if (!user) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'no user found with this id!');
+    throw new ApiError(httpStatus.BAD_REQUEST, 'No user found with this email or mobile number!');
   }
-  if (user.emailVerified) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'your email is already verified!');
-  }
+
+  const otp = generateOtp();
+
   user.codes.push({
     code: otp,
-    expirationDate: Date.now() + 10 * 60 * 1000,
+    expirationDate: Date.now() + 10 * 60 * 1000, // OTP valid for 10 minutes
     used: false,
     codeType: EnumCodeTypeOfCode.LOGIN,
   });
   await user.save();
-  await emailService.sendOtpVerificationEmail(user, otp).then().catch();
-  res.status(httpStatus.OK).send({
-    results: {
-      success: true,
-      message: 'Email has been sent to your registered email. Please check your email and verify it',
-    },
-  });
+  console.log('=====body====>', req.body);
+  // Check if the country code is required for mobile-based OTP
+  if (mobileNumber) {
+    const userCountryCode = await countryCodeService.getCountryCodeById(countryCodeId);
+    if (!userCountryCode && mobileNumber) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Please provide countryCode while using registration with Mobile number.');
+    }
+
+    // Send OTP to mobile using MSG91
+    try {
+      await resendOtpToMobile(`${userCountryCode.code}${user.mobileNumber}`); // Retry OTP for mobile
+      console.log('OTP resent to mobile via MSG91');
+      res.status(httpStatus.OK).send({
+        results: {
+          success: true,
+          message: 'OTP has been resent to your mobile number. Please verify.',
+        },
+      });
+    } catch (error) {
+      console.error('Error resending OTP to mobile:', error);
+      return res.status(httpStatus.INTERNAL_SERVER_ERROR).send({
+        message: 'Error resending OTP to mobile',
+      });
+    }
+  } else if (email) {
+    // Handle email-based OTP
+    try {
+      await emailService.sendOtpVerificationEmail(user, otp);
+      console.log('OTP sent to email');
+      res.status(httpStatus.OK).send({
+        results: {
+          success: true,
+          message: 'OTP has been resent to your registered email. Please verify.',
+        },
+      });
+    } catch (error) {
+      console.error('Error sending OTP to email:', error);
+      return res.status(httpStatus.INTERNAL_SERVER_ERROR).send({
+        message: 'Error sending OTP to email',
+      });
+    }
+  } else {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Either email or mobile number must be provided.');
+  }
 });
 
 export const refreshTokens = catchAsync(async (req, res) => {
