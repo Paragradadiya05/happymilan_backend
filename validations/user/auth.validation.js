@@ -12,7 +12,7 @@ export const register = {
         .pattern(/^[0-9]{10,15}$/)
         .optional(), // Optional, but should be valid if provided (between 10-15 digits)
       userUniqueId: Joi.string().optional(), // Optional field
-      countryCodeId: Joi.objectId().required(),
+      countryCodeId: Joi.objectId().optional(),
     })
     .xor('email', 'mobileNumber'),
 };
