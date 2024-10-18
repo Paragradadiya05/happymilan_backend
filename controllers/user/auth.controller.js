@@ -26,24 +26,34 @@ export const register = catchAsync(async (req, res) => {
   const { body } = req;
   const userUniqueId = generateRandomId();
 
-  const userCountryCode = await countryCodeService.getCountryCodeById(body.countryCodeId);
-  if (!userCountryCode && body.mobileNumber) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'please provide countryCode while using registration with Mobile number ');
+  let userCountryCode = null;
+
+  // Check for mobile number and fetch country code only if mobile number is present
+  if (body.mobileNumber) {
+    userCountryCode = await countryCodeService.getCountryCodeById(body.countryCodeId);
+    if (!userCountryCode) {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        'Please provide a valid countryCode while using registration with a mobile number.'
+      );
+    }
   }
 
-  const user = await userService.createUser({ ...body, userUniqueId, countryCode: userCountryCode.code });
+  // Create the user object, only add countryCode if the user registered with a mobile number
+  const user = await userService.createUser({
+    ...body,
+    userUniqueId,
+    ...(userCountryCode && { countryCode: userCountryCode.code }), // Only include countryCode if it's present
+  });
 
-  // const emailVerifyToken = await tokenService.generateVerifyEmailToken(user.email);
-  // emailService.sendEmailVerificationEmail(user, emailVerifyToken).then().catch();
   const otp = generateOtp();
   user.codes.push({
     code: otp,
-    expirationDate: Date.now() + 10 * 60 * 1000,
+    expirationDate: Date.now() + 10 * 60 * 1000, // OTP valid for 10 minutes
     used: false,
     codeType: EnumCodeTypeOfCode.LOGIN,
   });
   await user.save();
-  // todo : add default question for user are here
 
   // Privacy policy questions setup
   const questions = [
