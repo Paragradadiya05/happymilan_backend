@@ -334,7 +334,12 @@ export const sendVerifyOtp = catchAsync(async (req, res) => {
   }
 
   const otp = generateOtp();
-
+  const existingOtp = user.codes.find((code) => code.codeType === EnumCodeTypeOfCode.LOGIN && !code.used);
+  if (existingOtp && existingOtp.expirationDate < Date.now()) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'OTP expired');
+  }
+  console.log('=====otp====>', otp);
+  // Push the new OTP to the user codes
   user.codes.push({
     code: otp,
     expirationDate: Date.now() + 10 * 60 * 1000, // OTP valid for 10 minutes
@@ -343,6 +348,7 @@ export const sendVerifyOtp = catchAsync(async (req, res) => {
   });
   await user.save();
   console.log('=====body====>', req.body);
+
   // Check if the country code is required for mobile-based OTP
   if (mobileNumber) {
     const userCountryCode = await countryCodeService.getCountryCodeById(countryCodeId);
