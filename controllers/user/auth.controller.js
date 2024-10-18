@@ -83,16 +83,6 @@ export const register = catchAsync(async (req, res) => {
     },
   ];
 
-  questions.forEach((que) => {
-    que.options.forEach((opt) => {
-      if (opt.isSelected) {
-        console.log(`${que.question}: ${opt.option} true`);
-      } else {
-        console.log(`${que.question}: ${opt.option} false`);
-      }
-    });
-  });
-
   await pravicyservice.createPrivacy(questions);
 
   // Send OTP based on mobile or email
@@ -344,15 +334,11 @@ export const sendVerifyOtp = catchAsync(async (req, res) => {
   }
 
   const otp = generateOtp();
-
-  // Find the existing OTP
   const existingOtp = user.codes.find((code) => code.codeType === EnumCodeTypeOfCode.LOGIN && !code.used);
-
-  // If there is an existing OTP and it's not expired, throw an error
-  if (existingOtp && existingOtp.expirationDate > Date.now()) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'An OTP is already active. Please try again later.');
+  if (existingOtp && existingOtp.expirationDate < Date.now()) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'OTP expired');
   }
-
+  console.log('=====otp====>', otp);
   // Push the new OTP to the user codes
   user.codes.push({
     code: otp,
@@ -361,24 +347,20 @@ export const sendVerifyOtp = catchAsync(async (req, res) => {
     codeType: EnumCodeTypeOfCode.LOGIN,
   });
   await user.save();
-
-  console.log('=====otp====>', otp);
+  console.log('=====body====>', req.body);
 
   // Check if the country code is required for mobile-based OTP
   if (mobileNumber) {
     const userCountryCode = await countryCodeService.getCountryCodeById(countryCodeId);
     if (!userCountryCode && mobileNumber) {
-      throw new ApiError(
-        httpStatus.BAD_REQUEST,
-        'Please provide a valid country code while using registration with a mobile number.'
-      );
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Please provide countryCode while using registration with Mobile number.');
     }
 
     // Send OTP to mobile using MSG91
     try {
       await resendOtpToMobile(`${userCountryCode.code}${user.mobileNumber}`); // Retry OTP for mobile
       console.log('OTP resent to mobile via MSG91');
-      return res.status(httpStatus.OK).send({
+      res.status(httpStatus.OK).send({
         results: {
           success: true,
           message: 'OTP has been resent to your mobile number. Please verify.',
@@ -395,7 +377,7 @@ export const sendVerifyOtp = catchAsync(async (req, res) => {
     try {
       await emailService.sendOtpVerificationEmail(user, otp);
       console.log('OTP sent to email');
-      return res.status(httpStatus.OK).send({
+      res.status(httpStatus.OK).send({
         results: {
           success: true,
           message: 'OTP has been resent to your registered email. Please verify.',
