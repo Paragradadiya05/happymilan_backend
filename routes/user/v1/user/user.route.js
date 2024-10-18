@@ -3,6 +3,7 @@ import { userController } from 'controllers/user';
 import { userValidation } from 'validations/user';
 import validate from 'middlewares/validate';
 import auth from 'middlewares/auth';
+import appUserType from '../../../../middlewares/appUserType';
 
 const router = express.Router();
 router
@@ -64,7 +65,7 @@ router
   /**
    * getUserById
    * */
-  .get(auth(), validate(userValidation.getUserById), userController.get);
+  .get(auth(), appUserType(), validate(userValidation.getUserById), userController.get);
 
 router.route('/get-match-user/:userId').get(auth(), validate(userValidation.getMatchUser), userController.getMatchUser);
 
