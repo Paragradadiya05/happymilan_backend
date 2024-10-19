@@ -13,6 +13,7 @@ export const createKyc = {
     verifyUserId: Joi.boolean().default(false),
     userId: Joi.objectId(),
     isDocRejected: Joi.boolean().default(false),
+    isDocUpload: Joi.boolean().default(false),
     rejectReason: Joi.string().optional(),
   }),
 };
@@ -27,6 +28,7 @@ export const updateKyc = {
     verifyUserId: Joi.boolean().default(false),
     userId: Joi.objectId(),
     isDocRejected: Joi.boolean().default(false),
+    isDocUpload: Joi.boolean().default(false),
     rejectReason: Joi.string().optional(),
   }),
   params: Joi.object().keys({

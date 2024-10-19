@@ -35,6 +35,10 @@ const KycSchema = mongoose.Schema(
     rejectReason: {
       type: String,
     },
+    isDocUpload: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );
