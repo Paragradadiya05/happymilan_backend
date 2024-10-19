@@ -79,6 +79,6 @@ export const getKycByUserId = catchAsync(async (req, res) => {
     userId,
   };
   const options = {};
-  const Kyc = await KycService.getOne(filter, options);
+  const Kyc = await KycService.getkycList(filter, options);
   return res.status(httpStatus.OK).send({ results: Kyc });
 });
