@@ -1705,7 +1705,6 @@ export async function getUserWithDatingData(filter) {
         mobileNumber: 1,
         gender: 1,
         dateOfBirth: 1,
-        profilePic: 1,
         isUserActive: 1,
         datingData: {
           interestedIn: 1,
@@ -1715,7 +1714,12 @@ export async function getUserWithDatingData(filter) {
           Occupation: 1,
           annualIncome: 1,
         },
-        appUsesType: 1, // Return dating-specific data based on your model
+        appUsesType: 1,
+        userProfilePic: 1,
+        profilePic: 1,
+        hobbies: 1,
+        writeBoutYourSelf: 1,
+        religion: 1,
         'friendsDetails.status': 1,
         'friendsDetails._id': 1,
       },
@@ -1724,4 +1728,141 @@ export async function getUserWithDatingData(filter) {
 
   const matchedUser = await User.aggregate(pipeline).exec();
   return matchedUser;
+}
+
+export async function getFilteredDatingintrestList(filter, options = {}) {
+  const { interestedIn } = filter;
+  const { limit = 10, page = 1 } = options;
+
+  if (!interestedIn || typeof interestedIn !== 'string') {
+    throw new Error('Please provide a valid "interestedIn" filter as a string');
+  }
+
+  const skip = (page - 1) * limit;
+
+  const pipeline = [
+    {
+      $match: {
+        _id: { $ne: mongoose.Types.ObjectId(filter.userId) }, // Exclude the current user
+        appUsesType: EnumAppUsesTypeOfUsers.DATING,
+        platform: { $eq: EnumOfPlatformType.HAPPY_MILAN },
+        'datingData.interestedIn': interestedIn, // Filter based on single interestedIn value
+      },
+    },
+    {
+      $lookup: {
+        from: 'Friend',
+        let: { currentUserId: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $eq: ['$user', filter.userId] }, { $eq: ['$friend', '$$currentUserId'] }],
+              },
+            },
+          },
+        ],
+        as: 'friendsDetails',
+      },
+    },
+    {
+      $lookup: {
+        from: 'likes',
+        let: { currentUserIdForLike: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $eq: ['$user', filter.userId] }, { $eq: ['$likedUserId', '$$currentUserIdForLike'] }],
+              },
+            },
+          },
+        ],
+        as: 'userLikeDetails',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userLikeDetails',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
+        from: 'shortlists',
+        let: { currentUserIdForShortList: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $eq: ['$userId', filter.userId] }, { $eq: ['$shortlistId', '$$currentUserIdForShortList'] }],
+              },
+            },
+          },
+        ],
+        as: 'userShortListDetails',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userShortListDetails',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        name: 1,
+        email: 1,
+        mobileNumber: 1,
+        appUsesType: 1,
+        profilePic: 1,
+        gender: 1, // Assuming gender is still required
+        bio: 1,
+        hobbies: 1,
+        userProfilePic: 1,
+        writeBoutYourSelf: 1,
+        religion: 1,
+        friendsDetails: 1,
+        'datingData.interestedIn': 1,
+        'datingData.Occupation': 1,
+        'datingData.CurrentlyLiving': 1,
+        'datingData.educationLevel': 1,
+        'datingData.Ethnicity': 1,
+        'datingData.annualIncome': 1,
+        'userLikeDetails.isLike': 1,
+        'userLikeDetails.user': 1,
+        'userLikeDetails.likedUserId': 1,
+        'userShortListDetails._id': 1,
+        'userShortListDetails.shortlistId': 1,
+      },
+    },
+    { $sort: { _id: 1 } }, // Sort by ID or another field as required
+    {
+      $facet: {
+        paginatedResults: [{ $skip: skip }, { $limit: limit }],
+        totalCount: [{ $count: 'count' }],
+      },
+    },
+    {
+      $unwind: {
+        path: '$totalCount',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $addFields: {
+        totalDocs: { $ifNull: ['$totalCount.count', 0] },
+        totalPages: {
+          $ceil: {
+            $divide: ['$totalCount.count', limit],
+          },
+        },
+        currentPage: page,
+      },
+    },
+  ];
+
+  const matchedUsers = await User.aggregate(pipeline).exec();
+  return matchedUsers;
 }

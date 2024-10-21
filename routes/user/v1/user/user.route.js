@@ -54,7 +54,9 @@ router
     validate(userValidation.getUserByGenderAndAgeAndMatchDating),
     userController.getUserByGenderAndAgeAndMatchDating
   );
-
+router
+  .route('/getUser-list-by-interest')
+  .post(auth(), validate(userValidation.getFilteredDatingUsers), userController.getFilteredDatingUsers);
 router
   .route('/:userId')
   /**

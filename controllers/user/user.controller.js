@@ -243,3 +243,25 @@ export const getUserByGenderAndAgeAndMatchDating = catchAsync(async (req, res) =
   const userdata = await userService.getDatingPartnerListByAgeAndMatch(filter, ageRange, options);
   return res.status(httpStatus.OK).send({ results: userdata });
 });
+
+export const getFilteredDatingUsers = catchAsync(async (req, res) => {
+  const { user } = req;
+  const { query } = req;
+  const sortingObj = pick(query, ['sort', 'order']);
+  const sortObj = {
+    [sortingObj.sort]: sortingObj.order,
+  };
+
+  const filter = {
+    userId: user._id,
+    interestedIn: req.body.interestedIn, // InterestedIn filter passed as a single string value
+  };
+
+  const options = {
+    sort: sortObj,
+    ...pick(query, ['limit', 'page']),
+  };
+
+  const userdata = await userService.getFilteredDatingintrestList(filter, options);
+  return res.status(httpStatus.OK).send({ results: userdata });
+});

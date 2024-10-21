@@ -149,3 +149,15 @@ export const getUserByGenderAndAgeAndMatchDating = {
     })
     .unknown(true),
 };
+
+export const getFilteredDatingUsers = {
+  body: Joi.object().keys({
+    interestedIn: Joi.string().valid(...Object.values(enumFields.EnumOfInterest)),
+  }),
+  query: Joi.object()
+    .keys({
+      page: Joi.number().default(1),
+      limit: Joi.number().default(10).max(100),
+    })
+    .unknown(true),
+};
