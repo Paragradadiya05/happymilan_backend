@@ -346,7 +346,7 @@ export const sendVerifyOtp = catchAsync(async (req, res) => {
   console.log('=====body====>', req.body);
 
   // Check if the country code is required for mobile-based OTP
-  if (mobileNumber) {
+  if (user.mobileNumber) {
     const userCountryCode = await countryCodeService.getCountryCodeById(countryCodeId);
     if (!userCountryCode && mobileNumber) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Please provide countryCode while using registration with Mobile number.');
@@ -368,7 +368,7 @@ export const sendVerifyOtp = catchAsync(async (req, res) => {
         message: 'Error resending OTP to mobile',
       });
     }
-  } else if (email) {
+  } else if (user.email) {
     // Handle email-based OTP
     try {
       await emailService.sendOtpVerificationEmail(user, otp);
