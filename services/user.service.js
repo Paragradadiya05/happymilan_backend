@@ -1655,3 +1655,73 @@ export async function getDatingPartnerListByAgeAndMatch(filter, ageRange, option
   const matchedUsers = await User.aggregate(pipeline).exec();
   return matchedUsers;
 }
+
+export async function getUserWithDatingData(filter) {
+  const userId = filter._id;
+
+  const pipeline = [
+    {
+      $match: {
+        _id: mongoose.Types.ObjectId(userId),
+        platform: EnumOfPlatformType.HAPPY_MILAN,
+        appUsesType: EnumAppUsesTypeOfUsers.DATING,
+      },
+    },
+    {
+      $lookup: {
+        from: 'Friend',
+        let: { currentUserId: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $eq: ['$user', filter.userId] }, { $eq: ['$friend', '$$currentUserId'] }],
+              },
+            },
+          },
+        ],
+        as: 'friendsDetails',
+      },
+    },
+    {
+      $unwind: {
+        path: '$friendsDetails',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $match: {
+        'friendsDetails.status': { $ne: EnumStatusOfFriend.BLOCKED },
+      },
+    },
+    // Populate datingData field (based on your schema)
+    {
+      $project: {
+        _id: 1,
+        age: 1,
+        height: 1,
+        name: 1,
+        email: 1,
+        mobileNumber: 1,
+        gender: 1,
+        dateOfBirth: 1,
+        profilePic: 1,
+        isUserActive: 1,
+        datingData: {
+          interestedIn: 1,
+          Ethnicity: 1,
+          educationLevel: 1,
+          CurrentlyLiving: 1,
+          Occupation: 1,
+          annualIncome: 1,
+        },
+        appUsesType: 1, // Return dating-specific data based on your model
+        'friendsDetails.status': 1,
+        'friendsDetails._id': 1,
+      },
+    },
+  ];
+
+  const matchedUser = await User.aggregate(pipeline).exec();
+  return matchedUser;
+}

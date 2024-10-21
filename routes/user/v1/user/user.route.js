@@ -65,6 +65,7 @@ router
    * getUserById
    * */
   .get(auth(), validate(userValidation.getUserById), userController.get);
+router.route('/get-dating-user/:userId').get(auth(), validate(userValidation.getMatchUser), userController.getDatingUser);
 
 router.route('/get-match-user/:userId').get(auth(), validate(userValidation.getMatchUser), userController.getMatchUser);
 

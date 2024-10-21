@@ -18,6 +18,18 @@ export const get = catchAsync(async (req, res) => {
   return res.status(httpStatus.OK).send({ results: user });
 });
 
+export const getDatingUser = catchAsync(async (req, res) => {
+  const { userId } = req.params;
+  const currentUserId = req.user;
+  const filter = {
+    _id: userId,
+    currentUserId,
+  };
+  const options = {};
+  const user = await userService.getUserWithDatingData(filter, options);
+  return res.status(httpStatus.OK).send({ results: user });
+});
+
 export const list = catchAsync(async (req, res) => {
   const filter = {};
   const options = {};
