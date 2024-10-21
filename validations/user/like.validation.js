@@ -34,11 +34,6 @@ export const updateLike = {
   params: Joi.object().keys({
     likeId: Joi.objectId().required(),
   }),
-  query: Joi.object().keys({
-    appUsesType: Joi.string()
-      .valid(...Object.values(EnumAppUsesTypeOfUsers))
-      .optional(),
-  }),
 };
 export const likeData = {
   params: Joi.object().keys({

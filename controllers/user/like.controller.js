@@ -30,12 +30,11 @@ export const remove = catchAsync(async (req, res) => {
 export const updateLike = catchAsync(async (req, res) => {
   const { body } = req;
   const { likeId } = req.params;
-  const { appUsesType } = req.query;
   const filter = {
     _id: likeId,
   };
   const options = { new: true };
-  const like = await likeservice.updateLike(filter, body, options, appUsesType);
+  const like = await likeservice.updateLike(filter, body, options);
   return res.status(httpStatus.OK).send({ results: like });
 });
 export const likeData = catchAsync(async (req, res) => {
