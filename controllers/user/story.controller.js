@@ -74,7 +74,64 @@ export const list = catchAsync(async (req, res) => {
 export const verifyStoryConsent = catchAsync(async (req, res) => {
   try {
     await storyService.verifyConsent(req.query);
-    res.status(httpStatus.OK).send({ message: 'Your Story Consent is Verified Successfully' });
+
+    // HTML response
+    const htmlResponse = `
+      <html>
+        <head>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              margin: 0;
+              padding: 0;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+              background-color: #f4f4f9;
+            }
+            .container {
+              background-color: #ffffff;
+              padding: 20px;
+              border-radius: 8px;
+              box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+              text-align: center;
+            }
+            h1 {
+              color: #6c90ee;
+              font-size: 24px;
+              margin-bottom: 10px;
+            }
+            p {
+              font-size: 18px;
+              color: #333;
+            }
+            .button {
+              display: inline-block;
+              padding: 10px 20px;
+              background-color: #013c93;
+              color: white;
+              text-decoration: none;
+              border-radius: 5px;
+              margin-top: 20px;
+              font-size: 16px;
+            }
+            .button:hover {
+              background-color: #27418c;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>Your Story Consent is Verified Successfully</h1>
+            <p>Thank you for verifying your consent. Your story consent process is now complete.</p>
+            <a href="/" class="button">Go to Home</a>
+          </div>
+        </body>
+      </html>
+    `;
+
+    res.status(httpStatus.OK).send(htmlResponse);
   } catch (e) {
     res.status(httpStatus.OK).send({ message: e.message });
   }

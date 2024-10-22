@@ -370,192 +370,277 @@ export const sendReportUserEmail = async (reporter, reportedUser, party, comment
 export const sendOtpVerificationEmail = async (user, otp) => {
   const { email: to, name } = user;
   const subject = 'Otp verification email!';
+  const currentDate = new Date();
+  const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+  const formattedDate = currentDate.toLocaleDateString('en-US', options);
   const text = `
-<html>
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap">
-    <title></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Document</title>
     <style type="text/css">
-        #parrent {
+        #main{
+            display: flex; 
+            width: 100%; 
+            place-items: center; 
+            justify-content: center;
+        }
+        #parrent{
+            display: flex; 
+            width: 80%; 
+            justify-content: center; 
+            background-color: rgb(240,244,249); 
+            margin-top: 5.5%;
+            margin-bottom: 5.5%;
+            padding-top: 30px; 
+            padding-bottom: 30px;
+        }
+        #content-div-width{
+          width: 60%;
+          margin: 0 auto;
+        }
+        #content-div{
+            border-radius: 20px; 
+            background-color: rgb(255,255,255); 
+            padding: 8%;
+        }
+        #logo-div{
+            display: flex; 
+            justify-content: space-between;
+            align-items: center;
             width: 100%;
-            max-width: 700px;
-            margin: 0 auto;
-            border-radius: 14px;
-            border: 1px solid #E2E2E2;
-            justify-content: center;
-            align-items: center;
         }
-
-        #logo img {
-            align-items: center;
-            margin-left: 280px;
-            padding-top: 30px;
-            height: 32px;
-            width: 130px;
+        #logo-img{
+           width: 150px;
+           height: 37px;
         }
-
-        #content div {
-            width: 622px;
+        
+        #content{
+            margin-top: 30px;
         }
-
-        #content div p {
-            color: #000;
-            font-family: Poppins;
+        #text-1{
+            font-size: 12px; 
+            font-weight: 400; 
+            color: rgb(131,131,131);
+            margin-left: auto;
+        }
+        #text-2{
             font-size: 14px;
-            font-style: normal;
-            /*font-weight: 400;*/
-            line-height: normal;
+            font-weight: 400;
+            margin-top: 15px;
         }
-
-        #content {
-            margin-left: 40px;
-            margin-top: 30px;
+        #text-3{
+            font-size: 10px;
+            font-weight: 400;
+            text-align: center;
+            width: 75%;
         }
-
-        #OTP-Text {
-            background: linear-gradient(97deg, #0F52BA 5.37%, #BA0FA9 20.06%);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-family: Poppins;
-            font-size: 24px;
-            font-style: normal;
-            font-weight: 700;
-            line-height: normal;
+        #otp-text{
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 15px;
         }
-
-        #footer-box {
+        #div-center{
             display: flex;
             justify-content: center;
+            align-items: center;
+            width: 100%;
+            margin-left: 10%;
         }
-
-        #footer {
-            width: 607px;
-            height: 60px;
-            border-top: 1px solid #E2E2E2;
-            text-align: center;
-            padding-top: 10px;
-            margin-top: 30px;
-
-        }
-
-        #footer-content {
-            width: 600px;
-        }
-
-
-        #footer div {
+      
+        #socialmedia-div{
+            width: 35%;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            margin-left: 25%;
+            
         }
-
-        #footer div #ul-1 {
-            list-style-type: none;
-            position: relative;
-            left: -30px;
+        #socialmedia-1{
+            width:29px ;
+            height: 20px;
+            margin-right: 30px;
+            
         }
-
-        #footer div #ul-1 li span {
-            color: #000;
-            font-family: Poppins;
-            font-size: 10px;
-            font-style: normal;
-            font-weight: 400;
-            line-height: normal;
+        #socialmedia-2{
+            width:10px ;
+            height: 20px;
+            margin-right: 30px;
         }
-
-        #footer div #ul-2 li span {
+        #socialmedia-3{
+            width: 20px;
+            height: 20px;
+            margin-right: 30px;
+        }
+        #socialmedia-4{
+            width:25px ;
+            height:20px ;
+        }
+        #border{
+            width: 100%;
+            height: 1px;
+            border-color: #E2E2E2;
+            margin-top: 20px;
+        }
+        #span-div{
             color: #0F52BA;
-            font-family: Poppins;
+        }
+
+        @media screen and (max-width: 1280px) {
+            #logo-img{
+           width: 130px;
+           height: 35px;
+        }
+        #text-1{
+            font-size: 10px; 
+            font-weight: 400; 
+            color: rgb(131,131,131);
+        }
+        #text-2{
+            font-size: 12px;
+            font-weight: 400;
+            margin-top: 15px;
+        }
+        #text-3{
+            font-size: 8px;
+            font-weight: 400;
+            text-align: center;
+            width: 75%;
+        }
+        #otp-text{
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+        #socialmedia-1{
+            width:27px ;
+            height: 18px;
+        }
+        #socialmedia-2{
+            width:8px ;
+            height: 18px;
+        }
+        #socialmedia-3{
+            width: 18px;
+            height: 18px;
+        }
+        #socialmedia-4{
+            width:23px ;
+            height:18px ;
+        }
+        #content{
+            margin-top: 25px;
+        }
+            
+        } 
+        @media screen and (max-width: 1024px) {
+            #logo-img{
+           width: 100px;
+           height: 25px;
+        }
+        #text-1{
+            font-size: 8px; 
+            font-weight: 400; 
+            color: rgb(131,131,131);
+        }
+        #text-2{
             font-size: 10px;
-            font-style: normal;
-            font-weight: 900;
-            line-height: normal;
+            font-weight: 400;
+            margin-top: 15px;
         }
-
-
-        #footer div #ul-2 li {
-            list-style-type: none;
-            display: flex;
-            gap: 20px;
+        #text-3{
+            font-size: 7px;
+            font-weight: 400;
+            text-align: center;
+            width: 75%;
         }
-
-        #footer div #ul-2 {
-            display: flex;
-            gap: 40px;
-            justify-content: space-between;
+        #otp-text{
+            font-size: 10px;
+            font-weight: 600;
+            margin-top: 15px;
         }
-
-        @media only screen and (max-width: 600px) {
-            #parrent {
-                margin-left: 0;
-            }
-
-            #footer-content {
-                width: 350px;
-            }
-
-            #logo img {
-                align-items: center;
-                margin-left: 270px;
-                padding-top: 30px;
-                height: 32px;
-                width: 130px;
-            }
-
+        #socialmedia-1{
+            width:25px ;
+            height: 16px;
         }
+        #socialmedia-2{
+            width:8px ;
+            height: 16px;
+        }
+        #socialmedia-3{
+            width: 16px;
+            height: 16px;
+        }
+        #socialmedia-4{
+            width:21px ;
+            height:16px ;
+        }
+        #content{
+            margin-top: 20px;
+        }
+       
+            
+        } 
+
     </style>
 
-
-
 </head>
-
 <body>
-    <div id="parrent">
-        <div id="logo">
-            <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/users/65e991ad15835e46f0861b8b/65eff3406145b642700c32ba/logo.jpg" alt="logo" />
+    
+    <div id="main" >
+        <div id="parrent" >
+            <div id="content-div-width">
+                <div id="content-div" >
+                <div id="logo-div">
+            <img id="logo-img" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/users/65e991ad15835e46f0861b8b/65eff3406145b642700c32ba/logo.jpg"/>
+<h1 id="text-1" >${formattedDate}</h1>
+</div>
+<div id="content">
+    <h1 id="text-2">Hi ${name}</h1>
+    <h1 id="text-2">Thank you for using our services. To complete the verification process, please enter the following One-Time Password (OTP) on the verification page:</h1>
+    <h1 id="otp-text">OTP : ${otp}</h1>
+    <h1 id="text-2">Please do not share this OTP with anyone for security reasons</h1>
+</div>
+</div>
+<div id="content">
+    <div id="div-center">
+    <h1 id="text-3" > Welcome to HappyMilan your hub for finding a life partner, exploring dating opportunities, and making new friends. Join us to connect with a vibrant community and discover meaningful relationships.</h1>
+    </div>
+    <div id="content">
+        <div id="div-center">
+        <div id="socialmedia-div" >
+           <div>
+           <img id="socialmedia-1" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/yticone/671777d63e6cb9ad5f202b0d/yt.jpg" alt="youtube"/>
+           </div>
+           <div>
+            <img id="socialmedia-2" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/fbicone/671776dc3e6cb9ad5f202b01/fb.jpg" alt="fb"/>
+           </div>
+           <div>
+            <img id="socialmedia-3" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/instagramicone/671777513e6cb9ad5f202b05/insta.jpg" alt="insta"/>
+           </div>
+           <div>
+            <img id="socialmedia-4" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/twittericone/6717779d3e6cb9ad5f202b09/Twitter.jpg" alt="twitter"/>
+           </div>
         </div>
-        <div id="content">
-            <div>
-                <p>Dear,${name}</p>
-                <p>Thank you for using our services. To complete the verification process, please enter the
-                    following One-Time Password (OTP) on the verification page:</p>
-                <h1 id="OTP-Text"> ${otp}</h1> <!--OTP Variable -->
-                <p>Please do not share this OTP with anyone for security reasons</p>
+        </div>
+    </div>
+    <hr id="border"/>
+    <div id="content">
+        <div id="div-center">
+        <h1 id="text-3">If you prefer not to receive these emails in the future, please <span id="span-div"> unsubscribe </span> here.</h1>
+    </div>
+    </div>
+</div>
             </div>
         </div>
-        <div id="footer-box">
-            <div id="footer">
-                <div id="footer-content">
-                    <ul id="ul-1">
-                        <li>
-                            <span>Copyright 2023 MN Techgroup India</span>
-                        </li>
-                    </ul>
-                    <ul id="ul-2">
-                        <li>
-                            <span>Privacy Policy</span>
-                        </li>
-                        <li><span>Terms of Use</span></li>
-
-                    </ul>
-
-                </div>
-            </div>
-        </div>
-
     </div>
-
-
-    </div>
-
+    
 </body>
-
 </html>
+
 
 `;
   await sendEmail({ to, subject, text, isHtml: true })
@@ -759,7 +844,7 @@ export const sendCongratulationEmail = async (user) => {
 
 export const sendEmailForStoryConsentTaken = async (partnerUser, token) => {
   const { email: to, name } = partnerUser;
-  const subject = 'Welcome to the mntech!';
+  const subject = 'Story consent';
   // replace this url with the link to the reset password page of your front-end app
   const consentTakingUrl = `${config.front.url}/v1/user/story/verify-story-consent?consentToken=${token}`;
 
@@ -767,47 +852,79 @@ export const sendEmailForStoryConsentTaken = async (partnerUser, token) => {
 <html lang="en">
 <head>
 <style>
-.btn {
-  display: inline-block;
-  font-weight: 400;
-  text-align: center;
-  white-space: nowrap;
-  vertical-align: middle;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  padding: 0.375rem 0.75rem;
-  font-size: 1rem;
-  line-height: 1.5;
-  border-radius: 0.25rem;
-  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-  color: #ffffff !important;
-  background-color: #007bff;
-  border: 1px solid #007bff;
-  box-shadow: none;
-  text-decoration: none;
-}
-.text-center {
-text-align: center
-}
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+    color: #333;
+    line-height: 1.6;
+  }
+  .container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  h1, p {
+    text-align: center;
+  }
+  .btn {
+    display: inline-block;
+    font-weight: 400;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    user-select: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    line-height: 1.5;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    color: #ffffff !important;
+    background-color: #007bff;
+    border: 1px solid #007bff;
+    text-decoration: none;
+  }
+  .btn:hover {
+    background-color: #0056b3;
+    border-color: #004085;
+  }
+  .text-center {
+    text-align: center;
+  }
+  .logo {
+    text-align: center;
+    margin-top: 20px;
+  }
+  .footer {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 12px;
+    color: #777;
+  }
+  .footer a {
+    color: #007bff;
+    text-decoration: none;
+  }
 </style>
 </head>
 <body>
-<div>
-<div>Dear ${name},</div>
-<br>
-  
-  <div><a   target="_blank" href=${consentTakingUrl} id="verifyButton" class="btn btn-primary" >Click here to Verify</a></div><br>
-  <div>If for some reason you clicked the Sign-Up button in error or you didn’t Sign-Up with this email address</div>
-  <div>in the first place, no need to worry.  You can completely ignore this email and we’ll delete the account for you.</div><br>
-  <div>If you still have questions or concerns just shoot us a note at info@swarayallday.com and we’ll be sure to help you out.</div><br>
-  <div>Thanks!</div><br/><br>
-  <img src="${config.front.url}/images/logo.jpg"><br><br>
-  <a class="text-center" target="_blank" href="https://www.google.com" >unsubscribe from this list</a><br><br>
+  <div class="container">
+    <h1>Story Consent Verification</h1>
+    <p>Dear ${name},</p>
+    <p>Please click the button below to verify your consent for the story.</p>
+    
+    <div class="text-center">
+      <a href="${consentTakingUrl}" target="_blank" class="btn">Click here to Verify</a>
+    </div>
+   
   </div>
-  </body>
-  </html>
+</body>
+</html>
+
 `;
   await sendEmail({ to, subject, text, isHtml: true });
 };
