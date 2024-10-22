@@ -1,24 +1,8 @@
-import { Story, User } from 'models';
-import { sendEmailForConsentTaken } from './email.service';
+import { Story, Token } from 'models';
+import { tokenService } from './index';
+import { EnumTypeOfToken } from '../models/enum.model';
 
 export async function createStory(body = {}) {
-  const { partnerUserId, createByAdmin } = body;
-
-  if (!createByAdmin) {
-    const partnerUser = await User.findOne({ _id: partnerUserId });
-
-    if (!partnerUser) {
-      throw new Error('Partner user not found');
-    }
-
-    await sendEmailForConsentTaken(partnerUser);
-    console.log('Email sent for consent taken');
-
-    if (!partnerUser.isConsentTaken) {
-      throw new Error('Consent is not taken by partner user');
-    }
-  }
-
   const story = await Story.create(body);
   return story;
 }
@@ -35,5 +19,24 @@ export async function removeStory(filter) {
 
 export async function getStoryList(filter, options = {}) {
   const story = await Story.find(filter, options.projection, options);
+  return story;
+}
+
+export async function getStoryById(id, options = {}) {
+  const story = await Story.findById(id, options.projection, options);
+  return story;
+}
+
+export async function verifyConsent(verifyRequest) {
+  const { consentToken } = verifyRequest;
+  const verifyEmailTokenDoc = await tokenService.verifyToken(consentToken, EnumTypeOfToken.STORY_CONSENT);
+  const { user, storyId } = verifyEmailTokenDoc;
+  await Token.deleteMany({ user, storyId, type: EnumTypeOfToken.STORY_CONSENT });
+
+  return Story.findByIdAndUpdate(storyId, { isConsentTaken: true });
+}
+
+export async function getStoryWithPagination(filter, options = {}) {
+  const story = await Story.paginate(filter, options);
   return story;
 }

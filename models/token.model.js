@@ -14,6 +14,10 @@ const tokenSchema = mongoose.Schema(
       ref: 'User',
       required: true,
     },
+    storyId: {
+      type: mongoose.SchemaTypes.ObjectId,
+      ref: 'Story',
+    },
     type: {
       type: String,
       enum: Object.values(enumModel.EnumTypeOfToken),

@@ -70,6 +70,9 @@ export default {
     verifyEmailExpirationMinutes: 180,
     resetPasswordCodeSize: envVars.RESET_PASSWORD_CODE_SIZE,
   },
+  story: {
+    storyExpirationMinutes: 3000, // approx two days
+  },
   email: {
     smtp: {
       // host: envVars.SMTP_HOST,

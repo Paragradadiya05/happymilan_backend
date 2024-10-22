@@ -24,7 +24,8 @@ export const sendEmail = async (emailParams) => {
     msg.html = text;
   }
 
-  await transport.sendMail(msg);
+  const result = await transport.sendMail(msg);
+  console.log('=== var result ===>', result);
 };
 
 /**
@@ -756,10 +757,11 @@ export const sendCongratulationEmail = async (user) => {
     .catch((error) => logger.warn(`Unable to send mail ${error}`));
 };
 
-export const sendEmailForConsentTaken = async (partnerUser) => {
+export const sendEmailForStoryConsentTaken = async (partnerUser, token) => {
   const { email: to, name } = partnerUser;
   const subject = 'Welcome to the mntech!';
   // replace this url with the link to the reset password page of your front-end app
+  const consentTakingUrl = `${config.front.url}/v1/user/story/verify-story-consent?consentToken=${token}`;
 
   const text = `
 <html lang="en">
@@ -796,7 +798,7 @@ text-align: center
 <div>Dear ${name},</div>
 <br>
   
-  <div><a   target="_blank" href="" id="verifyButton" class="btn btn-primary" >Click here to Verify</a></div><br>
+  <div><a   target="_blank" href=${consentTakingUrl} id="verifyButton" class="btn btn-primary" >Click here to Verify</a></div><br>
   <div>If for some reason you clicked the Sign-Up button in error or you didn’t Sign-Up with this email address</div>
   <div>in the first place, no need to worry.  You can completely ignore this email and we’ll delete the account for you.</div><br>
   <div>If you still have questions or concerns just shoot us a note at info@swarayallday.com and we’ll be sure to help you out.</div><br>

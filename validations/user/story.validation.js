@@ -29,5 +29,16 @@ export const deleteStoryById = {
 };
 
 export const getStory = {
-  body: Joi.object().keys({}).unknown(true),
+  query: Joi.object()
+    .keys({
+      page: Joi.number().default(1),
+      limit: Joi.number().default(10).max(100),
+    })
+    .unknown(true),
+};
+
+export const verifyStoryConsent = {
+  query: Joi.object().keys({
+    consentToken: Joi.string().required(),
+  }),
 };

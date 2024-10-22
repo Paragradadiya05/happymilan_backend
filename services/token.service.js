@@ -5,7 +5,7 @@ import { Token } from 'models';
 import ApiError from 'utils/ApiError';
 import config from 'config/config';
 import _ from 'lodash';
-import { userService } from 'services';
+import { userService, storyService } from 'services';
 import { EnumTypeOfToken, EnumCodeTypeOfCode } from 'models/enum.model';
 /**
  * Generate token
@@ -14,8 +14,9 @@ import { EnumTypeOfToken, EnumCodeTypeOfCode } from 'models/enum.model';
  * @param {string} [secret]
  * @returns {string}
  */
-export const generateToken = (userId, expires, secret = config.jwt.secret) => {
+export const generateToken = (userId, expires, storyId = null, secret = config.jwt.secret) => {
   const payload = {
+    ...(storyId && { storyId }),
     sub: userId,
     iat: moment().unix(),
     exp: expires.unix(),
@@ -32,13 +33,14 @@ export const generateToken = (userId, expires, secret = config.jwt.secret) => {
  * @param {boolean} [blacklisted]
  * @returns {Promise<Token>}
  */
-export const saveToken = async (token, userId, expires, type, blacklisted = false) => {
+export const saveToken = async (token, userId, expires, storyId, type, blacklisted = false) => {
   const tokenDoc = await Token.create({
     token,
     user: userId,
     expires: expires.toDate(),
     type,
     blacklisted,
+    ...(storyId && { storyId }),
   });
   return tokenDoc;
 };
@@ -50,7 +52,8 @@ export const saveToken = async (token, userId, expires, type, blacklisted = fals
  * @returns {Promise<Token>}
  */
 export const verifyToken = async (token, type) => {
-  const payload = jwt.verify(token, config.jwt.secret, { ignoreExpiration: true });
+  const secretOrPublicKey = config.jwt.secret;
+  const payload = jwt.verify(token, secretOrPublicKey, { ignoreExpiration: true });
   const tokenDoc = await Token.findOne({ token, type, user: payload.sub });
   if (!tokenDoc) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Invalid Token');
@@ -190,6 +193,26 @@ export const generateVerifyEmailToken = async (email) => {
   const token = generateToken(user.id, expires);
   await Token.deleteMany({ user, type: EnumTypeOfToken.VERIFY_EMAIL });
   await saveToken(token, user.id, expires, EnumTypeOfToken.VERIFY_EMAIL);
+  return token;
+};
+
+/**
+ * Generate Verify email token
+ * @param {string} storyId
+ * @returns {Promise<string>}
+ */
+export const generateVerifyStoryConsentToken = async (userId, storyId) => {
+  const user = await userService.getUserById(userId);
+  const getStory = await storyService.getStoryById(storyId);
+  if (!getStory) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'No story found with this id');
+  } else if (getStory.isConsentTaken) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'story is already Verified');
+  }
+  const expires = moment().add(config.story.storyExpirationMinutes, 'minutes');
+  const token = generateToken(user.id, expires);
+  await Token.deleteMany({ storyId, type: EnumTypeOfToken.STORY_CONSENT });
+  await saveToken(token, user.id, expires, storyId, EnumTypeOfToken.STORY_CONSENT);
   return token;
 };
 

@@ -19,6 +19,7 @@ const EnumTypeOfToken = {
   RESET_PASSWORD: 'resetPassword',
   VERIFY_EMAIL: 'verifyEmail',
   REFRESH: 'refresh',
+  STORY_CONSENT: 'story_consent',
 };
 const EnumAppUsesTypeOfUsers = {
   MARRIAGE: 'marriage',

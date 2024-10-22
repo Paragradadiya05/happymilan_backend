@@ -1,6 +1,9 @@
 import httpStatus from 'http-status';
-import { storyService } from 'services';
+import { storyService, tokenService } from 'services';
 import { catchAsync } from 'utils/catchAsync';
+import { sendEmailForStoryConsentTaken } from '../../services/email.service';
+import { User } from '../../models';
+import { pick } from '../../utils/pick';
 
 export const create = catchAsync(async (req, res) => {
   const { body } = req;
@@ -8,6 +11,14 @@ export const create = catchAsync(async (req, res) => {
   body.createdBy = req.user;
   body.updatedBy = req.user;
   const options = {};
+
+  const { partnerUserId } = body;
+
+  const partnerUser = await User.findOne({ _id: partnerUserId });
+  if (!partnerUser) {
+    throw new Error('Partner user not found');
+  }
+
   const story = await storyService.createStory(
     {
       userId,
@@ -15,6 +26,9 @@ export const create = catchAsync(async (req, res) => {
     },
     options
   );
+  const consentToken = await tokenService.generateVerifyStoryConsentToken(userId, story._id);
+  await sendEmailForStoryConsentTaken(partnerUser, consentToken);
+  console.log('Email sent for consent taken');
   return res.status(httpStatus.CREATED).send({ results: story });
 });
 
@@ -40,8 +54,28 @@ export const remove = catchAsync(async (req, res) => {
 });
 
 export const list = catchAsync(async (req, res) => {
-  const filter = {};
-  const options = {};
-  const story = await storyService.getStoryList(filter, options);
+  const { query } = req;
+  const sortingObj = pick(query, ['sort', 'order']);
+  const sortObj = {
+    [sortingObj.sort]: sortingObj.order,
+  };
+  const filter = {
+    isConsentTaken: true,
+  };
+  const options = {
+    sort: sortObj,
+    ...pick(query, ['limit', 'page']),
+    lean: true,
+  };
+  const story = await storyService.getStoryWithPagination(filter, options);
   return res.status(httpStatus.OK).send({ results: story });
+});
+
+export const verifyStoryConsent = catchAsync(async (req, res) => {
+  try {
+    await storyService.verifyConsent(req.query);
+    res.status(httpStatus.OK).send({ message: 'Your Story Consent is Verified Successfully' });
+  } catch (e) {
+    res.status(httpStatus.OK).send({ message: e.message });
+  }
 });
