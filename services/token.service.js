@@ -45,6 +45,17 @@ export const saveToken = async (token, userId, expires, type, blacklisted = fals
   return tokenDoc;
 };
 
+export const saveStoryToken = async (token, userId, expires, storyId, type, blacklisted = false) => {
+  const tokenDoc = await Token.create({
+    token,
+    user: userId,
+    expires: expires.toDate(),
+    type,
+    blacklisted,
+    ...(storyId && { storyId }),
+  });
+  return tokenDoc;
+};
 /**
  * Verify token and return token doc (or throw an error if it is not valid)
  * @param {string} token
@@ -212,7 +223,7 @@ export const generateVerifyStoryConsentToken = async (userId, storyId) => {
   const expires = moment().add(config.story.storyExpirationMinutes, 'minutes');
   const token = generateToken(user.id, expires);
   await Token.deleteMany({ storyId, type: EnumTypeOfToken.STORY_CONSENT });
-  await saveToken(token, user.id, expires, storyId, EnumTypeOfToken.STORY_CONSENT);
+  await saveStoryToken(token, user.id, expires, storyId, EnumTypeOfToken.STORY_CONSENT);
   return token;
 };
 
