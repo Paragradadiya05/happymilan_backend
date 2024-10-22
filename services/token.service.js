@@ -33,7 +33,7 @@ export const generateToken = (userId, expires, storyId = null, secret = config.j
  * @param {boolean} [blacklisted]
  * @returns {Promise<Token>}
  */
-export const saveToken = async (token, userId, expires, storyId, type, blacklisted = false) => {
+export const saveToken = async (token, userId, expires, type, blacklisted = false, storyId) => {
   const tokenDoc = await Token.create({
     token,
     user: userId,
