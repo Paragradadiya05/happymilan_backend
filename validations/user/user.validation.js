@@ -121,6 +121,15 @@ export const getUserByGender = {
     })
     .unknown(true),
 };
+export const getprimeuser = {
+  params: Joi.object().keys({}),
+  query: Joi.object()
+    .keys({
+      page: Joi.number().default(1),
+      limit: Joi.number().default(10).max(100),
+    })
+    .unknown(true),
+};
 export const getMatchUser = {
   params: Joi.object().keys({
     userId: Joi.objectId().required(),
