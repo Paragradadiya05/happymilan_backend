@@ -281,3 +281,20 @@ export const getprimeuser = catchAsync(async (req, res) => {
   const userdata = await userService.getprimeuserlist(filter, options);
   return res.status(httpStatus.OK).send({ results: userdata });
 });
+
+export const getStats = catchAsync(async (req, res) => {
+  const userId = req.user._id; // Assuming user ID is coming from authenticated user
+
+  // Fetch the user stats
+  const { totalLikes, totalRequestsSent, totalAcceptedRequests, totalRequestsReceived } = await userService.getUserStats(
+    userId
+  );
+
+  // Send the response with all the data
+  return res.status(httpStatus.OK).send({
+    totalLikes,
+    totalRequestsSent,
+    totalAcceptedRequests,
+    totalRequestsReceived,
+  });
+});

@@ -40,6 +40,12 @@ router
    * getUserPaginated
    * */
   .get(validate(userValidation.paginatedUser), userController.paginate);
+router
+  .route('/getStatusCount')
+  /**
+   * getUserCount
+   * */
+  .get(auth(), userController.getStats);
 
 router.route('/getUserByGender').get(auth(), validate(userValidation.getUserByGender), userController.getUserByGender);
 router.route('/getUserPrimeUser').get(auth(), validate(userValidation.getprimeuser), userController.getprimeuser);

@@ -1,6 +1,7 @@
 import ApiError from 'utils/ApiError';
 import httpStatus from 'http-status';
-import { Partner, User, Datingpartner } from 'models';
+// eslint-disable-next-line no-unused-vars
+import { Partner, User, Datingpartner, Like, Friend } from 'models';
 import _ from 'lodash';
 import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
@@ -2184,4 +2185,47 @@ export async function getprimeuserlist(filter, options = {}) {
   ];
   const matchedUsers = await User.aggregate(pipeline).exec();
   return matchedUsers;
+}
+
+export async function getUserStats(userId) {
+  // Filter for likes: based on likedUserId
+  const likeFilter = {
+    likedUserId: userId,
+    isLike: true,
+  };
+
+  // 1. Total Likes (likedUserId = userId and isLike = true)
+  const totalLikes = await Like.countDocuments(likeFilter);
+
+  // Filter for friends based on the user who initiated the requests
+  const friendFilter = {
+    user: userId,
+  };
+
+  // 2. Total Requests Sent (status = 'requested')
+  const totalRequestsSent = await Friend.countDocuments({
+    ...friendFilter,
+    status: enumModel.EnumStatusOfFriend.REQUESTED,
+  });
+
+  // 3. Total Accepted Requests (status = 'accepted')
+  const totalAcceptedRequests = await Friend.countDocuments({
+    ...friendFilter,
+    status: enumModel.EnumStatusOfFriend.ACCEPTED,
+  });
+  const friendReqFilter = {
+    friend: userId,
+    status: EnumStatusOfFriend.REQUESTED,
+  };
+  const totalRequestsReceived = await Friend.countDocuments({
+    ...friendReqFilter,
+    status: enumModel.EnumStatusOfFriend.REQUESTED,
+  });
+  // Return the counts in a structured way
+  return {
+    totalLikes,
+    totalRequestsSent,
+    totalAcceptedRequests,
+    totalRequestsReceived,
+  };
 }
