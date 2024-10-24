@@ -426,9 +426,10 @@ export async function getGenderListV2(filter, options = {}) {
         userProfilePic: 1,
         userProfileVideo: 1,
         profileHideAndDelete: 1,
+        'friendsDetails.status': 1,
+        'friendsDetails._id': 1,
         matchPercentage: '$matchData.matchPercentage',
         matchedCriteria: '$matchData.matchedCriteria',
-
         isUserActive: 1,
         'userLikeDetails.isLike': 1,
         'userLikeDetails.user': 1,
