@@ -23,7 +23,7 @@ export const sendEmail = async (emailParams) => {
     delete msg.text;
     msg.html = text;
   }
-
+  console.log('Sending this email message:', msg);
   const result = await transport.sendMail(msg);
   console.log('=== var result ===>', result);
 };
@@ -369,6 +369,7 @@ export const sendReportUserEmail = async (reporter, reportedUser, party, comment
  */
 export const sendOtpVerificationEmail = async (user, otp) => {
   const { email: to, name } = user;
+  console.log(`Sending email to: ${to}`);
   const subject = 'Otp verification email!';
   const currentDate = new Date();
   const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
