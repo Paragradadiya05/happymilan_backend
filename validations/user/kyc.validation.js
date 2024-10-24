@@ -14,6 +14,7 @@ export const createKyc = {
     userId: Joi.objectId(),
     isDocRejected: Joi.boolean().default(false),
     isDocUpload: Joi.boolean().default(false),
+    isSelfieUpload: Joi.boolean().default(false),
     rejectReason: Joi.string().optional(),
   }),
 };
@@ -29,6 +30,7 @@ export const updateKyc = {
     userId: Joi.objectId(),
     isDocRejected: Joi.boolean().default(false),
     isDocUpload: Joi.boolean().default(false),
+    isSelfieUpload: Joi.boolean().default(false),
     rejectReason: Joi.string().optional(),
   }),
   params: Joi.object().keys({

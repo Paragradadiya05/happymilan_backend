@@ -243,6 +243,7 @@ const EnumOfKyc = {
   DRIVING_LICENSE: 'driving-license',
   AADHAR_CARD: 'aadhar-card',
   ELECTION_CARD: 'election-card',
+  SELFIE: 'selfie',
 };
 const EnumOfInterest = {
   MEET_NEW_FRIENDS: 'meet-new-friends',

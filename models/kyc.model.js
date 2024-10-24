@@ -39,6 +39,10 @@ const KycSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isSelfieUpload: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );
