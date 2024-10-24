@@ -354,7 +354,7 @@ export const sendVerifyOtp = catchAsync(async (req, res) => {
 
     // Send OTP to mobile using MSG91
     try {
-      await resendOtpToMobile(`${userCountryCode.code}${user.mobileNumber}`); // Retry OTP for mobile
+      await resendOtpToMobile(`${userCountryCode.code}${user.mobileNumber}`, otp); // Retry OTP for mobile
       console.log('OTP resent to mobile via MSG91');
       res.status(httpStatus.OK).send({
         results: {

@@ -46,8 +46,13 @@ router
    * getUserCount
    * */
   .get(auth(), userController.getStats);
-
+/**
+ * getUserByGender
+ * */
 router.route('/getUserByGender').get(auth(), validate(userValidation.getUserByGender), userController.getUserByGender);
+/**
+ * getPrimeUserList
+ * */
 router.route('/getUserPrimeUser').get(auth(), validate(userValidation.getprimeuser), userController.getprimeuser);
 
 router
