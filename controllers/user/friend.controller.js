@@ -190,6 +190,7 @@ export const getRequestedFriendv2 = catchAsync(async (req, res) => {
   const sortObj = {
     [sortingObj.sort]: sortingObj.order,
   };
+  const { appUsesType } = req.query;
   const options = {
     sort: sortObj,
     ...pick(query, ['limit', 'page']),
@@ -209,7 +210,7 @@ export const getRequestedFriendv2 = catchAsync(async (req, res) => {
     user: userId,
     status: EnumStatusOfFriend.REQUESTED,
   };
-  const user = await friendService.getFriendListWithPagination(filter, options);
+  const user = await friendService.getFriendListWithPagination(filter, options, appUsesType);
   return res.status(httpStatus.OK).send({ results: user });
 });
 
