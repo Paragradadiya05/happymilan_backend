@@ -90,11 +90,15 @@ export const getMyFrdRequestsMobile = {
 };
 
 export const appUsesTypeValidation = {
-  query: Joi.object().keys({
-    appUsesType: Joi.string()
-      .valid(...Object.values(EnumAppUsesTypeOfUsers))
-      .optional(),
-  }),
+  query: Joi.object()
+    .keys({
+      page: Joi.number().default(1),
+      limit: Joi.number().default(10).max(100),
+      appUsesType: Joi.string()
+        .valid(...Object.values(EnumAppUsesTypeOfUsers))
+        .optional(),
+    })
+    .unknown(true),
 };
 export const getRequestedFriendv2 = {
   query: Joi.object()

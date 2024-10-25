@@ -24,6 +24,13 @@ router.get(
   validate(friendValidation.appUsesTypeValidation),
   friendController.getRequests
 );
+router.get(
+  '/get-frd-dating-req-v2',
+  auth(),
+  appUserType(),
+  validate(friendValidation.appUsesTypeValidation),
+  friendController.getRFrdRequestsv2
+);
 
 router.get(
   '/get-frds',

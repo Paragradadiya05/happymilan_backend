@@ -78,23 +78,12 @@ export const getBlockList = catchAsync(async (req, res) => {
 
 export const getRequests = catchAsync(async (req, res) => {
   const userId = req.user._id;
-  const { query } = req;
-  const sortingObj = pick(query, ['sort', 'order']);
-  const sortObj = {
-    [sortingObj.sort]: sortingObj.order,
-  };
-  const { appUsesType } = query;
   const filter = {
     friend: userId,
     status: EnumStatusOfFriend.REQUESTED,
   };
-  const options = {
-    sort: sortObj,
-    ...pick(query, ['limit', 'page']),
-    lean: true,
-  };
-
-  const user = await friendService.getFriendv2(filter, options, userId, appUsesType);
+  const options = {};
+  const user = await friendService.getFriendv2(filter, options, userId);
   const shortlist = await Shortlist.find({ userId });
   return res.status(httpStatus.OK).send({ results: user, shortlists: shortlist });
 });
@@ -282,5 +271,36 @@ export const getBlockListv2 = catchAsync(async (req, res) => {
   };
   const user = await friendService.getFriendListWithPagination(filter, options);
 
+  return res.status(httpStatus.OK).send({ results: user });
+});
+
+export const getRFrdRequestsv2 = catchAsync(async (req, res) => {
+  const userId = req.user._id;
+  const { query } = req;
+  const sortingObj = pick(query, ['sort', 'order']);
+  const sortObj = {
+    [sortingObj.sort]: sortingObj.order,
+  };
+  const filter = {
+    friend: userId,
+    status: EnumStatusOfFriend.REQUESTED,
+  };
+  const { appUsesType } = query;
+  const options = {
+    sort: sortObj,
+    ...pick(query, ['limit', 'page']),
+    lean: true,
+    populate: [
+      {
+        path: 'friend',
+        populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
+      },
+      {
+        path: 'user',
+        populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
+      },
+    ],
+  };
+  const user = await friendService.getFriendListWithPagination(filter, options, appUsesType);
   return res.status(httpStatus.OK).send({ results: user });
 });
