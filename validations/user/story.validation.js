@@ -8,6 +8,7 @@ export const createStory = {
     images: Joi.any().required(),
     content: Joi.string().required(),
     title: Joi.string().required(),
+    marriageDate: Joi.string(),
   }),
 };
 

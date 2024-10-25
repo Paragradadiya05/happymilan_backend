@@ -17,7 +17,11 @@ const StorySchema = new mongoose.Schema(
         type: mongoose.Mixed,
       },
     ],
+
     content: {
+      type: String,
+    },
+    marriageDate: {
       type: String,
     },
     title: {
