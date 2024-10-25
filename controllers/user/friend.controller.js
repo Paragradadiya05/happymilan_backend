@@ -78,12 +78,23 @@ export const getBlockList = catchAsync(async (req, res) => {
 
 export const getRequests = catchAsync(async (req, res) => {
   const userId = req.user._id;
+  const { query } = req;
+  const sortingObj = pick(query, ['sort', 'order']);
+  const sortObj = {
+    [sortingObj.sort]: sortingObj.order,
+  };
+  const { appUsesType } = query;
   const filter = {
     friend: userId,
     status: EnumStatusOfFriend.REQUESTED,
   };
-  const options = {};
-  const user = await friendService.getFriendv2(filter, options, userId);
+  const options = {
+    sort: sortObj,
+    ...pick(query, ['limit', 'page']),
+    lean: true,
+  };
+
+  const user = await friendService.getFriendv2(filter, options, userId, appUsesType);
   const shortlist = await Shortlist.find({ userId });
   return res.status(httpStatus.OK).send({ results: user, shortlists: shortlist });
 });

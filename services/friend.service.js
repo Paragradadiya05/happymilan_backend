@@ -399,8 +399,8 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
   }
 }
 
-export async function getFriendv2(filter, options = {}, userId) {
-  const friends = await Friend.find(filter, options.projection, options)
+export async function getFriendv2(filter, options = {}, userId, appUsesType) {
+  const friends = await Friend.paginate(filter, options, options)
     .populate({
       path: 'friend',
       populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
@@ -412,9 +412,10 @@ export async function getFriendv2(filter, options = {}, userId) {
     .exec();
 
   // Get user partner preferences for match score
-  const userPartnerPreferences = await Partner.findOne({ userId });
+  const userPartnerPreferences = await Partner.findOne({ userId }, appUsesType);
 
-  if (!userPartnerPreferences) {
+  // If appUsesType is not "dating" and partner preferences are missing, throw an error
+  if (appUsesType !== 'dating' && !userPartnerPreferences) {
     throw new Error('User Partner Preferences not found');
   }
 
