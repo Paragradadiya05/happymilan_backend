@@ -298,3 +298,19 @@ export const getStats = catchAsync(async (req, res) => {
     totalRequestsReceived,
   });
 });
+
+export const getnewuser = catchAsync(async (req, res) => {
+  const { user } = req;
+  const { query } = req;
+  const sortingObj = pick(query, ['sort', 'order']);
+  const sortObj = {
+    [sortingObj.sort]: sortingObj.order,
+  };
+  const filter = { gender: user.gender, userId: user._id };
+  const options = {
+    sort: sortObj,
+    ...pick(query, ['limit', 'page']),
+  };
+  const userdata = await userService.getNewUserList(filter, options);
+  return res.status(httpStatus.OK).send({ results: userdata });
+});

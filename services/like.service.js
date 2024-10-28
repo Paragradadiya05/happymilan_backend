@@ -6,6 +6,10 @@ import { EnumOfNotification } from '../models/enum.model';
 
 export async function createLike(body = {}, user, appUsesType) {
   const userId = user._id;
+  const getUser = await User.findOne({ _id: body.likedUserId, appUsesType });
+  if (!getUser) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'No such user exists');
+  }
   const likedUser = await User.findById(body.likedUserId, appUsesType);
   if (!likedUser) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'No such user exists');

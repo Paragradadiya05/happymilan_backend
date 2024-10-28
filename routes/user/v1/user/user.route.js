@@ -54,6 +54,10 @@ router.route('/getUserByGender').get(auth(), validate(userValidation.getUserByGe
  * getPrimeUserList
  * */
 router.route('/getUserPrimeUser').get(auth(), validate(userValidation.getprimeuser), userController.getprimeuser);
+/**
+ * getNewUserList
+ * */
+router.route('/getNewUser').get(auth(), validate(userValidation.getnewuser), userController.getnewuser);
 
 router
   .route('/getUserByGenderDating')
