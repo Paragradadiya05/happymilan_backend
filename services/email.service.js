@@ -648,196 +648,395 @@ export const sendOtpVerificationEmail = async (user, otp) => {
     .then(() => logger.info('email sent successfully'))
     .catch((error) => logger.warn(`Unable to send mail ${error}`));
 };
-// todo:set logo
+
 export const sendCongratulationEmail = async (user) => {
   const { email: to, name } = user;
   const subject = 'Congratulation email!';
+  const currentDate = new Date();
+  const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+  const formattedDate = currentDate.toLocaleDateString('en-US', options);
   const text = `
-  <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap">
-
-<title></title>
-   <style type="text/css">
-        #parrent {
-            width: 100%;
-            max-width: 700px;
-            margin: 0 auto;
-            border-radius: 14px;
-            border: 1px solid #E2E2E2;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Congratulation Email</title>
+    <style type="text/css">
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f4f9;
+            display: flex;
             justify-content: center;
             align-items: center;
+            height: 100vh;
+            box-sizing: border-box;
         }
-
-        #logo img {
+        #main {
+            display: flex;
+            justify-content: center;
             align-items: center;
-            margin-left: 280px;
-            padding-top: 30px;
-            height: 32px;
-            width: 130px;
+            width: 90%;
         }
-
-        #content div {
-            width: 622px;
+        #container {
+            width: 70%;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            margin: auto;
         }
-
-        #content div p {
-            color: #000;
-            font-family: Poppins;
-            font-size: 14px;
-            font-style: normal;
-            /*font-weight: 400;*/
-            line-height: normal;
+        #text-1{
+        color: black;
         }
-
+         #text-4{
+        color: black;
+         font-weight: 600;
+      }
+        #mar-top{
+        margin-top: 20px;
+        }
+        #perrent{
+         justify-content: center;
+        }
+      #logo-div{
+       display: flex;
+       position: relative;
+      
+      }
+        #logo-img {
+            width: 150px;
+            height: auto;
+           
+            
+        }
+        #demo{
+        width: 100%;
+        }
+        #date {
+            font-size: 12px;
+            color: #838383;
+           
+            position: absolute;
+            margin-left: 500px;
+        }
+        #text-2{
+        color: black;
+        text-align: center; 
+        }
         #content {
-            margin-left: 40px;
+            margin-top: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        #bold-text {
+           
+            font-weight: 600;
+            margin-top: 10px;
+        }
+       #socialmedia-div{
+            width: 35%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-left: 35%;
             margin-top: 30px;
+            margin-bottom: 10px;
         }
-
-        #OTP-Text {
-            background: linear-gradient(97deg, #0F52BA 5.37%, #BA0FA9 20.06%);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-family: Poppins;
-            font-size: 24px;
-            font-style: normal;
-            /*font-weight: 700;*/
-            line-height: normal;
+        #socialmedia-1{
+            width:29px ;
+            height: 20px;
+            margin-right: 30px;
+            
         }
-
-        #footer-box {
+        #socialmedia-2{
+            width:10px ;
+            height: 20px;
+            margin-right: 30px;
+        }
+        #socialmedia-3{
+            width: 20px;
+            height: 20px;
+            margin-right: 30px;
+        }
+        #socialmedia-4{
+            width:25px ;
+            height:20px ;
+        }
+        #unsubscribe {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 12px;
+            color: black;
+        }
+        #border{
+            margin-top: 30px;
+            margin-bottom: 5px;
+            width: 100%;
+            height:0.1px;
+            background: black;
+        }
+        @media screen and (max-width: 768px) {
+        #logo-img{
+           width: 100px;
+           height: 25px;
+          
+        }
+         #logo-div{
+      display: flex;
+       position: relative;
+      
+      }
+        #text-1{
+            font-size: 8px; 
+            font-weight: 400; 
+            color: rgb(131,131,131);
+        }
+        #text-2{
+            font-size: 10px;
+            font-weight: 400;
+            margin-top: 15px;
+        }
+        #text-3{
+            font-size: 7px;
+            font-weight: 400;
+            text-align: center;
+            width: 75%;
+        }
+        #otp-text{
+            font-size: 10px;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+        #socialmedia-1{
+            width:25px ;
+            height: 16px;
+        }
+        #socialmedia-2{
+            width:8px ;
+            height: 16px;
+        }
+        #socialmedia-3{
+            width: 16px;
+            height: 16px;
+        }
+        #socialmedia-4{
+            width:21px ;
+            height:16px ;
+        }
+        #content{
+            margin-top: 20px;
+        }
+       
+            #main {
             display: flex;
             justify-content: center;
+            align-items: center;
+            width: 90%;
+            padding: 0px;
         }
-
-        #footer {
-            width: 607px;
-            height: 60px;
-            border-top: 1px solid #E2E2E2;
-            text-align: center;
-            padding-top: 10px;
+        #container {
+            width: 90%;
+            max-width: 600px;
+            background-color: #ffffff;
+            border-radius: 10px;
+           box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            margin: auto;
+            padding: 0px;
+        }
+        #logo-div {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+        
+        #date {
+            font-size: 12px;
+            margin-left: 0%;
+            width: 150px;
+            
+        }
+        }
+        /*xl*/
+        @media screen and (max-width: 1536px) {
+        #date {
+            font-size: 12px;
+            color: #838383;
+            position: absolute;
+           text-align: right;
+           margin-left: 360px;
+        }
+ }
+        @media screen and (max-width: 1280px) {
+            #logo-img{
+           width: 130px;
+           height: 35px;
+        }
+        #date {
+            font-size: 10px;
+            color: #838383;
+            position: absolute;
+           text-align: right;
+           margin-left: 280px;
+        }
+        #container {
+            width: 80%;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            margin: auto;
+        }
+       
+        #socialmedia-div{
+            width: 35%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-left: 35%;
             margin-top: 30px;
-
+            margin-bottom: 10px;
         }
-
-        #footer-content {
-            width: 600px;
+       
+       
+        #socialmedia-1{
+            width:27px ;
+            height: 18px;
         }
-
-
-        #footer div {
+        #socialmedia-2{
+            width:8px ;
+            height: 18px;
+        }
+        #socialmedia-3{
+            width: 18px;
+            height: 18px;
+        }
+        #socialmedia-4{
+            width:23px ;
+            height:18px ;
+        }
+        #content{
+            margin-top: 25px;
+        }
+            
+        } 
+        
+        @media screen and (max-width: 1024px) {
+            #logo-img{
+           width: 100px;
+           height: 25px;
+        }
+        #date {
+            font-size: 8px;
+            color: #838383;
+            position: absolute;
+           text-align: right;
+           margin-left: -100px;
+          
+        }
+        #main {
+            
+            align-items: center;
+            width: 100%;
+        }
+        #text-1{
+        color: black;
+        font-size: 10px;
+        }
+            #container {
+               
+                width: 100%;
+            }
+            #content {
+                font-size: 10px;
+            }
+           #socialmedia-div{
+            width: 35%;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            margin-left: 30%;
+            margin-top: 25px;
+            margin-bottom: 10px;
         }
-
-        #footer div #ul-1 {
-            list-style-type: none;
-            position: relative;
-            left: -30px;
+        
+        #socialmedia-1{
+            width:25px ;
+            height: 16px;
         }
-
-        #footer div #ul-1 li span {
-            color: #000;
-            font-family: Poppins;
-            font-size: 10px;
-            font-style: normal;
-            /*font-weight: 400;*/
-            line-height: normal;
+        #socialmedia-2{
+            width:8px ;
+            height: 16px;
         }
-
-        #footer div #ul-2 li span {
-            color: #0F52BA;
-            font-family: Poppins;
-            font-size: 10px;
-            font-style: normal;
-            /*font-weight: 900;*/
-            line-height: normal;
+        #socialmedia-3{
+            width: 16px;
+            height: 16px;
         }
-
-
-        #footer div #ul-2 li {
-            list-style-type: none;
-            display: flex;
-            gap: 20px;
+        #socialmedia-4{
+            width:21px ;
+            height:16px ;
         }
-
-        #footer div #ul-2 {
-            display: flex;
-            gap: 40px;
-            justify-content: space-between;
-        }
-
-        @media only screen and (max-width: 600px) {
-            #parrent {
-                margin-left: 0;
-            }
-
-            #footer-content {
-                width: 350px;
-            }
-
-            #logo img {
-                align-items: center;
-                margin-left: 270px;
-                padding-top: 30px;
-                height: 32px;
-                width: 130px;
-            }
-
-        }
+        
+       
+        } 
     </style>
 </head>
 <body>
- <div>
- <div id="parrent">
- <div id="logo">
-   <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/users/65e991ad15835e46f0861b8b/65eff3406145b642700c32ba/logo.jpg" alt="logo"/>
- </div>
- <div id="content">
-<div>
-  <p>Dear,${name}</p>
-  <p>Welcome to HappyMilan! We are thrilled to have you as a part of our community. Congratulations on successfully registering your account.
-  </p>
-                 
-  <p> get started, log in to your account using the following credentials:</p>
-
-  <p>Username/Email: ${to} <br>
-     Password: [Your Chosen Password]</p>
-  <p>Thank you for choosing HappyMilan.com. We look forward to serving you and providing a fantastic experience.</p>
- </div>
- </div>
- <div id="footer-box">
-   <div id="footer">
-   <div id="footer-content">
-     <ul id="ul-1">
-      <li>
-        <span>Copyright 2023 MN Techgroup India</span>
-      </li>
-     </ul>
-    <ul id="ul-2">
-      <li>
-        <span>Privacy Policy</span>
-      </li>
-      <li><span>Terms of Use</span></li>
-
-      </ul>
-
-  </div>
-  </div>
-  </div>
-  </div>
-  </div>
-
+    <div id="main">
+        <div id="container">
+        <div id="perrent">
+        <div id="logo-div">
+            
+                <img id="logo-img" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/users/65e991ad15835e46f0861b8b/65eff3406145b642700c32ba/logo.jpg" alt="Logo"/>
+               <p id="date">${formattedDate}</p>
+               </div>
+            <div id="content">
+                <p id="text-1">Hi ${name},</p>
+                <p id="text-1">Welcome to HappyMilan! We're excited to have you with us. Congrats on registering your account!</p>
+                <p id="text-1">To get started, log in to your account using the following credentials:</p>
+                <p id="text-4">Email: ${to} <br> Password: ******</p>
+                <div id="mar-top">
+                    <img id="demo" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/Img/672221cd16359520d1b37284/search.jpg" alt="Feature Image"/>
+                </div>  
+                <div>
+                    <img id="demo" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/Img/672221fb16359520d1b372ae/secure.jpg" alt="Feature Image"/>
+                </div>  
+                <div>
+                    <img id="demo" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/Img/6722215c16359520d1b3727c/chat.jpg" alt="Feature Image"/>
+                </div> 
+                <div>
+                    <img id="demo" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/Img/6722219c16359520d1b37280/plan.jpg" alt="Feature Image"/>
+                </div> 
+                <p id="text-2">Welcome to HappyMilan, your hub for finding a life partner, exploring dating opportunities, and making new friends. Join us to connect with a vibrant community and discover meaningful relationships.</p>
+            </div>
+            <div id="content">
+        <div id="div-center">
+        <div id="socialmedia-div" >
+           <div>
+           <img id="socialmedia-1" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/yticone/671777d63e6cb9ad5f202b0d/yt.jpg" alt="youtube"/>
+           </div>
+           <div>
+            <img id="socialmedia-2" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/fbicone/671776dc3e6cb9ad5f202b01/fb.jpg" alt="fb"/>
+           </div>
+           <div>
+            <img id="socialmedia-3" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/instagramicone/671777513e6cb9ad5f202b05/insta.jpg" alt="insta"/>
+           </div>
+           <div>
+            <img id="socialmedia-4" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/twittericone/6717779d3e6cb9ad5f202b09/Twitter.jpg" alt="twitter"/>
+           </div>
+        </div>
+     
+        </div>
+      <hr id="border"/>
+    </div>
+            <p id="unsubscribe">If you prefer not to receive these emails in the future, please <a href="#" style="color: #0F52BA; text-decoration: none;">unsubscribe</a> here.</p>
+        </div>
+        </div>
+        
+    </div>
 </body>
+</html>`;
 
-</html>
-`;
   await sendEmail({ to, subject, text, isHtml: true })
     .then(() => logger.info('email sent successfully'))
     .catch((error) => logger.warn(`Unable to send mail ${error}`));

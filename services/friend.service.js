@@ -1,8 +1,150 @@
 import ApiError from 'utils/ApiError';
 import httpStatus from 'http-status';
 import { Friend, Notification, Partner, User } from 'models';
+import mongoose from 'mongoose';
 import { EnumOfNotification, EnumStatusOfFriend } from '../models/enum.model';
 import { sendNotification } from './notification.service';
+
+async function calculateMatchScore(friendId, userPartnerPreferences) {
+  const matchData = await User.aggregate([
+    {
+      $match: { _id: mongoose.Types.ObjectId(friendId) },
+    },
+    {
+      $lookup: {
+        from: 'addresses',
+        localField: 'address',
+        foreignField: '_id',
+        as: 'address',
+      },
+    },
+    {
+      $unwind: {
+        path: '$address',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $addFields: {
+        // Calculate the age if dateOfBirth is provided
+        age: {
+          $cond: {
+            if: { $and: [{ $ne: ['$dateOfBirth', null] }, { $ne: ['$dateOfBirth', ''] }] },
+            then: {
+              $floor: {
+                $divide: [
+                  { $subtract: [new Date(), '$dateOfBirth'] },
+                  31556952000, // Average milliseconds in a year
+                ],
+              },
+            },
+            else: null,
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: 'UserProfessionalDetail',
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'userProfessional',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userProfessional',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    // Define individual match conditions as fields
+    {
+      $addFields: {
+        ageMatch: {
+          $and: [{ $gte: ['$age', userPartnerPreferences.age.min] }, { $lte: ['$age', userPartnerPreferences.age.max] }],
+        },
+        heightMatch: {
+          $and: [
+            { $gte: ['$height', userPartnerPreferences.height.min] },
+            { $lte: ['$height', userPartnerPreferences.height.max] },
+          ],
+        },
+        countryMatch: { $in: ['$address.currentCountry', userPartnerPreferences.country] },
+        cityMatch: { $in: ['$address.currentCity', userPartnerPreferences.city] },
+        incomeMatch: { $eq: ['$userProfessional.currentSalary', userPartnerPreferences.income] },
+        dietMatch: { $in: ['$diet', userPartnerPreferences.diet] },
+      },
+    },
+    // Calculate matched criteria list and percentage
+    {
+      $addFields: {
+        matchedCriteriaList: {
+          $filter: {
+            input: [
+              { criteria: 'Age', matched: '$ageMatch' },
+              { criteria: 'Height', matched: '$heightMatch' },
+              { criteria: 'Country', matched: '$countryMatch' },
+              { criteria: 'City', matched: '$cityMatch' },
+              { criteria: 'Income', matched: '$incomeMatch' },
+              { criteria: 'Diet', matched: '$dietMatch' },
+            ],
+            as: 'criteria',
+            cond: '$$criteria.matched',
+          },
+        },
+        matchedCriteriaCount: {
+          $size: {
+            $filter: {
+              input: ['$ageMatch', '$heightMatch', '$countryMatch', '$cityMatch', '$incomeMatch', '$dietMatch'],
+              as: 'match',
+              cond: { $eq: ['$$match', true] },
+            },
+          },
+        },
+      },
+    },
+    // Add total criteria fields and calculate match percentage
+    {
+      $addFields: {
+        totalCriteriaCount: 6, // Total number of criteria
+        matchPercentage: {
+          $multiply: [{ $divide: ['$matchedCriteriaCount', 6] }, 100],
+        },
+        matchedFieldsDisplay: {
+          $concat: [{ $toString: '$matchedCriteriaCount' }, ' out of ', { $toString: 6 }],
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: 'shortlists',
+        localField: '_id',
+        foreignField: 'shortlistId',
+        as: 'shortlistData',
+      },
+    },
+    {
+      $project: {
+        matchPercentage: 1,
+        matchedCriteriaList: 1,
+        matchedCriteriaCount: 1,
+        totalCriteriaCount: 1,
+        matchedFieldsDisplay: 1, // e.g., "3 out of 6"
+        shortlistData: 1,
+      },
+    },
+  ]);
+
+  return Array.isArray(matchData) && matchData.length > 0
+    ? matchData[0]
+    : {
+        matchPercentage: 0,
+        matchedCriteriaList: [],
+        matchedCriteriaCount: 0,
+        matchedFieldsDisplay: '0 out of 6',
+        shortlistData: [],
+      };
+}
 
 export async function getFriendById(id, options = {}) {
   const friend = await Friend.findById(id, options.projection, options)
@@ -23,17 +165,58 @@ export async function getOne(query, options = {}) {
 }
 
 export async function getFriendList(filter, options = {}) {
-  const friend = await Friend.find(filter, options.projection, options)
+  const page = options.page || 1;
+  const limit = options.limit || 10;
+  const skip = (page - 1) * limit;
+
+  // Get total count of matching friends for pagination
+  const totalDocs = await Friend.countDocuments(filter);
+
+  // Retrieve paginated list of friends
+  const friends = await Friend.find(filter, options.projection, { ...options, limit, skip })
     .populate({
       path: 'friend',
-      populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }], // Populate the address field of the user object
+      populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
     })
     .populate({
       path: 'user',
-      populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }], // Populate the address field of the user object
+      populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
     })
     .exec();
-  return friend;
+
+  // Process each friend to calculate match data
+  const friendsWithMatchData = await Promise.all(
+    friends.map(async (friendEntry) => {
+      const { friend, user } = friendEntry;
+      if (user && user.userPartner) {
+        const matchInfo = await calculateMatchScore(friend._id, user.userPartner);
+        return {
+          ...friendEntry.toObject(),
+          matchPercentage: matchInfo.matchPercentage,
+          shortlistData: matchInfo.shortlistData,
+        };
+      }
+      return {
+        ...friendEntry.toObject(),
+        matchPercentage: 0,
+        shortlistData: [],
+      };
+    })
+  );
+
+  // Calculate total pages
+  const totalPages = Math.ceil(totalDocs / limit);
+
+  // Return paginated results with metadata
+  return {
+    docs: friendsWithMatchData,
+    totalDocs,
+    limit,
+    page,
+    totalPages,
+    hasNextPage: page < totalPages,
+    hasPrevPage: page > 1,
+  };
 }
 
 export async function getFriendListWithPagination(filter, options = {}, appUsesType) {
@@ -229,123 +412,6 @@ export async function aggregateFriendWithPagination(query, options = {}) {
   });
   const friend = await Friend.aggregatePaginate(aggregate, options);
   return friend;
-}
-
-async function calculateMatchScore(friendId, userPartnerPreferences) {
-  const matchData = await User.aggregate([
-    {
-      $match: {
-        _id: friendId,
-      },
-    },
-    {
-      $lookup: {
-        from: 'addresses',
-        localField: 'address',
-        foreignField: '_id',
-        as: 'address',
-      },
-    },
-    {
-      $addFields: {
-        age: {
-          $cond: {
-            if: { $and: [{ $ne: ['$dateOfBirth', null] }, { $ne: ['$dateOfBirth', ''] }] },
-            then: {
-              $floor: {
-                $divide: [
-                  { $subtract: [new Date(), '$dateOfBirth'] },
-                  31556952000, // Average milliseconds in a year
-                ],
-              },
-            },
-            else: null,
-          },
-        },
-      },
-    },
-    {
-      $lookup: {
-        from: 'UserProfessionalDetail',
-        localField: '_id',
-        foreignField: 'userId',
-        as: 'userProfessional',
-      },
-    },
-    {
-      $unwind: {
-        path: '$userProfessional',
-        preserveNullAndEmptyArrays: true,
-      },
-    },
-    {
-      $addFields: {
-        matchData: {
-          $let: {
-            vars: {
-              totalCriteria: 6,
-              matchedCriteria: {
-                $add: [
-                  {
-                    $cond: [
-                      {
-                        $and: [
-                          { $gte: ['$age', userPartnerPreferences.age.min] },
-                          { $lte: ['$age', userPartnerPreferences.age.max] },
-                        ],
-                      },
-                      1,
-                      0,
-                    ],
-                  },
-                  {
-                    $cond: [
-                      {
-                        $and: [
-                          { $gte: ['$height', userPartnerPreferences.height.min] },
-                          { $lte: ['$height', userPartnerPreferences.height.max] },
-                        ],
-                      },
-                      1,
-                      0,
-                    ],
-                  },
-                  { $cond: [{ $in: ['$address.currentCountry', userPartnerPreferences.country] }, 1, 0] },
-                  { $cond: [{ $in: ['$address.currentCity', userPartnerPreferences.city] }, 1, 0] },
-                  { $cond: [{ $eq: ['$userProfessional.currentSalary', userPartnerPreferences.income] }, 1, 0] },
-                  { $cond: [{ $in: ['$diet', userPartnerPreferences.diet] }, 1, 0] },
-                ],
-              },
-            },
-            in: {
-              matchPercentage: {
-                $multiply: [{ $divide: ['$$matchedCriteria', '$$totalCriteria'] }, 100],
-              },
-              matchedCriteria: '$$matchedCriteria',
-            },
-          },
-        },
-      },
-    },
-    {
-      $lookup: {
-        from: 'shortlists',
-        localField: '_id', // Friend's userId
-        foreignField: 'shortlistId',
-        as: 'shortlistData',
-      },
-    },
-    {
-      $project: {
-        matchPercentage: '$matchData.matchPercentage',
-        matchedCriteria: '$matchData.matchedCriteria',
-        shortlistData: 1, // Include the shortlist data in the result
-      },
-    },
-  ]);
-
-  // Safely return match percentage or 0 if no matchData found
-  return Array.isArray(matchData) && matchData.length > 0 ? matchData[0] : { matchPercentage: 0, shortlistData: [] };
 }
 
 export async function respondFriendRequest(request, status, userId = {}, appUsesType) {
