@@ -918,7 +918,7 @@ export async function getUserWithPartnerPrefScore(filter) {
         randomId: 1,
         birthTime: 1,
         religion: 1,
-        cast: 1,
+        caste: 1,
         hobbies: 1,
         interest: 1,
         homeMobileNumber: 1,
