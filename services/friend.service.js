@@ -209,7 +209,7 @@ export async function getFriendList(filter, options = {}) {
 
   // Return paginated results with metadata
   return {
-    docs: friendsWithMatchData,
+    results: friendsWithMatchData,
     totalDocs,
     limit,
     page,
