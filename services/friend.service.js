@@ -25,25 +25,6 @@ async function calculateMatchScore(friendId, userPartnerPreferences) {
       },
     },
     {
-      $addFields: {
-        // Calculate the age if dateOfBirth is provided
-        age: {
-          $cond: {
-            if: { $and: [{ $ne: ['$dateOfBirth', null] }, { $ne: ['$dateOfBirth', ''] }] },
-            then: {
-              $floor: {
-                $divide: [
-                  { $subtract: [new Date(), '$dateOfBirth'] },
-                  31556952000, // Average milliseconds in a year
-                ],
-              },
-            },
-            else: null,
-          },
-        },
-      },
-    },
-    {
       $lookup: {
         from: 'UserProfessionalDetail',
         localField: '_id',
@@ -52,66 +33,67 @@ async function calculateMatchScore(friendId, userPartnerPreferences) {
       },
     },
     {
-      $unwind: {
-        path: '$userProfessional',
-        preserveNullAndEmptyArrays: true,
-      },
-    },
-    // Define individual match conditions as fields
-    {
       $addFields: {
-        ageMatch: {
-          $and: [{ $gte: ['$age', userPartnerPreferences.age.min] }, { $lte: ['$age', userPartnerPreferences.age.max] }],
-        },
-        heightMatch: {
-          $and: [
-            { $gte: ['$height', userPartnerPreferences.height.min] },
-            { $lte: ['$height', userPartnerPreferences.height.max] },
-          ],
-        },
-        countryMatch: { $in: ['$address.currentCountry', userPartnerPreferences.country] },
-        cityMatch: { $in: ['$address.currentCity', userPartnerPreferences.city] },
-        incomeMatch: { $eq: ['$userProfessional.currentSalary', userPartnerPreferences.income] },
-        dietMatch: { $in: ['$diet', userPartnerPreferences.diet] },
-      },
-    },
-    // Calculate matched criteria list and percentage
-    {
-      $addFields: {
-        matchedCriteriaList: {
-          $filter: {
-            input: [
-              { criteria: 'Age', matched: '$ageMatch' },
-              { criteria: 'Height', matched: '$heightMatch' },
-              { criteria: 'Country', matched: '$countryMatch' },
-              { criteria: 'City', matched: '$cityMatch' },
-              { criteria: 'Income', matched: '$incomeMatch' },
-              { criteria: 'Diet', matched: '$dietMatch' },
-            ],
-            as: 'criteria',
-            cond: '$$criteria.matched',
+        age: {
+          $cond: {
+            if: { $and: [{ $ne: ['$dateOfBirth', null] }, { $ne: ['$dateOfBirth', ''] }] },
+            then: {
+              $floor: {
+                $divide: [
+                  { $subtract: [new Date(), '$dateOfBirth'] },
+                  31556952000, // Average milliseconds in a year considering leap years
+                ],
+              },
+            },
+            else: null, // Handle cases where dateOfBirth is missing or invalid
           },
         },
-        matchedCriteriaCount: {
-          $size: {
-            $filter: {
-              input: ['$ageMatch', '$heightMatch', '$countryMatch', '$cityMatch', '$incomeMatch', '$dietMatch'],
-              as: 'match',
-              cond: { $eq: ['$$match', true] },
+      },
+    },
+    {
+      $addFields: {
+        matchData: {
+          $let: {
+            vars: {
+              totalCriteria: 4, // Update to the total number of criteria used
+              matchedCriteria: {
+                $add: [
+                  {
+                    $cond: [
+                      {
+                        $and: [
+                          { $gte: ['$age', userPartnerPreferences.age.min] },
+                          { $lte: ['$age', userPartnerPreferences.age.max] },
+                        ],
+                      },
+                      1,
+                      0,
+                    ],
+                  },
+                  {
+                    $cond: [
+                      {
+                        $and: [
+                          { $gte: ['$height', userPartnerPreferences.height.min] },
+                          { $lte: ['$height', userPartnerPreferences.height.max] },
+                        ],
+                      },
+                      1,
+                      0,
+                    ],
+                  },
+                  { $cond: [{ $in: ['$address.currentCountry', userPartnerPreferences.country] }, 1, 0] },
+                  { $cond: [{ $in: ['$address.currentCity', userPartnerPreferences.city] }, 1, 0] },
+                ],
+              },
+            },
+            in: {
+              matchPercentage: {
+                $multiply: [{ $divide: ['$$matchedCriteria', '$$totalCriteria'] }, 100],
+              },
+              matchedCriteria: '$$matchedCriteria',
             },
           },
-        },
-      },
-    },
-    // Add total criteria fields and calculate match percentage
-    {
-      $addFields: {
-        totalCriteriaCount: 6, // Total number of criteria
-        matchPercentage: {
-          $multiply: [{ $divide: ['$matchedCriteriaCount', 6] }, 100],
-        },
-        matchedFieldsDisplay: {
-          $concat: [{ $toString: '$matchedCriteriaCount' }, ' out of ', { $toString: 6 }],
         },
       },
     },
@@ -125,11 +107,8 @@ async function calculateMatchScore(friendId, userPartnerPreferences) {
     },
     {
       $project: {
-        matchPercentage: 1,
-        matchedCriteriaList: 1,
-        matchedCriteriaCount: 1,
-        totalCriteriaCount: 1,
-        matchedFieldsDisplay: 1, // e.g., "3 out of 6"
+        matchPercentage: '$matchData.matchPercentage',
+        matchedCriteria: '$matchData.matchedCriteria',
         shortlistData: 1,
       },
     },
@@ -139,9 +118,7 @@ async function calculateMatchScore(friendId, userPartnerPreferences) {
     ? matchData[0]
     : {
         matchPercentage: 0,
-        matchedCriteriaList: [],
-        matchedCriteriaCount: 0,
-        matchedFieldsDisplay: '0 out of 6',
+        matchedCriteria: 0,
         shortlistData: [],
       };
 }
@@ -193,6 +170,7 @@ export async function getFriendList(filter, options = {}) {
         return {
           ...friendEntry.toObject(),
           matchPercentage: matchInfo.matchPercentage,
+          matchedCriteria: matchInfo.matchedCriteria,
           shortlistData: matchInfo.shortlistData,
         };
       }
