@@ -134,8 +134,8 @@ export const deleteUserImage = catchAsync(async (req, res) => {
     },
     { new: true }
   );
-
-  return res.status(httpStatus.OK).send({ results: updateUser });
+  const filteredProfilePics = updateUser.userProfilePic.filter((image) => !image.isDeleted);
+  return res.status(httpStatus.OK).send({ results: { ...updateUser.toObject(), userProfilePic: filteredProfilePics } });
 });
 
 export const remove = catchAsync(async (req, res) => {
