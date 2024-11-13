@@ -12,16 +12,16 @@ async function calculateMatchScore(friendId, userPartnerPreferences) {
     },
     {
       $lookup: {
-        from: 'addresses',
-        localField: 'address',
-        foreignField: '_id',
+        from: 'Address',
+        localField: '_id',
+        foreignField: 'userId',
         as: 'address',
       },
     },
     {
       $unwind: {
-        path: '$address',
-        preserveNullAndEmptyArrays: true,
+        path: '$address', // Deconstructs the 'address' array field
+        preserveNullAndEmptyArrays: true, // If you want to exclude documents with no address
       },
     },
     {
@@ -30,6 +30,12 @@ async function calculateMatchScore(friendId, userPartnerPreferences) {
         localField: '_id',
         foreignField: 'userId',
         as: 'userProfessional',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userProfessional', // Deconstructs the 'address' array field
+        preserveNullAndEmptyArrays: true, // If you want to exclude documents with no address
       },
     },
     {
