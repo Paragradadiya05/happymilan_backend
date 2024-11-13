@@ -173,17 +173,28 @@ export async function getFriendList(filter, options = {}) {
       const { friend, user } = friendEntry;
       if (user && user.userPartner) {
         const matchInfo = await calculateMatchScore(friend._id, user.userPartner);
+
+        // Attach match data directly to the friend object
         return {
           ...friendEntry.toObject(),
-          matchPercentage: matchInfo.matchPercentage,
-          matchedCriteria: matchInfo.matchedCriteria,
-          shortlistData: matchInfo.shortlistData,
+          friend: {
+            ...friend.toObject(),
+            matchPercentage: matchInfo.matchPercentage,
+            matchedCriteria: matchInfo.matchedCriteria,
+            shortlistData: matchInfo.shortlistData,
+          },
         };
       }
+
+      // If no match data is available, attach default values to the friend object
       return {
         ...friendEntry.toObject(),
-        matchPercentage: 0,
-        shortlistData: [],
+        friend: {
+          ...friend.toObject(),
+          matchPercentage: 0,
+          matchedCriteria: [],
+          shortlistData: [],
+        },
       };
     })
   );
@@ -450,7 +461,12 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
 }
 
 export async function getFriendv2(filter, options = {}, userId) {
-  const friends = await Friend.find(filter, options.projection, options)
+  const page = options.page || 1;
+  const limit = options.limit || 10;
+  const skip = (page - 1) * limit;
+
+  const totalDocs = await Friend.countDocuments(filter);
+  const friends = await Friend.find(filter, options.projection, { ...options, limit, skip })
     .populate({
       path: 'friend',
       populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
@@ -469,20 +485,48 @@ export async function getFriendv2(filter, options = {}, userId) {
   }
 
   // Iterate over each friend to calculate the match score
-  const friendsWithMatchScore = await Promise.all(
-    friends.map(async (friend) => {
-      const friendId = friend.friend ? friend.friend._id : friend.user._id;
+  const friendsWithMatchData = await Promise.all(
+    friends.map(async (friendEntry) => {
+      const { friend, user } = friendEntry;
+      if (user && user.userPartner) {
+        const matchInfo = await calculateMatchScore(friend._id, user.userPartner);
+        return {
+          ...friendEntry.toObject(),
+          friend: {
+            ...friend.toObject(),
+            matchPercentage: matchInfo.matchPercentage,
+            matchedCriteria: matchInfo.matchedCriteria,
+            shortlistData: matchInfo.shortlistData,
+          },
+        };
+      }
 
-      const matchScore = await calculateMatchScore(friendId, userPartnerPreferences);
-
+      // If no match data is available, attach default values to the friend object
       return {
-        ...friend.toObject(),
-        matchScore,
+        ...friendEntry.toObject(),
+        friend: {
+          ...friend.toObject(),
+          matchPercentage: 0,
+          matchedCriteria: [],
+          shortlistData: [],
+        },
       };
     })
   );
 
-  return friendsWithMatchScore;
+  // Calculate total pages
+  const totalPages = Math.ceil(totalDocs / limit);
+
+  // Return paginated results with metadata
+  return {
+    results: friendsWithMatchData,
+    totalDocs,
+    limit,
+    page,
+    totalPages,
+    hasNextPage: page < totalPages,
+    hasPrevPage: page > 1,
+  };
 }
 
 // Function to calculate match score for each friend
