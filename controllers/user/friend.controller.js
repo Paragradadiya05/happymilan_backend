@@ -121,25 +121,14 @@ export const getMyFrdRequestsMobile = catchAsync(async (req, res) => {
     sort: sortObj,
     ...pick(query, ['limit', 'page']),
     lean: true,
-    populate: [
-      {
-        path: 'friend',
-        populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
-      },
-      {
-        path: 'user',
-        populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
-      },
-    ],
   };
   const userId = req.user._id;
   const filter = {
     status: EnumStatusOfFriend.ACCEPTED,
     $or: [{ friend: userId }, { user: userId }],
   };
-  const getuser = await friendService.getFriendListWithPagination(filter, options);
+  const getuser = await friendService.getFriendmobile(filter, options, userId);
 
-  // console.log('=== var user ===>', user );
   getuser.results = getuser.results.map((frdData) => {
     let friendList;
     let userList;

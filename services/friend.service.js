@@ -530,3 +530,72 @@ export async function getFriendv2(filter, options = {}, userId) {
 }
 
 // Function to calculate match score for each friend
+export async function getFriendmobile(filter, options = {}, userId) {
+  const page = options.page || 1;
+  const limit = options.limit || 10;
+  const skip = (page - 1) * limit;
+
+  const totalDocs = await Friend.countDocuments(filter);
+  const friends = await Friend.find(filter, options.projection, { ...options, limit, skip })
+    .populate({
+      path: 'friend',
+      populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
+    })
+    .populate({
+      path: 'user',
+      populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
+    })
+    .lean() // Ensure results are plain JavaScript objects
+    .exec();
+
+  // Get user partner preferences for match score
+  const userPartnerPreferences = await Partner.findOne({ userId });
+
+  if (!userPartnerPreferences) {
+    throw new Error('User Partner Preferences not found');
+  }
+
+  // Iterate over each friend to calculate the match score
+  const friendsWithMatchData = await Promise.all(
+    friends.map(async (friendEntry) => {
+      const { friend, user } = friendEntry;
+      if (user && user.userPartner) {
+        const matchInfo = await calculateMatchScore(friend._id, user.userPartner);
+        return {
+          ...friendEntry, // Already a plain object, no need for toObject()
+          friend: {
+            ...friend,
+            matchPercentage: matchInfo.matchPercentage,
+            matchedCriteria: matchInfo.matchedCriteria,
+            shortlistData: matchInfo.shortlistData,
+          },
+        };
+      }
+
+      // If no match data is available, attach default values to the friend object
+      return {
+        ...friendEntry,
+        friend: {
+          ...friend,
+          matchPercentage: 0,
+          matchedCriteria: [],
+          shortlistData: [],
+        },
+      };
+    })
+  );
+
+  // Calculate total pages
+  const totalPages = Math.ceil(totalDocs / limit);
+
+  // Return paginated results with metadata
+  return {
+    results: friendsWithMatchData,
+    totalDocs,
+    limit,
+    page,
+    totalPages,
+    hasNextPage: page < totalPages,
+    hasPrevPage: page > 1,
+  };
+}
