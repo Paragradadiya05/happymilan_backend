@@ -29,6 +29,8 @@ import storyViewRoute from './v1/storyview/storyview.route';
 import KycRoute from './v1/kyc/kyc.route';
 import datingPartnerRoute from './v1/datingpartner/datinfpartner.route';
 import countryCodeRoute from './v1/countryCode/countryCode.route';
+import SuccessStoryViewRoute from './v1/SuccessStoryview/SuccessStoryview.route';
+import StoryLikeRoute from './v1/storylike/storylike.route';
 
 const router = express.Router();
 router.use('/user', userRoutes);
@@ -61,6 +63,8 @@ router.use('/story-view', storyViewRoute);
 router.use('/kyc', KycRoute);
 router.use('/dating-partner', datingPartnerRoute);
 router.use('/country-code', countryCodeRoute);
+router.use('/success-story-View', SuccessStoryViewRoute);
+router.use('/story-Like', StoryLikeRoute);
 
 // router.use('/userEducation', userEducationRoutes);
 // router.use('/commentOnStory', commentOnStoryRoutes);

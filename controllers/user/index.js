@@ -29,3 +29,5 @@ module.exports.storyViewController = require('./storyview.controller');
 module.exports.KycController = require('./kyc.controller');
 module.exports.DatingPartnerController = require('./datingPartner.controller');
 module.exports.CountryCodeController = require('./countryCode.controller');
+module.exports.SuccessStoryViewController = require('./successstoryview.controller');
+module.exports.StoryLikeController = require('./storylike.controller');

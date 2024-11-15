@@ -61,3 +61,7 @@ module.exports.KycValidation = require('./kyc.validation');
 module.exports.datingPartnerValidation = require('./datingpartner.validation');
 
 module.exports.countryCodeValidation = require('./countryCode.validation');
+
+module.exports.SuccessStoryviewValidation = require('./SuccessStoryview.validation');
+
+module.exports.StoryLikeValidation = require('./storylike.validation');

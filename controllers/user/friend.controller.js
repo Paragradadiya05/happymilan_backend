@@ -70,8 +70,17 @@ export const getBlockList = catchAsync(async (req, res) => {
     user: userId,
     status: EnumStatusOfFriend.BLOCKED,
   };
-  const options = {};
-  const user = await friendService.getFriendList(filter, options);
+  const { query } = req;
+  const sortingObj = pick(query, ['sort', 'order']);
+  const sortObj = {
+    [sortingObj.sort]: sortingObj.order,
+  };
+  const options = {
+    sort: sortObj,
+    ...pick(query, ['limit', 'page']),
+    lean: true,
+  };
+  const user = await friendService.getFriendmobile(filter, options, userId);
 
   return res.status(httpStatus.OK).send({ results: user });
 });
@@ -147,7 +156,6 @@ export const getMyFrdRequestsMobile = catchAsync(async (req, res) => {
       userList,
     };
   });
-
   return res.status(httpStatus.OK).send({ results: getuser });
 });
 export const getRejectedFrdRequests = catchAsync(async (req, res) => {
