@@ -351,6 +351,20 @@ export async function getGenderListV2(filter, options = {}) {
       },
     },
     {
+      $unwind: {
+        path: '$address', // Deconstructs the 'address' array field
+        preserveNullAndEmptyArrays: true, // If you want to exclude documents with no address
+      },
+    },
+    {
+      $lookup: {
+        from: 'UserPartner',
+        localField: '_id', // User's `_id` field
+        foreignField: 'userId', // Match with `userId` in `UserPartner`
+        as: 'userPartnerDetails',
+      },
+    },
+    {
       $addFields: {
         matchData: {
           $let: {
@@ -433,7 +447,6 @@ export async function getGenderListV2(filter, options = {}) {
         community: 1,
         motherTongue: 1,
         weight: 1,
-        userPartner: 1,
         userEducation: 1,
         'userProfessional._id': 1,
         'userProfessional.jobTitle': 1,
@@ -461,6 +474,7 @@ export async function getGenderListV2(filter, options = {}) {
         'userShortListDetails.shortlistId': 1,
         'userShortListDetails._id': 1,
         'subscriptionDetails.status': 1,
+        userPartnerDetails: 1,
       },
     },
     { $sort: { matchPercentage: -1 } }, // Sort by match percentage in descending order
@@ -585,10 +599,11 @@ export async function getMatchUser(filter) {
         as: 'address',
       },
     },
+
     {
       $unwind: {
-        path: '$address', // Deconstructs the 'address' array field
-        preserveNullAndEmptyArrays: true, // If you want to exclude documents with no address
+        path: '$userPartnerDetails',
+        preserveNullAndEmptyArrays: true,
       },
     },
     {
