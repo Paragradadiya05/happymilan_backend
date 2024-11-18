@@ -33,11 +33,7 @@ const UserPartnerSchema = new mongoose.Schema(
     income: {
       type: Number,
     },
-    creative: {
-      type: [String],
-      enum: Object.values(enumModel.EnumOfCreative),
-    },
-    fun: {
+    hobbies: {
       type: [String],
     },
     diet: {
