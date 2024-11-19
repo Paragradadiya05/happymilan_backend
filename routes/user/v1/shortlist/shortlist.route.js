@@ -3,6 +3,7 @@ import validate from 'middlewares/validate';
 import { shortlistController } from 'controllers/user';
 import { shortlistValidation } from 'validations/user';
 import auth from 'middlewares/auth';
+import appUserType from 'middlewares/appUserType';
 
 const router = express();
 router.post('/create-shortlist', auth(), validate(shortlistValidation.createShortlist), shortlistController.createShortlist);
@@ -24,6 +25,7 @@ router.delete(
 router.get(
   '/get-short-list-paginat/:userId',
   auth(),
+  appUserType(),
   validate(shortlistValidation.GetShortlistByUser),
   shortlistController.getShortlistPagination
 );

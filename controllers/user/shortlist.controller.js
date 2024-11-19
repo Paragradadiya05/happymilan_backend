@@ -43,12 +43,14 @@ export const deleteShortlistByUser = catchAsync(async (req, res) => {
 export const getShortlistPagination = catchAsync(async (req, res) => {
   const { userId } = req.params;
   const { query } = req;
+  const { appUsesType } = req.query;
   const sortingObj = pick(query, ['sort', 'order']);
   const sortObj = {
     [sortingObj.sort]: sortingObj.order,
   };
   const filter = {
     userId,
+    appUsesType,
   };
   const options = {
     sort: sortObj,
