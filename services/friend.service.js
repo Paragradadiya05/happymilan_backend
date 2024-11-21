@@ -460,7 +460,7 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
   }
 }
 
-export async function getFriendv2(filter, options = {}, userId, appUsesType = 'marriage') {
+export async function getFriendv2(filter, options = {}) {
   const page = options.page || 1;
   const limit = options.limit || 10;
   const skip = (page - 1) * limit;
@@ -477,56 +477,42 @@ export async function getFriendv2(filter, options = {}, userId, appUsesType = 'm
     })
     .exec();
 
-  let friendsWithMatchData;
+  // Get user partner preferences for match score
+  // const userPartnerPreferences = await Partner.findOne({ userId });
+  //
+  // if (!userPartnerPreferences) {
+  //   throw new Error('User Partner Preferences not found');
+  // }
 
-  // Check appUsesType to decide behavior
-  if (appUsesType === 'marriage') {
-    // Fetch user partner preferences
-    const userPartnerPreferences = await Partner.findOne({ userId });
-    if (!userPartnerPreferences) {
-      throw new Error('User Partner Preferences not found');
-    }
-
-    // Calculate match data
-    friendsWithMatchData = await Promise.all(
-      friends.map(async (friendEntry) => {
-        const { friend, user } = friendEntry;
-        if (user && user.userPartner) {
-          const matchInfo = await calculateMatchScore(friend._id, user.userPartner);
-          return {
-            ...friendEntry.toObject(),
-            friend: {
-              ...friend.toObject(),
-              matchPercentage: matchInfo.matchPercentage,
-              matchedCriteria: matchInfo.matchedCriteria,
-              shortlistData: matchInfo.shortlistData,
-            },
-          };
-        }
-
-        // Default values if no match data
+  // Iterate over each friend to calculate the match score
+  const friendsWithMatchData = await Promise.all(
+    friends.map(async (friendEntry) => {
+      const { friend, user } = friendEntry;
+      if (user && user.userPartner) {
+        const matchInfo = await calculateMatchScore(friend._id, user.userPartner);
         return {
           ...friendEntry.toObject(),
           friend: {
             ...friend.toObject(),
-            matchPercentage: 0,
-            matchedCriteria: [],
-            shortlistData: [],
+            matchPercentage: matchInfo.matchPercentage,
+            matchedCriteria: matchInfo.matchedCriteria,
+            shortlistData: matchInfo.shortlistData,
           },
         };
-      })
-    );
-  } else {
-    // If appUsesType is not marriage, skip match calculation
-    friendsWithMatchData = friends.map((friendEntry) => ({
-      ...friendEntry.toObject(),
-      friend: {
-        ...friendEntry.friend.toObject(),
-        matchPercentage: null, // No match data for dating
-        matchedCriteria: null,
-      },
-    }));
-  }
+      }
+
+      // If no match data is available, attach default values to the friend object
+      return {
+        ...friendEntry.toObject(),
+        friend: {
+          ...friend.toObject(),
+          matchPercentage: 0,
+          matchedCriteria: [],
+          shortlistData: [],
+        },
+      };
+    })
+  );
 
   // Calculate total pages
   const totalPages = Math.ceil(totalDocs / limit);
