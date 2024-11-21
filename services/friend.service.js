@@ -256,8 +256,14 @@ export async function createFriend(body = {}, user, appUsesType) {
         ],
       },
       {
-        $set: { status: EnumStatusOfFriend.REQUESTED, friend: body.friend, user: body.user, lastInitiatorUser: user },
-        $push: { statusHistory: { status: EnumStatusOfFriend.REQUESTED, initiatorUser: user } },
+        $set: {
+          status: EnumStatusOfFriend.REQUESTED,
+          friend: body.friend,
+          user: body.user,
+          lastInitiatorUser: user,
+          date: Date.now(),
+        },
+        $push: { statusHistory: { status: EnumStatusOfFriend.REQUESTED, initiatorUser: user, date: Date.now() } },
       },
       { new: true }
     );
@@ -364,7 +370,8 @@ export async function createFriend(body = {}, user, appUsesType) {
   return Friend.create({
     ...body,
     lastInitiatorUser: user,
-    $push: { statusHistory: { status: EnumStatusOfFriend.REQUESTED, initiatorUser: user } },
+    date: Date.now(),
+    $push: { statusHistory: { status: EnumStatusOfFriend.REQUESTED, initiatorUser: user, date: Date.now() } },
   });
 }
 

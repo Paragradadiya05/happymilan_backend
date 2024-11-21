@@ -35,6 +35,9 @@ const FriendSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    date: {
+      type: Date,
+    },
     status: {
       type: String,
       enum: Object.values(enumModel.EnumStatusOfFriend),
