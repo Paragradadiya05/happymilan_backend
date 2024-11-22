@@ -1,6 +1,6 @@
 import ApiError from 'utils/ApiError';
 import httpStatus from 'http-status';
-import { Friend, Notification, Partner, User } from 'models';
+import { Friend, Notification, User } from 'models';
 import mongoose from 'mongoose';
 import { EnumOfNotification, EnumStatusOfFriend } from '../models/enum.model';
 import { sendNotification } from './notification.service';
@@ -537,7 +537,7 @@ export async function getFriendv2(filter, options = {}) {
 }
 
 // Function to calculate match score for each friend
-export async function getFriendmobile(filter, options = {}, userId) {
+export async function getFriendmobile(filter, options = {}) {
   const page = options.page || 1;
   const limit = options.limit || 10;
   const skip = (page - 1) * limit;
@@ -556,11 +556,11 @@ export async function getFriendmobile(filter, options = {}, userId) {
     .exec();
 
   // Get user partner preferences for match score
-  const userPartnerPreferences = await Partner.findOne({ userId });
-
-  if (!userPartnerPreferences) {
-    throw new Error('User Partner Preferences not found');
-  }
+  // const userPartnerPreferences = await Partner.findOne({ userId });
+  //
+  // if (!userPartnerPreferences) {
+  //   throw new Error('User Partner Preferences not found');
+  // }
 
   // Iterate over each friend to calculate the match score
   const friendsWithMatchData = await Promise.all(
