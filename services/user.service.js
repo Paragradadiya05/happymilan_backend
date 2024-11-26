@@ -2597,7 +2597,28 @@ export async function getNewUserList(filter, options = {}) {
  */
 export async function checkMissingFields(userId) {
   // Define required fields for the user, address, education, and professional details
-  const requiredFields = ['name', 'email', 'mobileNumber', 'dateOfBirth', 'gender', 'shortBio', 'profilePic'];
+  const requiredFields = [
+    'name',
+    'email',
+    'mobileNumber',
+    'dateOfBirth',
+    'gender',
+    'shortBio',
+    'profilePic',
+    'maritalStatus',
+    'religion',
+    'caste',
+    'weight',
+    'height',
+    'creatingProfileFor',
+    'firstName',
+    'lastName',
+    'birthTime',
+    'mobileNumber',
+    'homeMobileNumber',
+    'email',
+    'hobbies',
+  ];
   const requiredAddressFields = [
     'currentResidenceAddress',
     'currentCity',
