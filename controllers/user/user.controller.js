@@ -314,3 +314,19 @@ export const getnewuser = catchAsync(async (req, res) => {
   const userdata = await userService.getNewUserList(filter, options);
   return res.status(httpStatus.OK).send({ results: userdata });
 });
+
+export const checkMissingFields = catchAsync(async (req, res) => {
+  const userId = req.user._id; // Assuming `req.user` contains authenticated user data
+  const filter = { _id: userId }; // Filter to find the specific user
+  const options = { projection: { password: 0 } }; // Exclude sensitive fields like password
+
+  const missingFields = await userService.checkMissingFields(filter, options);
+
+  return res.status(httpStatus.OK).send({
+    success: true,
+    data: {
+      missingFields,
+    },
+    message: missingFields.length ? 'Some fields are missing' : 'All required fields are filled',
+  });
+});

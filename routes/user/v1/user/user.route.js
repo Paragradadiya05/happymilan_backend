@@ -73,6 +73,7 @@ router
 router
   .route('/getUser-list-by-interest')
   .post(auth(), validate(userValidation.getFilteredDatingUsers), userController.getFilteredDatingUsers);
+router.route('/pending-fields').get(auth(), userController.checkMissingFields);
 router
   .route('/:userId')
   /**

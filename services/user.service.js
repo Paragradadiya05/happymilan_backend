@@ -2590,3 +2590,84 @@ export async function getNewUserList(filter, options = {}) {
   const matchedUsers = await User.aggregate(pipeline).exec();
   return matchedUsers;
 }
+/**
+ * Check for missing fields for a logged-in user
+ * @param {ObjectId} userId - The logged-in user's ID
+ * @returns {Object} Object containing the user data and missing fields
+ */
+export async function checkMissingFields(userId) {
+  // Define required fields for the user, address, education, and professional details
+  const requiredFields = ['name', 'email', 'mobileNumber', 'dateOfBirth', 'gender', 'shortBio', 'profilePic'];
+  const requiredAddressFields = [
+    'currentResidenceAddress',
+    'currentCity',
+    'currentCountry',
+    'originResidenceAddress',
+    'originCity',
+    'originCountry',
+    'currentState',
+  ];
+  const requiredEducationFields = ['degree', 'collage', 'city', 'state', 'country'];
+  const requiredProfessionalFields = ['jobTitle', 'jobType', 'companyName', 'currentSalary', 'workCity', 'workCountry'];
+
+  // Fetch user details from the database
+  const user = await User.findById(userId)
+    .populate('address') // Populate the address field
+    .populate('userEducation') // Populate the user education field
+    .populate('userProfessional') // Populate the user professional details
+    .exec();
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  // Identify missing fields in user
+  const missingFields = requiredFields.filter((field) => {
+    const value = user[field];
+    return value === null || value === undefined || value === ''; // Check for empty, null, or undefined values
+  });
+
+  // Identify missing fields in address
+  if (user.address) {
+    const missingAddressFields = requiredAddressFields.filter((field) => {
+      const value = user.address[field];
+      return value === null || value === undefined || value === ''; // Check for missing values
+    });
+
+    if (missingAddressFields.length) {
+      missingFields.push({ address: missingAddressFields });
+    }
+  } else {
+    missingFields.push({ address: 'Address is missing' });
+  }
+
+  // Identify missing fields in user education
+  if (user.userEducation) {
+    const missingEducationFields = requiredEducationFields.filter((field) => {
+      const value = user.userEducation[field];
+      return value === null || value === undefined || value === ''; // Check for missing values
+    });
+
+    if (missingEducationFields.length) {
+      missingFields.push({ education: missingEducationFields });
+    }
+  } else {
+    missingFields.push({ education: 'Education details are missing' });
+  }
+
+  // Identify missing fields in user professional details
+  if (user.userProfessional) {
+    const missingProfessionalFields = requiredProfessionalFields.filter((field) => {
+      const value = user.userProfessional[field];
+      return value === null || value === undefined || value === ''; // Check for missing values
+    });
+
+    if (missingProfessionalFields.length) {
+      missingFields.push({ professional: missingProfessionalFields });
+    }
+  } else {
+    missingFields.push({ professional: 'Professional details are missing' });
+  }
+
+  return missingFields;
+}
