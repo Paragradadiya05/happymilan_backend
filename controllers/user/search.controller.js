@@ -17,7 +17,7 @@ export const searchUser = catchAsync(async (req, res) => {
     currentCity,
     state,
   } = req.body;
-
+  const { page = 1, limit = 10 } = req.query;
   if (maritalStatus && !Array.isArray(maritalStatus)) {
     return res.status(httpStatus.BAD_REQUEST).send({ error: 'maritalStatus must be an array' });
   }
@@ -103,7 +103,12 @@ export const searchUser = catchAsync(async (req, res) => {
     ...(state && state.length > 0 && { state: { $in: state } }),
   };
 
-  const user = await userService.getUserListForSearch(filter, { currentCountry, currentCity, state });
+  const user = await userService.getUserListForSearch(
+    filter,
+    { currentCountry, currentCity, state },
+    parseInt(page, 10),
+    parseInt(limit, 10)
+  );
   return res.status(httpStatus.OK).send({ results: user });
 });
 

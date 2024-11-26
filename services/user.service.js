@@ -47,10 +47,13 @@ export async function getUserList(filter, options = {}) {
   return user;
 }
 
-export async function getUserListForSearch(filter, { currentCountry = [], currentCity = [] }) {
+export async function getUserListForSearch(filter, { currentCountry = [], currentCity = [] }, page, limit) {
   // eslint-disable-next-line no-param-reassign
   filter['profileHideAndDelete.isProfileHide'] = { $ne: true };
-  const user = await User.aggregate([
+  const skip = (page - 1) * limit;
+
+  // Use aggregation for both filtering and counting
+  const aggregationPipeline = [
     {
       $match: filter,
     },
@@ -68,9 +71,41 @@ export async function getUserListForSearch(filter, { currentCountry = [], curren
         ...(currentCity && currentCity.length && { 'address.currentCity': { $in: currentCity } }),
       },
     },
+  ];
+
+  // Calculate total users
+  const totalResultsData = await User.aggregate([
+    ...aggregationPipeline,
+    { $count: 'total' }, // Count total documents matching the filter
   ]);
-  return user;
+  const totalResults = totalResultsData.length > 0 ? totalResultsData[0].total : 0;
+
+  // Paginated results
+  const users = await User.aggregate([...aggregationPipeline, { $skip: skip }, { $limit: limit }]);
+
+  // Calculate pagination metadata
+  const totalPages = Math.ceil(totalResults / limit);
+  const hasPrevPage = page > 1;
+  const hasNextPage = page < totalPages;
+  const prevPage = hasPrevPage ? page - 1 : null;
+  const nextPage = hasNextPage ? page + 1 : null;
+
+  return {
+    users,
+    pagination: {
+      totalResults,
+      limit,
+      totalPages,
+      page,
+      pagingCounter: skip + 1, // Index of the first item on the current page
+      hasPrevPage,
+      hasNextPage,
+      prevPage,
+      nextPage,
+    },
+  };
 }
+
 export async function getUserListWithPagination(filter, options = {}) {
   const user = await User.paginate(filter, options);
   return user;
