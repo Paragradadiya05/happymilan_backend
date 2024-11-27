@@ -18,6 +18,7 @@ export const searchUser = catchAsync(async (req, res) => {
     state,
   } = req.body;
   const { page = 1, limit = 10 } = req.query;
+  const userId = req.user && req.user._id;
   if (maritalStatus && !Array.isArray(maritalStatus)) {
     return res.status(httpStatus.BAD_REQUEST).send({ error: 'maritalStatus must be an array' });
   }
@@ -107,7 +108,8 @@ export const searchUser = catchAsync(async (req, res) => {
     filter,
     { currentCountry, currentCity, state },
     parseInt(page, 10),
-    parseInt(limit, 10)
+    parseInt(limit, 10),
+    userId
   );
   return res.status(httpStatus.OK).send({ results: user });
 });

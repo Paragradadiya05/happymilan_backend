@@ -47,9 +47,13 @@ export async function getUserList(filter, options = {}) {
   return user;
 }
 
-export async function getUserListForSearch(filter, { currentCountry = [], currentCity = [] }, page, limit) {
+export async function getUserListForSearch(filter, { currentCountry = [], currentCity = [] }, page, limit, userId) {
   // eslint-disable-next-line no-param-reassign
   filter['profileHideAndDelete.isProfileHide'] = { $ne: true };
+  const userPartnerPreferences = await Partner.findOne({ userId });
+  if (!userPartnerPreferences) {
+    throw new Error('User Partner Preferences not found. Please add Partner Preference first');
+  }
   const skip = (page - 1) * limit;
 
   // Use aggregation for both filtering and counting
@@ -71,6 +75,264 @@ export async function getUserListForSearch(filter, { currentCountry = [], curren
         ...(currentCity && currentCity.length && { 'address.currentCity': { $in: currentCity } }),
       },
     },
+    {
+      $match: {
+        _id: { $ne: mongoose.Types.ObjectId(userId) }, // Exclude the current user
+        platform: { $eq: EnumOfPlatformType.HAPPY_MILAN },
+        appUsesType: EnumAppUsesTypeOfUsers.MARRIAGE,
+      },
+    },
+    {
+      $lookup: {
+        from: 'likes', // // The collection name for Like model
+        let: {
+          currentUserIdForLike: '$_id', // Reference to current document's userId
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $eq: ['$user', userId] }, { $eq: ['$likedUserId', '$$currentUserIdForLike'] }],
+              },
+            },
+          },
+        ],
+        as: 'userLikeDetails',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userLikeDetails',
+        preserveNullAndEmptyArrays: true, // Include users with no matching friends
+      },
+    },
+    {
+      $lookup: {
+        from: 'shortlists', // // The collection name for Like model
+        let: {
+          currentUserIdForShortList: '$_id', // Reference to current document's userId
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $eq: ['$userId', userId] }, { $eq: ['$shortlistId', '$$currentUserIdForShortList'] }],
+              },
+            },
+          },
+        ],
+        as: 'userShortListDetails',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userShortListDetails',
+        preserveNullAndEmptyArrays: true, // Include users with no matching friends
+      },
+    },
+    {
+      $lookup: {
+        from: 'Friend', // The collection name for Friend model
+        let: {
+          currentUserId: '$_id', // Reference to current document's userId
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $eq: ['$user', userId] }, { $eq: ['$friend', '$$currentUserId'] }],
+              },
+            },
+          },
+        ],
+        as: 'friendsDetails',
+      },
+    },
+    {
+      $unwind: {
+        path: '$friendsDetails',
+        preserveNullAndEmptyArrays: true, // Include users with no matching friends
+      },
+    },
+    {
+      $match: {
+        'friendsDetails.status': { $ne: EnumStatusOfFriend.BLOCKED },
+      },
+    },
+    {
+      $addFields: {
+        age: {
+          $cond: {
+            if: { $and: [{ $ne: ['$dateOfBirth', null] }, { $ne: ['$dateOfBirth', ''] }] },
+            then: {
+              $floor: {
+                $divide: [
+                  { $subtract: [new Date(), '$dateOfBirth'] },
+                  31556952000, // Average milliseconds in a year considering leap years
+                ],
+              },
+            },
+            else: null, // Handle cases where dateOfBirth is missing or invalid
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: 'Address',
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'address',
+      },
+    },
+    {
+      $unwind: {
+        path: '$address', // Deconstructs the 'address' array field
+        preserveNullAndEmptyArrays: true, // If you want to exclude documents with no address
+      },
+    },
+    {
+      $lookup: {
+        from: 'UserProfessionalDetail',
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'userProfessional',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userProfessional', // Deconstructs the 'address' array field
+        preserveNullAndEmptyArrays: true, // If you want to exclude documents with no address
+      },
+    },
+    {
+      $unwind: {
+        path: '$address', // Deconstructs the 'address' array field
+        preserveNullAndEmptyArrays: true, // If you want to exclude documents with no address
+      },
+    },
+    {
+      $lookup: {
+        from: 'UserPartner',
+        localField: '_id', // User's `_id` field
+        foreignField: 'userId', // Match with `userId` in `UserPartner`
+        as: 'userPartnerDetails',
+      },
+    },
+    {
+      $addFields: {
+        matchData: {
+          $let: {
+            vars: {
+              totalCriteria: 4, // Update to the total number of criteria used
+              matchedCriteria: {
+                $add: [
+                  {
+                    $cond: [
+                      {
+                        $and: [
+                          { $gte: ['$age', userPartnerPreferences.age.min] },
+                          { $lte: ['$age', userPartnerPreferences.age.max] },
+                        ],
+                      },
+                      1,
+                      0,
+                    ],
+                  },
+                  {
+                    $cond: [
+                      {
+                        $and: [
+                          { $gte: ['$height', userPartnerPreferences.height.min] },
+                          { $lte: ['$height', userPartnerPreferences.height.max] },
+                        ],
+                      },
+                      1,
+                      0,
+                    ],
+                  },
+                  { $cond: [{ $in: ['$address.currentCountry', userPartnerPreferences.country] }, 1, 0] },
+                  { $cond: [{ $in: ['$address.currentCity', userPartnerPreferences.city] }, 1, 0] },
+                ],
+              },
+            },
+            in: {
+              matchPercentage: {
+                $multiply: [{ $divide: ['$$matchedCriteria', '$$totalCriteria'] }, 100],
+              },
+              matchedCriteria: '$$matchedCriteria',
+            },
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        age: 1,
+        height: 1,
+        'address._id': 1,
+        'address.currentResidenceAddress': 1,
+        'address.currentCity': 1,
+        'address.state': 1,
+        'address.currentCountry': 1,
+        'address.createdAt': 1,
+        'address.updatedAt': 1,
+        name: 1,
+        appUsesType: 1,
+        email: 1,
+        mobileNumber: 1,
+        emailVerified: 1,
+        maritalStatus: 1,
+        displayName: 1,
+        firstName: 1,
+        lastName: 1,
+        gender: 1,
+        dateOfBirth: 1,
+        randomId: 1,
+        birthTime: 1,
+        religion: 1,
+        cast: 1,
+        hobbies: 1,
+        interest: 1,
+        homeMobileNumber: 1,
+        creatingProfileFor: 1,
+        writeBoutYourSelf: 1,
+        hideProfileDuration: 1,
+        community: 1,
+        motherTongue: 1,
+        weight: 1,
+        userEducation: 1,
+        'userProfessional._id': 1,
+        'userProfessional.jobTitle': 1,
+        'userProfessional.jobType': 1,
+        'userProfessional.companyName': 1,
+        'userProfessional.currentSalary': 1,
+        'userProfessional.workCity': 1,
+        'userProfessional.workCountry': 1,
+        profilePic: 1,
+        userUniqueId: 1,
+        diet: 1,
+        userProfilePic: 1,
+        userProfileVideo: 1,
+        profileHideAndDelete: 1,
+        'friendsDetails.status': 1,
+        'friendsDetails._id': 1,
+        matchPercentage: '$matchData.matchPercentage',
+        matchedCriteria: '$matchData.matchedCriteria',
+        isUserActive: 1,
+        'userLikeDetails.isLike': 1,
+        'userLikeDetails.user': 1,
+        'userLikeDetails.likedUserId': 1,
+        'userLikeDetails._id': 1,
+        'userShortListDetails.userId': 1,
+        'userShortListDetails.shortlistId': 1,
+        'userShortListDetails._id': 1,
+        'subscriptionDetails.status': 1,
+        userPartnerDetails: 1,
+      },
+    },
+    { $sort: { matchPercentage: -1 } },
   ];
 
   // Calculate total users
@@ -2633,7 +2895,7 @@ export async function getNewUserList(filter, options = {}) {
 export async function checkMissingFields(userId) {
   // Define categories with their corresponding fields
   const fieldCategories = {
-    createProfileFor: ['creatingProfileFor', 'birthTime', 'dateOfBirth', 'lastName', 'firstName'],
+    createProfile: ['creatingProfileFor', 'birthTime', 'dateOfBirth', 'lastName', 'firstName'],
     generalDetails: ['shortBio', 'height', 'weight', 'caste', 'religion', 'maritalStatus', 'gender'],
     contactDetails: ['email', 'homeMobileNumber', 'mobileNumber'],
     hobbies: ['hobbies'],
@@ -2664,7 +2926,7 @@ export async function checkMissingFields(userId) {
 
   // Initialize object to store missing fields by category
   const missingFields = {
-    createProfileFor: [],
+    createProfile: [],
     generalDetails: [],
     contactDetails: [],
     hobbies: [],
