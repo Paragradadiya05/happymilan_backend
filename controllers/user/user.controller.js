@@ -316,17 +316,38 @@ export const getnewuser = catchAsync(async (req, res) => {
 });
 
 export const checkMissingFields = catchAsync(async (req, res) => {
-  const userId = req.user._id; // Assuming `req.user` contains authenticated user data
-  const filter = { _id: userId }; // Filter to find the specific user
-  const options = { projection: { password: 0 } }; // Exclude sensitive fields like password
+  try {
+    const userId = req.user._id; // Ensure req.user is populated by middleware
+    if (!userId) {
+      return res.status(httpStatus.BAD_REQUEST).send({
+        success: false,
+        message: 'User ID is missing from the request',
+      });
+    }
 
-  const missingFields = await userService.checkMissingFields(filter, options);
+    const filter = { _id: userId }; // Filter to find the specific user
+    const options = {}; // Exclude sensitive fields like password
 
-  return res.status(httpStatus.OK).send({
-    success: true,
-    data: {
-      missingFields,
-    },
-    message: missingFields.length ? 'Some fields are missing' : 'All required fields are filled',
-  });
+    // Call the service function to check for missing fields
+    const missingFields = await userService.checkMissingFields(filter, options);
+
+    // Return response with appropriate message
+    return res.status(httpStatus.OK).send({
+      success: true,
+      data: {
+        missingFields,
+      },
+      message:
+        missingFields && Object.keys(missingFields).some((key) => missingFields[key].length > 0)
+          ? 'Some fields are missing'
+          : 'All required fields are filled',
+    });
+  } catch (error) {
+    // Handle unexpected errors
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).send({
+      success: false,
+      message: 'An error occurred while checking for missing fields',
+      error: error.message,
+    });
+  }
 });

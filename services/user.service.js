@@ -2631,29 +2631,14 @@ export async function getNewUserList(filter, options = {}) {
  * @returns {Object} Object containing the user data and missing fields
  */
 export async function checkMissingFields(userId) {
-  // Define required fields for the user, address, education, and professional details
-  const requiredFields = [
-    'name',
-    'email',
-    'mobileNumber',
-    'dateOfBirth',
-    'gender',
-    'shortBio',
-    'profilePic',
-    'maritalStatus',
-    'religion',
-    'caste',
-    'weight',
-    'height',
-    'creatingProfileFor',
-    'firstName',
-    'lastName',
-    'birthTime',
-    'mobileNumber',
-    'homeMobileNumber',
-    'email',
-    'hobbies',
-  ];
+  // Define categories with their corresponding fields
+  const fieldCategories = {
+    createProfileFor: ['creatingProfileFor', 'birthTime', 'dateOfBirth', 'lastName', 'firstName'],
+    generalDetails: ['shortBio', 'height', 'weight', 'caste', 'religion', 'maritalStatus', 'gender'],
+    contactDetails: ['email', 'homeMobileNumber', 'mobileNumber'],
+    hobbies: ['hobbies'],
+  };
+
   const requiredAddressFields = [
     'currentResidenceAddress',
     'currentCity',
@@ -2677,52 +2662,53 @@ export async function checkMissingFields(userId) {
     throw new Error('User not found');
   }
 
-  // Identify missing fields in user
-  const missingFields = requiredFields.filter((field) => {
-    const value = user[field];
-    return value === null || value === undefined || value === ''; // Check for empty, null, or undefined values
+  // Initialize object to store missing fields by category
+  const missingFields = {
+    createProfileFor: [],
+    generalDetails: [],
+    contactDetails: [],
+    hobbies: [],
+    address: [],
+    education: [],
+    professional: [],
+  };
+
+  // Check for missing fields in each category
+  Object.entries(fieldCategories).forEach(([category, fields]) => {
+    missingFields[category] = fields.filter((field) => {
+      const value = user[field];
+      return value === null || value === undefined || value === ''; // Check for empty, null, or undefined values
+    });
   });
 
-  // Identify missing fields in address
+  // Check for missing fields in address
   if (user.address) {
-    const missingAddressFields = requiredAddressFields.filter((field) => {
+    missingFields.address = requiredAddressFields.filter((field) => {
       const value = user.address[field];
       return value === null || value === undefined || value === ''; // Check for missing values
     });
-
-    if (missingAddressFields.length) {
-      missingFields.push({ address: missingAddressFields });
-    }
   } else {
-    missingFields.push({ address: 'Address is missing' });
+    missingFields.address = ['Address is missing'];
   }
 
-  // Identify missing fields in user education
+  // Check for missing fields in education
   if (user.userEducation) {
-    const missingEducationFields = requiredEducationFields.filter((field) => {
+    missingFields.education = requiredEducationFields.filter((field) => {
       const value = user.userEducation[field];
       return value === null || value === undefined || value === ''; // Check for missing values
     });
-
-    if (missingEducationFields.length) {
-      missingFields.push({ education: missingEducationFields });
-    }
   } else {
-    missingFields.push({ education: 'Education details are missing' });
+    missingFields.education = ['Education details are missing'];
   }
 
-  // Identify missing fields in user professional details
+  // Check for missing fields in professional
   if (user.userProfessional) {
-    const missingProfessionalFields = requiredProfessionalFields.filter((field) => {
+    missingFields.professional = requiredProfessionalFields.filter((field) => {
       const value = user.userProfessional[field];
       return value === null || value === undefined || value === ''; // Check for missing values
     });
-
-    if (missingProfessionalFields.length) {
-      missingFields.push({ professional: missingProfessionalFields });
-    }
   } else {
-    missingFields.push({ professional: 'Professional details are missing' });
+    missingFields.professional = ['Professional details are missing'];
   }
 
   return missingFields;
