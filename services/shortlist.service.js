@@ -33,13 +33,14 @@ export async function removeshotylist(filter = {}) {
   return user;
 }
 
-export async function getshortListWithPagination(filter = {}) {
+export async function getshortListWithPagination(filter, options = {}) {
   const userPartnerPreferences = await Partner.findOne({ userId: filter.userId });
 
   if (!userPartnerPreferences) {
     throw new Error('User Partner Preferences not found. Please add Partner Preference first');
   }
-
+  const { limit = 10, page = 1 } = options;
+  const skip = (page - 1) * limit;
   const pipeline = [
     {
       $match: {
@@ -354,33 +355,33 @@ export async function getshortListWithPagination(filter = {}) {
 
     // Facet stage: Use facet to divide the pipeline into two outputs
     // todo
-    // {
-    //   $facet: {
-    //     // Facet for paginated results
-    //     paginatedResults: [{ $skip: skip }, { $limit: limit }],
-    //     // Facet for counting total documents
-    //     totalCount: [{ $count: 'count' }],
-    //   },
-    // },
-    // // Unwind totalCount array to get the actual count value
-    // {
-    //   $unwind: {
-    //     path: '$totalCount',
-    //     preserveNullAndEmptyArrays: true,
-    //   },
-    // },
-    // // Add pagination details
-    // {
-    //   $addFields: {
-    //     totalDocs: { $ifNull: ['$totalCount.count', 0] },
-    //     totalPages: {
-    //       $ceil: {
-    //         $divide: ['$totalCount.count', limit],
-    //       },
-    //     },
-    //     currentPage: page,
-    //   },
-    // },
+    {
+      $facet: {
+        // Facet for paginated results
+        paginatedResults: [{ $skip: skip }, { $limit: limit }],
+        // Facet for counting total documents
+        totalCount: [{ $count: 'count' }],
+      },
+    },
+    // Unwind totalCount array to get the actual count value
+    {
+      $unwind: {
+        path: '$totalCount',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    // Add pagination details
+    {
+      $addFields: {
+        totalDocs: { $ifNull: ['$totalCount.count', 0] },
+        totalPages: {
+          $ceil: {
+            $divide: ['$totalCount.count', limit],
+          },
+        },
+        currentPage: page,
+      },
+    },
   ];
   const matchedUsers = await Shortlist.aggregate(pipeline).exec();
 
