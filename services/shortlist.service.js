@@ -49,7 +49,7 @@ export async function getshortListWithPagination(filter = {}) {
     {
       $lookup: {
         from: 'User',
-        localField: 'userId',
+        localField: 'shortlistId',
         foreignField: '_id',
         as: 'user',
       },
@@ -84,15 +84,16 @@ export async function getshortListWithPagination(filter = {}) {
     // },
     {
       $lookup: {
-        from: 'likes', // // The collection name for Like model
-        let: {
-          currentUserIdForLike: '$user_id', // Reference to current document's userId
-        },
+        from: 'likes', // Collection name for likes
+        let: { shortlistUserId: '$shortlistId' },
         pipeline: [
           {
             $match: {
               $expr: {
-                $and: [{ $eq: ['$user', filter.userId] }, { $eq: ['$likedUserId', '$$currentUserIdForLike'] }],
+                $and: [
+                  { $eq: ['$user', mongoose.Types.ObjectId(filter.userId)] }, // Logged-in user's ID
+                  { $eq: ['$likedUserId', '$$shortlistUserId'] }, // Liked user ID matches shortlistId
+                ],
               },
             },
           },
@@ -103,25 +104,32 @@ export async function getshortListWithPagination(filter = {}) {
     {
       $unwind: {
         path: '$userLikeDetails',
-        preserveNullAndEmptyArrays: true, // Include users with no matching friends
+        preserveNullAndEmptyArrays: true, // Include data even if there are no likes
       },
     },
     {
       $lookup: {
-        from: 'Friend', // The collection name for Friend model
-        let: {
-          currentUserId: '$userId', // Reference to current document's userId
-        },
+        from: 'Friend', // Collection name for friends
+        let: { shortlistUserId: '$shortlistId' },
         pipeline: [
           {
             $match: {
               $expr: {
-                $and: [{ $eq: ['$user', filter.userId] }, { $eq: ['$friend', '$$currentUserId'] }],
+                $and: [
+                  { $eq: ['$user', mongoose.Types.ObjectId(filter.userId)] }, // Logged-in user's ID
+                  { $eq: ['$friend', '$$shortlistUserId'] }, // Friend ID matches shortlistId
+                ],
               },
             },
           },
         ],
         as: 'friendsDetails',
+      },
+    },
+    {
+      $unwind: {
+        path: '$friendsDetails',
+        preserveNullAndEmptyArrays: true, // Include data even if there are no friend details
       },
     },
     {
@@ -156,7 +164,7 @@ export async function getshortListWithPagination(filter = {}) {
     {
       $lookup: {
         from: 'Address',
-        localField: 'userId',
+        localField: 'user._id',
         foreignField: 'userId',
         as: 'address',
       },
@@ -170,7 +178,7 @@ export async function getshortListWithPagination(filter = {}) {
     {
       $lookup: {
         from: 'UserProfessionalDetail',
-        localField: 'userId',
+        localField: 'user._id',
         foreignField: 'userId',
         as: 'userProfessional',
       },
@@ -182,17 +190,17 @@ export async function getshortListWithPagination(filter = {}) {
       },
     },
     {
-      $unwind: {
-        path: '$address', // Deconstructs the 'address' array field
-        preserveNullAndEmptyArrays: true, // If you want to exclude documents with no address
+      $lookup: {
+        from: 'UserPartner',
+        localField: 'user._id', // User's `_id` field
+        foreignField: 'userId', // Match with `userId` in `UserPartner`
+        as: 'userPartnerDetails',
       },
     },
     {
-      $lookup: {
-        from: 'UserPartner',
-        localField: 'userId', // User's `_id` field
-        foreignField: 'userId', // Match with `userId` in `UserPartner`
-        as: 'userPartnerDetails',
+      $unwind: {
+        path: '$userPartnerDetails',
+        preserveNullAndEmptyArrays: true, // Preserve if no user partner details found
       },
     },
     {
@@ -200,9 +208,10 @@ export async function getshortListWithPagination(filter = {}) {
         matchData: {
           $let: {
             vars: {
-              totalCriteria: 4, // Update to the total number of criteria used
+              totalCriteria: 4, // Total number of criteria
               matchedCriteria: {
                 $add: [
+                  // Age match
                   {
                     $cond: [
                       {
@@ -215,20 +224,27 @@ export async function getshortListWithPagination(filter = {}) {
                       0,
                     ],
                   },
+                  // Height match
                   {
                     $cond: [
                       {
                         $and: [
-                          { $gte: ['$height', userPartnerPreferences.height.min] },
-                          { $lte: ['$height', userPartnerPreferences.height.max] },
+                          { $gte: ['$user.height', userPartnerPreferences.height.min] },
+                          { $lte: ['$user.height', userPartnerPreferences.height.max] },
                         ],
                       },
                       1,
                       0,
                     ],
                   },
-                  { $cond: [{ $in: ['$address.currentCountry', userPartnerPreferences.country] }, 1, 0] },
-                  { $cond: [{ $in: ['$address.currentCity', userPartnerPreferences.city] }, 1, 0] },
+                  // Country match
+                  {
+                    $cond: [{ $in: ['$address.currentCountry', userPartnerPreferences.country] }, 1, 0],
+                  },
+                  // City match
+                  {
+                    $cond: [{ $in: ['$address.currentCity', userPartnerPreferences.city] }, 1, 0],
+                  },
                 ],
               },
             },
@@ -309,7 +325,7 @@ export async function getshortListWithPagination(filter = {}) {
         'userShortListDetails.shortlistId': 1,
         'userShortListDetails._id': 1,
         'subscriptionDetails.status': 1,
-        'user.userPartnerDetails': 1,
+        userPartnerDetails: 1,
       },
     },
     { $sort: { matchPercentage: -1 } }, // Sort by match percentage in descending order
