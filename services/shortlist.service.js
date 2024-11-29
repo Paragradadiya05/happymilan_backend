@@ -39,7 +39,23 @@ export async function getshortListWithPagination(filter, options = {}) {
   if (!userPartnerPreferences) {
     throw new Error('User Partner Preferences not found. Please add Partner Preference first');
   }
-  const { limit = 10, page = 1 } = options;
+  let { limit = 10, page = 1 } = options;
+
+  // Ensure limit and page are integers
+  limit = parseInt(limit, 10);
+  page = parseInt(page, 10);
+
+  // Ensure limit and page are positive numbers
+  // eslint-disable-next-line no-restricted-globals
+  if (isNaN(limit) || limit <= 0) {
+    limit = 10; // default value if the provided limit is invalid
+  }
+
+  // eslint-disable-next-line no-restricted-globals
+  if (isNaN(page) || page <= 0) {
+    page = 1; // default value if the provided page is invalid
+  }
+
   const skip = (page - 1) * limit;
   const pipeline = [
     {
@@ -268,6 +284,7 @@ export async function getshortListWithPagination(filter, options = {}) {
         shortlistId: 1,
         createdAt: 1,
         updatedAt: 1,
+        'user._id': 1,
         'address._id': 1,
         'address.currentResidenceAddress': 1,
         'address.currentCity': 1,
@@ -310,7 +327,7 @@ export async function getshortListWithPagination(filter, options = {}) {
         'user.profilePic': 1,
         'user.userUniqueId': 1,
         'user.diet': 1,
-        // 'user.userProfilePic': 1,
+        'user.userProfilePic': 1,
         'user.userProfileVideo': 1,
         'user.profileHideAndDelete': 1,
         'friendsDetails.status': 1,
