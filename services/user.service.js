@@ -333,39 +333,40 @@ export async function getUserListForSearch(filter, { currentCountry = [], curren
       },
     },
     { $sort: { matchPercentage: -1 } },
+    {
+      $facet: {
+        // Facet for paginated results
+        paginatedResults: [{ $skip: skip }, { $limit: limit }],
+        // Facet for counting total documents
+        totalCount: [{ $count: 'count' }],
+      },
+    },
+    // Unwind totalCount array to get the actual count value
+    {
+      $unwind: {
+        path: '$totalCount',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    // Add pagination details
+    {
+      $addFields: {
+        totalDocs: { $ifNull: ['$totalCount.count', 0] },
+        totalPages: {
+          $ceil: {
+            $divide: ['$totalCount.count', limit],
+          },
+        },
+        currentPage: page,
+      },
+    },
   ];
-
-  // Calculate total users
-  const totalResultsData = await User.aggregate([
-    ...aggregationPipeline,
-    { $count: 'total' }, // Count total documents matching the filter
-  ]);
-  const totalResults = totalResultsData.length > 0 ? totalResultsData[0].total : 0;
-
   // Paginated results
   const users = await User.aggregate([...aggregationPipeline, { $skip: skip }, { $limit: limit }]);
 
   // Calculate pagination metadata
-  const totalPages = Math.ceil(totalResults / limit);
-  const hasPrevPage = page > 1;
-  const hasNextPage = page < totalPages;
-  const prevPage = hasPrevPage ? page - 1 : null;
-  const nextPage = hasNextPage ? page + 1 : null;
 
-  return {
-    users,
-    pagination: {
-      totalResults,
-      limit,
-      totalPages,
-      page,
-      pagingCounter: skip + 1, // Index of the first item on the current page
-      hasPrevPage,
-      hasNextPage,
-      prevPage,
-      nextPage,
-    },
-  };
+  return { users };
 }
 
 export async function getUserListWithPagination(filter, options = {}) {
