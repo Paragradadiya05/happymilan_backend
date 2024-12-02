@@ -366,7 +366,7 @@ export async function getUserListForSearch(filter, { currentCountry = [], curren
 
   // Calculate pagination metadata
 
-  return { users };
+  return users;
 }
 
 export async function getUserListWithPagination(filter, options = {}) {
