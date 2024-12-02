@@ -331,16 +331,35 @@ export const checkMissingFields = catchAsync(async (req, res) => {
     // Call the service function to check for missing fields
     const missingFields = await userService.checkMissingFields(filter, options);
 
-    // Return response with appropriate message
+    // Define redirect URLs for each category
+    const redirects = {
+      createProfile: '/form/createProfile',
+      generalDetails: '/form/general',
+      contactDetails: '/form/contactDetails',
+      hobbies: '/form/hobbies',
+      address: '/form/address',
+      education: '/form/education',
+      professional: '/form/professional',
+    };
+
+    // Map the missing fields to the desired format
+    const formattedMissingFields = Object.entries(missingFields || {}) // Ensure missingFields is an object
+      // eslint-disable-next-line no-unused-vars
+      .filter(([_, fields]) => Array.isArray(fields) && fields.length > 0) // Ignore category and directly check fields
+      .map(([category, fields]) => ({
+        category, // Add category explicitly
+        fields: fields.map((field) => ({
+          name: field,
+          redirect: redirects[category], // Map to corresponding redirect
+        })),
+      }));
+    // Return response with appropriate message and formatted data
     return res.status(httpStatus.OK).send({
       success: true,
       data: {
-        missingFields,
+        missingFields: formattedMissingFields,
       },
-      message:
-        missingFields && Object.keys(missingFields).some((key) => missingFields[key].length > 0)
-          ? 'Some fields are missing'
-          : 'All required fields are filled',
+      message: formattedMissingFields.length > 0 ? 'Some fields are missing' : 'All required fields are filled',
     });
   } catch (error) {
     // Handle unexpected errors
