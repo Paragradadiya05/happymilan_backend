@@ -57,7 +57,7 @@ export async function getUserListForSearch(filter, { currentCountry = [], curren
   const skip = (page - 1) * limit;
 
   // Use aggregation for both filtering and counting
-  const aggregationPipeline = [
+  const pipeline = [
     {
       $match: filter,
     },
@@ -362,7 +362,7 @@ export async function getUserListForSearch(filter, { currentCountry = [], curren
     },
   ];
   // Paginated results
-  const users = await User.aggregate([...aggregationPipeline, { $skip: skip }, { $limit: limit }]);
+  const users = await User.aggregate(pipeline).exec();
 
   // Calculate pagination metadata
 
