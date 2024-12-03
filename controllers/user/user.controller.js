@@ -333,13 +333,13 @@ export const checkMissingFields = catchAsync(async (req, res) => {
 
     // Define redirect URLs for each category
     const redirects = {
-      createProfile: '/form/createProfile',
-      generalDetails: '/form/general',
-      contactDetails: '/form/contactDetails',
-      hobbies: '/form/hobbies',
-      address: '/form/address',
-      education: '/form/education',
-      professional: '/form/professional',
+      createProfile: '/longterm/register/profileselect',
+      generalDetails: '/longterm/register/general',
+      contactDetails: '/longterm/register/contact',
+      hobbies: '/longterm/register/hobby',
+      address: '/longterm/register/address',
+      education: '/longterm/register/education',
+      professional: '/longterm/register/professional',
     };
 
     // Map the missing fields to the desired format
