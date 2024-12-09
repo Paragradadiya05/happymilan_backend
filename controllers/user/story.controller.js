@@ -136,3 +136,14 @@ export const verifyStoryConsent = catchAsync(async (req, res) => {
     res.status(httpStatus.OK).send({ message: e.message });
   }
 });
+
+export const get = catchAsync(async (req, res) => {
+  const { storyId } = req.params;
+  const filter = {
+    _id: storyId,
+    isConsentTaken: true,
+  };
+  const options = {};
+  const story = await storyService.getOne(filter, options);
+  return res.status(httpStatus.OK).send({ results: story });
+});

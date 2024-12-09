@@ -31,6 +31,12 @@ export const deleteStoryById = {
   }),
 };
 
+export const getStoryById = {
+  params: Joi.object().keys({
+    storyId: Joi.objectId().required(),
+  }),
+};
+
 export const getStory = {
   query: Joi.object()
     .keys({

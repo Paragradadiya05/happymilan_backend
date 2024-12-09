@@ -40,3 +40,8 @@ export async function getStoryWithPagination(filter, options = {}) {
   const story = await Story.paginate(filter, options);
   return story;
 }
+
+export async function getOne(query, options = {}) {
+  const story = await Story.findOne(query, options.projection, options);
+  return story;
+}

@@ -1,5 +1,5 @@
 import httpStatus from 'http-status';
-import { friendService, userService } from 'services';
+import { emailService, friendService, userService } from 'services';
 import { catchAsync } from 'utils/catchAsync';
 import { pick } from '../../utils/pick';
 import { EnumStatusOfFriend } from '../../models/enum.model';
@@ -144,6 +144,8 @@ export const remove = catchAsync(async (req, res) => {
     _id: userId,
   };
   const user = await userService.removeUser(filter);
+  await emailService.DeleteUserEmail(user);
+
   return res.status(httpStatus.OK).send({ results: user });
 });
 export const getUnique = catchAsync(async (req, res) => {

@@ -1351,3 +1351,295 @@ export const sendResetEmailOtp = async (to, otp, emailOrMobileTag) => {
 `;
   await sendEmail({ to, subject, text, isHtml: true });
 };
+
+export const DeleteUserEmail = async (user) => {
+  const { email: to, name } = user;
+  console.log(`Sending email to: ${to}`);
+  const subject = 'Account Deletion Confirmation';
+  const currentDate = new Date();
+  const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+  const formattedDate = currentDate.toLocaleDateString('en-US', options);
+  const text = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Document</title>
+    <style type="text/css">
+        #main{
+            display: flex; 
+            width: 100%; 
+            place-items: center; 
+            justify-content: center;
+        }
+        #parrent{
+            display: flex; 
+            width: 80%; 
+            justify-content: center; 
+            background-color: rgb(240,244,249); 
+            margin-top: 5.5%;
+            margin-bottom: 5.5%;
+            padding-top: 30px; 
+            padding-bottom: 30px;
+        }
+        #content-div-width{
+          width: 60%;
+          margin: 0 auto;
+        }
+        #content-div{
+            border-radius: 20px; 
+            background-color: rgb(255,255,255); 
+            padding: 8%;
+        }
+        #logo-div{
+            display: flex; 
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+        #logo-img{
+           width: 150px;
+           height: 37px;
+        }
+        
+        #content{
+            margin-top: 30px;
+        }
+        #text-1{
+            font-size: 12px; 
+            font-weight: 400; 
+            color: rgb(131,131,131);
+            margin-left: auto;
+        }
+        #text-2{
+            font-size: 14px;
+            font-weight: 400;
+            margin-top: 15px;
+        }
+        #text-3{
+            font-size: 10px;
+            font-weight: 400;
+            text-align: center;
+            width: 75%;
+        }
+        #otp-text{
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+        #div-center{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            margin-left: 10%;
+        }
+      
+        #socialmedia-div{
+            width: 35%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-left: 25%;
+            
+        }
+        #socialmedia-1{
+            width:29px ;
+            height: 20px;
+            margin-right: 30px;
+            
+        }
+        #socialmedia-2{
+            width:10px ;
+            height: 20px;
+            margin-right: 30px;
+        }
+        #socialmedia-3{
+            width: 20px;
+            height: 20px;
+            margin-right: 30px;
+        }
+        #socialmedia-4{
+            width:25px ;
+            height:20px ;
+        }
+        #border{
+            width: 100%;
+            height: 1px;
+            border-color: #E2E2E2;
+            margin-top: 20px;
+        }
+        #span-div{
+            color: #0F52BA;
+        }
+
+        @media screen and (max-width: 1280px) {
+            #logo-img{
+           width: 130px;
+           height: 35px;
+        }
+        #text-1{
+            font-size: 10px; 
+            font-weight: 400; 
+            color: rgb(131,131,131);
+        }
+        #text-2{
+            font-size: 12px;
+            font-weight: 400;
+            margin-top: 15px;
+        }
+        #text-3{
+            font-size: 8px;
+            font-weight: 400;
+            text-align: center;
+            width: 75%;
+        }
+        #otp-text{
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+        #socialmedia-1{
+            width:27px ;
+            height: 18px;
+        }
+        #socialmedia-2{
+            width:8px ;
+            height: 18px;
+        }
+        #socialmedia-3{
+            width: 18px;
+            height: 18px;
+        }
+        #socialmedia-4{
+            width:23px ;
+            height:18px ;
+        }
+        #content{
+            margin-top: 25px;
+        }
+            
+        } 
+        @media screen and (max-width: 1024px) {
+            #logo-img{
+           width: 100px;
+           height: 25px;
+        }
+        #text-1{
+            font-size: 8px; 
+            font-weight: 400; 
+            color: rgb(131,131,131);
+        }
+        #text-2{
+            font-size: 10px;
+            font-weight: 400;
+            margin-top: 15px;
+        }
+        #text-3{
+            font-size: 7px;
+            font-weight: 400;
+            text-align: center;
+            width: 75%;
+        }
+        #otp-text{
+            font-size: 10px;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+        #socialmedia-1{
+            width:25px ;
+            height: 16px;
+        }
+        #socialmedia-2{
+            width:8px ;
+            height: 16px;
+        }
+        #socialmedia-3{
+            width: 16px;
+            height: 16px;
+        }
+        #socialmedia-4{
+            width:21px ;
+            height:16px ;
+        }
+        #content{
+            margin-top: 20px;
+        }
+       
+            
+        } 
+
+    </style>
+
+</head>
+<body>
+    
+    <div id="main" >
+        <div id="parrent" >
+            <div id="content-div-width">
+                <div id="content-div" >
+                <div id="logo-div">
+            <img id="logo-img" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/users/65e991ad15835e46f0861b8b/65eff3406145b642700c32ba/logo.jpg"/>
+<h1 id="text-1" >${formattedDate}</h1>
+</div>
+<div id="content">
+    <h1 id="text-2">Dear ${name},</h1>
+    <pre id="text-2">Your account on HappyMilan has been successfully deleted, including:
+
+                    * Profile information
+                    * Photos, Messages or emails
+                    * Other shared data
+
+       Your data has been permanently removed in line with our privacy policy. We’d be happy to welcome you back anytime. If you have questions, contact us at contact@happymilan.com.
+
+       Thank you for being part of HappyMilan.
+
+       Best regards,
+       HappyMilan Team </pre>
+  
+ 
+</div>
+</div>
+<div id="content">
+    <div id="div-center">
+    </div>
+    <div id="content">
+        <div id="div-center">
+        <div id="socialmedia-div" >
+           <div>
+           <img id="socialmedia-1" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/yticone/671777d63e6cb9ad5f202b0d/yt.jpg" alt="youtube"/>
+           </div>
+           <div>
+            <img id="socialmedia-2" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/fbicone/671776dc3e6cb9ad5f202b01/fb.jpg" alt="fb"/>
+           </div>
+           <div>
+            <img id="socialmedia-3" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/instagramicone/671777513e6cb9ad5f202b05/insta.jpg" alt="insta"/>
+           </div>
+           <div>
+            <img id="socialmedia-4" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/twittericone/6717779d3e6cb9ad5f202b09/Twitter.jpg" alt="twitter"/>
+           </div>
+        </div>
+        </div>
+    </div>
+    <hr id="border"/>
+    <div id="content">
+        <div id="div-center">
+        <h1 id="text-3">If you prefer not to receive these emails in the future, please <span id="span-div"> unsubscribe </span> here.</h1>
+    </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+    
+</body>
+</html>
+
+
+`;
+  await sendEmail({ to, subject, text, isHtml: true })
+    .then(() => logger.info('email sent successfully'))
+    .catch((error) => logger.warn(`Unable to send mail ${error}`));
+};

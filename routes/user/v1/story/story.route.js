@@ -18,6 +18,10 @@ router.get('/get-story', validate(storyValidation.getStory), storyController.lis
  * */
 router.put('/update-story/:storyId', auth(), validate(storyValidation.updateStory), storyController.update);
 /**
+ * getStoryById
+ * */
+router.get('/get-story-by-id/:storyId', auth(), validate(storyValidation.getStoryById), storyController.get);
+/**
  * deleteTestById
  * */
 router.delete('/delete-story/:storyId', auth(), validate(storyValidation.deleteStoryById), storyController.remove);
