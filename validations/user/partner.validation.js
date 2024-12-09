@@ -48,8 +48,10 @@ export const updatePartnerpre = {
       .items(Joi.string().valid(...Object.values(enumModel.EnumOfState)))
       .required(),
     city: Joi.array().items(Joi.string()).required(),
-    income: Joi.string().required(),
-
+    income: Joi.object({
+      min: Joi.number().required(),
+      max: Joi.number().required(),
+    }),
     hobbies: Joi.array().items(Joi.string()).required(),
     diet: Joi.array()
       .items(Joi.string().valid(...Object.values(enumModel.EnumOfDiet)))
