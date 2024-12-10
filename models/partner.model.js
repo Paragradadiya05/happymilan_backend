@@ -19,6 +19,10 @@ const UserPartnerSchema = new mongoose.Schema(
       min: Number,
       max: Number,
     },
+    income: {
+      min: Number,
+      max: Number,
+    },
     country: {
       type: [String],
       enum: Object.values(enumModel.EnumOfCountry),

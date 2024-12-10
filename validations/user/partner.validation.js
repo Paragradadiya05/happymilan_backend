@@ -50,7 +50,7 @@ export const updatePartnerpre = {
       min: Joi.number(),
       max: Joi.number(),
     }),
-    hobbies: Joi.array().items(Joi.string()).required(),
+    hobbies: Joi.array().items(Joi.string()),
     diet: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfDiet))),
   }),
 };
