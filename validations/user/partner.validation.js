@@ -36,28 +36,22 @@ export const updatePartnerpre = {
   body: Joi.object().keys({
     userId: Joi.objectId(),
     age: Joi.object({
-      min: Joi.number().required(),
-      max: Joi.number().required(),
+      min: Joi.number(),
+      max: Joi.number(),
     }),
     height: Joi.object({
-      min: Joi.number().required(),
-      max: Joi.number().required(),
+      min: Joi.number(),
+      max: Joi.number(),
     }),
-    country: Joi.array()
-      .items(Joi.string().valid(...Object.values(enumModel.EnumOfCountry)))
-      .required(),
-    state: Joi.array()
-      .items(Joi.string().valid(...Object.values(enumModel.EnumOfState)))
-      .required(),
-    city: Joi.array().items(Joi.string()).required(),
+    country: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfCountry))),
+    state: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfState))),
+    city: Joi.array().items(Joi.string()),
     income: Joi.object({
-      min: Joi.number().required(),
-      max: Joi.number().required(),
+      min: Joi.number(),
+      max: Joi.number(),
     }),
     hobbies: Joi.array().items(Joi.string()).required(),
-    diet: Joi.array()
-      .items(Joi.string().valid(...Object.values(enumModel.EnumOfDiet)))
-      .required(),
+    diet: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfDiet))),
   }),
 };
 
