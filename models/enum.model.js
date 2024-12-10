@@ -97,7 +97,7 @@ const EnumOfCurrentCountry = {
   CHINA: 'china',
   MYANMAR: 'Myanmar',
   NEPAL: 'nepal',
-  SRI_LANKA: 'sri-lanka',
+  SRI_LANKA: 'sri-Lanka',
   PAKISTAN: 'pakistan',
 };
 const EnumOfState = {
