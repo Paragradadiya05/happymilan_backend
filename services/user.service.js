@@ -599,7 +599,10 @@ export async function getGenderListV2(filter, options = {}) {
     },
     {
       $match: {
-        'friendsDetails.status': { $ne: EnumStatusOfFriend.BLOCKED },
+        $or: [
+          { 'friendsDetails.status': { $ne: EnumStatusOfFriend.BLOCKED } },
+          { 'friendsDetails.status': { $ne: EnumStatusOfFriend.ACCEPTED } },
+        ],
       },
     },
     {
