@@ -1424,6 +1424,31 @@ export const DeleteUserEmail = async (user) => {
             text-align: center;
             width: 75%;
         }
+        #text-4{
+            font-size: 14px;
+            font-weight: 500;
+            
+            
+        }
+        #text-5{
+            font-size: 14px;
+            font-weight: 400;
+            margin-left: 10px;
+           
+        }
+        #text-6{
+            font-size: 14px;
+            font-weight: 400;
+            color: #0F52BA;
+           
+        }
+        #text-7{
+            margin-top: 10px;
+            font-size: 14px;
+            font-weight: 400;
+            margin-left: 10px;
+           
+        }
         #otp-text{
             font-size: 14px;
             font-weight: 600;
@@ -1434,7 +1459,7 @@ export const DeleteUserEmail = async (user) => {
             justify-content: center;
             align-items: center;
             width: 100%;
-            margin-left: 10%;
+            
         }
       
         #socialmedia-div{
@@ -1442,7 +1467,7 @@ export const DeleteUserEmail = async (user) => {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-left: 25%;
+            margin-left: 0%;
             
         }
         #socialmedia-1{
@@ -1496,6 +1521,30 @@ export const DeleteUserEmail = async (user) => {
             text-align: center;
             width: 75%;
         }
+        #text-4{
+            font-size: 12px;
+            font-weight: 500;
+            
+            
+        }
+        #text-5{
+            font-size: 12px;
+            font-weight: 400;
+           
+        }
+        #text-6{
+            font-size: 12px;
+            font-weight: 400;
+            color: #0F52BA;
+           
+        }
+        #text-7{
+            margin-top: 10px;
+            font-size: 12px;
+            font-weight: 400;
+            margin-left: 10px;
+           
+        }
         #otp-text{
             font-size: 12px;
             font-weight: 600;
@@ -1530,24 +1579,49 @@ export const DeleteUserEmail = async (user) => {
         #text-1{
             font-size: 8px; 
             font-weight: 400; 
-            color: rgb(131,131,131);
+            color: black;
         }
         #text-2{
             font-size: 10px;
             font-weight: 400;
             margin-top: 15px;
+            color: black;
         }
         #text-3{
             font-size: 7px;
             font-weight: 400;
             text-align: center;
             width: 75%;
+            color: black;
         }
-        #otp-text{
+        #text-4{
             font-size: 10px;
-            font-weight: 600;
-            margin-top: 15px;
+            font-weight: 500;
+            color: black;
+            
+            
         }
+        #text-5{
+            font-size: 10px;
+            font-weight: 400;
+            color: black;
+           
+        }
+        #text-6{
+            font-size: 10px;
+            font-weight: 400;
+            color: #0F52BA;
+           
+        }
+        #text-7{
+            margin-top: 10px;
+            font-size: 10px;
+            font-weight: 400;
+            margin-left: 10px;
+            color: black;
+           
+        }
+        
         #socialmedia-1{
             width:25px ;
             height: 16px;
@@ -1586,24 +1660,28 @@ export const DeleteUserEmail = async (user) => {
 </div>
 <div id="content">
     <h1 id="text-2">Dear ${name},</h1>
-    <pre id="text-2">Your account on HappyMilan has been successfully deleted, including:
+    <h1 id="text-2">Your account on HappyMilan has been successfully deleted, including: </h1>
+        
 
-                    * Profile information
-                    * Photos, Messages or emails
-                    * Other shared data
+                   <li id="text-7"> Profile information</li> 
+                   <li id="text-5"> Photos, Messages or emails </li> 
+                   <li id="text-5">  Other shared data </li>
+      
 
-       Your data has been permanently removed in line with our privacy policy. We’d be happy to welcome you back anytime. If you have questions, contact us at contact@happymilan.com.
+       <p id="text-2">Your data has been permanently removed in line with our privacy policy. We’d be happy to welcome you back anytime. If you have questions, contact us at </p>
+       <h1 id="text-6"> contact@happymilan.com. </h1>
 
-       Thank you for being part of HappyMilan.
+         <h1 id="text-2">Thank you for being part of HappyMilan. </h1>
 
-       Best regards,
-       HappyMilan Team </pre>
+       <h1 id="text-2">Best regards,</h1>
+        <h1 id="text-4">HappyMilan Team </h1>
   
  
 </div>
 </div>
 <div id="content">
     <div id="div-center">
+        <h1 id="text-3">Welcome to HappyMilan your hub for finding a life partner, exploring dating opportunities, and making new friends. Join us to connect with a vibrant community and discover meaningful relationships.</h1>
     </div>
     <div id="content">
         <div id="div-center">

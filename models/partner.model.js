@@ -30,10 +30,6 @@ const UserPartnerSchema = new mongoose.Schema(
     city: {
       type: [String],
     },
-    income: {
-      min: Number,
-      max: Number,
-    },
     hobbies: {
       type: [String],
     },
