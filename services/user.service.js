@@ -600,8 +600,8 @@ export async function getGenderListV2(filter, options = {}) {
     {
       $match: {
         $or: [
-          { 'friendsDetails.status': { $ne: EnumStatusOfFriend.BLOCKED } },
-          { 'friendsDetails.status': { $ne: EnumStatusOfFriend.ACCEPTED } },
+          { friendsDetails: { $exists: false } }, // Include users without any friend details
+          { 'friendsDetails.status': { $nin: [EnumStatusOfFriend.BLOCKED, EnumStatusOfFriend.ACCEPTED] } }, // Exclude BLOCKED and ACCEPTED statuses
         ],
       },
     },
@@ -2700,7 +2700,10 @@ export async function getNewUserList(filter, options = {}) {
     },
     {
       $match: {
-        'friendsDetails.status': { $ne: EnumStatusOfFriend.BLOCKED },
+        $or: [
+          { friendsDetails: { $exists: false } }, // Include users without any friend details
+          { 'friendsDetails.status': { $nin: [EnumStatusOfFriend.BLOCKED, EnumStatusOfFriend.ACCEPTED] } }, // Exclude BLOCKED and ACCEPTED statuses
+        ],
       },
     },
     {
@@ -2900,20 +2903,12 @@ export async function checkMissingFields(userId) {
   // Define categories with their corresponding fields
   const fieldCategories = {
     createProfile: ['creatingProfileFor', 'birthTime', 'dateOfBirth', 'lastName', 'firstName'],
-    generalDetails: ['shortBio', 'height', 'weight', 'caste', 'religion', 'maritalStatus', 'gender'],
+    generalDetails: ['writeBoutYourSelf', 'height', 'weight', 'caste', 'religion', 'maritalStatus', 'gender'],
     contactDetails: ['email', 'homeMobileNumber', 'mobileNumber'],
     hobbies: ['hobbies'],
   };
 
-  const requiredAddressFields = [
-    'currentResidenceAddress',
-    'currentCity',
-    'currentCountry',
-    'originResidenceAddress',
-    'originCity',
-    'originCountry',
-    'currentState',
-  ];
+  const requiredAddressFields = ['currentResidenceAddress', 'currentCity', 'currentCountry', 'currentState'];
   const requiredEducationFields = ['degree', 'collage', 'city', 'state', 'country'];
   const requiredProfessionalFields = ['jobTitle', 'jobType', 'companyName', 'currentSalary', 'workCity', 'workCountry'];
 
