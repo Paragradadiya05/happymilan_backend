@@ -175,7 +175,16 @@ export const getRequestedFriend = catchAsync(async (req, res) => {
     user: userId,
     status: EnumStatusOfFriend.REQUESTED,
   };
-  const options = {};
+  const { query } = req;
+  const sortingObj = pick(query, ['sort', 'order']);
+  const sortObj = {
+    [sortingObj.sort]: sortingObj.order,
+  };
+  const options = {
+    sort: sortObj,
+    ...pick(query, ['limit', 'page']),
+    lean: true,
+  };
   const user = await friendService.getFriendList(filter, options);
   return res.status(httpStatus.OK).send({ results: user });
 });
