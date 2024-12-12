@@ -790,7 +790,7 @@ export const sendCongratulationEmail = async (user) => {
         #text-1{
             font-size: 8px; 
             font-weight: 400; 
-            color: rgb(131,131,131);
+            color: black;
         }
         #text-2{
             font-size: 10px;
@@ -1370,7 +1370,7 @@ export const DeleteUserEmail = async (user) => {
     <style type="text/css">
         #main{
             display: flex; 
-            width: 100%; 
+           
             place-items: center; 
             justify-content: center;
         }
@@ -1385,7 +1385,7 @@ export const DeleteUserEmail = async (user) => {
             padding-bottom: 30px;
         }
         #content-div-width{
-          width: 60%;
+          width: 80%;
           margin: 0 auto;
         }
         #content-div{
@@ -1410,19 +1410,27 @@ export const DeleteUserEmail = async (user) => {
         #text-1{
             font-size: 12px; 
             font-weight: 400; 
-            color: rgb(131,131,131);
+            color: black;
             margin-left: auto;
         }
         #text-2{
             font-size: 14px;
             font-weight: 400;
             margin-top: 15px;
+          
         }
         #text-3{
-            font-size: 10px;
+            font-size: 12px;
             font-weight: 400;
-            text-align: center;
             width: 75%;
+        }
+        #text-4{
+            font-size: 14px;
+            font-weight: 400;
+            margin-top: 15px;
+            text-align: center;
+            width: 80%;
+            color: black;
         }
         #otp-text{
             font-size: 14px;
@@ -1489,12 +1497,21 @@ export const DeleteUserEmail = async (user) => {
             font-size: 12px;
             font-weight: 400;
             margin-top: 15px;
+           
         }
         #text-3{
             font-size: 8px;
             font-weight: 400;
             text-align: center;
             width: 75%;
+        }
+          #text-4{
+            font-size: 14px;
+            font-weight: 400;
+            margin-top: 15px;
+            text-align: center;
+            width: 80%;
+            color: black;
         }
         #otp-text{
             font-size: 12px;
@@ -1533,15 +1550,24 @@ export const DeleteUserEmail = async (user) => {
             color: black;
         }
         #text-2{
-            font-size: 10px;
+             font-size: 10px;
             font-weight: 400;
             margin-top: 15px;
+            color: black;
         }
         #text-3{
             font-size: 7px;
             font-weight: 400;
             text-align: center;
             width: 75%;
+        }
+          #text-4{
+            font-size: 14px;
+            font-weight: 400;
+            margin-top: 15px;
+            text-align: center;
+            width: 80%;
+            color: black;
         }
         #otp-text{
             font-size: 10px;
@@ -1595,7 +1621,7 @@ export const DeleteUserEmail = async (user) => {
       
 
        <p id="text-1">Your data has been permanently removed in line with our privacy policy. We’d be happy to welcome you back anytime. If you have questions, contact us at </p>
-       <h1 id="text-6"> contact@happymilan.com. </h1>
+       <h1 id="text-3"> contact@happymilan.com. </h1>
 
          <h1 id="text-1">Thank you for being part of HappyMilan. </h1>
 
@@ -1607,7 +1633,7 @@ export const DeleteUserEmail = async (user) => {
 </div>
 <div id="content">
     <div id="div-center">
-        <h1 id="text-1">Welcome to HappyMilan your hub for finding a life partner, exploring dating opportunities, and making new friends. Join us to connect with a vibrant community and discover meaningful relationships.</h1>
+        <h1 id="text-4">Welcome to HappyMilan your hub for finding a life partner, exploring dating opportunities, and making new friends. Join us to connect with a vibrant community and discover meaningful relationships.</h1>
     </div>
     <div id="content">
         <div id="div-center">
