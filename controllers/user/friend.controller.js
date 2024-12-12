@@ -171,20 +171,14 @@ export const getRejectedFrdRequests = catchAsync(async (req, res) => {
 
 export const getRequestedFriend = catchAsync(async (req, res) => {
   const userId = req.user._id;
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || 10;
+
   const filter = {
     user: userId,
     status: EnumStatusOfFriend.REQUESTED,
   };
-  const { query } = req;
-  const sortingObj = pick(query, ['sort', 'order']);
-  const sortObj = {
-    [sortingObj.sort]: sortingObj.order,
-  };
-  const options = {
-    sort: sortObj,
-    ...pick(query, ['limit', 'page']),
-    lean: true,
-  };
+  const options = { page, limit };
   const user = await friendService.getFriendList(filter, options);
   return res.status(httpStatus.OK).send({ results: user });
 });
