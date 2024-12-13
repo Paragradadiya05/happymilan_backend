@@ -6,11 +6,11 @@ const StorySchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Users',
+      ref: 'User',
     },
     partnerUserId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Users',
+      ref: 'User',
     },
     images: [
       {

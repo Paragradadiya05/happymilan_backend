@@ -37,7 +37,13 @@ export async function verifyConsent(verifyRequest) {
 }
 
 export async function getStoryWithPagination(filter, options = {}) {
-  const story = await Story.paginate(filter, options);
+  const story = await Story.paginate(filter, {
+    ...options,
+    populate: {
+      path: 'userId',
+      select: 'name lastName',
+    },
+  });
   return story;
 }
 
