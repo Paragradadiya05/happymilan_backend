@@ -45,6 +45,18 @@ export const likeData = catchAsync(async (req, res) => {
   const like = await StorylikeService.getLike(filter, options);
   return res.status(httpStatus.OK).send({ results: like });
 });
+export const StorylikeData = catchAsync(async (req, res) => {
+  const { storyId } = req.params;
+  const user = req.user._id;
+
+  const filter = {
+    storyId,
+    user,
+  };
+  const options = {};
+  const like = await StorylikeService.getLike(filter, options);
+  return res.status(httpStatus.OK).send({ results: like });
+});
 export const paginateStatus = catchAsync(async (req, res) => {
   const { userId } = req.params;
   const { page, limit } = req.query;

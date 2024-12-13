@@ -24,11 +24,15 @@ router.get(
  * */
 router.get('/get-like/:storyId', auth(), validate(StoryLikeValidation.likeData), StoryLikeController.likeData);
 /**
+ * get-liked-user
+ * */
+router.get('/get-like-story/:storyId', auth(), validate(StoryLikeValidation.likeData), StoryLikeController.StorylikeData);
+/**
  * UpdateLike
  * */
 router.put('/update-like/:likeId', auth(), validate(StoryLikeValidation.updateLike), StoryLikeController.updateLike);
 /**
- * delete-like
+ * delete-likez
  * */
 router.delete('/delete-like/:likeId', validate(StoryLikeValidation.DeleteLike), StoryLikeController.remove);
 /**
