@@ -32,3 +32,17 @@ export const Paginated = catchAsync(async (req, res) => {
   const Storyview = await SuccessStoryviewService.getListWithPagination(filter, options);
   return res.status(httpStatus.OK).send({ results: Storyview });
 });
+
+export const PaginatedAll = catchAsync(async (req, res) => {
+  const { statusId } = req.params;
+  const { page, limit } = req.query;
+  const pageNumber = parseInt(page, 10);
+  const limitNumber = parseInt(limit, 15);
+  const filter = { statusId };
+  const options = {
+    page: pageNumber,
+    limit: limitNumber,
+  };
+  const Storyview = await SuccessStoryviewService.getListWithPagination(filter, options);
+  return res.status(httpStatus.OK).send({ results: Storyview });
+});

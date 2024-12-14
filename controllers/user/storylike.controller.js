@@ -52,6 +52,7 @@ export const StorylikeData = catchAsync(async (req, res) => {
   const filter = {
     storyId,
     user,
+    isLike: true,
   };
   const options = {};
   const like = await StorylikeService.getLike(filter, options);
@@ -81,6 +82,23 @@ export const userPaginateStatus = catchAsync(async (req, res) => {
   const limitNumber = parseInt(limit, 10);
   const filter = {
     user: userId,
+  };
+  const options = {
+    page: pageNumber,
+    limit: limitNumber,
+  };
+  const like = await StorylikeService.getLikeListWithPagination(filter, options);
+  return res.status(httpStatus.OK).send({ results: like });
+});
+
+export const PaginateStory = catchAsync(async (req, res) => {
+  const { storyId } = req.params;
+  const { page, limit } = req.query;
+  const pageNumber = parseInt(page, 10);
+  const limitNumber = parseInt(limit, 10);
+  const filter = {
+    storyId,
+    isLike: true,
   };
   const options = {
     page: pageNumber,

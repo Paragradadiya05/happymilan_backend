@@ -21,4 +21,10 @@ router
    * getFriendPaginated
    * */
   .get(validate(SuccessStoryviewValidation.paginated), SuccessStoryViewController.Paginated);
+router
+  .route('/paginated-all/:storyId')
+  /**
+   * getFriendPaginated
+   * */
+  .get(validate(SuccessStoryviewValidation.paginated), SuccessStoryViewController.PaginatedAll);
 export default router;

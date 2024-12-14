@@ -41,3 +41,15 @@ export const paginatedStatus = {
     })
     .unknown(true),
 };
+
+export const PaginateStory = {
+  params: Joi.object().keys({
+    storyId: Joi.objectId().required(),
+  }),
+  query: Joi.object()
+    .keys({
+      page: Joi.number().default(1),
+      limit: Joi.number().default(10).max(100),
+    })
+    .unknown(true),
+};

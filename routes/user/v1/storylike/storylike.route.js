@@ -44,4 +44,10 @@ router.get(
   validate(StoryLikeValidation.paginatedStatus),
   StoryLikeController.paginateStatus
 );
+router.get(
+  '/get-likes-paginated/:storyId',
+  auth(),
+  validate(StoryLikeValidation.PaginateStory),
+  StoryLikeController.PaginateStory
+);
 module.exports = router;
