@@ -26,5 +26,5 @@ router
   /**
    * getFriendPaginated
    * */
-  .get(validate(SuccessStoryviewValidation.paginated), SuccessStoryViewController.PaginatedAll);
+  .get(auth(), validate(SuccessStoryviewValidation.paginated), SuccessStoryViewController.PaginatedAll);
 export default router;
