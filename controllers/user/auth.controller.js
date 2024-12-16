@@ -327,35 +327,48 @@ export const updateUserInfo = catchAsync(async (req, res) => {
 export const sendVerifyOtp = catchAsync(async (req, res) => {
   const { email, mobileNumber, countryCodeId } = req.body;
 
-  // Fetch the user based on email or mobileNumber
-  const user = await userService.getOne({ $or: [{ email }, { mobileNumber }] });
+  // Ensure email or mobileNumber is provided in the request
+  if (!email && !mobileNumber) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Email or mobile number is required.');
+  }
+
+  // Fetch the user based on email or mobileNumber from the body
+  const user = await userService.getOne({
+    $or: [
+      { email }, // Case-insensitive search for email
+      { mobileNumber }, // Mobile number search
+    ],
+  });
+
+  // If user not found, throw an error
   if (!user) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'No user found with this email or mobile number!');
   }
 
+  // Generate OTP
   const otp = generateOtp();
-  console.log('=====otp====>', otp);
-  // Push the new OTP to the user codes
+
+  // Push the new OTP to the user's codes
   user.codes.push({
     code: otp,
     expirationDate: Date.now() + 10 * 60 * 1000, // OTP valid for 10 minutes
     used: false,
     codeType: EnumCodeTypeOfCode.LOGIN,
   });
-  await user.save();
-  console.log('=====body====>', req.body);
 
-  // Check if the country code is required for mobile-based OTP
+  // Save the user document
+  await user.save();
+
+  // Handle mobile-based OTP
   if (user.mobileNumber) {
     const userCountryCode = await countryCodeService.getCountryCodeById(countryCodeId);
     if (!userCountryCode && mobileNumber) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Please provide countryCode while using registration with Mobile number.');
     }
 
-    // Send OTP to mobile using MSG91
     try {
-      await resendOtpToMobile(`${userCountryCode.code}${user.mobileNumber}`, otp); // Retry OTP for mobile
-      console.log('OTP resent to mobile via MSG91');
+      await resendOtpToMobile(`${userCountryCode.code}${user.mobileNumber}`, otp);
+      console.log('OTP resent to mobile');
       res.status(httpStatus.OK).send({
         results: {
           success: true,
