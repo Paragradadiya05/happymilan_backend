@@ -2,6 +2,7 @@ import httpStatus from 'http-status';
 import { catchAsync } from '../../utils/catchAsync';
 import { userService } from '../../services';
 import enumModel from '../../models/enum.model';
+import ApiError from '../../utils/ApiError';
 
 export const searchUser = catchAsync(async (req, res) => {
   const {
@@ -111,6 +112,9 @@ export const searchUser = catchAsync(async (req, res) => {
     parseInt(limit, 10),
     userId
   );
+  if (!user || user.length === 0) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+  }
   return res.status(httpStatus.OK).send({ results: user });
 });
 
