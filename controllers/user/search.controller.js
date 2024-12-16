@@ -112,10 +112,11 @@ export const searchUser = catchAsync(async (req, res) => {
     parseInt(limit, 10),
     userId
   );
-  if (!user || user.length === 0) {
+  const results = user[0].paginatedResults || [];
+  if (results.length === 0) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   }
-  return res.status(httpStatus.OK).send({ results: user });
+  return res.status(httpStatus.OK).send({ results });
 });
 
 export const getmaritalstatus = catchAsync(async (req, res) => {
