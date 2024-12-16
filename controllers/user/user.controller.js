@@ -347,20 +347,29 @@ export const checkMissingFields = catchAsync(async (req, res) => {
     // Map the missing fields to the desired format
     const formattedMissingFields = Object.entries(missingFields || {}) // Ensure missingFields is an object
       // eslint-disable-next-line no-unused-vars
-      .filter(([_, fields]) => Array.isArray(fields) && fields.length > 0) // Ignore category and directly check fields
+      .filter(([_, fields]) => Array.isArray(fields) && fields.length > 0) // Ignore empty categories
       .map(([category, fields]) => ({
-        category, // Add category explicitly
-        fields: fields.map((field) => ({
-          name: field,
-          redirect: redirects[category], // Map to corresponding redirect
-        })),
+        category,
+        redirect: redirects[category],
+        fields,
       }));
+
+    // Ensure the output matches the desired structure
+    const output =
+      formattedMissingFields.length > 0
+        ? formattedMissingFields
+        : [
+            {
+              category: '',
+              redirect: '',
+              fields: [],
+            },
+          ];
+
     // Return response with appropriate message and formatted data
     return res.status(httpStatus.OK).send({
       success: true,
-      data: {
-        missingFields: formattedMissingFields,
-      },
+      data: output,
       message: formattedMissingFields.length > 0 ? 'Some fields are missing' : 'All required fields are filled',
     });
   } catch (error) {
