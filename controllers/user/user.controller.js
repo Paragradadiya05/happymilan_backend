@@ -155,6 +155,10 @@ export const getUnique = catchAsync(async (req, res) => {
   };
   const options = {};
   const user = await userService.getUserList(filter, options);
+  if (!user || user.length === 0) {
+    // Adjust this condition based on the return type of getUserList
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+  }
   return res.status(httpStatus.OK).send({ results: user });
 });
 

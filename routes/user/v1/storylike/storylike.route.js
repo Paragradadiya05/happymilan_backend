@@ -32,7 +32,7 @@ router.get('/get-like-story/:storyId', auth(), validate(StoryLikeValidation.like
  * */
 router.put('/update-like/:likeId', auth(), validate(StoryLikeValidation.updateLike), StoryLikeController.updateLike);
 /**
- * delete-likez
+ * delete-like
  * */
 router.delete('/delete-like/:likeId', validate(StoryLikeValidation.DeleteLike), StoryLikeController.remove);
 /**
