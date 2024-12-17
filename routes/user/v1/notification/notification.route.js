@@ -22,7 +22,7 @@ router
  * getNotificationById
  * */
 router.get(
-  '/get-notification-byid/:userId',
+  '/get-notification-byid',
   auth(),
   appUserType(),
   validate(notificationValidation.getNotificationById),

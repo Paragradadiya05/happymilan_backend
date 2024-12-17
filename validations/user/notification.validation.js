@@ -27,9 +27,7 @@ export const getNotification = {
 };
 
 export const getNotificationById = {
-  params: Joi.object().keys({
-    userId: Joi.objectId().required(),
-  }),
+  params: Joi.object().keys({}),
   query: Joi.object().keys({
     appUsesType: Joi.string()
       .valid(...Object.values(EnumAppUsesTypeOfUsers))
