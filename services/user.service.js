@@ -870,6 +870,50 @@ export async function getMatchUser(filter) {
       },
     },
     {
+      $lookup: {
+        from: 'likes',
+        let: { currentUserIdForLike: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $eq: ['$user', filter.userId] }, { $eq: ['$likedUserId', '$$currentUserIdForLike'] }],
+              },
+            },
+          },
+        ],
+        as: 'userLikeDetails',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userLikeDetails',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
+        from: 'shortlists',
+        let: { currentUserIdForShortList: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $eq: ['$userId', filter.userId] }, { $eq: ['$shortlistId', '$$currentUserIdForShortList'] }],
+              },
+            },
+          },
+        ],
+        as: 'userShortListDetails',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userShortListDetails',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
       $match: {
         'friendsDetails.status': { $ne: EnumStatusOfFriend.BLOCKED },
       },
@@ -1038,6 +1082,11 @@ export async function getMatchUser(filter) {
         matchedFields: '$matchData.matchedFields', // Add matchedFields to output
         'friendsDetails.status': 1,
         'friendsDetails._id': 1,
+        'userLikeDetails.isLike': 1,
+        'userLikeDetails.user': 1,
+        'userLikeDetails.likedUserId': 1,
+        'userShortListDetails._id': 1,
+        'userShortListDetails.shortlistId': 1,
         isUserActive: 1,
       },
     },
