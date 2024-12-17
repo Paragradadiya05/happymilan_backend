@@ -271,6 +271,7 @@ export async function createFriend(body = {}, user, appUsesType) {
       userId: body.user,
       otherUserId: body.friend,
       body: EnumOfNotification.REQUEST_SENT,
+      title: EnumOfNotification.REQUEST_SENT,
     });
     // send notification
     // check if usr hase deice token or not
@@ -293,6 +294,7 @@ export async function createFriend(body = {}, user, appUsesType) {
       userId: body.user,
       otherUserId: body.friend,
       body: EnumOfNotification.REQUEST_RECEIVED,
+      title: EnumOfNotification.REQUEST_RECEIVED,
     });
 
     if (getFrdUser.deviceTokens.length) {
@@ -328,6 +330,7 @@ export async function createFriend(body = {}, user, appUsesType) {
     userId: body.user,
     otherUserId: body.friend,
     body: EnumOfNotification.REQUEST_SENT,
+    title: EnumOfNotification.REQUEST_SENT,
   });
   if (user.deviceTokens.length) {
     await user.deviceTokens.map(async (fcmToken) => {
@@ -351,6 +354,7 @@ export async function createFriend(body = {}, user, appUsesType) {
     otherUserId: body.user,
     userId: body.friend,
     body: EnumOfNotification.REQUEST_RECEIVED,
+    title: EnumOfNotification.REQUEST_RECEIVED,
   });
   if (getFrdUser.deviceTokens.length) {
     await getFrdUser.deviceTokens.map(async (fcmToken) => {
@@ -435,6 +439,7 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
       const createNotificationForAccepted = await Notification.create({
         userId: user._id,
         body: EnumOfNotification.REQUEST_ACCEPTED,
+        title: EnumOfNotification.REQUEST_ACCEPTED,
       });
 
       const frdUserData = await User.findById(friendRequest.user);
