@@ -148,18 +148,30 @@ export const remove = catchAsync(async (req, res) => {
 
   return res.status(httpStatus.OK).send({ results: user });
 });
+
 export const getUnique = catchAsync(async (req, res) => {
   const { userUniqueId } = req.params;
-  const filter = {
-    userUniqueId,
-  };
+
+  // Step 1: Fetch user ID from userUniqueId
+  const filter = { userUniqueId };
   const options = {};
+
   const user = await userService.getUserList(filter, options);
+
   if (!user || user.length === 0) {
-    // Adjust this condition based on the return type of getUserList
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   }
-  return res.status(httpStatus.OK).send({ results: user });
+
+  const userId = user[0]._id; // Extract user ID
+
+  // Step 2: Use the userId to call the getMatchUser service
+  const matchedUsers = await userService.getMatchUser({ user: userId, userId });
+
+  // Step 3: Return the matched users
+  return res.status(httpStatus.OK).json({
+    success: true,
+    data: matchedUsers,
+  });
 });
 
 export const getUserByGender = catchAsync(async (req, res) => {
@@ -196,7 +208,6 @@ async function checkSubscriptionStatus(userId) {
     if (!latestSubscription) {
       return { success: false, message: 'No subscription found for the user' };
     }
-
     const isActive = latestSubscription.status === 'active';
     return { success: true, isActive };
   } catch (error) {

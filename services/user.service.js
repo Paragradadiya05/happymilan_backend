@@ -944,10 +944,45 @@ export async function getMatchUser(filter) {
         as: 'address',
       },
     },
-
+    {
+      $lookup: {
+        from: 'UserPartner',
+        localField: '_id', // User's `_id` field
+        foreignField: 'userId', // Match with `userId` in `UserPartner`
+        as: 'userPartnerDetails',
+      },
+    },
     {
       $unwind: {
         path: '$userPartnerDetails',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
+        from: 'UserProfessionalDetail',
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'userProfessional',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userProfessional', // Deconstructs the 'address' array field
+        preserveNullAndEmptyArrays: true, // If you want to exclude documents with no address
+      },
+    },
+    {
+      $lookup: {
+        from: 'UserEducation',
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'userEducation',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userEducation',
         preserveNullAndEmptyArrays: true,
       },
     },
@@ -1068,7 +1103,7 @@ export async function getMatchUser(filter) {
         community: 1,
         motherTongue: 1,
         weight: 1,
-        userPartner: 1,
+        userPartnerDetails: 1,
         userEducation: 1,
         userProfessional: 1,
         profilePic: 1,
