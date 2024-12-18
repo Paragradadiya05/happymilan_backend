@@ -847,30 +847,6 @@ export async function getMatchUser(filter) {
     },
     {
       $lookup: {
-        from: 'Friend', // The collection name for Friend model
-        let: {
-          currentUserId: '$_id', // Reference to current document's userId
-        },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [{ $eq: ['$user', filter.user] }, { $eq: ['$friend', '$$currentUserId'] }],
-              },
-            },
-          },
-        ],
-        as: 'friendsDetails',
-      },
-    },
-    {
-      $unwind: {
-        path: '$friendsDetails',
-        preserveNullAndEmptyArrays: true, // Include users with no matching friends
-      },
-    },
-    {
-      $lookup: {
         from: 'likes',
         let: { currentUserIdForLike: '$_id' },
         pipeline: [
@@ -885,12 +861,7 @@ export async function getMatchUser(filter) {
         as: 'userLikeDetails',
       },
     },
-    {
-      $unwind: {
-        path: '$userLikeDetails',
-        preserveNullAndEmptyArrays: true,
-      },
-    },
+    // Lookup for Shortlists
     {
       $lookup: {
         from: 'shortlists',
@@ -899,12 +870,39 @@ export async function getMatchUser(filter) {
           {
             $match: {
               $expr: {
-                $and: [{ $eq: ['$userId', filter.userId] }, { $eq: ['$shortlistId', '$$currentUserIdForShortList'] }],
+                $and: [
+                  { $eq: ['$user', mongoose.Types.ObjectId(filter.userId)] },
+                  { $eq: ['$shortlistId', '$$currentUserIdForShortList'] },
+                ],
               },
             },
           },
         ],
         as: 'userShortListDetails',
+      },
+    },
+    // Lookup for Friends
+    {
+      $lookup: {
+        from: 'friends',
+        let: { currentUserId: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $eq: ['$user', mongoose.Types.ObjectId(filter.user)] }, { $eq: ['$friend', '$$currentUserId'] }],
+              },
+            },
+          },
+        ],
+        as: 'friendsDetails',
+      },
+    },
+    // Unwind arrays (preserve nulls for non-matching cases)
+    {
+      $unwind: {
+        path: '$userLikeDetails',
+        preserveNullAndEmptyArrays: true,
       },
     },
     {
@@ -914,8 +912,15 @@ export async function getMatchUser(filter) {
       },
     },
     {
+      $unwind: {
+        path: '$friendsDetails',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    // Filter out blocked friends
+    {
       $match: {
-        'friendsDetails.status': { $ne: EnumStatusOfFriend.BLOCKED },
+        $or: [{ friendsDetails: { $exists: false } }, { 'friendsDetails.status': { $nin: [EnumStatusOfFriend.BLOCKED] } }],
       },
     },
     {
