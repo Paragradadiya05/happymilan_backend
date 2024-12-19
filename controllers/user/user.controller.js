@@ -8,13 +8,9 @@ import { Subscription } from '../../models';
 
 export const get = catchAsync(async (req, res) => {
   const { userId } = req.params;
-  const currentUserId = req.user;
-  const filter = {
-    _id: userId,
-    currentUserId,
-  };
-  const options = {};
-  const user = await userService.getUserWithPartnerPrefScore(filter, options);
+  // user => current user id
+  // userID => other user id that we need to get
+  const user = await userService.getMatchUser({ user: req.user._id, userId });
   return res.status(httpStatus.OK).send({ results: user });
 });
 
@@ -150,22 +146,23 @@ export const remove = catchAsync(async (req, res) => {
 });
 
 export const getUnique = catchAsync(async (req, res) => {
+  const { user } = req;
   const { userUniqueId } = req.params;
 
   // Step 1: Fetch user ID from userUniqueId
   const filter = { userUniqueId };
   const options = {};
 
-  const user = await userService.getUserList(filter, options);
+  const getUser = await userService.getOne(filter, options);
 
-  if (!user || user.length === 0) {
+  if (!getUser || getUser.length === 0) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   }
 
-  const userId = user[0]._id; // Extract user ID
-
+  // user => current user id
+  // userID => other user id that we need to get
   // Step 2: Use the userId to call the getMatchUser service
-  const matchedUsers = await userService.getMatchUser({ user: userId, userId });
+  const matchedUsers = await userService.getMatchUser({ userId: getUser._id, user: user._id });
 
   // Step 3: Return the matched users
   return res.status(httpStatus.OK).json({
@@ -194,6 +191,8 @@ export const getMatchUser = catchAsync(async (req, res) => {
   const { user } = req;
   const { userId } = req.params;
 
+  // user => current user id
+  // userID => other user id that we need to get
   const result = await userService.getMatchUser({ userId, user: user._id });
   return res.status(httpStatus.OK).send({ results: result });
 });

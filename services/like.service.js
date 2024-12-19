@@ -29,6 +29,7 @@ export async function createLike(body = {}, user, appUsesType) {
     });
     await existingLike.save();
 
+    // todo : notification add
     return existingLike;
   }
   const statusHistory = {

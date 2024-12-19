@@ -833,6 +833,8 @@ export async function getGenderListV2(filter, options = {}) {
   return matchedUsers;
 }
 
+// user => current user id
+// userID => other user id that we need to get
 export async function getMatchUser(filter) {
   const userPartnerPreferences = await Partner.findOne({ userId: filter.user });
   if (!userPartnerPreferences) {
@@ -841,24 +843,33 @@ export async function getMatchUser(filter) {
   const pipeline = [
     {
       $match: {
-        _id: { $eq: mongoose.Types.ObjectId(filter.userId) }, // Exclude the current user
+        _id: { $eq: mongoose.Types.ObjectId(filter.userId) }, // only for the current user
         platform: { $eq: EnumOfPlatformType.HAPPY_MILAN },
       },
     },
     {
       $lookup: {
         from: 'likes',
-        let: { currentUserIdForLike: '$_id' },
         pipeline: [
           {
             $match: {
               $expr: {
-                $and: [{ $eq: ['$user', filter.userId] }, { $eq: ['$likedUserId', '$$currentUserIdForLike'] }],
+                $and: [
+                  { $eq: ['$user', mongoose.Types.ObjectId(filter.user)] },
+                  { $eq: ['$likedUserId', mongoose.Types.ObjectId(filter.userId)] },
+                ],
               },
             },
           },
         ],
         as: 'userLikeDetails',
+      },
+    },
+    // Unwind arrays (preserve nulls for non-matching cases)
+    {
+      $unwind: {
+        path: '$userLikeDetails',
+        preserveNullAndEmptyArrays: true,
       },
     },
     // Lookup for Shortlists
@@ -871,7 +882,7 @@ export async function getMatchUser(filter) {
             $match: {
               $expr: {
                 $and: [
-                  { $eq: ['$user', mongoose.Types.ObjectId(filter.userId)] },
+                  { $eq: ['$userId', mongoose.Types.ObjectId(filter.user)] },
                   { $eq: ['$shortlistId', '$$currentUserIdForShortList'] },
                 ],
               },
@@ -881,34 +892,29 @@ export async function getMatchUser(filter) {
         as: 'userShortListDetails',
       },
     },
+    {
+      $unwind: {
+        path: '$userShortListDetails',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
     // Lookup for Friends
     {
       $lookup: {
-        from: 'friends',
-        let: { currentUserId: '$_id' },
+        from: 'Friend',
         pipeline: [
           {
             $match: {
               $expr: {
-                $and: [{ $eq: ['$user', mongoose.Types.ObjectId(filter.user)] }, { $eq: ['$friend', '$$currentUserId'] }],
+                $and: [
+                  { $eq: ['$user', mongoose.Types.ObjectId(filter.user)] },
+                  { $eq: ['$friend', mongoose.Types.ObjectId(filter.userId)] },
+                ],
               },
             },
           },
         ],
         as: 'friendsDetails',
-      },
-    },
-    // Unwind arrays (preserve nulls for non-matching cases)
-    {
-      $unwind: {
-        path: '$userLikeDetails',
-        preserveNullAndEmptyArrays: true,
-      },
-    },
-    {
-      $unwind: {
-        path: '$userShortListDetails',
-        preserveNullAndEmptyArrays: true,
       },
     },
     {
