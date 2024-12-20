@@ -111,3 +111,16 @@ export const getRequestedFriendv2 = {
     })
     .unknown(true), // Allow any unknown query parameters
 };
+
+export const BlockUser = {
+  body: Joi.object().keys({
+    friend: Joi.objectId().required(),
+    user: Joi.objectId().required(),
+    status: Joi.string().valid(...Object.values(enumFields.EnumStatusOfFriend)),
+  }),
+  query: Joi.object().keys({
+    appUsesType: Joi.string()
+      .valid(...Object.values(EnumAppUsesTypeOfUsers))
+      .optional(),
+  }),
+};

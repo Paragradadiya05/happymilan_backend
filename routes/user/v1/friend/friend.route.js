@@ -109,6 +109,12 @@ router
    * */
   .post(auth(), appUserType(), validate(friendValidation.respondFriendRequest), friendController.respondFriendRequest);
 router
+  .route('/block-user')
+  /**
+   * block friend req
+   * */
+  .post(auth(), appUserType(), validate(friendValidation.BlockUser), friendController.BlockUser);
+router
   .route('/:friendId')
   /**
    * getFriendById

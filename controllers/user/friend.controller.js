@@ -305,3 +305,10 @@ export const getRFrdRequestsv2 = catchAsync(async (req, res) => {
   const user = await friendService.getFriendListWithPagination(filter, options, appUsesType);
   return res.status(httpStatus.OK).send({ results: user });
 });
+
+export const BlockUser = catchAsync(async (req, res) => {
+  const { user } = req;
+  const { appUsesType } = req.query;
+  const friend = await friendService.blockUser(req.body, user, appUsesType);
+  return res.status(httpStatus.OK).send({ results: friend });
+});

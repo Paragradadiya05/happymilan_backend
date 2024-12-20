@@ -430,46 +430,51 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
   const friendRequest = await Friend.findOne({ _id: request, friend: user });
   if (!friendRequest) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'No such Friend Request');
-  } else {
-    if (friendRequest.status === status) {
-      throw new ApiError(httpStatus.BAD_REQUEST, `Friend request is already ${status}`);
-    }
-    if (status === 'accepted') {
-      // await Notification.create({ userId: user, body: `Friend request accepted` });
-      const createNotificationForAccepted = await Notification.create({
-        userId: user._id,
-        body: EnumOfNotification.REQUEST_ACCEPTED,
-        title: EnumOfNotification.REQUEST_ACCEPTED,
-      });
-
-      const frdUserData = await User.findById(friendRequest.user);
-
-      // send notification
-      // check if usr hase deice token or not
-      if (frdUserData && frdUserData.deviceTokens && frdUserData.deviceTokens.length) {
-        await frdUserData.deviceTokens.map(async (fcmToken) => {
-          await sendNotification(
-            fcmToken.deviceToken,
-            {
-              data: {
-                _id: createNotificationForAccepted._id.toString(),
-                userId: createNotificationForAccepted.userId.toString(),
-                body: `${EnumOfNotification.REQUEST_ACCEPTED} of ${frdUserData.name}`,
-                title: EnumOfNotification.REQUEST_ACCEPTED,
-                createdAt: createNotificationForAccepted.createdAt.toString(),
-                updatedAt: createNotificationForAccepted.updatedAt.toString(),
-              },
-            },
-            {}
-          );
-        });
-      }
-    }
-    return Friend.findByIdAndUpdate(request, {
-      $set: { status, lastInitiatorUser: user },
-      $push: { statusHistory: { status, initiatorUser: user } },
-    });
   }
+
+  // Check if the user is blocked
+  if (friendRequest.status === EnumStatusOfFriend.BLOCKED && status !== EnumStatusOfFriend.REMOVED) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'Cannot process the request. User is blocked.');
+  }
+
+  if (friendRequest.status === status) {
+    throw new ApiError(httpStatus.BAD_REQUEST, `Friend request is already ${status}`);
+  }
+  if (status === 'accepted') {
+    // await Notification.create({ userId: user, body: `Friend request accepted` });
+    const createNotificationForAccepted = await Notification.create({
+      userId: user._id,
+      body: EnumOfNotification.REQUEST_ACCEPTED,
+      title: EnumOfNotification.REQUEST_ACCEPTED,
+    });
+
+    const frdUserData = await User.findById(friendRequest.user);
+
+    // send notification
+    // check if usr hase deice token or not
+    if (frdUserData && frdUserData.deviceTokens && frdUserData.deviceTokens.length) {
+      await frdUserData.deviceTokens.map(async (fcmToken) => {
+        await sendNotification(
+          fcmToken.deviceToken,
+          {
+            data: {
+              _id: createNotificationForAccepted._id.toString(),
+              userId: createNotificationForAccepted.userId.toString(),
+              body: `${EnumOfNotification.REQUEST_ACCEPTED} of ${frdUserData.name}`,
+              title: EnumOfNotification.REQUEST_ACCEPTED,
+              createdAt: createNotificationForAccepted.createdAt.toString(),
+              updatedAt: createNotificationForAccepted.updatedAt.toString(),
+            },
+          },
+          {}
+        );
+      });
+    }
+  }
+  return Friend.findByIdAndUpdate(request, {
+    $set: { status, lastInitiatorUser: user },
+    $push: { statusHistory: { status, initiatorUser: user } },
+  });
 }
 
 export async function getFriendv2(filter, options = {}) {
@@ -610,4 +615,60 @@ export async function getFriendmobile(filter, options = {}) {
     hasNextPage: page < totalPages,
     hasPrevPage: page > 1,
   };
+}
+
+export async function blockUser(body = {}, user) {
+  const userId = body.user.toString();
+  const friend = body.friend.toString();
+
+  if (userId === friend) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'You cannot block yourself');
+  }
+
+  const getFrdUser = await User.findById(friend);
+  if (!getFrdUser) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'No such user exists');
+  }
+
+  let getExistingFriendOrNot = await Friend.findOne({
+    $or: [
+      { friend: body.friend, user: body.user },
+      { friend: body.user, user: body.friend },
+    ],
+  });
+
+  if (getExistingFriendOrNot) {
+    if (getExistingFriendOrNot.status === EnumStatusOfFriend.BLOCKED) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'User is already blocked');
+    }
+
+    getExistingFriendOrNot = await Friend.findOneAndUpdate(
+      {
+        $or: [
+          { friend: body.friend, user: body.user },
+          { friend: body.user, user: body.friend },
+        ],
+      },
+      {
+        $set: {
+          status: EnumStatusOfFriend.BLOCKED,
+          lastInitiatorUser: user,
+          date: Date.now(),
+        },
+        $push: { statusHistory: { status: EnumStatusOfFriend.BLOCKED, initiatorUser: user, date: Date.now() } },
+      },
+      { new: true }
+    );
+
+    return getExistingFriendOrNot;
+  }
+
+  // If no existing relationship, create a new blocked entry
+  return Friend.create({
+    ...body,
+    status: EnumStatusOfFriend.BLOCKED,
+    lastInitiatorUser: user,
+    date: Date.now(),
+    statusHistory: [{ status: EnumStatusOfFriend.BLOCKED, initiatorUser: user, date: Date.now() }],
+  });
 }
