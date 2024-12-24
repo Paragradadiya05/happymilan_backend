@@ -1,5 +1,4 @@
 import Joi from 'joi';
-import enumFields from '../../models/enum.model';
 
 Joi.objectId = require('joi-objectid')(Joi);
 
@@ -7,7 +6,7 @@ export const createSpamUser = {
   body: Joi.object().keys({
     userId: Joi.objectId(),
     spamUserId: Joi.objectId().required(),
-    reason: Joi.string().valid(...Object.values(enumFields.EnumOfReason)),
+    reason: Joi.string(),
     remark: Joi.string(),
   }),
 };
@@ -23,7 +22,7 @@ export const updateSpam = {
   body: Joi.object().keys({
     userId: Joi.objectId(),
     spamUserId: Joi.objectId().required(),
-    reason: Joi.string().valid(...Object.values(enumFields.EnumOfReason)),
+    reason: Joi.string(),
     remark: Joi.string(),
   }),
 };

@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 import mongoosePaginateV2 from 'mongoose-paginate-v2';
 import { toJSON } from 'models/plugins';
-import enumModel from './enum.model';
 
 const SpamUserSchema = new mongoose.Schema(
   {
@@ -15,7 +14,6 @@ const SpamUserSchema = new mongoose.Schema(
     },
     reason: {
       type: String,
-      enum: Object.values(enumModel.EnumOfReason),
     },
     remark: {
       type: String,
