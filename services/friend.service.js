@@ -589,7 +589,7 @@ export async function getFriendmobile(filter, options = {}) {
         };
       }
 
-      // If no match data is available, attach default values to the friend object
+      // Attach default values if no match data is available
       return {
         ...friendEntry,
         friend: {
@@ -605,15 +605,16 @@ export async function getFriendmobile(filter, options = {}) {
   // Calculate total pages
   const totalPages = Math.ceil(totalDocs / limit);
 
-  // Return paginated results with metadata
+  // Return paginated results with metadata, including the current page
   return {
     results: friendsWithMatchData,
     totalDocs,
     limit,
-    page,
+    page, // Current page
     totalPages,
     hasNextPage: page < totalPages,
     hasPrevPage: page > 1,
+    currentPage: page, // Optional explicit field for current page
   };
 }
 
