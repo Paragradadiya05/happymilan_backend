@@ -115,9 +115,11 @@ async function calculateMatchScore(friendId, userPartnerPreferences) {
       $addFields: {
         shortlistData: {
           $cond: {
-            if: { $ne: ['$shortlistData', []] }, // Check if shortlistData is not empty
-            then: '$shortlistData',
-            else: null, // Return null if no shortlist data exists
+            if: { $gt: [{ $size: '$shortlistData' }, 0] },
+            then: {
+              $arrayElemAt: [{ $sortArray: { input: '$shortlistData', sortBy: { createdAt: -1 } } }, 0],
+            },
+            else: '$$REMOVE', // Removes the field if no shortlist data exists
           },
         },
       },
