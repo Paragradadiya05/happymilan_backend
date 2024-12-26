@@ -31,6 +31,7 @@ import datingPartnerRoute from './v1/datingpartner/datinfpartner.route';
 import countryCodeRoute from './v1/countryCode/countryCode.route';
 import SuccessStoryViewRoute from './v1/SuccessStoryview/SuccessStoryview.route';
 import StoryLikeRoute from './v1/storylike/storylike.route';
+import userPlanRoute from './v1/userPlan/userPlan.route';
 
 const router = express.Router();
 router.use('/user', userRoutes);
@@ -65,6 +66,7 @@ router.use('/dating-partner', datingPartnerRoute);
 router.use('/country-code', countryCodeRoute);
 router.use('/success-story-View', SuccessStoryViewRoute);
 router.use('/story-Like', StoryLikeRoute);
+router.use('/user-plan', userPlanRoute);
 
 // router.use('/userEducation', userEducationRoutes);
 // router.use('/commentOnStory', commentOnStoryRoutes);
