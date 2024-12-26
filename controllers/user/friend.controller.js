@@ -150,6 +150,9 @@ export const getMyFrdRequestsMobile = catchAsync(async (req, res) => {
     }
 
     const { friend, user, ...restFrdData } = frdData;
+    if (friendList.shortlistData === undefined || friendList.shortlistData.length === 0) {
+      delete friendList.shortlistData;
+    }
     return {
       ...restFrdData,
       friendList,
