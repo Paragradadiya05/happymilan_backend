@@ -112,19 +112,6 @@ async function calculateMatchScore(friendId, userPartnerPreferences) {
       },
     },
     {
-      $addFields: {
-        shortlistData: {
-          $cond: {
-            if: { $gt: [{ $size: '$shortlistData' }, 0] },
-            then: {
-              $arrayElemAt: [{ $sortArray: { input: '$shortlistData', sortBy: { createdAt: -1 } } }, 0],
-            },
-            else: '$$REMOVE', // Removes the field if no shortlist data exists
-          },
-        },
-      },
-    },
-    {
       $project: {
         matchPercentage: '$matchData.matchPercentage',
         matchedCriteria: '$matchData.matchedCriteria',
@@ -138,7 +125,7 @@ async function calculateMatchScore(friendId, userPartnerPreferences) {
     : {
         matchPercentage: 0,
         matchedCriteria: 0,
-        shortlistData: null,
+        shortlistData: [],
       };
 }
 
@@ -591,28 +578,25 @@ export async function getFriendmobile(filter, options = {}) {
       const { friend, user } = friendEntry;
       if (user && user.userPartner) {
         const matchInfo = await calculateMatchScore(friend._id, user.userPartner);
-        const friendWithMatch = {
-          ...friend,
-          matchPercentage: matchInfo.matchPercentage,
-          matchedCriteria: matchInfo.matchedCriteria,
-        };
-
-        if (matchInfo.shortlistData && matchInfo.shortlistData.length > 0) {
-          friendWithMatch.shortlistData = matchInfo.shortlistData;
-        }
-
         return {
-          ...friendEntry,
-          friend: friendWithMatch,
+          ...friendEntry, // Already a plain object, no need for toObject()
+          friend: {
+            ...friend,
+            matchPercentage: matchInfo.matchPercentage,
+            matchedCriteria: matchInfo.matchedCriteria,
+            shortlistData: matchInfo.shortlistData,
+          },
         };
       }
 
+      // Attach default values if no match data is available
       return {
         ...friendEntry,
         friend: {
           ...friend,
           matchPercentage: 0,
           matchedCriteria: [],
+          shortlistData: [],
         },
       };
     })
