@@ -63,3 +63,27 @@ export const getShortlistPagination = catchAsync(async (req, res) => {
   const escalate = await shortlistervice.getshortListWithPagination(filter, options);
   return res.status(httpStatus.OK).send({ results: escalate });
 });
+
+export const getShortlistMobile = catchAsync(async (req, res) => {
+  const { userId } = req.params;
+  const { query } = req;
+  const { appUsesType } = req.query;
+  const sortingObj = pick(query, ['sort', 'order']);
+  const sortObj = {
+    [sortingObj.sort]: sortingObj.order,
+  };
+  const filter = {
+    userId,
+    appUsesType,
+  };
+  const options = {
+    sort: sortObj,
+    ...pick(query, ['limit', 'page']),
+    populate: {
+      path: 'shortlistId',
+      populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
+    },
+  };
+  const escalate = await shortlistervice.getshortListforMobile(filter, options);
+  return res.status(httpStatus.OK).send({ results: escalate });
+});

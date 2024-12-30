@@ -29,4 +29,11 @@ router.get(
   validate(shortlistValidation.GetShortlistByUser),
   shortlistController.getShortlistPagination
 );
+router.get(
+  '/get-short-list-mobile/:userId',
+  auth(),
+  appUserType(),
+  validate(shortlistValidation.GetShortlistByUser),
+  shortlistController.getShortlistMobile
+);
 module.exports = router;
