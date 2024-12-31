@@ -463,6 +463,20 @@ export async function getshortListforMobile(filter, options = {}) {
         preserveNullAndEmptyArrays: true, // Include documents even if no logged-in user data exists
       },
     },
+    {
+      $lookup: {
+        from: 'User',
+        localField: 'shortlistId',
+        foreignField: '_id',
+        as: 'user',
+      },
+    },
+    {
+      $unwind: {
+        path: '$user',
+        preserveNullAndEmptyArrays: true, // Include users with no matching friends
+      },
+    },
     // {
     //   $lookup: {
     //     from: 'Subscription', // Ensure this matches the subscription collection name
