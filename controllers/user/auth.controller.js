@@ -1,5 +1,5 @@
 import httpStatus from 'http-status';
-import { generateOtp } from 'utils/common';
+import { generateOtp, generateRandomId } from 'utils/common';
 import ApiError from 'utils/ApiError';
 import { catchAsync } from 'utils/catchAsync';
 import { authService, tokenService, userService, emailService, pravicyservice, countryCodeService } from 'services';
@@ -13,15 +13,6 @@ import { resendOtpToMobile, sendOtpToMobile } from '../../services/mobileotp.ser
 import { Notification } from '../../models';
 import { sendNotification } from '../../services/notification.service';
 
-function generateRandomId() {
-  // Current date string
-  const dateString = new Date().toISOString().slice(0, 10).replace(/-/g, '').slice(4, 8);
-  // Generate random characters
-  const randomChars = Array.from({ length: 4 }, () => Math.random().toString(36).charAt(2)).join('');
-  // Combine date string and random characters
-  const uniqueId = dateString + randomChars;
-  return uniqueId;
-}
 export const register = catchAsync(async (req, res) => {
   const { body } = req;
   const userUniqueId = generateRandomId();

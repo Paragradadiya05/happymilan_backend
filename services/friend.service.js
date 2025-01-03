@@ -5,11 +5,12 @@ import mongoose from 'mongoose';
 import { EnumOfNotification, EnumStatusOfFriend } from '../models/enum.model';
 import { sendNotification } from './notification.service';
 
-async function calculateMatchScore(friendId, userPartnerPreferences) {
+async function calculateMatchScore(friendId, userPartnerPreferences, userId) {
   const matchData = await User.aggregate([
     {
       $match: { _id: mongoose.Types.ObjectId(friendId) },
     },
+    // find address
     {
       $lookup: {
         from: 'Address',
@@ -24,6 +25,7 @@ async function calculateMatchScore(friendId, userPartnerPreferences) {
         preserveNullAndEmptyArrays: true, // If you want to exclude documents with no address
       },
     },
+    // find UserProfessionalDetail
     {
       $lookup: {
         from: 'UserProfessionalDetail',
@@ -106,9 +108,26 @@ async function calculateMatchScore(friendId, userPartnerPreferences) {
     {
       $lookup: {
         from: 'shortlists',
-        localField: '_id',
-        foreignField: 'shortlistId',
+        let: { currentUserIdForShortList: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ['$userId', mongoose.Types.ObjectId(userId)] },
+                  { $eq: ['$shortlistId', '$$currentUserIdForShortList'] },
+                ],
+              },
+            },
+          },
+        ],
         as: 'shortlistData',
+      },
+    },
+    {
+      $unwind: {
+        path: '$shortlistData', // Deconstructs the 'address' array field
+        preserveNullAndEmptyArrays: true, // If you want to exclude documents with no address
       },
     },
     {
@@ -155,6 +174,7 @@ export async function getFriendList(filter, options = {}) {
   // Get total count of matching friends for pagination
   const totalDocs = await Friend.countDocuments(filter);
 
+  // todo: use in all query and remove countDocuments paginate
   // Retrieve paginated list of friends
   const friends = await Friend.find(filter, options.projection, { ...options, limit, skip })
     .populate({
@@ -172,7 +192,25 @@ export async function getFriendList(filter, options = {}) {
     friends.map(async (friendEntry) => {
       const { friend, user } = friendEntry;
       if (user && user.userPartner) {
-        const matchInfo = await calculateMatchScore(friend._id, user.userPartner);
+        const userId = filter.friend ? friend._id : user.userPartner.userId; // this is login user id
+
+        /* we are fetching friend data.
+         ( there are two possible thing
+            1. current login user is friend
+            2. current login user is user )
+
+         if current login user is friend in data then we need to pass other user in calculateMatchScore function as friend id
+         */
+
+        let friendId = friend._id;
+        let userPartnerData = user.userPartner;
+
+        if (userId.toString() === friend._id.toString()) {
+          friendId = user._id;
+          userPartnerData = friend.userPartner;
+        }
+
+        const matchInfo = await calculateMatchScore(friendId, userPartnerData, userId);
 
         // Attach match data directly to the friend object
         return {
@@ -477,7 +515,7 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
   });
 }
 
-export async function getFriendv2(filter, options = {}) {
+export async function getFriendv2(filter, options = {}, userId) {
   const page = options.page || 1;
   const limit = options.limit || 10;
   const skip = (page - 1) * limit;
@@ -506,7 +544,7 @@ export async function getFriendv2(filter, options = {}) {
     friends.map(async (friendEntry) => {
       const { friend, user } = friendEntry;
       if (user && user.userPartner) {
-        const matchInfo = await calculateMatchScore(friend._id, user.userPartner);
+        const matchInfo = await calculateMatchScore(friend._id, user.userPartner, userId);
         return {
           ...friendEntry.toObject(),
           friend: {
@@ -547,7 +585,7 @@ export async function getFriendv2(filter, options = {}) {
 }
 
 // Function to calculate match score for each friend
-export async function getFriendmobile(filter, options = {}) {
+export async function getFriendMobile(filter, options = {}, userId) {
   const page = options.page || 1;
   const limit = options.limit || 10;
   const skip = (page - 1) * limit;
@@ -577,7 +615,23 @@ export async function getFriendmobile(filter, options = {}) {
     friends.map(async (friendEntry) => {
       const { friend, user } = friendEntry;
       if (user && user.userPartner) {
-        const matchInfo = await calculateMatchScore(friend._id, user.userPartner);
+        /* we are fetching friend data.
+         ( there are two possible thing
+            1. current login user is friend
+            2. current login user is user )
+
+         if current login user is friend in data then we need to pass other user in calculateMatchScore function as friend id
+         */
+
+        let friendId = friend._id;
+        let userPartnerData = user.userPartner;
+
+        if (userId.toString() === friend._id.toString()) {
+          friendId = user._id;
+          userPartnerData = friend.userPartner;
+        }
+
+        const matchInfo = await calculateMatchScore(friendId, userPartnerData, userId);
         return {
           ...friendEntry, // Already a plain object, no need for toObject()
           friend: {

@@ -583,7 +583,14 @@ export async function getGenderListV2(filter, options = {}) {
           {
             $match: {
               $expr: {
-                $and: [{ $eq: ['$user', filter.userId] }, { $eq: ['$friend', '$$currentUserId'] }],
+                $or: [
+                  {
+                    $and: [{ $eq: ['$user', filter.userId] }, { $eq: ['$friend', '$$currentUserId'] }],
+                  },
+                  {
+                    $and: [{ $eq: ['$user', '$$currentUserId'] }, { $eq: ['$friend', filter.userId] }],
+                  },
+                ],
               },
             },
           },
@@ -601,7 +608,12 @@ export async function getGenderListV2(filter, options = {}) {
       $match: {
         $or: [
           { friendsDetails: { $exists: false } }, // Include users without any friend details
-          { 'friendsDetails.status': { $nin: [EnumStatusOfFriend.BLOCKED, EnumStatusOfFriend.ACCEPTED] } }, // Exclude BLOCKED and ACCEPTED statuses
+          {
+            $and: [
+              { 'friendsDetails.status': { $nin: [EnumStatusOfFriend.BLOCKED, EnumStatusOfFriend.ACCEPTED] } },
+              { 'friendsDetails.status': { $ne: EnumStatusOfFriend.REQUESTED } }, // if other user requested this user then also don't show that user
+            ],
+          },
         ],
       },
     },
