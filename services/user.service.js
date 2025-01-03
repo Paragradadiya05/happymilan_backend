@@ -608,10 +608,17 @@ export async function getGenderListV2(filter, options = {}) {
       $match: {
         $or: [
           { friendsDetails: { $exists: false } }, // Include users without any friend details
+          // Case 2: Exclude blocked and accepted statuses
           {
             $and: [
               { 'friendsDetails.status': { $nin: [EnumStatusOfFriend.BLOCKED, EnumStatusOfFriend.ACCEPTED] } },
-              { 'friendsDetails.status': { $ne: EnumStatusOfFriend.REQUESTED } }, // if other user requested this user then also don't show that user
+              {
+                $or: [
+                  // Keep REQUESTED status unless the user made the request
+                  { $expr: { $ne: ['$friendsDetails.friend', filter.userId] } },
+                  { 'friendsDetails.status': { $ne: EnumStatusOfFriend.REQUESTED } },
+                ],
+              },
             ],
           },
         ],
