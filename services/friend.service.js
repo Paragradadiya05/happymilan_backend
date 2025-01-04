@@ -211,16 +211,15 @@ export async function getFriendList(filter, options = {}) {
         }
 
         const matchInfo = await calculateMatchScore(friendId, userPartnerData, userId);
+        console.log(' match info ==', matchInfo);
 
         // Attach match data directly to the friend object
         return {
           ...friendEntry.toObject(),
-          friend: {
-            ...friend.toObject(),
-            matchPercentage: matchInfo.matchPercentage,
-            matchedCriteria: matchInfo.matchedCriteria,
-            shortlistData: matchInfo.shortlistData,
-          },
+          ...friend.toObject(),
+          matchPercentage: matchInfo.matchPercentage,
+          matchedCriteria: matchInfo.matchedCriteria,
+          shortlistData: matchInfo.shortlistData,
         };
       }
 
