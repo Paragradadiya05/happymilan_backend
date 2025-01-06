@@ -165,7 +165,7 @@ export const getRejectedFrdRequests = catchAsync(async (req, res) => {
   const userId = req.user._id;
   const filter = {
     status: EnumStatusOfFriend.REJECTED,
-    $or: [{ friend: userId }, { user: userId }],
+    user: userId,
   };
   const options = {};
   const user = await friendService.getFriendList(filter, options);
