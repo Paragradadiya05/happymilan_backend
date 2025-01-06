@@ -168,7 +168,7 @@ export const getRejectedFrdRequests = catchAsync(async (req, res) => {
     $or: [{ friend: userId }, { user: userId }],
   };
   const options = {};
-  const user = await friendService.getFriendList(filter, options);
+  const user = await friendService.getFriendMobile(filter, options);
   return res.status(httpStatus.OK).send({ results: user });
 });
 

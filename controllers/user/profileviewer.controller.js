@@ -21,14 +21,16 @@ export const getProfileViewer = catchAsync(async (req, res) => {
 
 export const getProfileViewerV2 = catchAsync(async (req, res) => {
   const { query } = req;
+  const { appUsesType } = req.query;
+  const { userId } = req.params;
   const sortingObj = pick(query, ['sort', 'order']);
   const sortObj = {
     [sortingObj.sort]: sortingObj.order,
   };
-  const { userId } = req.params;
   // const viewer = req.body.viewerId;
   const filter = {
-    user: userId,
+    userId,
+    appUsesType,
   };
   const options = {
     sort: sortObj,
@@ -40,5 +42,32 @@ export const getProfileViewerV2 = catchAsync(async (req, res) => {
     },
   };
   const user = await profileviewerservice.getProfileViewertWithPagination(filter, options);
+  return res.status(httpStatus.OK).send({ results: user });
+});
+
+export const GetProfileviwerMobile = catchAsync(async (req, res) => {
+  const { query } = req;
+  const { appUsesType } = req.query;
+  const { userId } = req.params;
+  const sortingObj = pick(query, ['sort', 'order']);
+  const sortObj = {
+    [sortingObj.sort]: sortingObj.order,
+  };
+
+  // const viewer = req.body.viewerId;
+  const filter = {
+    userId,
+    appUsesType,
+  };
+  const options = {
+    sort: sortObj,
+    ...pick(query, ['limit', 'page']),
+    lean: true,
+    populate: {
+      path: 'viewerId',
+      populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
+    },
+  };
+  const user = await profileviewerservice.getProfileViewerforMobile(filter, options);
   return res.status(httpStatus.OK).send({ results: user });
 });

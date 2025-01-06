@@ -3,6 +3,7 @@ import validate from 'middlewares/validate';
 import { pofileviewerController } from 'controllers/user';
 import { profileviewerValidation } from 'validations/user';
 import auth from 'middlewares/auth';
+import appUserType from '../../../../middlewares/appUserType';
 
 const router = express();
 router.post(
@@ -24,5 +25,11 @@ router.get(
   validate(profileviewerValidation.GetProfileviwer),
   pofileviewerController.getProfileViewerV2
 );
-
+router.get(
+  '/get-profile-viewer-mobile/:userId',
+  auth(),
+  appUserType(),
+  validate(profileviewerValidation.GetProfileviwer),
+  pofileviewerController.GetProfileviwerMobile
+);
 module.exports = router;
