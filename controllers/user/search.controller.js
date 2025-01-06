@@ -2,7 +2,6 @@ import httpStatus from 'http-status';
 import { catchAsync } from '../../utils/catchAsync';
 import { userService } from '../../services';
 import enumModel from '../../models/enum.model';
-import ApiError from '../../utils/ApiError';
 
 export const searchUser = catchAsync(async (req, res) => {
   const {
@@ -112,11 +111,20 @@ export const searchUser = catchAsync(async (req, res) => {
     parseInt(limit, 10),
     userId
   );
-  const results = user[0].paginatedResults || [];
-  if (results.length === 0) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+  if (!user) {
+    return res.status(httpStatus.NOT_FOUND).send({ message: 'No users found' });
   }
-  return res.status(httpStatus.OK).send({ results });
+  const { paginatedResults, totalDocs, totalPages, currentPage } = user[0] || {};
+
+  res.status(httpStatus.OK).send({
+    data: paginatedResults || [],
+    pagination: {
+      totalDocs: totalDocs || 0,
+      totalPages: totalPages || 0,
+      currentPage: currentPage || page,
+      limit,
+    },
+  });
 });
 
 export const getmaritalstatus = catchAsync(async (req, res) => {
