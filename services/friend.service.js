@@ -215,12 +215,9 @@ export async function getFriendList(filter, options = {}) {
         // Attach match data directly to the friend object
         return {
           ...friendEntry.toObject(),
-          friend: {
-            ...friend.toObject(),
-            matchPercentage: matchInfo.matchPercentage,
-            matchedCriteria: matchInfo.matchedCriteria,
-            shortlistData: matchInfo.shortlistData,
-          },
+          matchPercentage: matchInfo.matchPercentage,
+          matchedCriteria: matchInfo.matchedCriteria,
+          shortlistData: matchInfo.shortlistData,
         };
       }
 
