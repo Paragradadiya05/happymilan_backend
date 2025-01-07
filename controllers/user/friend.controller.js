@@ -65,6 +65,11 @@ export const respondFriendRequest = catchAsync(async (req, res) => {
   return res.status(httpStatus.OK).send({ success: true });
 });
 export const getBlockList = catchAsync(async (req, res) => {
+  const userId = req.user._id;
+  const filter = {
+    status: EnumStatusOfFriend.BLOCKED,
+    $or: [{ friend: userId }, { user: userId }],
+  };
   const { query } = req;
   const sortingObj = pick(query, ['sort', 'order']);
   const sortObj = {
@@ -75,35 +80,9 @@ export const getBlockList = catchAsync(async (req, res) => {
     ...pick(query, ['limit', 'page']),
     lean: true,
   };
-  const userId = req.user._id;
-  const filter = {
-    status: EnumStatusOfFriend.BLOCKED,
-    $or: [{ friend: userId }, { user: userId }],
-  };
-  const getuser = await friendService.getFriendMobile(filter, options, userId);
+  const user = await friendService.getFriendMobile(filter, options, userId);
 
-  getuser.results = getuser.results.map((frdData) => {
-    let friendList;
-    let userList;
-    if (frdData.friend._id.toString() === userId.toString()) {
-      friendList = frdData.user;
-      userList = frdData.friend;
-    } else {
-      friendList = frdData.friend;
-      userList = frdData.user;
-    }
-
-    const { friend, user, ...restFrdData } = frdData;
-    if (friendList.shortlistData === undefined || friendList.shortlistData.length === 0) {
-      delete friendList.shortlistData;
-    }
-    return {
-      ...restFrdData,
-      friendList,
-      userList,
-    };
-  });
-  return res.status(httpStatus.OK).send({ results: getuser });
+  return res.status(httpStatus.OK).send({ results: user });
 });
 
 export const getRequests = catchAsync(async (req, res) => {
