@@ -65,6 +65,11 @@ export const respondFriendRequest = catchAsync(async (req, res) => {
   return res.status(httpStatus.OK).send({ success: true });
 });
 export const getBlockList = catchAsync(async (req, res) => {
+  const userId = req.user._id;
+  const filter = {
+    status: EnumStatusOfFriend.BLOCKED,
+    $or: [{ friend: userId }, { user: userId }],
+  };
   const { query } = req;
   const sortingObj = pick(query, ['sort', 'order']);
   const sortObj = {
@@ -75,12 +80,6 @@ export const getBlockList = catchAsync(async (req, res) => {
     ...pick(query, ['limit', 'page']),
     lean: true,
   };
-  const userId = req.user._id;
-  const filter = {
-    status: EnumStatusOfFriend.BLOCKED,
-    $or: [{ friend: userId }, { user: userId }],
-  };
-
   const user = await friendService.getFriendMobile(filter, options, userId);
 
   return res.status(httpStatus.OK).send({ results: user });
