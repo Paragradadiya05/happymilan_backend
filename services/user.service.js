@@ -1157,6 +1157,7 @@ export async function getMatchUser(filter) {
         matchedFields: '$matchData.matchedFields', // Add matchedFields to output
         'friendsDetails.status': 1,
         'friendsDetails._id': 1,
+        'userLikeDetails._id': 1,
         'userLikeDetails.isLike': 1,
         'userLikeDetails.user': 1,
         'userLikeDetails.likedUserId': 1,
