@@ -142,8 +142,8 @@ export const getMyFrdRequestsMobile = catchAsync(async (req, res) => {
     let friendList;
     let userList;
     if (frdData.friend._id.toString() === userId.toString()) {
-      friendList = frdData.user;
-      userList = frdData.friend;
+      friendList = frdData.friend;
+      userList = frdData.user;
     } else {
       friendList = frdData.friend;
       userList = frdData.user;
