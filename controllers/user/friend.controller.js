@@ -80,7 +80,7 @@ export const getBlockList = catchAsync(async (req, res) => {
     ...pick(query, ['limit', 'page']),
     lean: true,
   };
-  const user = await friendService.getFriendMobile(filter, options, userId);
+  const user = await friendService.getBlock(filter, options, userId);
 
   return res.status(httpStatus.OK).send({ results: user });
 });
@@ -136,14 +136,14 @@ export const getMyFrdRequestsMobile = catchAsync(async (req, res) => {
     status: EnumStatusOfFriend.ACCEPTED,
     $or: [{ friend: userId }, { user: userId }],
   };
-  const getuser = await friendService.getFriendMobile(filter, options, userId);
+  const getuser = await friendService.getFriendAcceptedMobile(filter, options, userId);
 
   getuser.results = getuser.results.map((frdData) => {
     let friendList;
     let userList;
     if (frdData.friend._id.toString() === userId.toString()) {
-      friendList = frdData.friend;
-      userList = frdData.user;
+      friendList = frdData.user;
+      userList = frdData.friend;
     } else {
       friendList = frdData.friend;
       userList = frdData.user;

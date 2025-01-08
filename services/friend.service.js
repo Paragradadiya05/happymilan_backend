@@ -582,7 +582,7 @@ export async function getFriendv2(filter, options = {}, userId) {
 }
 
 // Function to calculate match score for each friend
-export async function getFriendMobile(filter, options = {}, userId) {
+export async function getBlock(filter, options = {}, userId) {
   const page = options.page || 1;
   const limit = options.limit || 10;
   const skip = (page - 1) * limit;
@@ -723,4 +723,66 @@ export async function blockUser(body = {}, user) {
     date: Date.now(),
     statusHistory: [{ status: EnumStatusOfFriend.BLOCKED, initiatorUser: user, date: Date.now() }],
   });
+}
+export async function getFriendAcceptedMobile(filter, options = {}, userId) {
+  const page = options.page || 1;
+  const limit = options.limit || 10;
+  const skip = (page - 1) * limit;
+
+  const totalDocs = await Friend.countDocuments(filter);
+  const friends = await Friend.find(filter, options.projection, { ...options, limit, skip })
+    .populate({
+      path: 'friend',
+      populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
+    })
+    .populate({
+      path: 'user',
+      populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
+    })
+    .lean()
+    .exec();
+
+  const friendsWithMatchData = await Promise.all(
+    friends.map(async (friendEntry) => {
+      const { friend, user } = friendEntry;
+      let friendList = friend;
+      let userList = user;
+
+      // If the logged-in user is the "friend," swap the data
+      if (userId.toString() === friend._id.toString()) {
+        friendList = user;
+        userList = friend;
+      }
+
+      if (friendList.userPartner) {
+        const matchInfo = await calculateMatchScore(friendList._id, friendList.userPartner, userId);
+        friendList.matchPercentage = matchInfo.matchPercentage;
+        friendList.matchedCriteria = matchInfo.matchedCriteria;
+        friendList.shortlistData = matchInfo.shortlistData;
+      } else {
+        friendList.matchPercentage = 0;
+        friendList.matchedCriteria = [];
+        friendList.shortlistData = [];
+      }
+
+      return {
+        ...friendEntry,
+        friendList,
+        userList,
+      };
+    })
+  );
+
+  const totalPages = Math.ceil(totalDocs / limit);
+
+  return {
+    results: friendsWithMatchData,
+    totalDocs,
+    limit,
+    page,
+    totalPages,
+    hasNextPage: page < totalPages,
+    hasPrevPage: page > 1,
+    currentPage: page,
+  };
 }
