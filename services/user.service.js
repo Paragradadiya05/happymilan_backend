@@ -925,9 +925,19 @@ export async function getMatchUser(filter) {
           {
             $match: {
               $expr: {
-                $and: [
-                  { $eq: ['$user', mongoose.Types.ObjectId(filter.user)] },
-                  { $eq: ['$friend', mongoose.Types.ObjectId(filter.userId)] },
+                $or: [
+                  {
+                    $and: [
+                      { $eq: ['$user', mongoose.Types.ObjectId(filter.user)] },
+                      { $eq: ['$friend', mongoose.Types.ObjectId(filter.userId)] },
+                    ],
+                  },
+                  {
+                    $and: [
+                      { $eq: ['$user', mongoose.Types.ObjectId(filter.userId)] },
+                      { $eq: ['$friend', mongoose.Types.ObjectId(filter.user)] },
+                    ],
+                  },
                 ],
               },
             },
