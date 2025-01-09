@@ -985,6 +985,12 @@ export async function getMatchUser(filter) {
       },
     },
     {
+      $unwind: {
+        path: '$address', // Deconstructs the 'address' array field
+        preserveNullAndEmptyArrays: true, // If you want to exclude documents with no address
+      },
+    },
+    {
       $lookup: {
         from: 'UserPartner',
         localField: '_id', // User's `_id` field
