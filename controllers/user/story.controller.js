@@ -77,13 +77,9 @@ export const verifyStoryConsent = catchAsync(async (req, res) => {
 
     // HTML response
     const htmlResponse = `
-  <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Story Consent Verified</title>
-    <style>
+  <html>
+    <head>
+      <style>
         body {
             font-family: 'Poppins', sans-serif;
             margin: 0;
