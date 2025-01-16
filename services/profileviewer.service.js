@@ -318,7 +318,7 @@ export async function getProfileViewertWithPagination(filter, options = {}) {
     {
       $project: {
         _id: 1,
-        age: 1,
+        'user.age': 1,
         'user.height': 1,
         userId: 1,
         shortlistId: 1,
