@@ -318,7 +318,7 @@ export async function getProfileViewertWithPagination(filter, options = {}) {
     {
       $project: {
         _id: 1,
-        'user.age': 1,
+        age: 1,
         'user.height': 1,
         userId: 1,
         shortlistId: 1,
@@ -346,7 +346,7 @@ export async function getProfileViewertWithPagination(filter, options = {}) {
         'user.randomId': 1,
         'user.birthTime': 1,
         'user.religion': 1,
-        'user.cast': 1,
+        'user.caste': 1,
         'user.hobbies': 1,
         'user.interest': 1,
         'user.homeMobileNumber': 1,
