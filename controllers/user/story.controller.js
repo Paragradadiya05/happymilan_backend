@@ -4,6 +4,7 @@ import { catchAsync } from 'utils/catchAsync';
 import { sendEmailForStoryConsentTaken } from '../../services/email.service';
 import { User } from '../../models';
 import { pick } from '../../utils/pick';
+import config from '../../config/config';
 
 export const create = catchAsync(async (req, res) => {
   const { body } = req;
@@ -74,7 +75,7 @@ export const list = catchAsync(async (req, res) => {
 export const verifyStoryConsent = catchAsync(async (req, res) => {
   try {
     await storyService.verifyConsent(req.query);
-
+    const homeUrl = config.homeUrl || '/';
     // HTML response
     const htmlResponse = `
   <html>
@@ -264,13 +265,11 @@ export const verifyStoryConsent = catchAsync(async (req, res) => {
             <div class="sub-message">
                 Thank you for verifying your content. Your story consent process is <br> completed.
             </div>
-            <a href="/" class="button">Go to Home</a>
+            <a href="${homeUrl}" class="button">Go to Home</a>
         </div>
     </div>
 </body>
-</html>
-
-    `;
+</html> `;
 
     res.status(httpStatus.OK).send(htmlResponse);
   } catch (e) {

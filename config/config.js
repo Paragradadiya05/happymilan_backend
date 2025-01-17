@@ -42,6 +42,7 @@ const envVarsSchema = Joi.object()
     RAZORPAY_KEY_ID: Joi.string().required().description('razorpay Id required'),
     RAZORPAY_KEY_SECRET: Joi.string().required().description('razorpay secrete required'),
     FRONTEND_URL: Joi.string().required().description('frontend url'),
+    HOME_URL: Joi.string().required().description('home url'),
     PAYMENT_PATH: Joi.string().required().description('paymentPath '),
     MSG91_AUTH_KEY: Joi.string().required().description('msg91 auth key '),
     MSG91_TEMPLATE_ID: Joi.string().required().description('msg91 template id '),
@@ -141,4 +142,5 @@ export default {
   },
   frontendUrl: envVars.FRONTEND_URL,
   paymentPath: envVars.PAYMENT_PATH,
+  homeUrl: envVars.HOME_URL,
 };
