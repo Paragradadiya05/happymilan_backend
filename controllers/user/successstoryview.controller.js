@@ -20,11 +20,11 @@ export const list = catchAsync(async (req, res) => {
 
 export const Paginated = catchAsync(async (req, res) => {
   const userId = req.user;
-  const { statusId } = req.params;
+  const { storyId } = req.params;
   const { page, limit } = req.query;
   const pageNumber = parseInt(page, 10);
   const limitNumber = parseInt(limit, 15);
-  const filter = { userId, statusId };
+  const filter = { userId, storyId };
   const options = {
     page: pageNumber,
     limit: limitNumber,
@@ -34,11 +34,11 @@ export const Paginated = catchAsync(async (req, res) => {
 });
 
 export const PaginatedAll = catchAsync(async (req, res) => {
-  const { statusId } = req.params;
+  const { storyId } = req.params;
   const { page, limit } = req.query;
   const pageNumber = parseInt(page, 10);
   const limitNumber = parseInt(limit, 15);
-  const filter = { statusId };
+  const filter = { storyId };
   const options = {
     page: pageNumber,
     limit: limitNumber,

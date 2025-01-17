@@ -9,7 +9,7 @@ export async function createStoryView(body = {}) {
   if (!ViewerExists) {
     throw new Error('Viewer not found ');
   }
-  const existingStoryView = await SuccessStoryview.findOne({ StoryId: body.storyId, viewerId: body.viewerId });
+  const existingStoryView = await SuccessStoryview.findOne({ storyId: body.storyId, viewerId: body.viewerId });
   if (existingStoryView) {
     return existingStoryView;
   }
