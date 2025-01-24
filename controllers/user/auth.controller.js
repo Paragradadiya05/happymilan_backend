@@ -2,7 +2,7 @@ import httpStatus from 'http-status';
 import { generateOtp, generateRandomId } from 'utils/common';
 import ApiError from 'utils/ApiError';
 import { catchAsync } from 'utils/catchAsync';
-import { authService, tokenService, userService, emailService, pravicyservice, countryCodeService } from 'services';
+import { authService, tokenService, userService, emailService, countryCodeService } from 'services';
 import {
   EnumTypeOfToken,
   EnumCodeTypeOfCode,
@@ -47,34 +47,35 @@ export const register = catchAsync(async (req, res) => {
   await user.save();
 
   // Privacy policy questions setup
-  const questions = [
-    {
-      userId: user._id,
-      question: 'Who can see your mobile number?',
-      options: [
-        { option: 'Visible to all', isSelected: false },
-        { option: 'Only visible to registered Members', isSelected: false },
-      ],
-    },
-    {
-      userId: user._id,
-      question: 'Who can see your email address?',
-      options: [
-        { option: 'Visible to all', isSelected: false },
-        { option: 'Only visible to registered Members', isSelected: false },
-      ],
-    },
-    {
-      userId: user._id,
-      question: 'Profile privacy',
-      options: [
-        { option: 'Visible to all, including unregistered visitors', isSelected: false },
-        { option: 'Only visible to registered Members', isSelected: false },
-      ],
-    },
-  ];
+  // const questions = [
+  //   {
+  //     userId: user._id,
+  //     question: 'Who can see your mobile number?',
+  //     options: [
+  //       { option: 'Visible to all', isSelected: false },
+  //       { option: 'Only visible to registered Members', isSelected: false },
+  //     ],
+  //   },
+  //   {
+  //     userId: user._id,
+  //     question: 'Who can see your email address?',
+  //     options: [
+  //       { option: 'Visible to all', isSelected: false },
+  //       { option: 'Only visible to registered Members', isSelected: false },
+  //     ],
+  //   },
+  //   {
+  //     userId: user._id,
+  //     question: 'Profile privacy',
+  //     options: [
+  //       { option: 'Visible to all, including unregistered visitors', isSelected: false },
+  //       { option: 'Only visible to registered Members', isSelected: false },
+  //     ],
+  //   },
+  // ];
 
-  await pravicyservice.createPrivacy(questions);
+  // todo :  not needed as we not need any more based on new changes in design remove all things to this one
+  // await pravicyservice.createPrivacy(questions);
 
   // Send OTP based on mobile or email
   if (user.mobileNumber) {
