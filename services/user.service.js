@@ -866,29 +866,6 @@ export async function getGenderListV2(filter, options = {}) {
     {
       $project: createDynamicProjectionForPrivacySetting(fields, defaultFields, isPremiumUser),
     },
-    {
-      $project: {
-        _id: 1,
-        matchPercentage: '$matchData.matchPercentage',
-        // matchPercentage: { $getField: { field: '$matchData', input: '$matchData' } },
-        matchedCriteria: '$matchData.matchedCriteria',
-        'userLikeDetails.isLike': 1,
-        'userLikeDetails.user': { $getField: { field: 'user', input: '$userLikeDetails' } },
-        'userLikeDetails.likedUserId': { $getField: { field: 'likedUserId', input: '$userLikeDetails' } },
-        'userLikeDetails._id': { $getField: { field: '_id', input: '$userLikeDetails' } },
-        'userShortListDetails.userId': 1,
-        'userShortListDetails.shortlistId': { $getField: { field: 'shortlistId', input: '$userShortListDetails' } },
-        'userShortListDetails._id': { $getField: { field: '_id', input: '$userShortListDetails' } },
-        'subscriptionDetails.status': { $getField: { field: 'status', input: '$subscriptionDetails' } },
-        'friendsDetails.status': { $getField: { field: 'status', input: '$friendsDetails' } },
-        'friendsDetails._id': { $getField: { field: '_id', input: '$friendsDetails' } },
-        ...Object.fromEntries(fields.map(({ name }) => [name, { $ifNull: [`$${name}`, '$$REMOVE'] }])),
-        ...Object.keys(defaultFields).reduce((acc, field) => {
-          acc[field] = { $ifNull: [`$defaultFields.${field}`, '$$REMOVE'] };
-          return acc;
-        }, {}),
-      },
-    },
     { $sort: { matchPercentage: -1 } }, // Sort by match percentage in descending order
     // { $skip: (page - 1) * limit }, // Skip documents for pagination
     // { $skip: skip },
