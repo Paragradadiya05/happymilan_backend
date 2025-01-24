@@ -278,7 +278,7 @@ export const getFilteredDatingUsers = catchAsync(async (req, res) => {
     ...pick(query, ['limit', 'page']),
   };
 
-  const userdata = await userService.getFilteredDatingintrestList(filter, options);
+  const userdata = await userService.getFilteredDatingInterestList(filter, options);
   return res.status(httpStatus.OK).send({ results: userdata });
 });
 
@@ -294,7 +294,7 @@ export const getprimeuser = catchAsync(async (req, res) => {
     sort: sortObj,
     ...pick(query, ['limit', 'page']),
   };
-  const userdata = await userService.getprimeuserlist(filter, options);
+  const userdata = await userService.getPrimeUserList(filter, options);
   return res.status(httpStatus.OK).send({ results: userdata });
 });
 

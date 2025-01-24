@@ -373,6 +373,11 @@ const UserSchema = new mongoose.Schema(
       type: Number,
       default: 91,
     },
+    privacySetting: {
+      type: String,
+      enum: Object.values(enumModel.EnumOfPrivacySetting),
+      default: enumModel.EnumOfPrivacySetting.DEFAULT,
+    },
   },
 
   { timestamps: { createdAt: true, updatedAt: true } }

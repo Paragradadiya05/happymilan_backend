@@ -174,6 +174,13 @@ const EnumOfDiet = {
   NON_VEGETARIAN: 'non_vegetarian',
 };
 
+const EnumOfPrivacySetting = {
+  PRIVATE_PROFILE: 'privateProfile',
+  VISIBLE_TO_PREMIUM_MEMBER: 'visibleToPremiumMember',
+  ONLY_ACCEPTED_MEMBERS: 'onlyAcceptedMembers',
+  DEFAULT: 'default',
+};
+
 const EnumForTimeDurationOfProfileHide = {
   ONE_WEEK: 'oneWeek',
   TWO_WEEK: 'twoWeek',
@@ -277,6 +284,7 @@ module.exports = {
   EnumOfCountry,
   EnumOfCreative,
   EnumOfDiet,
+  EnumOfPrivacySetting,
   EnumForTimeDurationOfProfileHide,
   EnumOfReasonForProfileDelete,
   EnumOfImageTypes,
