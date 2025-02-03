@@ -1730,13 +1730,22 @@ export async function getDatingPartnerListByAgeAndMatch(filter, ageRange, option
     },
     {
       $lookup: {
-        from: 'Friend',
-        let: { currentUserId: '$_id' },
+        from: 'Friend', // The collection name for Friend model
+        let: {
+          currentUserId: '$_id', // Reference to current document's userId
+        },
         pipeline: [
           {
             $match: {
               $expr: {
-                $and: [{ $eq: ['$user', filter.userId] }, { $eq: ['$friend', '$$currentUserId'] }],
+                $or: [
+                  {
+                    $and: [{ $eq: ['$user', filter.userId] }, { $eq: ['$friend', '$$currentUserId'] }],
+                  },
+                  {
+                    $and: [{ $eq: ['$user', '$$currentUserId'] }, { $eq: ['$friend', filter.userId] }],
+                  },
+                ],
               },
             },
           },
@@ -1747,7 +1756,27 @@ export async function getDatingPartnerListByAgeAndMatch(filter, ageRange, option
     {
       $unwind: {
         path: '$friendsDetails',
-        preserveNullAndEmptyArrays: true,
+        preserveNullAndEmptyArrays: true, // Include users with no matching friends
+      },
+    },
+    {
+      $match: {
+        $or: [
+          { friendsDetails: { $exists: false } }, // Include users without any friend details
+          // Case 2: Exclude blocked and accepted statuses
+          {
+            $and: [
+              { 'friendsDetails.status': { $nin: [EnumStatusOfFriend.BLOCKED, EnumStatusOfFriend.ACCEPTED] } },
+              {
+                $or: [
+                  // Keep REQUESTED status unless the user made the request
+                  { $expr: { $ne: ['$friendsDetails.friend', filter.userId] } },
+                  { 'friendsDetails.status': { $ne: EnumStatusOfFriend.REQUESTED } },
+                ],
+              },
+            ],
+          },
+        ],
       },
     },
     {
