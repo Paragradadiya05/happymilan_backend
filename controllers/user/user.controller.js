@@ -395,3 +395,54 @@ export const checkMissingFields = catchAsync(async (req, res) => {
     });
   }
 });
+
+export const checkMissingFieldsMobile = catchAsync(async (req, res) => {
+  try {
+    const userId = req.user._id; // Ensure req.user is populated by middleware
+    if (!userId) {
+      return res.status(httpStatus.BAD_REQUEST).send({
+        success: false,
+        message: 'User ID is missing from the request',
+      });
+    }
+
+    const filter = { _id: userId }; // Filter to find the specific user
+    const options = {}; // Exclude sensitive fields like password
+
+    // Call the service function to check for missing fields
+    const missingFields = await userService.checkMissingFieldsMobile(filter, options);
+    // Map the missing fields to the desired format
+    const formattedMissingFields = Object.entries(missingFields || {}) // Ensure missingFields is an object
+      // eslint-disable-next-line no-unused-vars
+      .filter(([_, fields]) => Array.isArray(fields) && fields.length > 0) // Ignore empty categories
+      .map(([category, fields]) => ({
+        category,
+        fields,
+      }));
+
+    // Ensure the output matches the desired structure
+    const output =
+      formattedMissingFields.length > 0
+        ? formattedMissingFields
+        : [
+            {
+              category: '',
+              fields: [],
+            },
+          ];
+
+    // Return response with appropriate message and formatted data
+    return res.status(httpStatus.OK).send({
+      success: true,
+      data: output,
+      message: formattedMissingFields.length > 0 ? 'Some fields are missing' : 'All required fields are filled',
+    });
+  } catch (error) {
+    // Handle unexpected errors
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).send({
+      success: false,
+      message: 'An error occurred while checking for missing fields',
+      error: error.message,
+    });
+  }
+});

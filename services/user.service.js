@@ -2985,3 +2985,79 @@ export async function checkMissingFields(userId) {
 
   return missingFields;
 }
+
+export async function checkMissingFieldsMobile(userId) {
+  // Define categories with their corresponding fields
+  const fieldCategories = {
+    createProfile: ['creatingProfileFor', 'birthTime', 'dateOfBirth', 'lastName', 'firstName'],
+    basicDetails: ['writeBoutYourSelf', 'height', 'weight', 'caste', 'religion', 'maritalStatus', 'gender'], // renamed 'generalDetails' to 'basicDetails'
+    contactDetails: ['email', 'homeMobileNumber', 'mobileNumber'],
+    hobbiesAndInterest: ['hobbies'], // renamed 'hobbies' to 'hobbiesAndInterest'
+  };
+
+  const requiredLocationDetailsFields = ['currentResidenceAddress', 'currentCity', 'currentCountry', 'currentState']; // renamed 'address' to 'locationDetails'
+  const requiredEducationDetailsFields = ['degree', 'collage', 'city', 'state', 'country']; // renamed 'education' to 'educationDetails'
+  const requiredProfessionalFields = ['jobTitle', 'jobType', 'companyName', 'currentSalary', 'workCity', 'workCountry'];
+
+  // Fetch user details from the database
+  const user = await User.findById(userId)
+    .populate('address') // Populate the address field
+    .populate('userEducation') // Populate the user education field
+    .populate('userProfessional') // Populate the user professional details
+    .exec();
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  // Initialize object to store missing fields by category
+  const missingFields = {
+    createProfile: [],
+    basicDetails: [], // renamed 'generalDetails' to 'basicDetails'
+    contactDetails: [],
+    hobbiesAndInterest: [], // renamed 'hobbies' to 'hobbiesAndInterest'
+    locationDetails: [], // renamed 'address' to 'locationDetails'
+    educationDetails: [], // renamed 'education' to 'educationDetails'
+    professional: [],
+  };
+
+  // Check for missing fields in each category
+  Object.entries(fieldCategories).forEach(([category, fields]) => {
+    missingFields[category] = fields.filter((field) => {
+      const value = user[field];
+      return value === null || value === undefined || value === ''; // Check for empty, null, or undefined values
+    });
+  });
+
+  // Check for missing fields in locationDetails (previously address)
+  if (user.address) {
+    missingFields.locationDetails = requiredLocationDetailsFields.filter((field) => {
+      const value = user.address[field];
+      return value === null || value === undefined || value === ''; // Check for missing values
+    });
+  } else {
+    missingFields.locationDetails = ['Location details are missing']; // updated message
+  }
+
+  // Check for missing fields in educationDetails (previously education)
+  if (user.userEducation) {
+    missingFields.educationDetails = requiredEducationDetailsFields.filter((field) => {
+      const value = user.userEducation[field];
+      return value === null || value === undefined || value === ''; // Check for missing values
+    });
+  } else {
+    missingFields.educationDetails = ['Education details are missing']; // updated message
+  }
+
+  // Check for missing fields in professional
+  if (user.userProfessional) {
+    missingFields.professional = requiredProfessionalFields.filter((field) => {
+      const value = user.userProfessional[field];
+      return value === null || value === undefined || value === ''; // Check for missing values
+    });
+  } else {
+    missingFields.professional = ['Professional details are missing'];
+  }
+
+  return missingFields;
+}
