@@ -48,6 +48,10 @@ export async function getStoryWithPagination(filter, options = {}) {
 }
 
 export async function getOne(query, options = {}) {
-  const story = await Story.findOne(query, options.projection, options);
+  const story = await Story.findOne(query, options.projection, options).populate({
+    path: 'userId',
+    select: 'name lastName',
+  });
+
   return story;
 }
