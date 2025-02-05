@@ -9,6 +9,7 @@ const router = express();
 router.post(
   '/create-profile-viewer',
   auth(),
+  appUserType(),
   validate(profileviewerValidation.createProfileviwer),
   pofileviewerController.createProfileViwer
 );
@@ -31,5 +32,11 @@ router.get(
   appUserType(),
   validate(profileviewerValidation.GetProfileviwer),
   pofileviewerController.GetProfileviwerMobile
+);
+router.get(
+  '/get-profile-visitors/:userId',
+  auth(),
+  validate(profileviewerValidation.GetProfilevisitors),
+  pofileviewerController.getProfilevisitors
 );
 module.exports = router;

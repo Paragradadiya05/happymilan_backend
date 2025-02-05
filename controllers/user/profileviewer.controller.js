@@ -4,7 +4,8 @@ import { profileviewerservice } from '../../services';
 import { pick } from '../../utils/pick';
 
 export const createProfileViwer = catchAsync(async (req, res) => {
-  const profileViewer = await profileviewerservice.createprofileviewer(req.body, req.user);
+  const { appUsesType } = req.query;
+  const profileViewer = await profileviewerservice.createprofileviewer(req.body, req.user, appUsesType);
   return res.status(httpStatus.OK).send({ results: profileViewer });
 });
 
@@ -69,5 +70,16 @@ export const GetProfileviwerMobile = catchAsync(async (req, res) => {
     },
   };
   const user = await profileviewerservice.getProfileViewerforMobile(filter, options);
+  return res.status(httpStatus.OK).send({ results: user });
+});
+
+export const getProfilevisitors = catchAsync(async (req, res) => {
+  const { userId } = req.params;
+  // const viewer = req.body.viewerId;
+  const filter = {
+    viewerId: userId,
+  };
+  const options = {};
+  const user = await profileviewerservice.getProfileVisitor(filter, options);
   return res.status(httpStatus.OK).send({ results: user });
 });

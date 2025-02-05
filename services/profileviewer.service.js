@@ -4,11 +4,12 @@ import { ProfileView, User, Notification, Partner } from '../models';
 import ApiError from '../utils/ApiError';
 import { EnumStatusOfFriend } from '../models/enum.model';
 
-export async function createprofileviewer(body = {}, user) {
+export async function createprofileviewer(body = {}, user, appUsesType) {
   const userId = user._id;
   const { viewerId } = body;
 
-  const viewer = await User.findOne({ _id: viewerId });
+  const viewer = await User.findOne({ _id: viewerId, appUsesType });
+  console.log('=====xx====>', viewer);
   if (!viewer) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'No such user exists');
   }
@@ -1003,4 +1004,12 @@ export async function getProfileViewerforMobile(filter, options = {}) {
   const matchedUsers = await ProfileView.aggregate(pipeline).exec();
 
   return matchedUsers;
+}
+
+export async function getProfileVisitor(filter, options = {}) {
+  const user = await ProfileView.find(filter, options.projection, options).populate({
+    path: 'user',
+    match: { appUsesType: 'dating' },
+  });
+  return user;
 }
