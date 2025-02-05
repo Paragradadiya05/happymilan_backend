@@ -2182,6 +2182,7 @@ export async function getFilteredDatingInterestList(filter, options = {}) {
         'datingData.Ethnicity': 1,
         'datingData.annualIncome': 1,
         'userLikeDetails.isLike': 1,
+        'userLikeDetails._id': 1,
         'userLikeDetails.user': 1,
         'userLikeDetails.likedUserId': 1,
         'userShortListDetails._id': 1,
