@@ -17,6 +17,7 @@ export const searchUser = catchAsync(async (req, res) => {
     currentCity,
     state,
   } = req.body;
+  const { appUsesType } = req.query;
   const { page = 1, limit = 10 } = req.query;
   const userId = req.user && req.user._id;
   if (maritalStatus && !Array.isArray(maritalStatus)) {
@@ -109,7 +110,8 @@ export const searchUser = catchAsync(async (req, res) => {
     { currentCountry, currentCity, state },
     parseInt(page, 10),
     parseInt(limit, 10),
-    userId
+    userId,
+    appUsesType
   );
   if (!user) {
     return res.status(httpStatus.NOT_FOUND).send({ message: 'No users found' });

@@ -3,12 +3,13 @@ import { spamUserValidation } from 'validations/user';
 import { spamUserController } from 'controllers/user';
 import validate from 'middlewares/validate';
 import auth from '../../../../middlewares/auth';
+import appUserType from '../../../../middlewares/appUserType';
 
 const router = express.Router();
 /**
  * create spam
  * */
-router.post('/create-spam', auth(), validate(spamUserValidation.createSpamUser), spamUserController.create);
+router.post('/create-spam', auth(), appUserType(), validate(spamUserValidation.createSpamUser), spamUserController.create);
 /**
  * get spam
  * */

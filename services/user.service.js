@@ -49,7 +49,14 @@ export async function getUserList(filter, options = {}) {
   return user;
 }
 
-export async function getUserListForSearch(filter, { currentCountry = [], currentCity = [] }, page, limit, userId) {
+export async function getUserListForSearch(
+  filter,
+  { currentCountry = [], currentCity = [] },
+  page,
+  limit,
+  userId,
+  appUsesType
+) {
   // eslint-disable-next-line no-param-reassign
   filter['profileHideAndDelete.isProfileHide'] = { $ne: true };
   const userPartnerPreferences = await Partner.findOne({ userId });
@@ -81,7 +88,7 @@ export async function getUserListForSearch(filter, { currentCountry = [], curren
       $match: {
         _id: { $ne: mongoose.Types.ObjectId(userId) }, // Exclude the current user
         platform: { $eq: EnumOfPlatformType.HAPPY_MILAN },
-        appUsesType: EnumAppUsesTypeOfUsers.MARRIAGE,
+        appUsesType,
       },
     },
     {

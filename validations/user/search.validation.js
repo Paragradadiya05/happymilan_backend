@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import enumModel from '../../models/enum.model';
+import enumModel, { EnumAppUsesTypeOfUsers } from '../../models/enum.model';
 
 export const searchUser = {
   body: Joi.object().keys({
@@ -15,6 +15,15 @@ export const searchUser = {
     state: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfState))),
     currentCity: Joi.array().items(Joi.string()),
   }),
+  query: Joi.object()
+    .keys({
+      page: Joi.number().default(1),
+      limit: Joi.number().default(10).max(100),
+      appUsesType: Joi.string()
+        .valid(...Object.values(EnumAppUsesTypeOfUsers))
+        .optional(),
+    })
+    .unknown(true),
 };
 
 export const update = {

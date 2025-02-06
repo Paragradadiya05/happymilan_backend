@@ -2,8 +2,8 @@ import { SpamUser, User } from 'models';
 import httpStatus from 'http-status';
 import ApiError from '../utils/ApiError';
 
-export async function createSpam(body = {}) {
-  const spamUser = await User.findById(body.spamUserId);
+export async function createSpam(body = {}, appUsesType) {
+  const spamUser = await User.findById(body.spamUserId, appUsesType);
   if (!spamUser) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'No such user exists');
   }
