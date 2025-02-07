@@ -5,30 +5,30 @@ Joi.objectId = require('joi-objectid')(Joi);
 // Professional
 export const createPartnerpre = {
   body: Joi.object().keys({
-    userId: Joi.objectId(),
-    age: Joi.object({
-      min: Joi.number().required(),
-      max: Joi.number().required(),
-    }),
-    height: Joi.object({
-      min: Joi.number().required(),
-      max: Joi.number().required(),
-    }),
-    country: Joi.array()
-      .items(Joi.string().valid(...Object.values(enumModel.EnumOfCountry)))
-      .required(),
-    state: Joi.array()
-      .items(Joi.string().valid(...Object.values(enumModel.EnumOfState)))
-      .required(),
-    city: Joi.array().items(Joi.string()).required(),
-    income: Joi.object({
-      min: Joi.number().required(),
-      max: Joi.number().required(),
-    }),
-    hobbies: Joi.array().items(Joi.string()).required(),
-    diet: Joi.array()
-      .items(Joi.string().valid(...Object.values(enumModel.EnumOfDiet)))
-      .required(),
+    //   userId: Joi.objectId(),
+    //   age: Joi.object({
+    //     min: Joi.number().required(),
+    //     max: Joi.number().required(),
+    //   }),
+    //   height: Joi.object({
+    //     min: Joi.number().required(),
+    //     max: Joi.number().required(),
+    //   }),
+    //   country: Joi.array()
+    //     .items(Joi.string().valid(...Object.values(enumModel.EnumOfCountry)))
+    //     .required(),
+    //   state: Joi.array()
+    //     .items(Joi.string().valid(...Object.values(enumModel.EnumOfState)))
+    //     .required(),
+    //   city: Joi.array().items(Joi.string()).required(),
+    //   income: Joi.object({
+    //     min: Joi.number().required(),
+    //     max: Joi.number().required(),
+    //   }),
+    //   hobbies: Joi.array().items(Joi.string()).required(),
+    //   diet: Joi.array()
+    //     .items(Joi.string().valid(...Object.values(enumModel.EnumOfDiet)))
+    //     .required(),
   }),
 };
 
