@@ -2961,6 +2961,10 @@ export async function checkMissingFields(userId) {
     });
   });
 
+  if (user.hobbies === null || user.hobbies === undefined || user.hobbies.length === 0) {
+    missingFields.hobbies = ['Hobbies field is missing'];
+  }
+
   // Check for missing fields in address
   if (user.address) {
     missingFields.address = requiredAddressFields.filter((field) => {
@@ -3000,9 +3004,9 @@ export async function checkMissingFieldsMobile(userId) {
     createProfile: ['creatingProfileFor', 'birthTime', 'dateOfBirth', 'lastName', 'firstName'],
     basicDetails: ['writeBoutYourSelf', 'height', 'weight', 'caste', 'religion', 'maritalStatus', 'gender'], // renamed 'generalDetails' to 'basicDetails'
     contactDetails: ['email', 'homeMobileNumber', 'mobileNumber'],
-    hobbiesAndInterest: ['hobbies'], // renamed 'hobbies' to 'hobbiesAndInterest'
+    hobbiesAndInterest: ['hobbies'],
   };
-
+  console.log('=====xx====>', fieldCategories);
   const requiredLocationDetailsFields = ['currentResidenceAddress', 'currentCity', 'currentCountry', 'currentState']; // renamed 'address' to 'locationDetails'
   const requiredEducationDetailsFields = ['degree', 'collage', 'city', 'state', 'country']; // renamed 'education' to 'educationDetails'
   const requiredProfessionalFields = ['jobTitle', 'jobType', 'companyName', 'currentSalary', 'workCity', 'workCountry'];
@@ -3037,6 +3041,9 @@ export async function checkMissingFieldsMobile(userId) {
     });
   });
 
+  if (user.hobbies === null || user.hobbies === undefined || user.hobbies.length === 0) {
+    missingFields.hobbiesAndInterest = ['Hobbies is missing'];
+  }
   // Check for missing fields in locationDetails (previously address)
   if (user.address) {
     missingFields.locationDetails = requiredLocationDetailsFields.filter((field) => {
