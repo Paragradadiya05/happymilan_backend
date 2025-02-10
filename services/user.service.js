@@ -2927,8 +2927,8 @@ export async function checkMissingFields(userId) {
     hobbies: ['hobbies'],
   };
 
-  const requiredAddressFields = ['currentResidenceAddress', 'currentCity', 'currentCountry', 'currentState'];
-  const requiredEducationFields = ['degree', 'collage', 'city', 'state', 'country'];
+  const requiredAddressFields = ['currentCity', 'currentCountry', 'currentState'];
+  const requiredEducationFields = ['degree', 'collage'];
   const requiredProfessionalFields = ['jobTitle', 'jobType', 'companyName', 'currentSalary', 'workCity', 'workCountry'];
 
   // Fetch user details from the database
