@@ -3007,8 +3007,8 @@ export async function checkMissingFieldsMobile(userId) {
     hobbiesAndInterest: ['hobbies'],
   };
   console.log('=====xx====>', fieldCategories);
-  const requiredLocationDetailsFields = ['currentResidenceAddress', 'currentCity', 'currentCountry', 'currentState']; // renamed 'address' to 'locationDetails'
-  const requiredEducationDetailsFields = ['degree', 'collage', 'city', 'state', 'country']; // renamed 'education' to 'educationDetails'
+  const requiredLocationDetailsFields = ['currentCity', 'currentCountry', 'currentState']; // renamed 'address' to 'locationDetails'
+  const requiredEducationDetailsFields = ['degree', 'collage']; // renamed 'education' to 'educationDetails'
   const requiredProfessionalFields = ['jobTitle', 'jobType', 'companyName', 'currentSalary', 'workCity', 'workCountry'];
 
   // Fetch user details from the database
