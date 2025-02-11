@@ -10,7 +10,7 @@ router
   /**
    * createUserPartnerPreDetail
    * */
-  .post(auth(), partnerController.createPartner)
+  .post(auth(), validate(partnerValidation.createPartnerpre), partnerController.createPartner)
   /**
    * getUserPartnerPreDetail
    * */
