@@ -1600,6 +1600,7 @@ export async function getDatingPartnerList(filter, options = {}) {
         'datingData.Occupation': 1, // Field for dating preferences from partner model
         'datingData.CurrentlyLiving': 1, // Field for dating preferences from partner model
         distance: 1, // Assuming this field represents calculated distance
+        'userLikeDetails._id': 1,
         'userLikeDetails.isLike': 1,
         'userLikeDetails.user': 1,
         'userLikeDetails.likedUserId': 1,
