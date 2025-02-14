@@ -69,7 +69,10 @@ export const sendNotification = async (fcmToken, messageData) => {
       })
       .catch((error) => {
         console.log('Error sending message:', error);
-        // todo : error handling db ( model => userid => store error )
+        // todo : error handling db ( model => userid => store error )\
+        if (error.code === 'messaging/registration-token-not-registered') {
+          console.error(`Token not registered: ${fcmToken}`);
+        }
       });
 
     // messaging
@@ -99,4 +102,17 @@ export const sendNotification = async (fcmToken, messageData) => {
   } catch (er) {
     console.log('=== error in send notification outside fun catch ===>', er);
   }
+  messaging
+    .getToken({ vapidKey: 'BFYnbnwgg04Sn4hAgvSN4y1x-NYEclY52q99ag4B3iooUlDnigLjIYBolQwWB6S8U8Xmq7B_JWU6qk8TaECk_Y8' })
+    .then((currentToken) => {
+      if (currentToken) {
+        console.log('New FCM token:', currentToken);
+        // Send the token to your server for notifications
+      } else {
+        console.log('No registration token available.');
+      }
+    })
+    .catch((err) => {
+      console.error('An error occurred while retrieving token:', err);
+    });
 };
