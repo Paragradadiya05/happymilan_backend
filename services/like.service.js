@@ -37,8 +37,8 @@ export async function createLike(body = {}, user, appUsesType) {
     date: new Date(),
   };
   const createNotificationForLikedProfile = await Notification.create({
-    userId: user._id,
-    otherUserId: body.likedUserId,
+    userId: body.likedUserId,
+    otherUserId: user._id,
     body: EnumOfNotification.SOMEONE_LIKED_YOUR_PROFILE,
     title: EnumOfNotification.LIKE,
   });
@@ -53,8 +53,8 @@ export async function createLike(body = {}, user, appUsesType) {
         fcmToken.deviceToken,
         {
           data: {
-            _id: createNotificationForLikedProfile.userId.toString(),
-            userId: createNotificationForLikedProfile._id.toString(),
+            _id: createNotificationForLikedProfile._id.toString(),
+            userId: createNotificationForLikedProfile.userId.toString(),
             otherUserId: createNotificationForLikedProfile.otherUserId.toString(),
             body: EnumOfNotification.SOMEONE_LIKED_YOUR_PROFILE,
             title: EnumOfNotification.LIKE,
