@@ -59,9 +59,13 @@ export async function getUserListForSearch(
 ) {
   // eslint-disable-next-line no-param-reassign
   filter['profileHideAndDelete.isProfileHide'] = { $ne: true };
-  const userPartnerPreferences = await Partner.findOne({ userId });
-  if (!userPartnerPreferences) {
-    throw new Error('User Partner Preferences not found. Please add Partner Preference first');
+  let userPartnerPreferences = null;
+
+  if (appUsesType !== 'dating') {
+    userPartnerPreferences = await Partner.findOne({ userId });
+    if (!userPartnerPreferences) {
+      throw new Error('User Partner Preferences not found. Please add Partner Preference first');
+    }
   }
   const skip = (page - 1) * limit;
 
