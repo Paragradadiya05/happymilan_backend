@@ -8,4 +8,13 @@ import appUserType from '../../../../middlewares/appUserType';
 const router = express();
 
 router.post('/search-user', auth(), appUserType(), validate(searchValidation.searchUser), searchController.searchUser);
+
+router.post(
+  '/search-user-dating',
+  auth(),
+  appUserType(),
+  validate(searchValidation.searchUser),
+  searchController.searchUserDating
+);
+
 module.exports = router;
