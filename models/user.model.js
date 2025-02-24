@@ -116,6 +116,73 @@ const datingData = new mongoose.Schema(
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );
+
+const profileSetting = new mongoose.Schema(
+  {
+    publicProfile: {
+      type: [String],
+      default: [
+        'profilePic',
+        'userProfilePic',
+        'userProfileVideo',
+        'firstName',
+        'lastName',
+        'dateOfBirth',
+        'birthTime',
+        'religion',
+        'caste',
+        'height',
+        'weight',
+        'displayName',
+        'name',
+        'randomId',
+        'maritalStatus',
+        'userEducation',
+        'userProfessional',
+        'hobbies',
+        'userPartnerDetails',
+      ],
+    },
+    privateProfile: {
+      type: [String],
+      default: [
+        'firstName',
+        'dateOfBirth',
+        'birthTime',
+        'religion',
+        'caste',
+        'height',
+        'weight',
+        'displayName',
+        'name',
+        'randomId',
+        'maritalStatus',
+        'userPartnerDetails',
+      ],
+    },
+    premiumProfile: {
+      type: [String],
+      default: [
+        'firstName',
+        'lastName',
+        'dateOfBirth',
+        'birthTime',
+        'religion',
+        'caste',
+        'height',
+        'weight',
+        'displayName',
+        'name',
+        'randomId',
+        'maritalStatus',
+        'userEducation',
+        'hobbies',
+        'userPartnerDetails',
+      ],
+    },
+  },
+  { timestamps: { createdAt: true, updatedAt: true } }
+);
 // todo : updated in new flow.
 // const hobbiesSchema = new mongoose.Schema({
 //   category: {
@@ -376,8 +443,9 @@ const UserSchema = new mongoose.Schema(
     privacySetting: {
       type: String,
       enum: Object.values(enumModel.EnumOfPrivacySetting),
-      default: enumModel.EnumOfPrivacySetting.DEFAULT,
+      default: enumModel.EnumOfPrivacySetting.PUBLIC_PROFILE,
     },
+    privacySettingCustom: profileSetting,
   },
 
   { timestamps: { createdAt: true, updatedAt: true } }
