@@ -69,7 +69,10 @@ export const sendNotification = async (fcmToken, messageData) => {
       })
       .catch((error) => {
         console.log('Error sending message:', error);
-        // todo : error handling db ( model => userid => store error )
+        // todo : error handling db ( model => userid => store error )\
+        if (error.code === 'messaging/registration-token-not-registered') {
+          console.error(`Token not registered: ${fcmToken}`);
+        }
       });
 
     // messaging

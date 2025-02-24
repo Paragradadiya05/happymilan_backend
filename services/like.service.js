@@ -86,8 +86,8 @@ export async function removeLike(filter) {
   const like = await Like.findOneAndRemove(filter);
   return like;
 }
-export async function updateLike(filter, body, options = {}) {
-  const like = await Like.findOneAndUpdate(filter, body, options);
+export async function updateLike(filter, body, options = {}, appUsesType) {
+  const like = await Like.findOneAndUpdate(filter, body, options, appUsesType);
   if (!like) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Like not found');
   }

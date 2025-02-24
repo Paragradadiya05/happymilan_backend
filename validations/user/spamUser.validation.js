@@ -1,4 +1,5 @@
 import Joi from 'joi';
+import { EnumAppUsesTypeOfUsers } from '../../models/enum.model';
 
 Joi.objectId = require('joi-objectid')(Joi);
 
@@ -9,6 +10,13 @@ export const createSpamUser = {
     reason: Joi.string(),
     remark: Joi.string(),
   }),
+  query: Joi.object()
+    .keys({
+      appUsesType: Joi.string()
+        .valid(...Object.values(EnumAppUsesTypeOfUsers))
+        .optional(),
+    })
+    .unknown(true),
 };
 
 export const getSpamUser = {

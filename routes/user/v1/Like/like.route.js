@@ -28,7 +28,7 @@ router.get('/get-like/:likedUserId', auth(), appUserType(), validate(likeValidat
 /**
  * UpdateLike
  * */
-router.put('/update-like/:likeId', auth(), validate(likeValidation.updateLike), likeController.updateLike);
+router.put('/update-like/:likeId', auth(), appUserType(), validate(likeValidation.updateLike), likeController.updateLike);
 /**
  * delete-like
  * */

@@ -20,6 +20,12 @@ router
    * getUser
    * */
   .get(validate(userValidation.getUser), userController.list);
+router
+  .route('/update-user')
+  /**
+   * getUserPaginated
+   * */
+  .put(auth(), validate(userValidation.updateUserPrivacy), userController.updateUser);
 
 router
   .route('/checkPlan')
@@ -74,6 +80,10 @@ router
   .route('/getUser-list-by-interest')
   .post(auth(), validate(userValidation.getFilteredDatingUsers), userController.getFilteredDatingUsers);
 router.route('/pending-fields').get(auth(), userController.checkMissingFields);
+/**
+ * pending-fields-for-mobile
+ * */
+router.route('/pending-fields-for-mobile').get(auth(), userController.checkMissingFieldsMobile);
 router
   .route('/:userId')
   /**
