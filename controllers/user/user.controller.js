@@ -446,3 +446,12 @@ export const checkMissingFieldsMobile = catchAsync(async (req, res) => {
     });
   }
 });
+
+export const updateUser = catchAsync(async (req, res) => {
+  const filter = { _id: req.user._id };
+  const { body } = req;
+
+  await userService.updateUserForAuth(filter, body, { returnNewDocument: true, new: true, upsert: true }, req.user);
+
+  res.status(httpStatus.OK).send({ message: 'User updated successfully' });
+});

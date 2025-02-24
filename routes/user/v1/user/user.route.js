@@ -20,6 +20,12 @@ router
    * getUser
    * */
   .get(validate(userValidation.getUser), userController.list);
+router
+  .route('/update-user')
+  /**
+   * getUserPaginated
+   * */
+  .put(auth(), validate(userValidation.updateUserPrivacy), userController.updateUser);
 
 router
   .route('/checkPlan')
