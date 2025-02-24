@@ -11,6 +11,7 @@ import enumModel, {
   EnumAppUsesTypeOfUsers,
   EnumGenderOfUsers,
   EnumOfPlatformType,
+  EnumOfPrivacySetting,
   EnumOfUserPlan,
   EnumStatusOfFriend,
 } from '../models/enum.model';
@@ -480,48 +481,58 @@ const createDynamicProjectionForPrivacySetting = (fields, defaultFields, isPremi
   };
 
   // Add individual field conditions with an additional check for premium user
-  fields.forEach(({ name, conditions }) => {
+  fields.forEach(({ name }) => {
+    // console.log('$privacySettingCustom.publicProfile === ', `$privacySettingCustom.publicProfile`);
     projection[name] = {
       $cond: {
         if: {
           $or: [
-            // Check for `visibleToPremiumMember` and if the user is premium
+            // Check if the field is in `publicProfile`
             {
               $and: [
-                { $eq: ['$privacySetting', 'visibleToPremiumMember'] },
-                { $literal: isPremiumUser }, // Use `isPremiumUser` param
+                { $eq: ['$privacySetting', EnumOfPrivacySetting.PUBLIC_PROFILE] },
+                { $in: [name, { $ifNull: ['$privacySettingCustom.publicProfile', []] }] },
               ],
             },
-            // Fallback to `privateProfile` fields if not premium
+            // Check if the field is in `privateProfile` and the user is private
             {
               $and: [
-                { $eq: ['$privacySetting', 'visibleToPremiumMember'] },
-                { $not: { $literal: isPremiumUser } },
-                { $in: ['privateProfile', conditions] },
+                { $eq: ['$privacySetting', EnumOfPrivacySetting.PRIVATE_PROFILE] },
+
+                {
+                  $in: [
+                    name,
+                    {
+                      $ifNull: ['$privacySettingCustom.privateProfile', []],
+                    },
+                  ],
+                },
               ],
             },
-            // Check for `OnlyAcceptedMembers` and friend status
+            // Check if the field is in `premiumProfile` and the user is premium
             {
               $and: [
-                { $eq: ['$privacySetting', 'OnlyAcceptedMembers'] },
-                { $eq: ['$friendsDetails.status', 'ACCEPTED'] }, // EnumStatusOfFriend.ACCEPTED
+                { $eq: ['$privacySetting', EnumOfPrivacySetting.PREMIUM_PROFILE] },
+                { $in: [name, { $ifNull: ['$privacySettingCustom.premiumProfile', []] }] },
+                { $literal: isPremiumUser },
               ],
             },
-            // // Fallback to `privateProfile` if friend status is not ACCEPTED
-            {
-              $and: [
-                { $eq: ['$privacySetting', 'OnlyAcceptedMembers'] },
-                { $ne: ['$friendsDetails.status', 'ACCEPTED'] },
-                { $in: ['privateProfile', conditions] },
-              ],
-            },
-            // Include other conditions
-            {
-              $in: [
-                '$privacySetting',
-                conditions.filter((c) => c !== 'visibleToPremiumMember' && c !== 'OnlyAcceptedMembers'),
-              ],
-            },
+
+            // // Check for `OnlyAcceptedMembers` and friend status
+            // {
+            //   $and: [
+            //     { $eq: ['$privacySetting', 'OnlyAcceptedMembers'] },
+            //     { $eq: ['$friendsDetails.status', 'ACCEPTED'] }, // EnumStatusOfFriend.ACCEPTED
+            //   ],
+            // },
+            // // // Fallback to `privateProfile` if friend status is not ACCEPTED
+            // {
+            //   $and: [
+            //     { $eq: ['$privacySetting', 'OnlyAcceptedMembers'] },
+            //     { $ne: ['$friendsDetails.status', 'ACCEPTED'] },
+            //     { $in: ['privateProfile', conditions] },
+            //   ],
+            // },
           ],
         },
         then: `$${name}`,
@@ -567,16 +578,35 @@ export async function getGenderListV2(filter, options = {}) {
 
   // Define fields and their privacy conditions
   const fields = [
-    { name: 'displayName', conditions: ['privateProfile', 'visibleToPremiumMember', 'OnlyAcceptedMembers', 'default'] },
-    { name: 'name', conditions: ['privateProfile', 'visibleToPremiumMember', 'OnlyAcceptedMembers', 'default'] },
-    { name: 'firstName', conditions: ['privateProfile', 'visibleToPremiumMember', 'OnlyAcceptedMembers', 'default'] },
-    { name: 'lastName', conditions: ['privateProfile', 'visibleToPremiumMember', 'OnlyAcceptedMembers', 'default'] },
-    { name: 'profilePic', conditions: ['visibleToPremiumMember', 'OnlyAcceptedMembers', 'default'] },
-    { name: 'userProfileVideo', conditions: ['visibleToPremiumMember', 'OnlyAcceptedMembers', 'default'] },
-    { name: 'userProfilePic', conditions: ['visibleToPremiumMember', 'OnlyAcceptedMembers', 'default'] },
-    { name: 'email', conditions: ['OnlyAcceptedMembers', 'default'] },
-    { name: 'mobileNumber', conditions: ['OnlyAcceptedMembers', 'default'] },
-    { name: 'randomId', conditions: ['OnlyAcceptedMembers', 'default'] },
+    // user profile photo
+    { name: 'profilePic' },
+    { name: 'userProfilePic' },
+    { name: 'userProfileVideo' },
+    // general details
+    { name: 'firstName' },
+    { name: 'lastName' },
+    { name: 'dateOfBirth' },
+    { name: 'birthTime' },
+    { name: 'religion' },
+    { name: 'caste' },
+    { name: 'height' },
+    { name: 'weight' },
+    { name: 'displayName' },
+    { name: 'name' },
+    { name: 'randomId' },
+    { name: 'maritalStatus' },
+
+    // contact details this will be hidden for all
+    // { name: 'email', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
+    // { name: 'mobileNumber', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
+
+    // education details
+    { name: 'userEducation' },
+
+    // Professional Details
+    { name: 'userProfessional' },
+    { name: 'hobbies' },
+    { name: 'userPartnerDetails' },
   ];
 
   // Define additional fields for `privacySetting: 'default'`
@@ -596,34 +626,29 @@ export async function getGenderListV2(filter, options = {}) {
     emailVerified: '$emailVerified',
     maritalStatus: '$maritalStatus',
     gender: '$gender',
-    dateOfBirth: '$dateOfBirth',
-    birthTime: '$birthTime',
-    religion: '$religion',
-    caste: '$caste',
+    // dateOfBirth: '$dateOfBirth',
+    // birthTime: '$birthTime',
+    // religion: '$religion',
+    // caste: '$caste',
     hobbies: '$hobbies',
     interest: '$interest',
-    homeMobileNumber: '$homeMobileNumber',
-    creatingProfileFor: '$creatingProfileFor',
+    // homeMobileNumber: '$homeMobileNumber',
+    // creatingProfileFor: '$creatingProfileFor',
     writeBoutYourSelf: '$writeBoutYourSelf',
-    hideProfileDuration: '$hideProfileDuration',
     community: '$community',
     motherTongue: '$motherTongue',
     weight: '$weight',
-    userEducation: '$userEducation',
-    userProfessional: {
-      _id: { $getField: { field: '_id', input: '$userProfessional' } },
-      jobTitle: { $getField: { field: 'jobTitle', input: '$userProfessional' } },
-      jobType: { $getField: { field: 'jobType', input: '$userProfessional' } },
-      companyName: { $getField: { field: 'companyName', input: '$userProfessional' } },
-      currentSalary: { $getField: { field: 'currentSalary', input: '$userProfessional' } },
-      workCity: { $getField: { field: 'workCity', input: '$userProfessional' } },
-      workCountry: { $getField: { field: 'workCountry', input: '$userProfessional' } },
-    },
+    // userEducation: '$userEducation',
+    // userProfessional: {
+    //   _id: { $getField: { field: '_id', input: '$userProfessional' } },
+    //   jobTitle: { $getField: { field: 'jobTitle', input: '$userProfessional' } },
+    //   jobType: { $getField: { field: 'jobType', input: '$userProfessional' } },
+    //   companyName: { $getField: { field: 'companyName', input: '$userProfessional' } },
+    //   currentSalary: { $getField: { field: 'currentSalary', input: '$userProfessional' } },
+    //   workCity: { $getField: { field: 'workCity', input: '$userProfessional' } },
+    //   workCountry: { $getField: { field: 'workCountry', input: '$userProfessional' } },
+    // },
     userUniqueId: '$userUniqueId',
-    diet: '$diet',
-    profileHideAndDelete: '$profileHideAndDelete',
-    isUserActive: '$isUserActive',
-    userPartnerDetails: '$userPartnerDetails',
   };
 
   const pipeline = [

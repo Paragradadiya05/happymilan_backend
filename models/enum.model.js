@@ -176,9 +176,10 @@ const EnumOfDiet = {
 
 const EnumOfPrivacySetting = {
   PRIVATE_PROFILE: 'privateProfile',
-  VISIBLE_TO_PREMIUM_MEMBER: 'visibleToPremiumMember',
+  PREMIUM_PROFILE: 'premiumProfile',
   ONLY_ACCEPTED_MEMBERS: 'onlyAcceptedMembers',
   DEFAULT: 'default',
+  PUBLIC_PROFILE: 'publicProfile',
 };
 
 const EnumForTimeDurationOfProfileHide = {
