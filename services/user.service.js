@@ -16,6 +16,96 @@ import enumModel, {
   EnumStatusOfFriend,
 } from '../models/enum.model';
 
+const createDynamicProjectionForPrivacySetting = (fields, defaultFields, isPremiumUser = false) => {
+  const projection = {
+    _id: 1,
+    matchPercentage: '$matchData.matchPercentage',
+    matchedCriteria: '$matchData.matchedCriteria',
+    matchedFields: '$matchData.matchedFields',
+    'userLikeDetails.isLike': 1,
+    'userLikeDetails.user': { $getField: { field: 'user', input: '$userLikeDetails' } },
+    'userLikeDetails.likedUserId': { $getField: { field: 'likedUserId', input: '$userLikeDetails' } },
+    'userLikeDetails._id': { $getField: { field: '_id', input: '$userLikeDetails' } },
+    'userShortListDetails.userId': 1,
+    'userShortListDetails.shortlistId': { $getField: { field: 'shortlistId', input: '$userShortListDetails' } },
+    'userShortListDetails._id': { $getField: { field: '_id', input: '$userShortListDetails' } },
+    'subscriptionDetails.status': { $getField: { field: 'status', input: '$subscriptionDetails' } },
+    'friendsDetails.status': { $getField: { field: 'status', input: '$friendsDetails' } },
+    'friendsDetails._id': { $getField: { field: '_id', input: '$friendsDetails' } },
+  };
+
+  // Add default fields if privacySetting is 'default'
+  projection.defaultFields = {
+    $cond: {
+      if: { $eq: ['$privacySetting', 'default'] },
+      then: defaultFields,
+      else: {},
+    },
+  };
+
+  // Add individual field conditions with an additional check for premium user
+  fields.forEach(({ name }) => {
+    // console.log('$privacySettingCustom.publicProfile === ', `$privacySettingCustom.publicProfile`);
+    projection[name] = {
+      $cond: {
+        if: {
+          $or: [
+            // Check if the field is in `publicProfile`
+            {
+              $and: [
+                { $eq: ['$privacySetting', EnumOfPrivacySetting.PUBLIC_PROFILE] },
+                { $in: [name, { $ifNull: ['$privacySettingCustom.publicProfile', []] }] },
+              ],
+            },
+            // Check if the field is in `privateProfile` and the user is private
+            {
+              $and: [
+                { $eq: ['$privacySetting', EnumOfPrivacySetting.PRIVATE_PROFILE] },
+
+                {
+                  $in: [
+                    name,
+                    {
+                      $ifNull: ['$privacySettingCustom.privateProfile', []],
+                    },
+                  ],
+                },
+              ],
+            },
+            // Check if the field is in `premiumProfile` and the user is premium
+            {
+              $and: [
+                { $eq: ['$privacySetting', EnumOfPrivacySetting.PREMIUM_PROFILE] },
+                { $in: [name, { $ifNull: ['$privacySettingCustom.premiumProfile', []] }] },
+                { $literal: isPremiumUser },
+              ],
+            },
+
+            // // Check for `OnlyAcceptedMembers` and friend status
+            // {
+            //   $and: [
+            //     { $eq: ['$privacySetting', 'OnlyAcceptedMembers'] },
+            //     { $eq: ['$friendsDetails.status', 'ACCEPTED'] }, // EnumStatusOfFriend.ACCEPTED
+            //   ],
+            // },
+            // // // Fallback to `privateProfile` if friend status is not ACCEPTED
+            // {
+            //   $and: [
+            //     { $eq: ['$privacySetting', 'OnlyAcceptedMembers'] },
+            //     { $ne: ['$friendsDetails.status', 'ACCEPTED'] },
+            //     { $in: ['privateProfile', conditions] },
+            //   ],
+            // },
+          ],
+        },
+        then: `$${name}`,
+        else: null,
+      },
+    };
+  });
+
+  return projection;
+};
 export async function getUserById(id, options = {}) {
   const user = await User.findById(id, options.projection, options)
     .populate('address')
@@ -65,6 +155,93 @@ export async function getUserListForSearch(
     throw new Error('User Partner Preferences not found. Please add Partner Preference first');
   }
   const skip = (page - 1) * limit;
+
+  const currentDate = new Date();
+  const getUserPlanDetails = await userPlanService.getOne(
+    {
+      userId: filter.userId,
+      startDate: { $lte: currentDate },
+      endDate: { $gte: currentDate },
+    },
+    {}
+  );
+  let isPremiumUser = false;
+  if (getUserPlanDetails && getUserPlanDetails.status) isPremiumUser = getUserPlanDetails.status === EnumOfUserPlan.ACTIVE;
+
+  // Define fields and their privacy conditions
+  const fields = [
+    // user profile photo
+    { name: 'profilePic' },
+    { name: 'userProfilePic' },
+    { name: 'userProfileVideo' },
+    // general details
+    { name: 'firstName' },
+    { name: 'lastName' },
+    { name: 'dateOfBirth' },
+    { name: 'birthTime' },
+    { name: 'religion' },
+    { name: 'caste' },
+    { name: 'height' },
+    { name: 'weight' },
+    { name: 'displayName' },
+    { name: 'name' },
+    { name: 'randomId' },
+    { name: 'maritalStatus' },
+
+    // contact details this will be hidden for all
+    // { name: 'email', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
+    // { name: 'mobileNumber', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
+
+    // education details
+    { name: 'userEducation' },
+
+    // Professional Details
+    { name: 'userProfessional' },
+    { name: 'hobbies' },
+    { name: 'userPartnerDetails' },
+  ];
+
+  // Define additional fields for `privacySetting: 'default'`
+  const defaultFields = {
+    age: '$age',
+    height: '$height',
+    address: {
+      _id: { $getField: { field: '_id', input: '$address' } },
+      currentResidenceAddress: { $getField: { field: 'currentResidenceAddress', input: '$address' } },
+      currentCity: { $getField: { field: 'currentCity', input: '$address' } },
+      state: { $getField: { field: 'state', input: '$address' } },
+      currentCountry: { $getField: { field: 'currentCountry', input: '$address' } },
+      createdAt: { $getField: { field: 'createdAt', input: '$address' } },
+      updatedAt: { $getField: { field: 'updatedAt', input: '$address' } },
+    },
+    appUsesType: '$appUsesType',
+    emailVerified: '$emailVerified',
+    maritalStatus: '$maritalStatus',
+    gender: '$gender',
+    // dateOfBirth: '$dateOfBirth',
+    // birthTime: '$birthTime',
+    // religion: '$religion',
+    // caste: '$caste',
+    hobbies: '$hobbies',
+    interest: '$interest',
+    // homeMobileNumber: '$homeMobileNumber',
+    // creatingProfileFor: '$creatingProfileFor',
+    writeBoutYourSelf: '$writeBoutYourSelf',
+    community: '$community',
+    motherTongue: '$motherTongue',
+    weight: '$weight',
+    // userEducation: '$userEducation',
+    // userProfessional: {
+    //   _id: { $getField: { field: '_id', input: '$userProfessional' } },
+    //   jobTitle: { $getField: { field: 'jobTitle', input: '$userProfessional' } },
+    //   jobType: { $getField: { field: 'jobType', input: '$userProfessional' } },
+    //   companyName: { $getField: { field: 'companyName', input: '$userProfessional' } },
+    //   currentSalary: { $getField: { field: 'currentSalary', input: '$userProfessional' } },
+    //   workCity: { $getField: { field: 'workCity', input: '$userProfessional' } },
+    //   workCountry: { $getField: { field: 'workCountry', input: '$userProfessional' } },
+    // },
+    userUniqueId: '$userUniqueId',
+  };
 
   // Use aggregation for both filtering and counting
   const pipeline = [
@@ -277,70 +454,7 @@ export async function getUserListForSearch(
       },
     },
     {
-      $project: {
-        _id: 1,
-        age: 1,
-        height: 1,
-        'address._id': 1,
-        'address.currentResidenceAddress': 1,
-        'address.currentCity': 1,
-        'address.state': 1,
-        'address.currentCountry': 1,
-        'address.createdAt': 1,
-        'address.updatedAt': 1,
-        name: 1,
-        appUsesType: 1,
-        email: 1,
-        mobileNumber: 1,
-        emailVerified: 1,
-        maritalStatus: 1,
-        displayName: 1,
-        firstName: 1,
-        lastName: 1,
-        gender: 1,
-        dateOfBirth: 1,
-        randomId: 1,
-        birthTime: 1,
-        religion: 1,
-        cast: 1,
-        hobbies: 1,
-        interest: 1,
-        homeMobileNumber: 1,
-        creatingProfileFor: 1,
-        writeBoutYourSelf: 1,
-        hideProfileDuration: 1,
-        community: 1,
-        motherTongue: 1,
-        weight: 1,
-        userEducation: 1,
-        'userProfessional._id': 1,
-        'userProfessional.jobTitle': 1,
-        'userProfessional.jobType': 1,
-        'userProfessional.companyName': 1,
-        'userProfessional.currentSalary': 1,
-        'userProfessional.workCity': 1,
-        'userProfessional.workCountry': 1,
-        profilePic: 1,
-        userUniqueId: 1,
-        diet: 1,
-        userProfilePic: 1,
-        userProfileVideo: 1,
-        profileHideAndDelete: 1,
-        'friendsDetails.status': 1,
-        'friendsDetails._id': 1,
-        matchPercentage: '$matchData.matchPercentage',
-        matchedCriteria: '$matchData.matchedCriteria',
-        isUserActive: 1,
-        'userLikeDetails.isLike': 1,
-        'userLikeDetails.user': 1,
-        'userLikeDetails.likedUserId': 1,
-        'userLikeDetails._id': 1,
-        'userShortListDetails.userId': 1,
-        'userShortListDetails.shortlistId': 1,
-        'userShortListDetails._id': 1,
-        'subscriptionDetails.status': 1,
-        userPartnerDetails: 1,
-      },
+      $project: createDynamicProjectionForPrivacySetting(fields, defaultFields, isPremiumUser),
     },
     { $sort: { matchPercentage: -1 } },
     {
@@ -461,95 +575,6 @@ export async function addDeviceToken(user, body) {
 }
 
 // Helper function to generate field projections
-const createDynamicProjectionForPrivacySetting = (fields, defaultFields, isPremiumUser = false) => {
-  const projection = {
-    _id: 1,
-    matchPercentage: '$matchData.matchPercentage',
-    matchedCriteria: '$matchData.matchedCriteria',
-    'userLikeDetails.isLike': 1,
-    'userLikeDetails.user': { $getField: { field: 'user', input: '$userLikeDetails' } },
-    'userLikeDetails.likedUserId': { $getField: { field: 'likedUserId', input: '$userLikeDetails' } },
-    'userLikeDetails._id': { $getField: { field: '_id', input: '$userLikeDetails' } },
-    'userShortListDetails.userId': 1,
-    'userShortListDetails.shortlistId': { $getField: { field: 'shortlistId', input: '$userShortListDetails' } },
-    'userShortListDetails._id': { $getField: { field: '_id', input: '$userShortListDetails' } },
-    'subscriptionDetails.status': { $getField: { field: 'status', input: '$subscriptionDetails' } },
-    'friendsDetails.status': { $getField: { field: 'status', input: '$friendsDetails' } },
-    'friendsDetails._id': { $getField: { field: '_id', input: '$friendsDetails' } },
-  };
-
-  // Add default fields if privacySetting is 'default'
-  projection.defaultFields = {
-    $cond: {
-      if: { $eq: ['$privacySetting', 'default'] },
-      then: defaultFields,
-      else: {},
-    },
-  };
-
-  // Add individual field conditions with an additional check for premium user
-  fields.forEach(({ name }) => {
-    // console.log('$privacySettingCustom.publicProfile === ', `$privacySettingCustom.publicProfile`);
-    projection[name] = {
-      $cond: {
-        if: {
-          $or: [
-            // Check if the field is in `publicProfile`
-            {
-              $and: [
-                { $eq: ['$privacySetting', EnumOfPrivacySetting.PUBLIC_PROFILE] },
-                { $in: [name, { $ifNull: ['$privacySettingCustom.publicProfile', []] }] },
-              ],
-            },
-            // Check if the field is in `privateProfile` and the user is private
-            {
-              $and: [
-                { $eq: ['$privacySetting', EnumOfPrivacySetting.PRIVATE_PROFILE] },
-
-                {
-                  $in: [
-                    name,
-                    {
-                      $ifNull: ['$privacySettingCustom.privateProfile', []],
-                    },
-                  ],
-                },
-              ],
-            },
-            // Check if the field is in `premiumProfile` and the user is premium
-            {
-              $and: [
-                { $eq: ['$privacySetting', EnumOfPrivacySetting.PREMIUM_PROFILE] },
-                { $in: [name, { $ifNull: ['$privacySettingCustom.premiumProfile', []] }] },
-                { $literal: isPremiumUser },
-              ],
-            },
-
-            // // Check for `OnlyAcceptedMembers` and friend status
-            // {
-            //   $and: [
-            //     { $eq: ['$privacySetting', 'OnlyAcceptedMembers'] },
-            //     { $eq: ['$friendsDetails.status', 'ACCEPTED'] }, // EnumStatusOfFriend.ACCEPTED
-            //   ],
-            // },
-            // // // Fallback to `privateProfile` if friend status is not ACCEPTED
-            // {
-            //   $and: [
-            //     { $eq: ['$privacySetting', 'OnlyAcceptedMembers'] },
-            //     { $ne: ['$friendsDetails.status', 'ACCEPTED'] },
-            //     { $in: ['privateProfile', conditions] },
-            //   ],
-            // },
-          ],
-        },
-        then: `$${name}`,
-        else: null,
-      },
-    };
-  });
-
-  return projection;
-};
 
 export async function getGenderListV2(filter, options = {}) {
   const userGender = filter.gender;
@@ -960,6 +985,93 @@ export async function getMatchUser(filter) {
   if (!userPartnerPreferences) {
     throw new Error('User Partner Preferences not found. Please add Partner Preference first');
   }
+  const currentDate = new Date();
+  const getUserPlanDetails = await userPlanService.getOne(
+    {
+      userId: filter.userId,
+      startDate: { $lte: currentDate },
+      endDate: { $gte: currentDate },
+    },
+    {}
+  );
+  let isPremiumUser = false;
+  if (getUserPlanDetails && getUserPlanDetails.status) isPremiumUser = getUserPlanDetails.status === EnumOfUserPlan.ACTIVE;
+
+  // Define fields and their privacy conditions
+  const fields = [
+    // user profile photo
+    { name: 'profilePic' },
+    { name: 'userProfilePic' },
+    { name: 'userProfileVideo' },
+    // general details
+    { name: 'firstName' },
+    { name: 'lastName' },
+    { name: 'dateOfBirth' },
+    { name: 'birthTime' },
+    { name: 'religion' },
+    { name: 'caste' },
+    { name: 'height' },
+    { name: 'weight' },
+    { name: 'displayName' },
+    { name: 'name' },
+    { name: 'randomId' },
+    { name: 'maritalStatus' },
+
+    // contact details this will be hidden for all
+    // { name: 'email', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
+    // { name: 'mobileNumber', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
+
+    // education details
+    { name: 'userEducation' },
+
+    // Professional Details
+    { name: 'userProfessional' },
+    { name: 'hobbies' },
+    { name: 'userPartnerDetails' },
+  ];
+
+  // Define additional fields for `privacySetting: 'default'`
+  const defaultFields = {
+    age: '$age',
+    height: '$height',
+    address: {
+      _id: { $getField: { field: '_id', input: '$address' } },
+      currentResidenceAddress: { $getField: { field: 'currentResidenceAddress', input: '$address' } },
+      currentCity: { $getField: { field: 'currentCity', input: '$address' } },
+      state: { $getField: { field: 'state', input: '$address' } },
+      currentCountry: { $getField: { field: 'currentCountry', input: '$address' } },
+      createdAt: { $getField: { field: 'createdAt', input: '$address' } },
+      updatedAt: { $getField: { field: 'updatedAt', input: '$address' } },
+    },
+    appUsesType: '$appUsesType',
+    emailVerified: '$emailVerified',
+    maritalStatus: '$maritalStatus',
+    gender: '$gender',
+    // dateOfBirth: '$dateOfBirth',
+    // birthTime: '$birthTime',
+    // religion: '$religion',
+    // caste: '$caste',
+    hobbies: '$hobbies',
+    interest: '$interest',
+    // homeMobileNumber: '$homeMobileNumber',
+    // creatingProfileFor: '$creatingProfileFor',
+    writeBoutYourSelf: '$writeBoutYourSelf',
+    community: '$community',
+    motherTongue: '$motherTongue',
+    weight: '$weight',
+    // userEducation: '$userEducation',
+    // userProfessional: {
+    //   _id: { $getField: { field: '_id', input: '$userProfessional' } },
+    //   jobTitle: { $getField: { field: 'jobTitle', input: '$userProfessional' } },
+    //   jobType: { $getField: { field: 'jobType', input: '$userProfessional' } },
+    //   companyName: { $getField: { field: 'companyName', input: '$userProfessional' } },
+    //   currentSalary: { $getField: { field: 'currentSalary', input: '$userProfessional' } },
+    //   workCity: { $getField: { field: 'workCity', input: '$userProfessional' } },
+    //   workCountry: { $getField: { field: 'workCountry', input: '$userProfessional' } },
+    // },
+    userUniqueId: '$userUniqueId',
+  };
+
   const pipeline = [
     {
       $match: {
@@ -1216,62 +1328,7 @@ export async function getMatchUser(filter) {
       },
     },
     {
-      $project: {
-        _id: 1,
-        age: 1,
-        height: 1,
-        'address._id': 1,
-        'address.currentResidenceAddress': 1,
-        'address.currentCity': 1,
-        'address.state': 1,
-        'address.currentCountry': 1,
-        'address.createdAt': 1,
-        'address.updatedAt': 1,
-        name: 1,
-        email: 1,
-        mobileNumber: 1,
-        emailVerified: 1,
-        maritalStatus: 1,
-        displayName: 1,
-        firstName: 1,
-        lastName: 1,
-        gender: 1,
-        dateOfBirth: 1,
-        randomId: 1,
-        birthTime: 1,
-        religion: 1,
-        caste: 1,
-        hobbies: 1,
-        interest: 1,
-        homeMobileNumber: 1,
-        creatingProfileFor: 1,
-        writeBoutYourSelf: 1,
-        hideProfileDuration: 1,
-        community: 1,
-        motherTongue: 1,
-        weight: 1,
-        userPartnerDetails: 1,
-        userEducation: 1,
-        userProfessional: 1,
-        profilePic: 1,
-        userUniqueId: 1,
-        diet: 1,
-        userProfilePic: 1,
-        userProfileVideo: 1,
-        profileHideAndDelete: 1,
-        matchPercentage: '$matchData.matchPercentage',
-        matchedCriteria: '$matchData.matchedCriteria',
-        matchedFields: '$matchData.matchedFields', // Add matchedFields to output
-        'friendsDetails.status': 1,
-        'friendsDetails._id': 1,
-        'userLikeDetails._id': 1,
-        'userLikeDetails.isLike': 1,
-        'userLikeDetails.user': 1,
-        'userLikeDetails.likedUserId': 1,
-        'userShortListDetails._id': 1,
-        'userShortListDetails.shortlistId': 1,
-        isUserActive: 1,
-      },
+      $project: createDynamicProjectionForPrivacySetting(fields, defaultFields, isPremiumUser),
     },
     { $sort: { matchPercentage: -1 } }, // Sort by match percentage in descending order
   ];
@@ -2634,7 +2691,92 @@ export async function getNewUserList(filter, options = {}) {
   }
 
   const skip = (page - 1) * limit;
+  const currentDate = new Date();
+  const getUserPlanDetails = await userPlanService.getOne(
+    {
+      userId: filter.userId,
+      startDate: { $lte: currentDate },
+      endDate: { $gte: currentDate },
+    },
+    {}
+  );
+  let isPremiumUser = false;
+  if (getUserPlanDetails && getUserPlanDetails.status) isPremiumUser = getUserPlanDetails.status === EnumOfUserPlan.ACTIVE;
 
+  // Define fields and their privacy conditions
+  const fields = [
+    // user profile photo
+    { name: 'profilePic' },
+    { name: 'userProfilePic' },
+    { name: 'userProfileVideo' },
+    // general details
+    { name: 'firstName' },
+    { name: 'lastName' },
+    { name: 'dateOfBirth' },
+    { name: 'birthTime' },
+    { name: 'religion' },
+    { name: 'caste' },
+    { name: 'height' },
+    { name: 'weight' },
+    { name: 'displayName' },
+    { name: 'name' },
+    { name: 'randomId' },
+    { name: 'maritalStatus' },
+
+    // contact details this will be hidden for all
+    // { name: 'email', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
+    // { name: 'mobileNumber', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
+
+    // education details
+    { name: 'userEducation' },
+
+    // Professional Details
+    { name: 'userProfessional' },
+    { name: 'hobbies' },
+    { name: 'userPartnerDetails' },
+  ];
+
+  // Define additional fields for `privacySetting: 'default'`
+  const defaultFields = {
+    age: '$age',
+    height: '$height',
+    address: {
+      _id: { $getField: { field: '_id', input: '$address' } },
+      currentResidenceAddress: { $getField: { field: 'currentResidenceAddress', input: '$address' } },
+      currentCity: { $getField: { field: 'currentCity', input: '$address' } },
+      state: { $getField: { field: 'state', input: '$address' } },
+      currentCountry: { $getField: { field: 'currentCountry', input: '$address' } },
+      createdAt: { $getField: { field: 'createdAt', input: '$address' } },
+      updatedAt: { $getField: { field: 'updatedAt', input: '$address' } },
+    },
+    appUsesType: '$appUsesType',
+    emailVerified: '$emailVerified',
+    maritalStatus: '$maritalStatus',
+    gender: '$gender',
+    // dateOfBirth: '$dateOfBirth',
+    // birthTime: '$birthTime',
+    // religion: '$religion',
+    // caste: '$caste',
+    hobbies: '$hobbies',
+    interest: '$interest',
+    // homeMobileNumber: '$homeMobileNumber',
+    // creatingProfileFor: '$creatingProfileFor',
+    writeBoutYourSelf: '$writeBoutYourSelf',
+    community: '$community',
+    motherTongue: '$motherTongue',
+    weight: '$weight',
+    // userEducation: '$userEducation',
+    // userProfessional: {
+    //   _id: { $getField: { field: '_id', input: '$userProfessional' } },
+    //   jobTitle: { $getField: { field: 'jobTitle', input: '$userProfessional' } },
+    //   jobType: { $getField: { field: 'jobType', input: '$userProfessional' } },
+    //   companyName: { $getField: { field: 'companyName', input: '$userProfessional' } },
+    //   currentSalary: { $getField: { field: 'currentSalary', input: '$userProfessional' } },
+    //   workCity: { $getField: { field: 'workCity', input: '$userProfessional' } },
+    //   workCountry: { $getField: { field: 'workCountry', input: '$userProfessional' } },
+    // },
+    userUniqueId: '$userUniqueId',
+  };
   const pipeline = [
     {
       $match: {
@@ -2844,70 +2986,7 @@ export async function getNewUserList(filter, options = {}) {
       },
     },
     {
-      $project: {
-        _id: 1,
-        age: 1,
-        height: 1,
-        'address._id': 1,
-        'address.currentResidenceAddress': 1,
-        'address.currentCity': 1,
-        'address.state': 1,
-        'address.currentCountry': 1,
-        'address.createdAt': 1,
-        'address.updatedAt': 1,
-        name: 1,
-        appUsesType: 1,
-        email: 1,
-        mobileNumber: 1,
-        emailVerified: 1,
-        maritalStatus: 1,
-        displayName: 1,
-        firstName: 1,
-        lastName: 1,
-        gender: 1,
-        dateOfBirth: 1,
-        randomId: 1,
-        birthTime: 1,
-        religion: 1,
-        cast: 1,
-        hobbies: 1,
-        interest: 1,
-        homeMobileNumber: 1,
-        creatingProfileFor: 1,
-        writeBoutYourSelf: 1,
-        hideProfileDuration: 1,
-        community: 1,
-        motherTongue: 1,
-        weight: 1,
-        userPartner: 1,
-        userEducation: 1,
-        'userProfessional._id': 1,
-        'userProfessional.jobTitle': 1,
-        'userProfessional.jobType': 1,
-        'userProfessional.companyName': 1,
-        'userProfessional.currentSalary': 1,
-        'userProfessional.workCity': 1,
-        'userProfessional.workCountry': 1,
-        profilePic: 1,
-        userUniqueId: 1,
-        diet: 1,
-        userProfilePic: 1,
-        userProfileVideo: 1,
-        profileHideAndDelete: 1,
-        'friendsDetails.status': 1,
-        'friendsDetails._id': 1,
-        matchPercentage: '$matchData.matchPercentage',
-        matchedCriteria: '$matchData.matchedCriteria',
-        isUserActive: 1,
-        'userLikeDetails.isLike': 1,
-        'userLikeDetails.user': 1,
-        'userLikeDetails.likedUserId': 1,
-        'userLikeDetails._id': 1,
-        'userShortListDetails.userId': 1,
-        'userShortListDetails.shortlistId': 1,
-        'userShortListDetails._id': 1,
-        'subscriptionDetails.status': 1,
-      },
+      $project: createDynamicProjectionForPrivacySetting(fields, defaultFields, isPremiumUser),
     },
     { $sort: { matchPercentage: -1 } }, // Sort by match percentage in descending order
     {
