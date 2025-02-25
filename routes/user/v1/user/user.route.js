@@ -79,6 +79,9 @@ router
 router
   .route('/getUser-list-by-interest')
   .post(auth(), validate(userValidation.getFilteredDatingUsers), userController.getFilteredDatingUsers);
+
+router.route('/search-user-dating').post(auth(), validate(userValidation.searchUser), userController.searchUser);
+
 router.route('/pending-fields').get(auth(), userController.checkMissingFields);
 /**
  * pending-fields-for-mobile

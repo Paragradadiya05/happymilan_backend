@@ -171,6 +171,17 @@ export const getFilteredDatingUsers = {
     .unknown(true),
 };
 
+export const searchUser = {
+  body: Joi.object().keys({
+    Ethnicity: Joi.string(),
+  }),
+  query: Joi.object()
+    .keys({
+      page: Joi.number().default(1),
+      limit: Joi.number().default(10).max(100),
+    })
+    .unknown(true),
+};
 export const getnewuser = {
   params: Joi.object().keys({}),
   query: Joi.object()

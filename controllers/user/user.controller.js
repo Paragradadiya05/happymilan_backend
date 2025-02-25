@@ -282,6 +282,27 @@ export const getFilteredDatingUsers = catchAsync(async (req, res) => {
   return res.status(httpStatus.OK).send({ results: userdata });
 });
 
+export const searchUser = catchAsync(async (req, res) => {
+  const { user } = req;
+  const { query } = req;
+  const sortingObj = pick(query, ['sort', 'order']);
+  const sortObj = {
+    [sortingObj.sort]: sortingObj.order,
+  };
+
+  const filter = {
+    userId: user._id,
+    Ethnicity: req.body.Ethnicity, // InterestedIn filter passed as a single string value
+  };
+
+  const options = {
+    sort: sortObj,
+    ...pick(query, ['limit', 'page']),
+  };
+
+  const userdata = await userService.getFilteredDatingEthnicityList(filter, options);
+  return res.status(httpStatus.OK).send({ results: userdata });
+});
 export const getprimeuser = catchAsync(async (req, res) => {
   const { user } = req;
   const { query } = req;
