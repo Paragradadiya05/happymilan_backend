@@ -2257,6 +2257,7 @@ export async function getFilteredDatingInterestList(filter, options = {}) {
         mobileNumber: 1,
         appUsesType: 1,
         age: 1,
+        dateOfBirth: 1,
         profilePic: 1,
         gender: 1, // Assuming gender is still required
         bio: 1,
@@ -2394,6 +2395,7 @@ export async function getFilteredDatingEthnicityList(filter, options = {}) {
         name: 1,
         email: 1,
         age: 1,
+        dateOfBirth: 1,
         mobileNumber: 1,
         appUsesType: 1,
         profilePic: 1,
