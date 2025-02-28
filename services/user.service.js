@@ -1460,13 +1460,22 @@ export async function getDatingPartnerList(filter, options = {}) {
     },
     {
       $lookup: {
-        from: 'Friend',
-        let: { currentUserId: '$_id' },
+        from: 'Friend', // The collection name for Friend model
+        let: {
+          currentUserId: '$_id', // Reference to current document's userId
+        },
         pipeline: [
           {
             $match: {
               $expr: {
-                $and: [{ $eq: ['$user', filter.userId] }, { $eq: ['$friend', '$$currentUserId'] }],
+                $or: [
+                  {
+                    $and: [{ $eq: ['$user', filter.userId] }, { $eq: ['$friend', '$$currentUserId'] }],
+                  },
+                  {
+                    $and: [{ $eq: ['$user', '$$currentUserId'] }, { $eq: ['$friend', filter.userId] }],
+                  },
+                ],
               },
             },
           },
@@ -1477,7 +1486,32 @@ export async function getDatingPartnerList(filter, options = {}) {
     {
       $unwind: {
         path: '$friendsDetails',
-        preserveNullAndEmptyArrays: true,
+        preserveNullAndEmptyArrays: true, // Include users with no matching friends
+      },
+    },
+    {
+      $match: {
+        $or: [
+          { friendsDetails: { $exists: false } }, // Include users without any friend details
+          // Case 2: Exclude blocked and accepted statuses
+          {
+            $and: [
+              { 'friendsDetails.status': { $nin: [EnumStatusOfFriend.BLOCKED, EnumStatusOfFriend.ACCEPTED] } },
+              {
+                $or: [
+                  // Keep REQUESTED status unless the user made the request
+                  { $expr: { $ne: ['$friendsDetails.friend', filter.userId] } },
+                  { 'friendsDetails.status': { $ne: EnumStatusOfFriend.REQUESTED } },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      $match: {
+        'friendsDetails.status': { $ne: EnumStatusOfFriend.BLOCKED },
       },
     },
     {
@@ -2160,8 +2194,7 @@ export async function getUserWithDatingData(filter) {
         hobbies: 1,
         writeBoutYourSelf: 1,
         religion: 1,
-        'friendsDetails.status': 1,
-        'friendsDetails._id': 1,
+        friendsDetails: 1,
       },
     },
   ];
