@@ -2149,7 +2149,20 @@ export async function getUserWithDatingData(filter) {
           {
             $match: {
               $expr: {
-                $and: [{ $eq: ['$user', filter.userId] }, { $eq: ['$friend', '$$currentUserId'] }],
+                $or: [
+                  {
+                    $and: [
+                      { $eq: ['$user', mongoose.Types.ObjectId(filter.currentUserId._id)] },
+                      { $eq: ['$friend', '$$currentUserId'] },
+                    ],
+                  },
+                  {
+                    $and: [
+                      { $eq: ['$user', '$$currentUserId'] },
+                      { $eq: ['$friend', mongoose.Types.ObjectId(filter.currentUserId._id)] },
+                    ],
+                  },
+                ],
               },
             },
           },
@@ -2160,7 +2173,7 @@ export async function getUserWithDatingData(filter) {
     {
       $unwind: {
         path: '$friendsDetails',
-        preserveNullAndEmptyArrays: true,
+        preserveNullAndEmptyArrays: true, // Include users with no matching friends
       },
     },
     {
@@ -2198,11 +2211,10 @@ export async function getUserWithDatingData(filter) {
       },
     },
   ];
-
+  console.log('=====pipeline====>', pipeline);
   const matchedUser = await User.aggregate(pipeline).exec();
   return matchedUser;
 }
-
 export async function getFilteredDatingInterestList(filter, options = {}) {
   const { interestedIn } = filter;
   const { limit = 10, page = 1 } = options;
