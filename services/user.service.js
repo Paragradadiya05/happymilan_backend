@@ -2171,12 +2171,6 @@ export async function getUserWithDatingData(filter) {
       },
     },
     {
-      $unwind: {
-        path: '$friendsDetails',
-        preserveNullAndEmptyArrays: true, // Include users with no matching friends
-      },
-    },
-    {
       $lookup: {
         from: 'likes',
         let: { currentUserIdForLike: '$_id' },
@@ -2193,12 +2187,6 @@ export async function getUserWithDatingData(filter) {
           },
         ],
         as: 'userLikeDetails',
-      },
-    },
-    {
-      $unwind: {
-        path: '$userLikeDetails',
-        preserveNullAndEmptyArrays: true,
       },
     },
     {
