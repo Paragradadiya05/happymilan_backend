@@ -2177,6 +2177,31 @@ export async function getUserWithDatingData(filter) {
       },
     },
     {
+      $lookup: {
+        from: 'likes',
+        let: { currentUserIdForLike: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ['$user', mongoose.Types.ObjectId(filter.currentUserId._id)] },
+                  { $eq: ['$likedUserId', '$$currentUserIdForLike'] },
+                ],
+              },
+            },
+          },
+        ],
+        as: 'userLikeDetails',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userLikeDetails',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
       $match: {
         'friendsDetails.status': { $ne: EnumStatusOfFriend.BLOCKED },
       },
@@ -2208,6 +2233,10 @@ export async function getUserWithDatingData(filter) {
         writeBoutYourSelf: 1,
         religion: 1,
         friendsDetails: 1,
+        'userLikeDetails._id': 1,
+        'userLikeDetails.isLike': 1,
+        'userLikeDetails.user': 1,
+        'userLikeDetails.likedUserId': 1,
       },
     },
   ];
