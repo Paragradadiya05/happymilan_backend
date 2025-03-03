@@ -2894,8 +2894,10 @@ export async function getUserStats(userId) {
 
   // 3. Total Accepted Requests (status = 'accepted')
   const totalAcceptedRequests = await Friend.countDocuments({
-    ...friendFilter,
-    status: enumModel.EnumStatusOfFriend.ACCEPTED,
+    $or: [
+      { user: userId, status: enumModel.EnumStatusOfFriend.ACCEPTED },
+      { friend: userId, status: enumModel.EnumStatusOfFriend.ACCEPTED },
+    ],
   });
   const friendReqFilter = {
     friend: userId,
