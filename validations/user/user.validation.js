@@ -195,12 +195,10 @@ export const getnewuser = {
 export const updateUserPrivacy = {
   body: Joi.object().keys({
     privacySetting: Joi.string().valid('publicProfile', 'privateProfile', 'premiumProfile').required(),
-    privacySettingCustom: Joi.object()
-      .keys({
-        publicProfile: Joi.array().items(Joi.string()).required(),
-        privateProfile: Joi.array().items(Joi.string()).required(),
-        premiumProfile: Joi.array().items(Joi.string()).required(),
-      })
-      .required(),
+    privacySettingCustom: Joi.object().keys({
+      publicProfile: Joi.array().items(Joi.string()),
+      privateProfile: Joi.array().items(Joi.string()),
+      premiumProfile: Joi.array().items(Joi.string()),
+    }),
   }),
 };
