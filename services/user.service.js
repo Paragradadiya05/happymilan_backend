@@ -2448,6 +2448,24 @@ export async function getFilteredDatingEthnicityList(filter, options = {}) {
       },
     },
     {
+      $addFields: {
+        age: {
+          $cond: {
+            if: { $and: [{ $ne: ['$dateOfBirth', null] }, { $ne: ['$dateOfBirth', ''] }] },
+            then: {
+              $floor: {
+                $divide: [
+                  { $subtract: [new Date(), '$dateOfBirth'] },
+                  31556952000, // Average milliseconds in a year (365.25 days)
+                ],
+              },
+            },
+            else: null, // or any default value you'd like to use if dateOfBirth is missing
+          },
+        },
+      },
+    },
+    {
       $lookup: {
         from: 'likes',
         let: { currentUserIdForLike: '$_id' },
