@@ -18,7 +18,8 @@ export const getFriend = catchAsync(async (req, res) => {
 export const listFriend = catchAsync(async (req, res) => {
   const filter = {};
   const options = {};
-  const friend = await friendService.getFriendList(filter, options);
+  const userId = req.user._id;
+  const friend = await friendService.getFriendList(filter, options, userId);
   return res.status(httpStatus.OK).send({ results: friend });
 });
 
@@ -92,7 +93,7 @@ export const getRequests = catchAsync(async (req, res) => {
     status: EnumStatusOfFriend.REQUESTED,
   };
   const options = {};
-  const user = await friendService.getFriendList(filter, options);
+  const user = await friendService.getFriendList(filter, options, userId);
   // const shortlist = await Shortlist.find({ userId });
   return res.status(httpStatus.OK).send({ results: user });
 });
@@ -168,7 +169,7 @@ export const getRejectedFrdRequests = catchAsync(async (req, res) => {
     friend: userId,
   };
   const options = {};
-  const user = await friendService.getFriendList(filter, options);
+  const user = await friendService.getFriendList(filter, options, userId);
   return res.status(httpStatus.OK).send({ results: user });
 });
 
@@ -182,7 +183,7 @@ export const getRequestedFriend = catchAsync(async (req, res) => {
     status: EnumStatusOfFriend.REQUESTED,
   };
   const options = { page, limit };
-  const user = await friendService.getFriendList(filter, options);
+  const user = await friendService.getFriendList(filter, options, userId);
   return res.status(httpStatus.OK).send({ results: user });
 });
 

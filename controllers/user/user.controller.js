@@ -63,7 +63,8 @@ export const paginatedUserThatNotFriend = catchAsync(async (req, res) => {
     status: EnumStatusOfFriend.ACCEPTED,
     $or: [{ friend: user._id }, { user: user._id }],
   };
-  const getFriend = await friendService.getFriendList(filter, options);
+  const userId = req.user._id;
+  const getFriend = await friendService.getFriendList(filter, options, userId);
   const friendUserIds = getFriend.map((friend) => {
     if (friend.user.toString() !== user._id) {
       return friend.user;

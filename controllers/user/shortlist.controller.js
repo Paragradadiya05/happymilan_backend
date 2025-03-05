@@ -50,6 +50,7 @@ export const getShortlistPagination = catchAsync(async (req, res) => {
   };
   const filter = {
     userId,
+    user: req.user._id,
     appUsesType,
   };
   const options = {

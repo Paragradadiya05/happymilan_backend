@@ -2,10 +2,12 @@ import ApiError from 'utils/ApiError';
 import httpStatus from 'http-status';
 import { Friend, Notification, User } from 'models';
 import mongoose from 'mongoose';
-import { EnumOfNotification, EnumStatusOfFriend } from '../models/enum.model';
+import { EnumOfNotification, EnumOfUserPlan, EnumStatusOfFriend } from '../models/enum.model';
 import { sendNotification } from './notification.service';
+import { userPlanService } from './index';
+import { createDynamicProjectionForPrivacySetting, defaultFields, fields } from '../utils/common';
 
-async function calculateMatchScore(friendId, userPartnerPreferences, userId) {
+async function calculateMatchScore(friendId, userPartnerPreferences, userId, isPremiumUser = false) {
   const matchData = await User.aggregate([
     {
       $match: { _id: mongoose.Types.ObjectId(friendId) },
@@ -121,21 +123,17 @@ async function calculateMatchScore(friendId, userPartnerPreferences, userId) {
             },
           },
         ],
-        as: 'shortlistData',
+        as: 'userShortListDetails',
       },
     },
     {
       $unwind: {
-        path: '$shortlistData', // Deconstructs the 'address' array field
+        path: '$userShortListDetails', // Deconstructs the 'address' array field
         preserveNullAndEmptyArrays: true, // If you want to exclude documents with no address
       },
     },
     {
-      $project: {
-        matchPercentage: '$matchData.matchPercentage',
-        matchedCriteria: '$matchData.matchedCriteria',
-        shortlistData: 1,
-      },
+      $project: createDynamicProjectionForPrivacySetting(fields, defaultFields, isPremiumUser),
     },
   ]);
 
@@ -166,7 +164,31 @@ export async function getOne(query, options = {}) {
   return friend;
 }
 
-export async function getFriendList(filter, options = {}) {
+async function checkUserPremiumStatus(userId) {
+  const currentDate = new Date();
+  try {
+    const getUserPlanDetails = await userPlanService.getOne(
+      {
+        userId,
+        startDate: { $lte: currentDate },
+        endDate: { $gte: currentDate },
+      },
+      {}
+    );
+
+    let isPremiumUser = false;
+    if (getUserPlanDetails && getUserPlanDetails.status) {
+      isPremiumUser = getUserPlanDetails.status === EnumOfUserPlan.ACTIVE;
+    }
+
+    return isPremiumUser;
+  } catch (error) {
+    console.error('Error checking user premium status:', error);
+    throw error;
+  }
+}
+
+export async function getFriendList(filter, options = {}, userId) {
   const page = options.page || 1;
   const limit = options.limit || 10;
   const skip = (page - 1) * limit;
@@ -174,6 +196,7 @@ export async function getFriendList(filter, options = {}) {
   // Get total count of matching friends for pagination
   const totalDocs = await Friend.countDocuments(filter);
 
+  const isPremiumUser = await checkUserPremiumStatus(userId);
   // todo: use in all query and remove countDocuments paginate
   // Retrieve paginated list of friends
   const friends = await Friend.find(filter, options.projection, { ...options, limit, skip })
@@ -191,7 +214,11 @@ export async function getFriendList(filter, options = {}) {
   const friendsWithMatchData = await Promise.all(
     friends.map(async (friendEntry) => {
       const { friend, user } = friendEntry;
+      console.log('friend === ', friend.privacySettingCustom);
+      console.log('user === ', user.privacySettingCustom);
+
       if (user && user.userPartner) {
+        // eslint-disable-next-line no-shadow
         const userId = filter.friend ? friend._id : user.userPartner.userId; // this is login user id
 
         /* we are fetching friend data.
@@ -204,20 +231,33 @@ export async function getFriendList(filter, options = {}) {
 
         let friendId = friend._id;
         let userPartnerData = user.userPartner;
+        let isFriendData = true;
 
         if (userId.toString() === friend._id.toString()) {
           friendId = user._id;
           userPartnerData = friend.userPartner;
+          isFriendData = true;
         }
 
-        const matchInfo = await calculateMatchScore(friendId, userPartnerData, userId);
+        // we need to find friend privacySetting and privacySettingCustom for user
+        // after we get privacySetting we need to find key for same and return that fields from friend data
+
+        const matchInfo = await calculateMatchScore(friendId, userPartnerData, userId, isPremiumUser);
+
+        if (isFriendData) {
+          // eslint-disable-next-line no-param-reassign
+          friendEntry.friend = matchInfo;
+        } else {
+          // eslint-disable-next-line no-param-reassign
+          friendEntry.user = matchInfo;
+        }
 
         // Attach match data directly to the friend object
         return {
           ...friendEntry.toObject(),
           matchPercentage: matchInfo.matchPercentage,
           matchedCriteria: matchInfo.matchedCriteria,
-          shortlistData: matchInfo.shortlistData,
+          userShortListDetails: matchInfo.userShortListDetails,
         };
       }
 
@@ -228,7 +268,7 @@ export async function getFriendList(filter, options = {}) {
           ...friend.toObject(),
           matchPercentage: 0,
           matchedCriteria: [],
-          shortlistData: [],
+          userShortListDetails: [],
         },
       };
     })
@@ -529,6 +569,8 @@ export async function getFriendv2(filter, options = {}, userId) {
     })
     .exec();
 
+  const isPremiumUser = await checkUserPremiumStatus(userId);
+
   // Get user partner preferences for match score
   // const userPartnerPreferences = await Partner.findOne({ userId });
   //
@@ -541,7 +583,7 @@ export async function getFriendv2(filter, options = {}, userId) {
     friends.map(async (friendEntry) => {
       const { friend, user } = friendEntry;
       if (user && user.userPartner) {
-        const matchInfo = await calculateMatchScore(friend._id, user.userPartner, userId);
+        const matchInfo = await calculateMatchScore(friend._id, user.userPartner, userId, isPremiumUser);
         return {
           ...friendEntry.toObject(),
           friend: {
@@ -600,6 +642,8 @@ export async function getBlock(filter, options = {}, userId) {
     .lean() // Ensure results are plain JavaScript objects
     .exec();
 
+  const isPremiumUser = await checkUserPremiumStatus(userId);
+
   // Get user partner preferences for match score
   // const userPartnerPreferences = await Partner.findOne({ userId });
   //
@@ -628,7 +672,7 @@ export async function getBlock(filter, options = {}, userId) {
           userPartnerData = friend.userPartner;
         }
 
-        const matchInfo = await calculateMatchScore(friendId, userPartnerData, userId);
+        const matchInfo = await calculateMatchScore(friendId, userPartnerData, userId, isPremiumUser);
         return {
           ...friendEntry, // Already a plain object, no need for toObject()
           friend: {
@@ -728,8 +772,10 @@ export async function getFriendAcceptedMobile(filter, options = {}, userId) {
   const page = options.page || 1;
   const limit = options.limit || 10;
   const skip = (page - 1) * limit;
+  await Friend.countDocuments(filter);
+  const isPremiumUser = await checkUserPremiumStatus(userId);
+  console.log('Is Premium User:', isPremiumUser);
 
-  const totalDocs = await Friend.countDocuments(filter);
   const friends = await Friend.find(filter, options.projection, { ...options, limit, skip })
     .populate({
       path: 'friend',
@@ -739,50 +785,66 @@ export async function getFriendAcceptedMobile(filter, options = {}, userId) {
       path: 'user',
       populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
     })
-    .lean()
     .exec();
 
   const friendsWithMatchData = await Promise.all(
     friends.map(async (friendEntry) => {
       const { friend, user } = friendEntry;
-      let friendList = friend;
-      let userList = user;
 
-      // If the logged-in user is the "friend," swap the data
+      let friendList = friend;
+      let isFriendData = true;
+
       if (userId.toString() === friend._id.toString()) {
         friendList = user;
-        userList = friend;
+        isFriendData = false;
       }
 
-      if (friendList.userPartner) {
-        const matchInfo = await calculateMatchScore(friendList._id, friendList.userPartner, userId);
-        friendList.matchPercentage = matchInfo.matchPercentage;
-        friendList.matchedCriteria = matchInfo.matchedCriteria;
-        friendList.shortlistData = matchInfo.shortlistData;
-      } else {
-        friendList.matchPercentage = 0;
-        friendList.matchedCriteria = [];
-        friendList.shortlistData = [];
+      const { privacySetting, privacySettingCustom = {} } = friendList;
+
+      if (privacySetting === 'private' && !(privacySettingCustom.privateProfile || []).includes(userId)) {
+        return null; // Skip this user if the logged-in user is not allowed
       }
 
+      if (friendList && friendList.userPartner) {
+        const matchInfo = await calculateMatchScore(friendList._id, friendList.userPartner, userId, isPremiumUser);
+
+        if (isFriendData) {
+          // eslint-disable-next-line no-param-reassign
+          friendEntry.friend = matchInfo;
+        } else {
+          // eslint-disable-next-line no-param-reassign
+          friendEntry.user = matchInfo;
+        }
+
+        return {
+          ...friendEntry,
+          matchPercentage: matchInfo.matchPercentage,
+          matchedCriteria: matchInfo.matchedCriteria,
+          userShortListDetails: matchInfo.userShortListDetails,
+        };
+      }
       return {
         ...friendEntry,
-        friendList,
-        userList,
+        friend: {
+          ...friend,
+          matchPercentage: 0,
+          matchedCriteria: [],
+          userShortListDetails: [],
+        },
       };
     })
   );
 
-  const totalPages = Math.ceil(totalDocs / limit);
+  const filteredResults = friendsWithMatchData.filter(Boolean);
+  const totalPages = Math.ceil(filteredResults.length / limit);
 
   return {
-    results: friendsWithMatchData,
-    totalDocs,
+    results: filteredResults,
+    totalDocs: filteredResults.length,
     limit,
     page,
     totalPages,
     hasNextPage: page < totalPages,
     hasPrevPage: page > 1,
-    currentPage: page,
   };
 }
