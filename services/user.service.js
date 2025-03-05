@@ -11,101 +11,11 @@ import enumModel, {
   EnumAppUsesTypeOfUsers,
   EnumGenderOfUsers,
   EnumOfPlatformType,
-  EnumOfPrivacySetting,
   EnumOfUserPlan,
   EnumStatusOfFriend,
 } from '../models/enum.model';
+import { createDynamicProjectionForPrivacySetting } from '../utils/common';
 
-const createDynamicProjectionForPrivacySetting = (fields, defaultFields, isPremiumUser = false) => {
-  const projection = {
-    _id: 1,
-    matchPercentage: '$matchData.matchPercentage',
-    matchedCriteria: '$matchData.matchedCriteria',
-    matchedFields: '$matchData.matchedFields',
-    'userLikeDetails.isLike': 1,
-    'userLikeDetails.user': { $getField: { field: 'user', input: '$userLikeDetails' } },
-    'userLikeDetails.likedUserId': { $getField: { field: 'likedUserId', input: '$userLikeDetails' } },
-    'userLikeDetails._id': { $getField: { field: '_id', input: '$userLikeDetails' } },
-    'userShortListDetails.userId': 1,
-    'userShortListDetails.shortlistId': { $getField: { field: 'shortlistId', input: '$userShortListDetails' } },
-    'userShortListDetails._id': { $getField: { field: '_id', input: '$userShortListDetails' } },
-    'subscriptionDetails.status': { $getField: { field: 'status', input: '$subscriptionDetails' } },
-    'friendsDetails.status': { $getField: { field: 'status', input: '$friendsDetails' } },
-    'friendsDetails._id': { $getField: { field: '_id', input: '$friendsDetails' } },
-  };
-
-  // Add default fields if privacySetting is 'default'
-  projection.defaultFields = {
-    $cond: {
-      if: { $eq: ['$privacySetting', 'default'] },
-      then: defaultFields,
-      else: {},
-    },
-  };
-
-  // Add individual field conditions with an additional check for premium user
-  fields.forEach(({ name }) => {
-    // console.log('$privacySettingCustom.publicProfile === ', `$privacySettingCustom.publicProfile`);
-    projection[name] = {
-      $cond: {
-        if: {
-          $or: [
-            // Check if the field is in `publicProfile`
-            {
-              $and: [
-                { $eq: ['$privacySetting', EnumOfPrivacySetting.PUBLIC_PROFILE] },
-                { $in: [name, { $ifNull: ['$privacySettingCustom.publicProfile', []] }] },
-              ],
-            },
-            // Check if the field is in `privateProfile` and the user is private
-            {
-              $and: [
-                { $eq: ['$privacySetting', EnumOfPrivacySetting.PRIVATE_PROFILE] },
-
-                {
-                  $in: [
-                    name,
-                    {
-                      $ifNull: ['$privacySettingCustom.privateProfile', []],
-                    },
-                  ],
-                },
-              ],
-            },
-            // Check if the field is in `premiumProfile` and the user is premium
-            {
-              $and: [
-                { $eq: ['$privacySetting', EnumOfPrivacySetting.PREMIUM_PROFILE] },
-                { $in: [name, { $ifNull: ['$privacySettingCustom.premiumProfile', []] }] },
-                { $literal: isPremiumUser },
-              ],
-            },
-
-            // // Check for `OnlyAcceptedMembers` and friend status
-            // {
-            //   $and: [
-            //     { $eq: ['$privacySetting', 'OnlyAcceptedMembers'] },
-            //     { $eq: ['$friendsDetails.status', 'ACCEPTED'] }, // EnumStatusOfFriend.ACCEPTED
-            //   ],
-            // },
-            // // // Fallback to `privateProfile` if friend status is not ACCEPTED
-            // {
-            //   $and: [
-            //     { $eq: ['$privacySetting', 'OnlyAcceptedMembers'] },
-            //     { $ne: ['$friendsDetails.status', 'ACCEPTED'] },
-            //     { $in: ['privateProfile', conditions] },
-            //   ],
-            // },
-          ],
-        },
-        then: `$${name}`,
-        else: null,
-      },
-    };
-  });
-
-  return projection;
-};
 export async function getUserById(id, options = {}) {
   const user = await User.findById(id, options.projection, options)
     .populate('address')
@@ -627,6 +537,7 @@ export async function getGenderListV2(filter, options = {}) {
     { name: 'name' },
     { name: 'randomId' },
     { name: 'maritalStatus' },
+    { name: 'address' },
 
     // contact details this will be hidden for all
     // { name: 'email', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
@@ -639,6 +550,13 @@ export async function getGenderListV2(filter, options = {}) {
     { name: 'userProfessional' },
     { name: 'hobbies' },
     { name: 'userPartnerDetails' },
+    { name: 'userUniqueId' },
+    { name: 'privacySetting' },
+    { name: 'motherTongue' },
+    { name: 'isUserActive' },
+    { name: 'age' },
+    { name: 'maritalStatus' },
+    { name: 'writeBoutYourSelf' },
   ];
 
   // Define additional fields for `privacySetting: 'default'`
@@ -670,7 +588,14 @@ export async function getGenderListV2(filter, options = {}) {
     community: '$community',
     motherTongue: '$motherTongue',
     weight: '$weight',
-    // userEducation: '$userEducation',
+    // userEducation: {
+    //   _id: { $getField: { field: '_id', input: '$userEducation' } },
+    //   degree: { $getField: { field: 'degree', input: '$userEducation' } },
+    //   collage: { $getField: { field: 'collage', input: '$userEducation' } },
+    //   city: { $getField: { field: 'city', input: '$userEducation' } },
+    //   state: { $getField: { field: 'state', input: '$userEducation' } },
+    //   country: { $getField: { field: 'country', input: '$userEducation' } },
+    // },
     // userProfessional: {
     //   _id: { $getField: { field: '_id', input: '$userProfessional' } },
     //   jobTitle: { $getField: { field: 'jobTitle', input: '$userProfessional' } },
@@ -681,6 +606,7 @@ export async function getGenderListV2(filter, options = {}) {
     //   workCountry: { $getField: { field: 'workCountry', input: '$userProfessional' } },
     // },
     userUniqueId: '$userUniqueId',
+    privacySetting: '$privacySetting',
   };
 
   const pipeline = [
@@ -843,6 +769,20 @@ export async function getGenderListV2(filter, options = {}) {
       $unwind: {
         path: '$address', // Deconstructs the 'address' array field
         preserveNullAndEmptyArrays: true, // If you want to exclude documents with no address
+      },
+    },
+    {
+      $lookup: {
+        from: 'UserEducation',
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'userEducation',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userEducation',
+        preserveNullAndEmptyArrays: true,
       },
     },
     {
@@ -2367,7 +2307,7 @@ export async function getFilteredDatingInterestList(filter, options = {}) {
       },
     },
   ];
-
+  // console.log('=====pipeline====>', pipeline);
   const matchedUsers = await User.aggregate(pipeline).exec();
   return matchedUsers;
 }
@@ -2509,6 +2449,7 @@ export async function getFilteredDatingEthnicityList(filter, options = {}) {
         preserveNullAndEmptyArrays: true,
       },
     },
+
     {
       $project: {
         _id: 1,
