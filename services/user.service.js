@@ -97,6 +97,8 @@ export async function getUserListForSearch(
     { name: 'name' },
     { name: 'randomId' },
     { name: 'maritalStatus' },
+    { name: 'address' },
+    { name: 'gender' },
 
     // contact details this will be hidden for all
     // { name: 'email', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
@@ -109,6 +111,13 @@ export async function getUserListForSearch(
     { name: 'userProfessional' },
     { name: 'hobbies' },
     { name: 'userPartnerDetails' },
+    { name: 'userUniqueId' },
+    { name: 'privacySetting' },
+    { name: 'motherTongue' },
+    { name: 'isUserActive' },
+    { name: 'age' },
+    { name: 'maritalStatus' },
+    { name: 'writeBoutYourSelf' },
   ];
 
   // Define additional fields for `privacySetting: 'default'`
@@ -140,7 +149,14 @@ export async function getUserListForSearch(
     community: '$community',
     motherTongue: '$motherTongue',
     weight: '$weight',
-    // userEducation: '$userEducation',
+    // userEducation: {
+    //   _id: { $getField: { field: '_id', input: '$userEducation' } },
+    //   degree: { $getField: { field: 'degree', input: '$userEducation' } },
+    //   collage: { $getField: { field: 'collage', input: '$userEducation' } },
+    //   city: { $getField: { field: 'city', input: '$userEducation' } },
+    //   state: { $getField: { field: 'state', input: '$userEducation' } },
+    //   country: { $getField: { field: 'country', input: '$userEducation' } },
+    // },
     // userProfessional: {
     //   _id: { $getField: { field: '_id', input: '$userProfessional' } },
     //   jobTitle: { $getField: { field: 'jobTitle', input: '$userProfessional' } },
@@ -151,6 +167,7 @@ export async function getUserListForSearch(
     //   workCountry: { $getField: { field: 'workCountry', input: '$userProfessional' } },
     // },
     userUniqueId: '$userUniqueId',
+    privacySetting: '$privacySetting',
   };
 
   // Use aggregation for both filtering and counting
@@ -957,6 +974,8 @@ export async function getMatchUser(filter) {
     { name: 'name' },
     { name: 'randomId' },
     { name: 'maritalStatus' },
+    { name: 'address' },
+    { name: 'gender' },
 
     // contact details this will be hidden for all
     // { name: 'email', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
@@ -969,6 +988,13 @@ export async function getMatchUser(filter) {
     { name: 'userProfessional' },
     { name: 'hobbies' },
     { name: 'userPartnerDetails' },
+    { name: 'userUniqueId' },
+    { name: 'privacySetting' },
+    { name: 'motherTongue' },
+    { name: 'isUserActive' },
+    { name: 'age' },
+    { name: 'maritalStatus' },
+    { name: 'writeBoutYourSelf' },
   ];
 
   // Define additional fields for `privacySetting: 'default'`
@@ -1000,7 +1026,14 @@ export async function getMatchUser(filter) {
     community: '$community',
     motherTongue: '$motherTongue',
     weight: '$weight',
-    // userEducation: '$userEducation',
+    // userEducation: {
+    //   _id: { $getField: { field: '_id', input: '$userEducation' } },
+    //   degree: { $getField: { field: 'degree', input: '$userEducation' } },
+    //   collage: { $getField: { field: 'collage', input: '$userEducation' } },
+    //   city: { $getField: { field: 'city', input: '$userEducation' } },
+    //   state: { $getField: { field: 'state', input: '$userEducation' } },
+    //   country: { $getField: { field: 'country', input: '$userEducation' } },
+    // },
     // userProfessional: {
     //   _id: { $getField: { field: '_id', input: '$userProfessional' } },
     //   jobTitle: { $getField: { field: 'jobTitle', input: '$userProfessional' } },
@@ -1011,6 +1044,7 @@ export async function getMatchUser(filter) {
     //   workCountry: { $getField: { field: 'workCountry', input: '$userProfessional' } },
     // },
     userUniqueId: '$userUniqueId',
+    privacySetting: '$privacySetting',
   };
 
   const pipeline = [
@@ -1372,12 +1406,6 @@ export async function getDatingPartnerList(filter, options = {}) {
       },
     },
     {
-      $unwind: {
-        path: '$userLikeDetails',
-        preserveNullAndEmptyArrays: true,
-      },
-    },
-    {
       $lookup: {
         from: 'shortlists',
         let: { currentUserIdForShortList: '$_id' },
@@ -1422,12 +1450,6 @@ export async function getDatingPartnerList(filter, options = {}) {
           },
         ],
         as: 'friendsDetails',
-      },
-    },
-    {
-      $unwind: {
-        path: '$friendsDetails',
-        preserveNullAndEmptyArrays: true, // Include users with no matching friends
       },
     },
     {
@@ -1765,12 +1787,6 @@ export async function getDatingPartnerListByAgeAndMatch(filter, ageRange, option
       },
     },
     {
-      $unwind: {
-        path: '$userLikeDetails',
-        preserveNullAndEmptyArrays: true,
-      },
-    },
-    {
       $lookup: {
         from: 'shortlists',
         let: { currentUserIdForShortList: '$_id' },
@@ -1815,12 +1831,6 @@ export async function getDatingPartnerListByAgeAndMatch(filter, ageRange, option
           },
         ],
         as: 'friendsDetails',
-      },
-    },
-    {
-      $unwind: {
-        path: '$friendsDetails',
-        preserveNullAndEmptyArrays: true, // Include users with no matching friends
       },
     },
     {
@@ -2225,12 +2235,6 @@ export async function getFilteredDatingInterestList(filter, options = {}) {
       },
     },
     {
-      $unwind: {
-        path: '$userLikeDetails',
-        preserveNullAndEmptyArrays: true,
-      },
-    },
-    {
       $lookup: {
         from: 'shortlists',
         let: { currentUserIdForShortList: '$_id' },
@@ -2358,12 +2362,6 @@ export async function getFilteredDatingEthnicityList(filter, options = {}) {
       },
     },
     {
-      $unwind: {
-        path: '$friendsDetails',
-        preserveNullAndEmptyArrays: true, // Include users with no matching friends
-      },
-    },
-    {
       $match: {
         $or: [
           { friendsDetails: { $exists: false } }, // Include users without any friend details
@@ -2420,12 +2418,6 @@ export async function getFilteredDatingEthnicityList(filter, options = {}) {
           },
         ],
         as: 'userLikeDetails',
-      },
-    },
-    {
-      $unwind: {
-        path: '$userLikeDetails',
-        preserveNullAndEmptyArrays: true,
       },
     },
     {
@@ -2927,6 +2919,8 @@ export async function getNewUserList(filter, options = {}) {
     { name: 'name' },
     { name: 'randomId' },
     { name: 'maritalStatus' },
+    { name: 'address' },
+    { name: 'gender' },
 
     // contact details this will be hidden for all
     // { name: 'email', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
@@ -2939,6 +2933,13 @@ export async function getNewUserList(filter, options = {}) {
     { name: 'userProfessional' },
     { name: 'hobbies' },
     { name: 'userPartnerDetails' },
+    { name: 'userUniqueId' },
+    { name: 'privacySetting' },
+    { name: 'motherTongue' },
+    { name: 'isUserActive' },
+    { name: 'age' },
+    { name: 'maritalStatus' },
+    { name: 'writeBoutYourSelf' },
   ];
 
   // Define additional fields for `privacySetting: 'default'`
@@ -2970,7 +2971,14 @@ export async function getNewUserList(filter, options = {}) {
     community: '$community',
     motherTongue: '$motherTongue',
     weight: '$weight',
-    // userEducation: '$userEducation',
+    // userEducation: {
+    //   _id: { $getField: { field: '_id', input: '$userEducation' } },
+    //   degree: { $getField: { field: 'degree', input: '$userEducation' } },
+    //   collage: { $getField: { field: 'collage', input: '$userEducation' } },
+    //   city: { $getField: { field: 'city', input: '$userEducation' } },
+    //   state: { $getField: { field: 'state', input: '$userEducation' } },
+    //   country: { $getField: { field: 'country', input: '$userEducation' } },
+    // },
     // userProfessional: {
     //   _id: { $getField: { field: '_id', input: '$userProfessional' } },
     //   jobTitle: { $getField: { field: 'jobTitle', input: '$userProfessional' } },
@@ -2981,6 +2989,7 @@ export async function getNewUserList(filter, options = {}) {
     //   workCountry: { $getField: { field: 'workCountry', input: '$userProfessional' } },
     // },
     userUniqueId: '$userUniqueId',
+    privacySetting: '$privacySetting',
   };
   const pipeline = [
     {
