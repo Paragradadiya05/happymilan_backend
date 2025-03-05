@@ -538,6 +538,7 @@ export async function getGenderListV2(filter, options = {}) {
     { name: 'randomId' },
     { name: 'maritalStatus' },
     { name: 'address' },
+    { name: 'gender' },
 
     // contact details this will be hidden for all
     // { name: 'email', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },

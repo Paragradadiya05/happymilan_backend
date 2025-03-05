@@ -475,6 +475,8 @@ const UserSchema = new mongoose.Schema(
           'age',
           'maritalStatus',
           'writeBoutYourSelf',
+          'gender',
+          'address',
         ],
         privateProfile: [
           'firstName',
@@ -492,6 +494,7 @@ const UserSchema = new mongoose.Schema(
           'userUniqueId',
           'privacySetting',
           'motherTongue',
+          'gender',
         ],
         premiumProfile: [
           'firstName',
@@ -511,6 +514,7 @@ const UserSchema = new mongoose.Schema(
           'userPartnerDetails',
           'userUniqueId',
           'privacySetting',
+          'gender',
         ],
       }),
     },
