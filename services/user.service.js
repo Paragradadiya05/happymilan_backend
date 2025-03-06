@@ -2175,6 +2175,7 @@ export async function getUserWithDatingData(filter) {
         writeBoutYourSelf: 1,
         religion: 1,
         friendsDetails: 1,
+        userUniqueId: 1,
         'userLikeDetails._id': 1,
         'userLikeDetails.isLike': 1,
         'userLikeDetails.user': 1,
