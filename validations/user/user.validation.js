@@ -196,6 +196,7 @@ export const updateUserPrivacy = {
   body: Joi.object().keys({
     privacySetting: Joi.string().valid('publicProfile', 'privateProfile', 'premiumProfile'),
     privacySettingCustom: Joi.object().keys({
+      profilePhotoPrivacy: Joi.string().valid('public', 'private', 'premium'),
       publicProfile: Joi.array().items(Joi.string()),
       privateProfile: Joi.array().items(Joi.string()),
       premiumProfile: Joi.array().items(Joi.string()),

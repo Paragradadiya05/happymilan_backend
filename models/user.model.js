@@ -446,6 +446,7 @@ const UserSchema = new mongoose.Schema(
       default: enumModel.EnumOfPrivacySetting.PUBLIC_PROFILE,
     },
     privacySettingCustom: {
+      profilePhotoPrivacy: String,
       type: mongoose.Schema.Types.Mixed, // Allows storing any object
       default: () => ({
         publicProfile: [
