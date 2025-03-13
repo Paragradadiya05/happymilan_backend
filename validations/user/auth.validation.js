@@ -18,11 +18,20 @@ export const register = {
 };
 
 export const login = {
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
-    deviceToken: Joi.string().allow(''),
-  }),
+  body: Joi.object()
+    .keys({
+      email: Joi.string().email(),
+      mobileNumber: Joi.string(),
+      countryCodeId: Joi.objectId().when('mobileNumber', {
+        is: Joi.exist(),
+        then: Joi.required(),
+        otherwise: Joi.optional(),
+      }),
+      password: Joi.string().required(),
+      twoFactorCode: Joi.string().length(6).pattern(/^\d+$/),
+      deviceToken: Joi.string().allow(''),
+    })
+    .xor('email', 'mobileNumber'),
 };
 
 export const me = {

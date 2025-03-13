@@ -92,6 +92,31 @@ const ProfileHideAndDelete = new mongoose.Schema(
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );
+
+// Two-factor authentication schema
+const TwoFactorAuthSchema = new mongoose.Schema(
+  {
+    isEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    secret: {
+      type: String,
+    },
+    tempSecret: {
+      type: String,
+    },
+    dataURL: {
+      type: String,
+    },
+    otpVerified: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { timestamps: { createdAt: true, updatedAt: true } }
+);
+
 const datingData = new mongoose.Schema(
   {
     interestedIn: {
@@ -447,6 +472,8 @@ const UserSchema = new mongoose.Schema(
     },
     privacySettingCustom: {
       profilePhotoPrivacy: String,
+      photoGallery: String,
+      contact: String,
       type: mongoose.Schema.Types.Mixed, // Allows storing any object
       default: () => ({
         publicProfile: [
@@ -521,6 +548,10 @@ const UserSchema = new mongoose.Schema(
           'privacySettingCustom',
         ],
       }),
+    },
+    twoFactorAuth: {
+      type: TwoFactorAuthSchema,
+      default: () => ({}),
     },
   },
   { timestamps: { createdAt: true, updatedAt: true } }

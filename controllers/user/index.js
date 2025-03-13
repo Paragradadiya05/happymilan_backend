@@ -32,3 +32,4 @@ module.exports.CountryCodeController = require('./countryCode.controller');
 module.exports.SuccessStoryViewController = require('./successstoryview.controller');
 module.exports.StoryLikeController = require('./storylike.controller');
 module.exports.UserPlanController = require('./userPlan.controller');
+module.exports.twoFactorAuthController = require('./twoFactorAuth.controller');

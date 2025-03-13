@@ -2,7 +2,7 @@ import httpStatus from 'http-status';
 import { generateOtp, generateRandomId } from 'utils/common';
 import ApiError from 'utils/ApiError';
 import { catchAsync } from 'utils/catchAsync';
-import { authService, tokenService, userService, emailService, countryCodeService } from 'services';
+import { authService, tokenService, userService, emailService, countryCodeService, twoFactorAuthService } from 'services';
 import {
   EnumTypeOfToken,
   EnumCodeTypeOfCode,
@@ -137,9 +137,33 @@ export const register = catchAsync(async (req, res) => {
 });
 
 export const login = catchAsync(async (req, res) => {
-  const { email, password } = req.body;
-  const { deviceToken } = req.body;
-  const user = await authService.loginUserWithEmailAndPassword(email, password);
+  const { email, password, mobileNumber, countryCodeId, twoFactorCode, deviceToken } = req.body;
+
+  // First, authenticate the user with email/password or mobile/password
+  const user = await authService.loginUserWithEmailOrMobileAndPassword(email, mobileNumber, countryCodeId, password);
+
+  // Check if 2FA is enabled for this user
+  if (user.twoFactorAuth && user.twoFactorAuth.isEnabled) {
+    // If 2FA is enabled but no code provided, return a response indicating 2FA is required
+    if (!twoFactorCode) {
+      return res.status(httpStatus.OK).send({
+        requireTwoFactor: true,
+        message: 'Two-factor authentication code required',
+        userId: user.id,
+      });
+    }
+
+    // Verify the 2FA code
+    const isValid = twoFactorAuthService.verifyToken(user, twoFactorCode);
+    if (!isValid) {
+      return res.status(httpStatus.UNAUTHORIZED).send({
+        requireTwoFactor: true,
+        message: 'Invalid two-factor authentication code',
+      });
+    }
+  }
+
+  // If 2FA is not enabled or code is valid, proceed with login
   const tokens = await tokenService.generateAuthTokens(user);
   if (deviceToken) {
     const updatedUser = await userService.addDeviceToken(user, req.body);
@@ -147,7 +171,9 @@ export const login = catchAsync(async (req, res) => {
   } else {
     res.status(httpStatus.OK).send({ results: { user, tokens } });
   }
+  // res.send({ user, tokens });
 });
+
 // if user's email is not verified then we call this function for reverification
 export const sendVerifyEmail = catchAsync(async (req, res) => {
   const { email } = req.body;

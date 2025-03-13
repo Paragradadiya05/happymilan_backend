@@ -2,7 +2,7 @@ import httpStatus from 'http-status';
 import ApiError from 'utils/ApiError';
 import _ from 'lodash';
 import { Notification, Token, User } from 'models';
-import { emailService, tokenService, userService } from 'services';
+import { countryCodeService, emailService, tokenService, userService } from 'services';
 import { EnumCodeTypeOfCode, EnumOfNotification, EnumTypeOfToken } from 'models/enum.model';
 import bcrypt from 'bcryptjs';
 import { generateOtp } from 'utils/common';
@@ -393,4 +393,44 @@ export const verifyOtpForUpdatePasswordEnaEmail = async ({ email, mobileNumber, 
     // update user
     return userService.updateUser({ email: user.email }, { email: email.newEmail });
   }
+};
+
+/**
+ * Login with email or mobile number and password
+ * @param {string} email
+ * @param {string} mobileNumber
+ * @param {string} countryCodeId
+ * @param {string} password
+ * @returns {Promise<User>}
+ */
+export const loginUserWithEmailOrMobileAndPassword = async (email, mobileNumber, countryCodeId, password) => {
+  let user;
+
+  if (email) {
+    // Login with email
+    user = await User.findOne({ email });
+  } else if (mobileNumber && countryCodeId) {
+    // Login with mobile number
+    const countryCode = await countryCodeService.getCountryCodeById(countryCodeId);
+    if (!countryCode) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid country code');
+    }
+    user = await User.findOne({ mobileNumber, countryCode: countryCode.code });
+  } else {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Email or mobile number is required');
+  }
+
+  if (!user) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Incorrect email or password');
+  }
+  const isValid = await bcrypt.compare(password, user.password);
+
+  if (!isValid) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Incorrect email or password');
+  }
+  if (!user.emailVerified) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Please check your email and verify it to continue login in to app');
+  }
+
+  return user;
 };

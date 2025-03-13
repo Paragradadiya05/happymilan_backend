@@ -42,3 +42,4 @@ module.exports.DatingpartnerService = require('./datingpartner.service');
 module.exports.countryCodeService = require('./countryCode.service');
 module.exports.SuccessStoryviewService = require('./successstoryview.service');
 module.exports.StorylikeService = require('./storylike.service');
+module.exports.twoFactorAuthService = require('./twoFactorAuth.service');
