@@ -478,6 +478,7 @@ const UserSchema = new mongoose.Schema(
           'writeBoutYourSelf',
           'gender',
           'address',
+          'privacySettingCustom',
         ],
         privateProfile: [
           'firstName',
@@ -496,6 +497,7 @@ const UserSchema = new mongoose.Schema(
           'privacySetting',
           'motherTongue',
           'gender',
+          'privacySettingCustom',
         ],
         premiumProfile: [
           'firstName',
@@ -516,6 +518,7 @@ const UserSchema = new mongoose.Schema(
           'userUniqueId',
           'privacySetting',
           'gender',
+          'privacySettingCustom',
         ],
       }),
     },

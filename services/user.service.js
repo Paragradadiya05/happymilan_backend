@@ -118,6 +118,8 @@ export async function getUserListForSearch(
     { name: 'age' },
     { name: 'maritalStatus' },
     { name: 'writeBoutYourSelf' },
+    { name: 'profilePhotoPrivacy' },
+    { name: 'privacySettingCustom' },
   ];
 
   // Define additional fields for `privacySetting: 'default'`
@@ -168,6 +170,8 @@ export async function getUserListForSearch(
     // },
     userUniqueId: '$userUniqueId',
     privacySetting: '$privacySetting',
+    privacySettingCustom: '$privacySettingCustom',
+    profilePhotoPrivacy: '$profilePhotoPrivacy',
   };
 
   // Use aggregation for both filtering and counting
@@ -575,6 +579,8 @@ export async function getGenderListV2(filter, options = {}) {
     { name: 'age' },
     { name: 'maritalStatus' },
     { name: 'writeBoutYourSelf' },
+    { name: 'profilePhotoPrivacy' },
+    { name: 'privacySettingCustom' },
   ];
 
   // Define additional fields for `privacySetting: 'default'`
@@ -606,6 +612,7 @@ export async function getGenderListV2(filter, options = {}) {
     community: '$community',
     motherTongue: '$motherTongue',
     weight: '$weight',
+
     // userEducation: {
     //   _id: { $getField: { field: '_id', input: '$userEducation' } },
     //   degree: { $getField: { field: 'degree', input: '$userEducation' } },
@@ -625,6 +632,8 @@ export async function getGenderListV2(filter, options = {}) {
     // },
     userUniqueId: '$userUniqueId',
     privacySetting: '$privacySetting',
+    privacySettingCustom: '$privacySettingCustom',
+    profilePhotoPrivacy: '$profilePhotoPrivacy',
   };
 
   const pipeline = [
@@ -995,6 +1004,8 @@ export async function getMatchUser(filter) {
     { name: 'age' },
     { name: 'maritalStatus' },
     { name: 'writeBoutYourSelf' },
+    { name: 'profilePhotoPrivacy' },
+    { name: 'privacySettingCustom' },
   ];
 
   // Define additional fields for `privacySetting: 'default'`
@@ -1045,6 +1056,8 @@ export async function getMatchUser(filter) {
     // },
     userUniqueId: '$userUniqueId',
     privacySetting: '$privacySetting',
+    privacySettingCustom: '$privacySettingCustom',
+    profilePhotoPrivacy: '$profilePhotoPrivacy',
   };
 
   const pipeline = [
@@ -2944,6 +2957,8 @@ export async function getNewUserList(filter, options = {}) {
     { name: 'age' },
     { name: 'maritalStatus' },
     { name: 'writeBoutYourSelf' },
+    { name: 'profilePhotoPrivacy' },
+    { name: 'privacySettingCustom' },
   ];
 
   // Define additional fields for `privacySetting: 'default'`
@@ -2994,6 +3009,8 @@ export async function getNewUserList(filter, options = {}) {
     // },
     userUniqueId: '$userUniqueId',
     privacySetting: '$privacySetting',
+    privacySettingCustom: '$privacySettingCustom',
+    profilePhotoPrivacy: '$profilePhotoPrivacy',
   };
   const pipeline = [
     {
