@@ -3049,6 +3049,20 @@ export async function getNewUserList(filter, options = {}) {
     },
     {
       $lookup: {
+        from: 'UserEducation',
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'userEducation',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userEducation',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
         from: 'likes', // The collection name for Like model
         let: {
           currentUserIdForLike: '$_id', // Reference to current document's userId
