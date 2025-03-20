@@ -204,7 +204,7 @@ export async function verifyToken(user, token) {
     return true; // 2FA not enabled, so verification passes
   }
 
-  if (user.twoFactorAuth.method === 'authenticator_app') {
+  if (user.twoFactorAuth.method === EnumOf2faMethod.AUTHENTICATOR_APP) {
     // Verify with authenticator app
     return speakeasy.totp.verify({
       secret: user.twoFactorAuth.secret,
