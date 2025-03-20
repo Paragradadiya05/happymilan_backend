@@ -4,7 +4,7 @@ import httpStatus from 'http-status';
 import ApiError from 'utils/ApiError';
 import { User } from 'models';
 import { generateOtp } from 'utils/common';
-import { sendOtpToMobile } from './mobileotp.service';
+// import { sendOtpToMobile } from './mobileotp.service';
 import { sendOtpVerificationEmail } from './email.service';
 import { EnumOf2faMethod } from '../models/enum.model';
 
@@ -95,10 +95,10 @@ export const generateAndSendOtp = async (user) => {
     }
 
     // Send OTP to mobile if available
-    if (user.mobileNumber && user.countryCode) {
-      await sendOtpToMobile(`${user.countryCode}${user.mobileNumber}`, otp);
-      messages.push('mobile');
-    }
+    // if (user.mobileNumber && user.countryCode) {
+    //   await sendOtpToMobile(`${user.countryCode}${user.mobileNumber}`, otp);
+    //   messages.push('mobile');
+    // }
 
     return {
       success: true,
