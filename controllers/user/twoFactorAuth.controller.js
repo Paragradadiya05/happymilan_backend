@@ -3,12 +3,32 @@ import { catchAsync } from 'utils/catchAsync';
 import { twoFactorAuthService } from 'services';
 
 /**
- * Generate 2FA secret and QR code
+ * Generate 2FA secret and QR code for authenticator app
  * @route POST /v1/user/2fa/generate
  */
 export const generateTwoFactorAuthSecret = catchAsync(async (req, res) => {
   const { user } = req;
   const result = await twoFactorAuthService.generateSecret(user);
+  res.status(httpStatus.OK).send(result);
+});
+
+/**
+ * Set up OTP for 2FA (sends to both email and mobile if available)
+ * @route POST /v1/user/2fa/setup-otp
+ */
+export const setupOtp = catchAsync(async (req, res) => {
+  const { user } = req;
+  const result = await twoFactorAuthService.setupOtp(user);
+  res.status(httpStatus.OK).send(result);
+});
+
+/**
+ * Generate and send OTP for 2FA verification during login
+ * @route POST /v1/user/2fa/send-otp
+ */
+export const sendOtp = catchAsync(async (req, res) => {
+  const { user } = req;
+  const result = await twoFactorAuthService.generateAndSendOtp(user);
   res.status(httpStatus.OK).send(result);
 });
 
@@ -46,5 +66,6 @@ export const getTwoFactorAuthStatus = catchAsync(async (req, res) => {
   const { user } = req;
   res.status(httpStatus.OK).send({
     isEnabled: !!(user.twoFactorAuth && user.twoFactorAuth.isEnabled),
+    method: user.twoFactorAuth ? user.twoFactorAuth.method : null,
   });
 });

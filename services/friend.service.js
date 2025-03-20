@@ -202,11 +202,27 @@ export async function getFriendList(filter, options = {}, userId) {
   const friends = await Friend.find(filter, options.projection, { ...options, limit, skip })
     .populate({
       path: 'friend',
-      populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
+      select:
+        'privacySetting name email userUniqueId userProfilePic privacySettingCustom datingData appUsesType dateOfBirth firstName lastName caste gender height maritalStatus' +
+        'religion weight writeBoutYourSelf homeMobileNumber mobileNumber profilePic',
+      populate: [
+        { path: 'address', select: 'userId currentCountry currentState currentCity' },
+        { path: 'userEducation', select: 'degree collage city country state' },
+        { path: 'userPartner' },
+        { path: 'userProfessional', select: 'jobTitle jobType companyName currentSalary workCity workCountry' },
+      ],
     })
     .populate({
       path: 'user',
-      populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
+      select:
+        'privacySetting name email userUniqueId userProfilePic privacySettingCustom datingData appUsesType dateOfBirth firstName lastName caste gender height maritalStatus' +
+        'religion weight writeBoutYourSelf homeMobileNumber mobileNumber profilePic',
+      populate: [
+        { path: 'address', select: 'userId currentCountry currentState currentCity' },
+        { path: 'userEducation', select: 'degree collage city country state' },
+        { path: 'userPartner' },
+        { path: 'userProfessional', select: 'jobTitle jobType companyName currentSalary workCity workCountry' },
+      ],
     })
     .exec();
 
@@ -214,13 +230,7 @@ export async function getFriendList(filter, options = {}, userId) {
   const friendsWithMatchData = await Promise.all(
     friends.map(async (friendEntry) => {
       const { friend, user } = friendEntry;
-      console.log('friend === ', friend.privacySettingCustom);
-      console.log('user === ', user.privacySettingCustom);
-
       if (user && user.userPartner) {
-        // eslint-disable-next-line no-shadow
-        const userId = filter.friend ? friend._id : user.userPartner.userId; // this is login user id
-
         /* we are fetching friend data.
          ( there are two possible thing
             1. current login user is friend
@@ -246,10 +256,15 @@ export async function getFriendList(filter, options = {}, userId) {
 
         if (isFriendData) {
           // eslint-disable-next-line no-param-reassign
-          friendEntry.friend = matchInfo;
+          friendEntry.friend._doc = matchInfo;
+
+          // eslint-disable-next-line no-param-reassign
+          friendEntry.user = friend;
         } else {
           // eslint-disable-next-line no-param-reassign
           friendEntry.user = matchInfo;
+          // eslint-disable-next-line no-param-reassign
+          friendEntry.friend = user;
         }
 
         // Attach match data directly to the friend object

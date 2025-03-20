@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import mongoosePaginateV2 from 'mongoose-paginate-v2';
 import { softDelete, toJSON } from 'models/plugins';
-import enumModel, { EnumOfPlatformType } from 'models/enum.model';
+import enumModel, { EnumOf2faMethod, EnumOfPlatformType } from 'models/enum.model';
 import bcrypt from 'bcryptjs';
 
 const CodeSchema = new mongoose.Schema({
@@ -99,6 +99,11 @@ const TwoFactorAuthSchema = new mongoose.Schema(
     isEnabled: {
       type: Boolean,
       default: false,
+    },
+    method: {
+      type: String,
+      enum: Object.values(enumModel.EnumOf2faMethod),
+      default: EnumOf2faMethod.AUTHENTICATOR_APP,
     },
     secret: {
       type: String,

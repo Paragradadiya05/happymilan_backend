@@ -65,3 +65,5 @@ module.exports.countryCodeValidation = require('./countryCode.validation');
 module.exports.SuccessStoryviewValidation = require('./SuccessStoryview.validation');
 
 module.exports.StoryLikeValidation = require('./storylike.validation');
+
+module.exports.twoFactorAuthAValidation = require('./twoFactorAuth.validation');

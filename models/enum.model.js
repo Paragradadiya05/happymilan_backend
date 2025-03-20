@@ -263,6 +263,10 @@ const EnumOfInterest = {
   CHITCHAT: 'chit-chat',
   ADVENTUROUS: 'adventurous',
 };
+const EnumOf2faMethod = {
+  AUTHENTICATOR_APP: 'authenticator-app',
+  OTP: 'otp',
+};
 module.exports = {
   EnumCodeTypeOfCode,
   EnumRoleOfUser,
@@ -297,4 +301,5 @@ module.exports = {
   EnumOfPlatformType,
   EnumOfKyc,
   EnumOfInterest,
+  EnumOf2faMethod,
 };

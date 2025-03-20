@@ -8,10 +8,12 @@ import {
   EnumCodeTypeOfCode,
   EnumForTimeDurationOfProfileHide,
   EnumOfNotification,
+  EnumOf2faMethod,
 } from 'models/enum.model';
 import { resendOtpToMobile, sendOtpToMobile } from '../../services/mobileotp.service';
 import { Notification } from '../../models';
 import { sendNotification } from '../../services/notification.service';
+import { generateAndSendOtp } from '../../services/twoFactorAuth.service';
 
 export const register = catchAsync(async (req, res) => {
   const { body } = req;
@@ -146,18 +148,29 @@ export const login = catchAsync(async (req, res) => {
   if (user.twoFactorAuth && user.twoFactorAuth.isEnabled) {
     // If 2FA is enabled but no code provided, return a response indicating 2FA is required
     if (!twoFactorCode) {
-      return res.status(httpStatus.OK).send({
+      if (user.twoFactorAuth.method === EnumOf2faMethod.OTP) {
+        await generateAndSendOtp(user);
+        return res.status(httpStatus.OK).send({
+          requireTwoFactor: true,
+          method: user.twoFactorAuth.method,
+          message: 'Two-factor authentication Otp sent',
+          userId: user.id,
+        });
+      }
+      return res.status(httpStatus.BAD_REQUEST).send({
         requireTwoFactor: true,
+        method: user.twoFactorAuth.method,
         message: 'Two-factor authentication code required',
         userId: user.id,
       });
     }
 
-    // Verify the 2FA code
-    const isValid = twoFactorAuthService.verifyToken(user, twoFactorCode);
+    // Verify the 2FA code based on method
+    const isValid = await twoFactorAuthService.verifyToken(user, twoFactorCode);
     if (!isValid) {
       return res.status(httpStatus.UNAUTHORIZED).send({
         requireTwoFactor: true,
+        method: user.twoFactorAuth.method,
         message: 'Invalid two-factor authentication code',
       });
     }
@@ -171,7 +184,6 @@ export const login = catchAsync(async (req, res) => {
   } else {
     res.status(httpStatus.OK).send({ results: { user, tokens } });
   }
-  // res.send({ user, tokens });
 });
 
 // if user's email is not verified then we call this function for reverification
