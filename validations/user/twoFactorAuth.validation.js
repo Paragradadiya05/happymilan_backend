@@ -2,7 +2,9 @@ import Joi from 'joi';
 
 export const verifyTwoFactorAuth = {
   body: Joi.object().keys({
-    token: Joi.string().required().length(6).pattern(/^\d+$/).message('Token must be a 6-digit number'),
+    token: Joi.string()
+      .pattern(/^\d{4}$|^\d{6}$/) // Ensures 4 or 6 digit numeric values only
+      .messages({ 'string.pattern.base': 'Two-factor code must be either 4 or 6 digits' }),
   }),
 };
 
