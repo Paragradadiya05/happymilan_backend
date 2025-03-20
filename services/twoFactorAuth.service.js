@@ -29,7 +29,7 @@ export const generateSecret = async (user) => {
     await User.findByIdAndUpdate(user.id, {
       'twoFactorAuth.tempSecret': secret.base32,
       'twoFactorAuth.dataURL': dataURL,
-      'twoFactorAuth.method': 'authenticator_app',
+      'twoFactorAuth.method': EnumOf2faMethod.AUTHENTICATOR_APP,
     });
 
     return {
@@ -55,7 +55,7 @@ export const setupOtp = async (user) => {
 
     // Update user's 2FA method
     await User.findByIdAndUpdate(user.id, {
-      'twoFactorAuth.method': 'otp',
+      'twoFactorAuth.method': EnumOf2faMethod.OTP,
       'twoFactorAuth.isEnabled': false,
     });
 
