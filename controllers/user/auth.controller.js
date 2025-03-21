@@ -153,7 +153,7 @@ export const login = catchAsync(async (req, res) => {
         return res.status(httpStatus.BAD_REQUEST).send({
           requireTwoFactor: true,
           method: user.twoFactorAuth.method,
-          message: 'Two-factor authentication Otp sent',
+          message: 'Two-factor authentication code required',
           userId: user.id,
         });
       }
