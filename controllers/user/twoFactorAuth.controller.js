@@ -18,7 +18,8 @@ export const generateTwoFactorAuthSecret = catchAsync(async (req, res) => {
  */
 export const setupOtp = catchAsync(async (req, res) => {
   const { user } = req;
-  const result = await twoFactorAuthService.setupOtp(user);
+  const { otpType } = req.body;
+  const result = await twoFactorAuthService.setupOtp(user, otpType);
   res.status(httpStatus.OK).send(result);
 });
 

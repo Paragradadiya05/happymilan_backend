@@ -10,7 +10,7 @@ export const verifyTwoFactorAuth = {
 
 export const setupOtp = {
   body: Joi.object().keys({
-    // No additional parameters needed, user details are derived from authenticated user
+    otpType: Joi.string().valid('email', 'mobile').required(),
   }),
 };
 

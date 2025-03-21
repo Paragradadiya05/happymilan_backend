@@ -6,7 +6,11 @@ import { User } from 'models';
 // import { sendOtpToMobile } from './mobileotp.service';
 import { sendOtpVerificationEmail } from './email.service';
 import { EnumOf2faMethod } from '../models/enum.model';
+import { sendOtpToMobile } from './mobileotp.service';
 
+export const generateOtp = () => {
+  return Math.floor(100000 + Math.random() * 900000);
+};
 /**
  * Generate a new secret for authenticator app 2FA
  * @param {Object} user - User object
@@ -40,30 +44,59 @@ export const generateSecret = async (user) => {
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Error generating 2FA secret');
   }
 };
+export const generateAndSendOtp = async (user) => {
+  try {
+    const otp = generateOtp();
+    const expirationTime = Date.now() + 2 * 60 * 1000; // OTP valid for 2 minutes
 
+    // Update user with OTP details
+    const data = await User.findByIdAndUpdate(user.id, {
+      'twoFactorAuth.secret': otp,
+      'twoFactorAuth.tempSecret': expirationTime.toString(),
+    });
+    console.log('=====xx====>', data.twoFactorAuth.otpType);
+
+    if (data.twoFactorAuth.otpType === 'email' && user.email) {
+      await sendOtpVerificationEmail(user, otp);
+      return { success: true, message: 'OTP sent to your email' };
+    }
+    if (data.twoFactorAuth.otpType === 'mobile' && user.mobileNumber && user.countryCode) {
+      await sendOtpToMobile(`${user.countryCode}${user.mobileNumber}`, otp);
+      return { success: true, message: 'OTP sent to your mobile' };
+    }
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid OTP type or missing contact information');
+  } catch (error) {
+    console.log('=====error====>', error);
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Error generating and sending OTP');
+  }
+};
 /**
  * Set up OTP-based 2FA that sends to both email and mobile
  * @param {Object} user - User object
  * @returns {Object} - Success message
  */
-export const setupOtp = async (user) => {
+export const setupOtp = async (user, otpType) => {
   try {
     if (!user.email && !user.mobileNumber) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'User must have either an email address or mobile number');
+      throw new ApiError(httpStatus.BAD_REQUEST, 'User must have either an email or mobile number');
+    }
+
+    if (otpType === 'email' && !user.email) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Email is required for email OTP');
+    }
+
+    if (otpType === 'mobile' && (!user.mobileNumber || !user.countryCode)) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Mobile number and country code are required for mobile OTP');
     }
 
     // Update user's 2FA method
     await User.findByIdAndUpdate(user.id, {
       'twoFactorAuth.method': EnumOf2faMethod.OTP,
       'twoFactorAuth.isEnabled': false,
+      'twoFactorAuth.otpType': otpType,
     });
 
-    // eslint-disable-next-line no-use-before-define
-    await generateAndSendOtp(user);
-    return {
-      success: true,
-      message: 'OTP-based 2FA has been set up successfully',
-    };
+    return await generateAndSendOtp(user);
   } catch (error) {
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Error setting up OTP for 2FA');
   }
@@ -74,43 +107,6 @@ export const setupOtp = async (user) => {
  * @param {Object} user - User object
  * @returns {Object} - Success message
  */
-
-export const generateOtp = () => {
-  return Math.floor(100000 + Math.random() * 900000);
-};
-export const generateAndSendOtp = async (user) => {
-  try {
-    const otp = generateOtp();
-    const expirationTime = Date.now() + 2 * 60 * 1000; // 2 minutes
-
-    // Update user with 2FA OTP
-    await User.findByIdAndUpdate(user.id, {
-      'twoFactorAuth.secret': otp,
-      'twoFactorAuth.tempSecret': expirationTime.toString(),
-    });
-
-    const messages = [];
-
-    // Send OTP to email if available
-    if (user.email) {
-      await sendOtpVerificationEmail(user, otp);
-      messages.push('email');
-    }
-
-    // Send OTP to mobile if available
-    // if (user.mobileNumber && user.countryCode) {
-    //   await sendOtpToMobile(`${user.countryCode}${user.mobileNumber}`, otp);
-    //   messages.push('mobile');
-    // }
-
-    return {
-      success: true,
-      message: `OTP sent to your ${messages.join(' and ')}`,
-    };
-  } catch (error) {
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Error generating and sending OTP');
-  }
-};
 
 /**
  * Verify the OTP token and enable 2FA

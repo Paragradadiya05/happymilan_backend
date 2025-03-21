@@ -118,6 +118,10 @@ const TwoFactorAuthSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    otpType: {
+      type: String,
+      enum: ['email', 'mobile'],
+    },
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );

@@ -137,7 +137,14 @@ export const register = catchAsync(async (req, res) => {
     },
   });
 });
-
+const maskEmail = (email) => {
+  if (!email) return null;
+  const [localPart, domain] = email.split('@');
+  if (localPart.length <= 3) {
+    return `${localPart[0]}***@${domain}`;
+  }
+  return `${localPart.slice(0, 3)}***${localPart.slice(-3)}@${domain}`;
+};
 export const login = catchAsync(async (req, res) => {
   const { email, password, mobileNumber, countryCodeId, twoFactorCode, deviceToken } = req.body;
 
@@ -155,6 +162,9 @@ export const login = catchAsync(async (req, res) => {
           method: user.twoFactorAuth.method,
           message: 'Two-factor authentication code required',
           userId: user.id,
+          email: maskEmail(user.email),
+          mobileNumber: user.mobileNumber,
+          otpType: user.twoFactorAuth.otpType,
         });
       }
       return res.status(httpStatus.BAD_REQUEST).send({
