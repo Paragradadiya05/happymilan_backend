@@ -3,7 +3,6 @@ import QRCode from 'qrcode';
 import httpStatus from 'http-status';
 import ApiError from 'utils/ApiError';
 import { User } from 'models';
-import { generateOtp } from 'utils/common';
 // import { sendOtpToMobile } from './mobileotp.service';
 import { sendOtpVerificationEmail } from './email.service';
 import { EnumOf2faMethod } from '../models/enum.model';
@@ -75,6 +74,10 @@ export const setupOtp = async (user) => {
  * @param {Object} user - User object
  * @returns {Object} - Success message
  */
+
+export const generateOtp = () => {
+  return Math.floor(100000 + Math.random() * 900000);
+};
 export const generateAndSendOtp = async (user) => {
   try {
     const otp = generateOtp();
