@@ -150,7 +150,7 @@ export const login = catchAsync(async (req, res) => {
     if (!twoFactorCode) {
       if (user.twoFactorAuth.method === EnumOf2faMethod.OTP) {
         await generateAndSendOtp(user);
-        return res.status(httpStatus.OK).send({
+        return res.status(httpStatus.BAD_REQUEST).send({
           requireTwoFactor: true,
           method: user.twoFactorAuth.method,
           message: 'Two-factor authentication Otp sent',
