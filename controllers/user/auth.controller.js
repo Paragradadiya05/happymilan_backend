@@ -145,6 +145,10 @@ const maskEmail = (email) => {
   }
   return `${localPart.slice(0, 3)}***${localPart.slice(-3)}@${domain}`;
 };
+const maskMobileNumber = (mobileNumber) => {
+  if (!mobileNumber || mobileNumber.length < 4) return null;
+  return `${mobileNumber.slice(0, 3)}******${mobileNumber.slice(-2)}`;
+};
 export const login = catchAsync(async (req, res) => {
   const { email, password, mobileNumber, countryCodeId, twoFactorCode, deviceToken } = req.body;
 
@@ -163,7 +167,7 @@ export const login = catchAsync(async (req, res) => {
           message: 'Two-factor authentication code required',
           userId: user.id,
           email: maskEmail(user.email),
-          mobileNumber: user.mobileNumber,
+          mobileNumber: maskMobileNumber(user.mobileNumber),
           otpType: user.twoFactorAuth.otpType,
         });
       }
