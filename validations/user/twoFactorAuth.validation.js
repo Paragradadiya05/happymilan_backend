@@ -19,3 +19,17 @@ export const sendOtp = {
     // No additional parameters needed, user details are derived from authenticated user
   }),
 };
+
+export const sendOtpPublic = {
+  body: Joi.object()
+    .keys({
+      email: Joi.string().email().optional(),
+      mobileNumber: Joi.string()
+        .pattern(/^[0-9]{7,15}$/)
+        .optional(),
+    })
+    .or('email', 'mobileNumber') // At least one is required
+    .messages({
+      'object.missing': 'Either email or mobileNumber is required',
+    }),
+};
