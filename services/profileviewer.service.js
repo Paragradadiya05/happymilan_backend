@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { ProfileView, User, Notification, Partner } from '../models';
 import ApiError from '../utils/ApiError';
 import { EnumStatusOfFriend } from '../models/enum.model';
+import { calculateMatchScore, checkUserPremiumStatus } from './friend.service';
 
 export async function createprofileviewer(body = {}, user, appUsesType) {
   const userId = user._id;
@@ -322,7 +323,7 @@ export async function getProfileViewertWithPagination(filter, options = {}) {
         age: 1,
         'user.height': 1,
         userId: 1,
-        shortlistId: 1,
+        viewerId: 1,
         createdAt: 1,
         updatedAt: 1,
         'user._id': 1,
@@ -440,7 +441,27 @@ export async function getProfileViewertWithPagination(filter, options = {}) {
     },
   ];
   const matchedUsers = await ProfileView.aggregate(pipeline).exec();
+  const isPremiumUser = await checkUserPremiumStatus(filter.userId);
+  await Promise.all(
+    matchedUsers[0].paginatedResults.map(async (userData) => {
+      const matchInfo = await calculateMatchScore(userData.viewerId, userPartnerPreferences, userData.userId, isPremiumUser);
+      // eslint-disable-next-line no-param-reassign
+      userData.matchPercentage = matchInfo.matchPercentage;
+      // eslint-disable-next-line no-param-reassign
+      userData.matchedCriteria = matchInfo.matchedCriteria;
 
+      // remove fields from here
+      delete matchInfo.userLikeDetails;
+      delete matchInfo.subscriptionDetails;
+      delete matchInfo.friendsDetails;
+      delete matchInfo.defaultFields;
+      delete matchInfo.matchPercentage;
+      delete matchInfo.matchedCriteria;
+      delete matchInfo.userShortListDetails;
+      // eslint-disable-next-line no-param-reassign
+      userData.user = matchInfo;
+    })
+  );
   return matchedUsers;
 }
 

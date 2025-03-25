@@ -7,7 +7,7 @@ import { sendNotification } from './notification.service';
 import { userPlanService } from './index';
 import { createDynamicProjectionForPrivacySetting, defaultFields, fields } from '../utils/common';
 
-async function calculateMatchScore(friendId, userPartnerPreferences, userId, isPremiumUser = false) {
+export async function calculateMatchScore(friendId, userPartnerPreferences, userId, isPremiumUser = false) {
   const matchData = await User.aggregate([
     {
       $match: { _id: mongoose.Types.ObjectId(friendId) },
@@ -164,7 +164,7 @@ export async function getOne(query, options = {}) {
   return friend;
 }
 
-async function checkUserPremiumStatus(userId) {
+export async function checkUserPremiumStatus(userId) {
   const currentDate = new Date();
   try {
     const getUserPlanDetails = await userPlanService.getOne(

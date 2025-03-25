@@ -180,6 +180,9 @@ export const defaultFields = {
   //   workCountry: { $getField: { field: 'workCountry', input: '$userProfessional' } },
   // },
   userUniqueId: '$userUniqueId',
+  privacySetting: '$privacySetting',
+  privacySettingCustom: '$privacySettingCustom',
+  profilePhotoPrivacy: '$profilePhotoPrivacy',
 };
 
 export const fields = [
@@ -200,6 +203,8 @@ export const fields = [
   { name: 'name' },
   { name: 'randomId' },
   { name: 'maritalStatus' },
+  { name: 'address' },
+  { name: 'gender' },
 
   // contact details this will be hidden for all
   // { name: 'email', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
@@ -212,6 +217,15 @@ export const fields = [
   { name: 'userProfessional' },
   { name: 'hobbies' },
   { name: 'userPartnerDetails' },
+  { name: 'userUniqueId' },
+  { name: 'privacySetting' },
+  { name: 'motherTongue' },
+  { name: 'isUserActive' },
+  { name: 'age' },
+  { name: 'maritalStatus' },
+  { name: 'writeBoutYourSelf' },
+  { name: 'profilePhotoPrivacy' },
+  { name: 'privacySettingCustom' },
 ];
 
 // eslint-disable-next-line no-shadow

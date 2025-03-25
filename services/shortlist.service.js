@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { Partner, Shortlist, User } from '../models';
 import ApiError from '../utils/ApiError';
 import { EnumStatusOfFriend } from '../models/enum.model';
+import { calculateMatchScore, checkUserPremiumStatus } from './friend.service';
 
 export async function createshortList(body = {}) {
   const { userId, shortlistId } = body;
@@ -221,61 +222,6 @@ export async function getshortListWithPagination(filter, options = {}) {
       },
     },
     {
-      $addFields: {
-        matchData: {
-          $let: {
-            vars: {
-              totalCriteria: 4, // Total number of criteria
-              matchedCriteria: {
-                $add: [
-                  // Age match
-                  {
-                    $cond: [
-                      {
-                        $and: [
-                          { $gte: ['$age', userPartnerPreferences.age.min] },
-                          { $lte: ['$age', userPartnerPreferences.age.max] },
-                        ],
-                      },
-                      1,
-                      0,
-                    ],
-                  },
-                  // Height match
-                  {
-                    $cond: [
-                      {
-                        $and: [
-                          { $gte: ['$user.height', userPartnerPreferences.height.min] },
-                          { $lte: ['$user.height', userPartnerPreferences.height.max] },
-                        ],
-                      },
-                      1,
-                      0,
-                    ],
-                  },
-                  // Country match
-                  {
-                    $cond: [{ $in: ['$address.currentCountry', userPartnerPreferences.country] }, 1, 0],
-                  },
-                  // City match
-                  {
-                    $cond: [{ $in: ['$address.currentCity', userPartnerPreferences.city] }, 1, 0],
-                  },
-                ],
-              },
-            },
-            in: {
-              matchPercentage: {
-                $multiply: [{ $divide: ['$$matchedCriteria', '$$totalCriteria'] }, 100],
-              },
-              matchedCriteria: '$$matchedCriteria',
-            },
-          },
-        },
-      },
-    },
-    {
       $project: {
         _id: 1,
         age: 1,
@@ -332,8 +278,6 @@ export async function getshortListWithPagination(filter, options = {}) {
         'user.profileHideAndDelete': 1,
         'friendsDetails.status': 1,
         'friendsDetails._id': 1,
-        matchPercentage: '$matchData.matchPercentage',
-        matchedCriteria: '$matchData.matchedCriteria',
         'user.isUserActive': 1,
         'userLikeDetails.isLike': 1,
         'userLikeDetails.user': 1,
@@ -401,6 +345,34 @@ export async function getshortListWithPagination(filter, options = {}) {
     },
   ];
   const matchedUsers = await Shortlist.aggregate(pipeline).exec();
+  // console.log('matched user == ', matchedUsers[0].paginatedResults[0].user);
+  const isPremiumUser = await checkUserPremiumStatus(filter.userId);
+
+  await Promise.all(
+    matchedUsers[0].paginatedResults.map(async (userData) => {
+      const matchInfo = await calculateMatchScore(
+        userData.shortlistId,
+        userPartnerPreferences,
+        userData.userId,
+        isPremiumUser
+      );
+      // eslint-disable-next-line no-param-reassign
+      userData.matchPercentage = matchInfo.matchPercentage;
+      // eslint-disable-next-line no-param-reassign
+      userData.matchedCriteria = matchInfo.matchedCriteria;
+
+      // remove fields from here
+      delete matchInfo.userLikeDetails;
+      delete matchInfo.subscriptionDetails;
+      delete matchInfo.friendsDetails;
+      delete matchInfo.defaultFields;
+      delete matchInfo.matchPercentage;
+      delete matchInfo.matchedCriteria;
+      delete matchInfo.userShortListDetails;
+      // eslint-disable-next-line no-param-reassign
+      userData.user = matchInfo;
+    })
+  );
 
   return matchedUsers;
 }
