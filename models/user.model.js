@@ -480,9 +480,26 @@ const UserSchema = new mongoose.Schema(
       default: enumModel.EnumOfPrivacySetting.PUBLIC_PROFILE,
     },
     privacySettingCustom: {
-      profilePhotoPrivacy: String,
-      photoGallery: String,
-      contact: String,
+      profilePhotoPrivacy: {
+        type: Boolean,
+        default: false, // Default: Photos follow general privacy rules
+      },
+      showPhotoToFriendsOnly: {
+        type: Boolean,
+        default: false, // Default: Photos follow general privacy rules
+      },
+      address: {
+        type: Boolean,
+        default: false, // Default: Photos follow general privacy rules
+      },
+      contact: {
+        type: Boolean,
+        default: false, // Default: Photos follow general privacy rules
+      },
+      professional: {
+        type: Boolean,
+        default: false, // Default: Photos follow general privacy rules
+      },
       type: mongoose.Schema.Types.Mixed, // Allows storing any object
       default: () => ({
         publicProfile: [

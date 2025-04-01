@@ -634,6 +634,7 @@ export async function getGenderListV2(filter, options = {}) {
     privacySetting: '$privacySetting',
     privacySettingCustom: '$privacySettingCustom',
     profilePhotoPrivacy: '$profilePhotoPrivacy',
+    showPhotoToFriendsOnly: '$showPhotoToFriendsOnly',
   };
 
   const pipeline = [

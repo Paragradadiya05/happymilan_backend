@@ -75,22 +75,15 @@ export const getTwoFactorAuthStatus = catchAsync(async (req, res) => {
 
 export const sendOtpPublic = catchAsync(async (req, res) => {
   const { email, mobileNumber } = req.body;
-  console.log('=====req.body====>', req.body);
-
   // Construct the query dynamically to match only the given field
   const query = {};
   if (email) query.email = email.toLowerCase();
   if (mobileNumber) query.mobileNumber = mobileNumber.trim();
-
   // Fetch the user with the exact match
   const user = await User.findOne(query);
-
-  console.log('=====user====>', user);
-
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   }
-
   const result = await twoFactorAuthService.generateAndSendOtp(user);
   res.status(httpStatus.OK).send(result);
 });
