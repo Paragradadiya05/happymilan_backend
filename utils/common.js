@@ -229,7 +229,7 @@ export const fields = [
 ];
 
 // eslint-disable-next-line no-shadow
-export const createDynamicProjectionForPrivacySetting = (fields, defaultFields, isPremiumUser = false) => {
+export const createDynamicProjectionForPrivacySetting = (fields, defaultFields) => {
   const projection = {
     _id: 1,
     matchPercentage: '$matchData.matchPercentage',
@@ -290,7 +290,7 @@ export const createDynamicProjectionForPrivacySetting = (fields, defaultFields, 
               $and: [
                 { $eq: ['$privacySetting', EnumOfPrivacySetting.PREMIUM_PROFILE] },
                 { $in: [name, { $ifNull: ['$privacySettingCustom.premiumProfile', []] }] },
-                { $literal: isPremiumUser },
+                // { $literal: isPremiumUser },
               ],
             },
 
