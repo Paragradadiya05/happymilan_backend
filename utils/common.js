@@ -226,6 +226,7 @@ export const fields = [
   { name: 'writeBoutYourSelf' },
   { name: 'profilePhotoPrivacy' },
   { name: 'privacySettingCustom' },
+  { name: 'isPremiumUser' },
 ];
 
 // eslint-disable-next-line no-shadow

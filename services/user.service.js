@@ -560,6 +560,7 @@ export async function getGenderListV2(filter, options = {}) {
     { name: 'maritalStatus' },
     { name: 'address' },
     { name: 'gender' },
+    { name: 'isPremiumUser' },
 
     // contact details this will be hidden for all
     // { name: 'email', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
@@ -986,6 +987,7 @@ export async function getMatchUser(filter) {
     { name: 'maritalStatus' },
     { name: 'address' },
     { name: 'gender' },
+    { name: 'isPremiumUser' },
 
     // contact details this will be hidden for all
     // { name: 'email', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
@@ -3431,6 +3433,7 @@ export async function getNewUserList(filter, options = {}) {
     { name: 'maritalStatus' },
     { name: 'address' },
     { name: 'gender' },
+    { name: 'isPremiumUser' },
 
     // contact details this will be hidden for all
     // { name: 'email', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
@@ -3483,6 +3486,7 @@ export async function getNewUserList(filter, options = {}) {
     community: '$community',
     motherTongue: '$motherTongue',
     weight: '$weight',
+    Subscription: '$Subscription',
     // userEducation: {
     //   _id: { $getField: { field: '_id', input: '$userEducation' } },
     //   degree: { $getField: { field: 'degree', input: '$userEducation' } },
