@@ -560,7 +560,6 @@ export async function getGenderListV2(filter, options = {}) {
     { name: 'maritalStatus' },
     { name: 'address' },
     { name: 'gender' },
-    { name: 'isPremiumUser' },
 
     // contact details this will be hidden for all
     // { name: 'email', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
@@ -987,7 +986,6 @@ export async function getMatchUser(filter) {
     { name: 'maritalStatus' },
     { name: 'address' },
     { name: 'gender' },
-    { name: 'isPremiumUser' },
 
     // contact details this will be hidden for all
     // { name: 'email', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
@@ -1068,6 +1066,28 @@ export async function getMatchUser(filter) {
       $match: {
         _id: { $eq: mongoose.Types.ObjectId(filter.userId) }, // only for the current user
         platform: { $eq: EnumOfPlatformType.HAPPY_MILAN },
+      },
+    },
+    {
+      $lookup: {
+        from: 'subscriptions', // Ensure collection name is correct
+        let: { userId: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $eq: ['$user', '$$userId'], // Match userId properly
+              },
+            },
+          },
+        ],
+        as: 'subscriptionDetails',
+      },
+    },
+    {
+      $unwind: {
+        path: '$subscriptionDetails',
+        preserveNullAndEmptyArrays: true, // Ensures users without subscriptions are included
       },
     },
     {
@@ -3433,7 +3453,7 @@ export async function getNewUserList(filter, options = {}) {
     { name: 'maritalStatus' },
     { name: 'address' },
     { name: 'gender' },
-    { name: 'isPremiumUser' },
+    { name: 'Subscription' },
 
     // contact details this will be hidden for all
     // { name: 'email', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
