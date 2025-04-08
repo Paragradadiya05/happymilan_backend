@@ -78,28 +78,26 @@ export async function getshortListWithPagination(filter, options = {}) {
         preserveNullAndEmptyArrays: true, // Include users with no matching friends
       },
     },
-    // {
-    //   $lookup: {
-    //     from: 'Subscription', // Ensure this matches the subscription collection name
-    //     let: { userId: '$_id' }, // Reference the current user's ID
-    //     pipeline: [
-    //       {
-    //         $match: {
-    //           $expr: {
-    //             $eq: ['$user', '$$userId'], // Match the user ID
-    //           },
-    //         },
-    //       },
-    //     ],
-    //     as: 'subscriptionDetails',
-    //   },
-    // },
-    // {
-    //   $unwind: {
-    //     path: '$subscriptionDetails',
-    //     preserveNullAndEmptyArrays: true, // Include users even if they don't have any subscriptions
-    //   },
-    // },
+    {
+      $lookup: {
+        from: 'Subscription',
+        let: { userId: '$_id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ['$user', '$$userId'] },
+            },
+          },
+        ],
+        as: 'subscriptionDetails',
+      },
+    },
+    {
+      $unwind: {
+        path: '$subscriptionDetails',
+        preserveNullAndEmptyArrays: true, // Include users even if they don't have any subscriptions
+      },
+    },
     {
       $lookup: {
         from: 'likes', // Collection name for likes
@@ -287,6 +285,7 @@ export async function getshortListWithPagination(filter, options = {}) {
         'userShortListDetails.shortlistId': 1,
         'userShortListDetails._id': 1,
         'subscriptionDetails.status': 1,
+        'subscriptionDetails._id': 1,
         userPartnerDetails: 1,
       },
     },
@@ -363,7 +362,6 @@ export async function getshortListWithPagination(filter, options = {}) {
 
       // remove fields from here
       delete matchInfo.userLikeDetails;
-      delete matchInfo.subscriptionDetails;
       delete matchInfo.friendsDetails;
       delete matchInfo.defaultFields;
       delete matchInfo.matchPercentage;

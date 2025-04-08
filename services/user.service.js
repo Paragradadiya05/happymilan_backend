@@ -1070,13 +1070,13 @@ export async function getMatchUser(filter) {
     },
     {
       $lookup: {
-        from: 'subscriptions', // Ensure collection name is correct
-        let: { userId: '$_id' },
+        from: 'Subscription',
+        let: { userId: mongoose.Types.ObjectId(filter.userId) },
         pipeline: [
           {
             $match: {
               $expr: {
-                $eq: ['$user', '$$userId'], // Match userId properly
+                $eq: ['$user', '$$userId'],
               },
             },
           },
@@ -1087,9 +1087,10 @@ export async function getMatchUser(filter) {
     {
       $unwind: {
         path: '$subscriptionDetails',
-        preserveNullAndEmptyArrays: true, // Ensures users without subscriptions are included
+        preserveNullAndEmptyArrays: true,
       },
     },
+
     {
       $lookup: {
         from: 'likes',

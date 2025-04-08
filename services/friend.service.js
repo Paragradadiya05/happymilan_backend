@@ -27,6 +27,35 @@ export async function calculateMatchScore(friendId, userPartnerPreferences, user
         preserveNullAndEmptyArrays: true, // If you want to exclude documents with no address
       },
     },
+    // Get Subscription Details
+    {
+      $lookup: {
+        from: 'Subscription', // must match your model's collection name exactly
+        let: { userId: '$_id' }, // friendId is current document (_id)
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $eq: ['$user', '$$userId'],
+              },
+            },
+          },
+          {
+            $sort: { createdAt: -1 },
+          },
+          {
+            $limit: 1, // in case user has multiple subscriptions, get the latest
+          },
+        ],
+        as: 'subscriptionDetails',
+      },
+    },
+    {
+      $unwind: {
+        path: '$subscriptionDetails',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
     // find UserProfessionalDetail
     {
       $lookup: {
