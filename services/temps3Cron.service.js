@@ -1,29 +1,26 @@
-import { deleteObjects } from 'services/s3.service';
-import { TempS3, ErrorLog } from 'models';
+import { TempS3 } from 'models';
+import { imageBlurService } from './index';
+import * as s3Service from './s3.service';
 
-const updateTempS3 = async () => {
+/**
+ * Cleans up temporary S3 files
+ */
+// eslint-disable-next-line import/prefer-default-export
+export const cleanupTempS3 = async () => {
   try {
-    const currentDate = new Date();
-    currentDate.setHours(currentDate.getHours() - 23);
-    const tempObjects = await TempS3.find({ active: false, createdAt: { $lt: currentDate } }, { active: false });
-    const keys = await tempObjects
-      .filter((tmp) => tmp.key)
-      .map((tmp) => {
-        return {
-          Key: tmp.key,
-        };
-      });
-    if (keys.length > 0) {
-      await deleteObjects(keys);
-      await TempS3.updateMany({ active: false, createdAt: { $lt: currentDate } }, { active: false });
+    const inactiveFiles = await TempS3.find({ active: false });
+    if (inactiveFiles.length > 0) {
+      const keys = inactiveFiles.map((file) => ({ Key: file.key }));
+      await s3Service.deleteObjects(keys);
+      await TempS3.deleteMany({ active: false });
     }
-  } catch (err) {
-    await ErrorLog.create({
-      type: 'cron',
-      error: JSON.stringify(err),
-    });
+
+    // Additionally, clean up blurred images
+    await imageBlurService.cleanupBlurredImages(24); // Remove blurred images older than 24 hours
+
+    return { success: true, message: 'Temp S3 objects cleaned up successfully' };
+  } catch (e) {
+    console.error('Failed to clean up temp S3 objects', e);
+    return { success: false, message: 'Failed to clean up temp S3 objects', error: e.message };
   }
-};
-module.exports = {
-  updateTempS3,
 };

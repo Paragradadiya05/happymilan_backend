@@ -3,6 +3,7 @@ import config from 'config/config';
 import { logger } from 'config/logger';
 import socketAPI from 'appEvents/socketAPI';
 import redisAdapter from 'socket.io-redis';
+import cronJobs from './cronjobs';
 import app from './app';
 
 const { initSockets } = require('appEvents/handler');
@@ -14,6 +15,11 @@ mongoose.connect(config.mongoose.url, config.mongoose.options).then(() => {
     logger.info(`Listening to port ${config.port}`);
   });
   mongoose.set('useFindAndModify', false);
+
+  // Initialize cron jobs
+  // eslint-disable-next-line import/no-named-as-default-member
+  cronJobs.initCronJobs();
+
   // check whether Socket is enabled or not TODO: implement in the future
   socketAPI.io.adapter(redisAdapter({ host: config.redis.host, port: config.redis.port }));
   socketAPI.io.attach(server, {
