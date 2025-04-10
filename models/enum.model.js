@@ -89,6 +89,10 @@ const EnumOfMotherTongue = {
   HINDI: 'hindi',
   ENGLISH: 'english',
 };
+const EnumOfManglikStatus = {
+  YES: 'yes',
+  No: 'no',
+};
 const EnumOfCurrentCountry = {
   INDIA: 'india',
   CANADA: 'canada',
@@ -232,6 +236,24 @@ const EnumOfUserPlan = {
   INACTIVE: 'inactive',
   EXPIRED: 'expired',
 };
+const EnumOfGothra = {
+  AGASTHI: 'Agasthi',
+  ATRI: 'Atri',
+  ANGIRASA: 'Angirasa',
+  BHARADWAJ: 'Bharadwaj',
+  GAUTAM: 'Gautam',
+  JAMADAGNI: 'Jamadagni',
+  KASHYAP: 'Kashyap',
+  VASISHTA: 'Vasishta',
+  VISHWAMITRA: 'Vishwamitra',
+  BHRIGU: 'Bhrigu',
+  SHANDILYA: 'Shandilya',
+  KAUSHIK: 'Kaushik',
+  PARASHAR: 'Parashar',
+  VATSA: 'Vatsa',
+  MUDGAL: 'Mudgal',
+  OTHER: 'Other',
+};
 
 const EnumOfReason = {
   JUST_DONT_LIKE_IT: 'just-dont-like-it',
@@ -267,6 +289,21 @@ const EnumOf2faMethod = {
   AUTHENTICATOR_APP: 'authenticator-app',
   OTP: 'otp',
 };
+const EnumOfZodiac = {
+  ARIES: 'Aries',
+  TAURUS: 'Taurus',
+  GEMINI: 'Gemini',
+  CANCER: 'Cancer',
+  LEO: 'Leo',
+  VIRGO: 'Virgo',
+  LIBRA: 'Libra',
+  SCORPIO: 'Scorpio',
+  SAGITTARIUS: 'Sagittarius',
+  CAPRICORN: 'Capricorn',
+  AQUARIUS: 'Aquarius',
+  PISCES: 'Pisces',
+};
+
 module.exports = {
   EnumCodeTypeOfCode,
   EnumRoleOfUser,
@@ -302,4 +339,7 @@ module.exports = {
   EnumOfKyc,
   EnumOfInterest,
   EnumOf2faMethod,
+  EnumOfManglikStatus,
+  EnumOfGothra,
+  EnumOfZodiac,
 };

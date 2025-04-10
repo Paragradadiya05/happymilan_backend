@@ -392,6 +392,22 @@ const UserSchema = new mongoose.Schema(
       type: String,
       enum: Object.values(enumModel.EnumOfMotherTongue),
     },
+    language: {
+      type: String,
+      enum: Object.values(enumModel.EnumOfMotherTongue),
+    },
+    manglikStatus: {
+      type: String,
+      enum: Object.values(enumModel.EnumOfManglikStatus),
+    },
+    gothra: {
+      type: String,
+      enum: Object.values(enumModel.EnumOfGothra),
+    },
+    zodiac: {
+      type: String,
+      enum: Object.values(enumModel.EnumOfZodiac),
+    },
     // creative: {
     //   type: String,
     // },
