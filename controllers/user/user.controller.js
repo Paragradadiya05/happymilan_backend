@@ -8,10 +8,43 @@ import { Subscription } from '../../models';
 
 export const get = catchAsync(async (req, res) => {
   const { userId } = req.params;
-  // user => current user id
-  // userID => other user id that we need to get
-  const user = await userService.getMatchUser({ user: req.user._id, userId });
-  return res.status(httpStatus.OK).send({ results: user });
+  const userData = await userService.getMatchUser({ user: req.user._id, userId });
+
+  if (userData && userData.length > 0) {
+    // Apply the same logic as you did for paginatedResults, just on a single user object
+    const userItem = userData[0];
+
+    if (userItem.privacySettingCustom && userItem.privacySettingCustom.profilePhotoPrivacy === true) {
+      const imageProcessingPromises = [];
+      // Blur main profilePic
+      if (userItem.profilePic) {
+        imageProcessingPromises.push(
+          imageBlurService.blurImage(userItem.profilePic).then((blurredUrl) => {
+            userItem.profilePic = blurredUrl;
+            console.log('Blurred URL:', blurredUrl);
+          })
+        );
+      }
+
+      // Blur each photo in userProfilePic array
+      if (Array.isArray(userItem.userProfilePic) && userItem.userProfilePic.length > 0) {
+        const photoBlurPromises = userItem.userProfilePic.map((photo, index) =>
+          imageBlurService.blurImage(photo.url).then((blurredUrl) => {
+            userItem.userProfilePic[index] = {
+              ...photo,
+              url: blurredUrl,
+            };
+          })
+        );
+
+        imageProcessingPromises.push(...photoBlurPromises);
+      }
+
+      await Promise.all(imageProcessingPromises);
+    }
+  }
+
+  return res.status(httpStatus.OK).send({ results: userData });
 });
 
 export const getDatingUser = catchAsync(async (req, res) => {
@@ -516,6 +549,51 @@ export const getnewuser = catchAsync(async (req, res) => {
     ...pick(query, ['limit', 'page']),
   };
   const userdata = await userService.getNewUserList(filter, options);
+  if (userdata && userdata.paginatedResults) {
+    // Process images asynchronously in parallel
+    const processPromises = userdata.paginatedResults.map(async (userItem) => {
+      // Check if the user has profilePhotoPrivacy enabled
+      if (userItem.privacySettingCustom && userItem.privacySettingCustom.profilePhotoPrivacy === true) {
+        // Create an array of all image processing promises
+        const imageProcessingPromises = [];
+
+        // Add the main profile pic to processing queue if it exists
+        if (userItem.profilePic) {
+          imageProcessingPromises.push(
+            imageBlurService.blurImage(userItem.profilePic).then((blurredUrl) => {
+              // eslint-disable-next-line no-param-reassign
+              userItem.profilePic = blurredUrl;
+            })
+          );
+        }
+
+        // Process all user profile pics if they exist
+        if (userItem.userProfilePic && userItem.userProfilePic.length > 0) {
+          // Get all photo blurring promises at once
+          const photoBlurPromises = userItem.userProfilePic.map((photo, index) =>
+            imageBlurService.blurImage(photo.url).then((blurredUrl) => {
+              // Directly update the array in place to avoid creating new objects
+              // eslint-disable-next-line no-param-reassign
+              userItem.userProfilePic[index] = {
+                ...photo,
+                url: blurredUrl,
+              };
+            })
+          );
+
+          // Add all photo processing promises to the main queue
+          imageProcessingPromises.push(...photoBlurPromises);
+        }
+
+        // Wait for all image processing to complete before returning the user
+        await Promise.all(imageProcessingPromises);
+      }
+      return userItem;
+    });
+
+    // Wait for all processing to complete
+    userdata.paginatedResults = await Promise.all(processPromises);
+  }
   return res.status(httpStatus.OK).send({ results: userdata });
 });
 
