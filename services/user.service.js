@@ -581,6 +581,10 @@ export async function getGenderListV2(filter, options = {}) {
     { name: 'writeBoutYourSelf' },
     { name: 'profilePhotoPrivacy' },
     { name: 'privacySettingCustom' },
+    { name: 'zodiac' },
+    { name: 'gothra' },
+    { name: 'manglikStatus' },
+    { name: 'language' },
   ];
 
   // Define additional fields for `privacySetting: 'default'`
@@ -1007,6 +1011,10 @@ export async function getMatchUser(filter) {
     { name: 'writeBoutYourSelf' },
     { name: 'profilePhotoPrivacy' },
     { name: 'privacySettingCustom' },
+    { name: 'zodiac' },
+    { name: 'gothra' },
+    { name: 'manglikStatus' },
+    { name: 'language' },
   ];
 
   // Define additional fields for `privacySetting: 'default'`
@@ -3455,6 +3463,10 @@ export async function getNewUserList(filter, options = {}) {
     { name: 'address' },
     { name: 'gender' },
     { name: 'Subscription' },
+    { name: 'zodiac' },
+    { name: 'gothra' },
+    { name: 'manglikStatus' },
+    { name: 'language' },
 
     // contact details this will be hidden for all
     // { name: 'email', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
