@@ -548,10 +548,11 @@ export const getnewuser = catchAsync(async (req, res) => {
     sort: sortObj,
     ...pick(query, ['limit', 'page']),
   };
-  const userdata = await userService.getNewUserList(filter, options);
-  if (userdata && userdata.paginatedResults) {
-    // Process images asynchronously in parallel
-    const processPromises = userdata.paginatedResults.map(async (userItem) => {
+  const userData = await userService.getNewUserList(filter, options);
+
+  if (userData[0] && userData[0].paginatedResults) {
+    // Process all users in parallel
+    const processPromises = userData[0].paginatedResults.map(async (userItem) => {
       // Check if the user has profilePhotoPrivacy enabled
       if (userItem.privacySettingCustom && userItem.privacySettingCustom.profilePhotoPrivacy === true) {
         // Create an array of all image processing promises
@@ -591,10 +592,11 @@ export const getnewuser = catchAsync(async (req, res) => {
       return userItem;
     });
 
-    // Wait for all processing to complete
-    userdata.paginatedResults = await Promise.all(processPromises);
+    // Wait for all user processing to complete
+    userData[0].paginatedResults = await Promise.all(processPromises);
   }
-  return res.status(httpStatus.OK).send({ results: userdata });
+
+  return res.status(httpStatus.OK).send({ results: userData });
 });
 
 export const checkMissingFields = catchAsync(async (req, res) => {
