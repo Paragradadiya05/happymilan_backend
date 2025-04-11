@@ -393,7 +393,7 @@ const UserSchema = new mongoose.Schema(
       enum: Object.values(enumModel.EnumOfMotherTongue),
     },
     language: {
-      type: String,
+      type: [String],
       enum: Object.values(enumModel.EnumOfMotherTongue),
     },
     manglikStatus: {
