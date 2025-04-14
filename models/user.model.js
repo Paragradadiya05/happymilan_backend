@@ -394,7 +394,7 @@ const UserSchema = new mongoose.Schema(
     },
     language: {
       type: [String],
-      enum: Object.values(enumModel.EnumOfMotherTongue),
+      enum: Object.values(enumModel.EnumOflanguage),
     },
     manglikStatus: {
       type: String,
@@ -548,6 +548,10 @@ const UserSchema = new mongoose.Schema(
           'gender',
           'address',
           'privacySettingCustom',
+          'language',
+          'manglikStatus',
+          'gothra',
+          'zodiac',
         ],
         privateProfile: [
           'firstName',

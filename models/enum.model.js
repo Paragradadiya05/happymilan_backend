@@ -89,6 +89,11 @@ const EnumOfMotherTongue = {
   HINDI: 'hindi',
   ENGLISH: 'english',
 };
+const EnumOflanguage = {
+  GUJARATI: 'gujarati',
+  HINDI: 'hindi',
+  ENGLISH: 'english',
+};
 const EnumOfManglikStatus = {
   YES: 'yes',
   No: 'no',
@@ -342,4 +347,5 @@ module.exports = {
   EnumOfManglikStatus,
   EnumOfGothra,
   EnumOfZodiac,
+  EnumOflanguage,
 };
