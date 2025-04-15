@@ -54,6 +54,7 @@ export const validateExtensionForPutObject = async (preSignedReq, user, isProfil
   if (ssExtensionsContentType.includes(preSignedReq.contentType) && ssExtensions.includes(extensionOfKey)) {
     // here I want to check preSignedReq.key and if it has space that we need to remove it and add _ or - instead of space
     const fileName = preSignedReq.key.trim().replace(/\s+/g, '-');
+    console.log(' fileName === ', fileName);
     Object.assign(preSignedReq, {
       key: `users/${user._id}/${preSignedReq.profileType}/${mongoose.Types.ObjectId()}/${fileName}`,
     });
@@ -64,6 +65,7 @@ export const validateExtensionForPutObject = async (preSignedReq, user, isProfil
   if (dumpFilesCount > maxTanglingFilesAllowed) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Maximum upload size exceed');
   }
+  console.log('preSignedReq.key ==== ', preSignedReq.key);
   const url = await getSignedUrlPutObject(preSignedReq.key, preSignedReq.contentType, true);
   const tempS3Body = {
     user: user._id,
