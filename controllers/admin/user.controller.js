@@ -113,7 +113,9 @@ export const createUser = catchAsync(async (req, res) => {
         userProfessional: createProfessionalDetail._id,
         createdBy: adminUserId,
         updatedBy: adminUserId,
-      }
+      },
+      {},
+      user
     );
     const token = await tokenService.generateVerifyEmailToken(user.email);
 

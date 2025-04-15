@@ -818,7 +818,6 @@ export async function getFriendAcceptedMobile(filter, options = {}, userId) {
   const skip = (page - 1) * limit;
   await Friend.countDocuments(filter);
   const isPremiumUser = await checkUserPremiumStatus(userId);
-  console.log('Is Premium User:', isPremiumUser);
 
   const friends = await Friend.find(filter, options.projection, { ...options, limit, skip })
     .populate({

@@ -52,8 +52,10 @@ export const validateExtensionForPutObject = async (preSignedReq, user, isProfil
     throw new ApiError(httpStatus.BAD_REQUEST, 'invalid key');
   }
   if (ssExtensionsContentType.includes(preSignedReq.contentType) && ssExtensions.includes(extensionOfKey)) {
+    // here I want to check preSignedReq.key and if it has space that we need to remove it and add _ or - instead of space
+    const fileName = preSignedReq.key.trim().replace(/\s+/g, '-');
     Object.assign(preSignedReq, {
-      key: `users/${user._id}/${preSignedReq.profileType}/${mongoose.Types.ObjectId()}/${preSignedReq.key}`,
+      key: `users/${user._id}/${preSignedReq.profileType}/${mongoose.Types.ObjectId()}/${fileName}`,
     });
   } else {
     throw new ApiError(httpStatus.BAD_REQUEST, 'invalid content-type');

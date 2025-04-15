@@ -110,7 +110,7 @@ export const register = catchAsync(async (req, res) => {
     body: EnumOfNotification.OTP_SEND,
   });
 
-  console.log('Notification created for OTP:', createNotificationForOtp);
+  // console.log('Notification created for OTP:', createNotificationForOtp);
 
   // Send notification if device tokens are present
   if (user && user.deviceTokens && user.deviceTokens.length) {
@@ -270,15 +270,11 @@ export const verifyOtp = catchAsync(async (req, res) => {
       userId: user._id,
       body: EnumOfNotification.CONGRATULATION,
     });
-    console.log('=====xx====>', createNotificationForCongratulation);
     // send notification
     // check if usr hase deice token or not
-    console.log('===== Congratulations deviceTokens ====>', user);
-    console.log('=== var Congratulations deviceTokens.length ===>', user.deviceTokens.length);
     if (user && user.deviceTokens && user.deviceTokens.length) {
       // eslint-disable-next-line no-shadow
       const deviceToken = user.deviceTokens.map((fcmToken) => fcmToken.deviceToken);
-      console.log('=== var Congratulations deviceToken name ===>', deviceToken);
       await sendNotification(
         deviceToken,
         {

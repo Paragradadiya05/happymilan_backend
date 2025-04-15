@@ -6,7 +6,7 @@ import _ from 'lodash';
 import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
 import moment from 'moment';
-import { notificationService, userPlanService } from './index';
+import { notificationService, userPlanService, imageBlurService } from './index'; // Added imageBlurService
 import enumModel, {
   EnumAppUsesTypeOfUsers,
   EnumGenderOfUsers,
@@ -458,6 +458,11 @@ export async function updateUser(filter, body, options = {}) {
 }
 
 export async function updateUserForAuth(filter, body, options = {}, user) {
+  // Use standard checks instead of optional chaining to avoid potential ESLint parsing issues
+  const oldPrivacyValue = user.privacySettingCustom && user.privacySettingCustom.profilePhotoPrivacy;
+  const newPrivacyValue = body.privacySettingCustom && body.privacySettingCustom.profilePhotoPrivacy;
+  const profilePicUrl = user.profilePic; // Get profile pic URL from state before update
+
   if (body.email && (await User.findOne({ email: body.email, _id: { $ne: user._id } }))) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
   }
@@ -472,6 +477,24 @@ export async function updateUserForAuth(filter, body, options = {}, user) {
     .populate('userEducation')
     .populate('UserPartner')
     .populate('userProfessional');
+
+  // --- Handle profile photo privacy change ---
+  if (profilePicUrl && typeof newPrivacyValue === 'boolean' && newPrivacyValue !== oldPrivacyValue) {
+    if (newPrivacyValue === true) {
+      // Privacy enabled: Pre-generate blurred image (fire-and-forget, log errors)
+      console.log(`User ${user._id} enabled profile photo privacy. Generating blurred image for ${profilePicUrl}...`);
+      imageBlurService.blurImage(profilePicUrl).catch((err) => {
+        console.error(`Error pre-generating blurred image for user ${user._id} (URL: ${profilePicUrl}):`, err);
+      });
+    } else {
+      // Privacy disabled: Delete existing blurred image (fire-and-forget, log errors)
+      console.log(`User ${user._id} disabled profile photo privacy. Deleting blurred image for ${profilePicUrl}...`);
+      imageBlurService.deleteBlurredImageForOriginal(profilePicUrl).catch((err) => {
+        console.error(`Error deleting blurred image for user ${user._id} (URL: ${profilePicUrl}):`, err);
+      });
+    }
+  }
+
   return getOne(filter);
 }
 

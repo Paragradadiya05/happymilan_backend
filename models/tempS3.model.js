@@ -23,6 +23,12 @@ const tempS3Schema = new Schema(
       type: Boolean,
       default: false,
     },
+    isBlurred: {
+      // Added to specifically track images processed by imageblur.service
+      type: Boolean,
+      default: false,
+      index: true, // Index for faster cleanup queries
+    },
   },
   { timestamps: true }
 );

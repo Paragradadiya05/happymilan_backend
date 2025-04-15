@@ -23,9 +23,8 @@ export const sendEmail = async (emailParams) => {
     delete msg.text;
     msg.html = text;
   }
-  console.log('Sending this email message:', msg);
-  const result = await transport.sendMail(msg);
-  console.log('=== var result ===>', result);
+  // console.log('Sending this email message:', msg);
+  await transport.sendMail(msg);
 };
 
 /**

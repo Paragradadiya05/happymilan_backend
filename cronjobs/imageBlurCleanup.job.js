@@ -1,6 +1,5 @@
 // cronjobs/imageBlurCleanup.job.js
 import cron from 'node-cron';
-import { imageBlurService } from '../services';
 import { logger } from '../config/logger';
 
 /**
@@ -23,9 +22,9 @@ export const scheduleBlurredImageCleanup = () => {
         logger.info('Starting scheduled cleanup of blurred images...');
 
         // Call the cleanup function from imageBlurService
-        const result = await imageBlurService.cleanupBlurredImages(24);
+        // const result = await imageBlurService.cleanupBlurredImages(24);
 
-        logger.info(`Blurred image cleanup completed: ${result.deleted} images removed`);
+        // logger.info(`Blurred image cleanup completed: ${result.deleted} images removed`);
       } catch (error) {
         logger.error('Error during blurred image cleanup:', error);
       }
