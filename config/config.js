@@ -23,6 +23,7 @@ const envVarsSchema = Joi.object()
     REDIS_PORT: Joi.string().required().description('Redis Port is required'),
     REDIS_PASSWORD: Joi.string().required().description('Redis Password is required'),
     AWS_BUCKET_NAME: Joi.string().required().description('Aws Bucket Name is required'),
+    AWS_BUCKET_REGION: Joi.string().required().description('Aws Bucket region Name is required'),
     AWS_ACCESS_KEY: Joi.string().required().description('Aws Access Key is required'),
     AWS_SECRET_ACCESS_KEY: Joi.string().required().description('Aws Secret Access Key is required'),
     PARTY_USER_LIMIT: Joi.number().default(8),
@@ -107,6 +108,7 @@ export default {
     accessKeyId: envVars.AWS_ACCESS_KEY,
     secretAccessKey: envVars.AWS_SECRET_ACCESS_KEY,
     bucket: envVars.AWS_BUCKET_NAME,
+    bucketRegion: envVars.AWS_BUCKET_REGION,
   },
   google: {
     clientID: envVars.GOOGLE_CLIENT_ID,
