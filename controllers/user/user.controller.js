@@ -11,11 +11,17 @@ export const get = catchAsync(async (req, res) => {
   const userData = await userService.getMatchUser({ user: req.user._id, userId });
 
   if (userData && userData.length > 0) {
-    // Apply the same logic as you did for paginatedResults, just on a single user object
     const userItem = userData[0];
 
-    if (userItem.privacySettingCustom && userItem.privacySettingCustom.profilePhotoPrivacy === true) {
+    const shouldBlurImage =
+      (userItem.privacySettingCustom && userItem.privacySettingCustom.profilePhotoPrivacy === true) ||
+      (userItem.privacySettingCustom &&
+        userItem.privacySettingCustom.showPhotoToFriendsOnly === true &&
+        (!userItem.friendsDetails || userItem.friendsDetails.status !== 'accepted'));
+
+    if (shouldBlurImage) {
       const imageProcessingPromises = [];
+
       // Blur main profilePic
       if (userItem.profilePic) {
         imageProcessingPromises.push(
