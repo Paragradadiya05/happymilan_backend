@@ -1,5 +1,5 @@
 import httpStatus from 'http-status';
-import { friendService } from 'services';
+import { friendService, imageBlurService } from 'services';
 import { catchAsync } from 'utils/catchAsync';
 import { EnumStatusOfFriend } from '../../models/enum.model';
 import { pick } from '../../utils/pick';
@@ -88,14 +88,71 @@ export const getBlockList = catchAsync(async (req, res) => {
 
 export const getRequests = catchAsync(async (req, res) => {
   const userId = req.user._id;
+
   const filter = {
     friend: userId,
     status: EnumStatusOfFriend.REQUESTED,
   };
+
   const options = {};
-  const user = await friendService.getFriendList(filter, options, userId);
-  // const shortlist = await Shortlist.find({ userId });
-  return res.status(httpStatus.OK).send({ results: user });
+  const users = await friendService.getFriendList(filter, options, userId);
+
+  const resultsWithBlur = await Promise.all(
+    users.results.map(async (frdData) => {
+      let friendList;
+      let userList;
+
+      if (frdData.friend._id.toString() === userId.toString()) {
+        friendList = frdData.user;
+        userList = frdData.friend;
+      } else {
+        friendList = frdData.friend;
+        userList = frdData.user;
+      }
+
+      const privacy = friendList.privacySettingCustom || {};
+      const friendsStatus = frdData.status;
+
+      const shouldBlurImage =
+        privacy.profilePhotoPrivacy === true || (privacy.showPhotoToFriendsOnly === true && friendsStatus !== 'accepted');
+
+      if (shouldBlurImage) {
+        const imageProcessingPromises = [];
+
+        if (friendList.profilePic) {
+          imageProcessingPromises.push(
+            imageBlurService.blurImage(friendList.profilePic).then((blurredUrl) => {
+              friendList.profilePic = blurredUrl;
+            })
+          );
+        }
+
+        if (Array.isArray(friendList.userProfilePic) && friendList.userProfilePic.length > 0) {
+          const photoBlurPromises = friendList.userProfilePic.map((photo, index) =>
+            imageBlurService.blurImage(photo.url).then((blurredUrl) => {
+              friendList.userProfilePic[index] = {
+                ...photo,
+                url: blurredUrl,
+              };
+            })
+          );
+          imageProcessingPromises.push(...photoBlurPromises);
+        }
+
+        await Promise.all(imageProcessingPromises);
+      }
+
+      const { friend, user, ...restFrdData } = frdData;
+
+      return {
+        ...restFrdData,
+        friendList,
+        userList,
+      };
+    })
+  );
+
+  return res.status(httpStatus.OK).send({ results: resultsWithBlur });
 });
 
 export const getMyFrdRequests = catchAsync(async (req, res) => {
@@ -133,35 +190,81 @@ export const getMyFrdRequestsMobile = catchAsync(async (req, res) => {
     lean: true,
   };
   const userId = req.user._id;
+
   const filter = {
     status: EnumStatusOfFriend.ACCEPTED,
     $or: [{ friend: userId }, { user: userId }],
   };
+
   const getuser = await friendService.getFriendAcceptedMobile(filter, options, userId);
 
-  getuser.results = getuser.results.map((frdData) => {
-    let friendList;
-    let userList;
-    if (frdData.friend._id.toString() === userId.toString()) {
-      friendList = frdData.user;
-      userList = frdData.friend;
-    } else {
-      friendList = frdData.friend;
-      userList = frdData.user;
-    }
+  getuser.results = await Promise.all(
+    getuser.results.map(async (frdData) => {
+      let friendList;
+      let userList;
 
-    const { friend, user, ...restFrdData } = frdData;
-    if (friendList.shortlistData === undefined || friendList.shortlistData.length === 0) {
-      delete friendList.shortlistData;
-    }
-    return {
-      ...restFrdData,
-      friendList,
-      userList,
-    };
-  });
+      if (frdData.friend._id.toString() === userId.toString()) {
+        friendList = frdData.user;
+        userList = frdData.friend;
+      } else {
+        friendList = frdData.friend;
+        userList = frdData.user;
+      }
+
+      const { friend, user, ...restFrdData } = frdData;
+
+      if (friendList.shortlistData === undefined || friendList.shortlistData.length === 0) {
+        delete friendList.shortlistData;
+      }
+
+      // === Blur Logic ===
+      const privacy = friendList.privacySettingCustom || {};
+      const friendsStatus = frdData.status;
+      const isFriendAccepted = friendsStatus === 'accepted';
+
+      const shouldBlurImage =
+        (privacy.profilePhotoPrivacy === true && !isFriendAccepted) ||
+        (privacy.showPhotoToFriendsOnly === true && !isFriendAccepted);
+
+      if (shouldBlurImage) {
+        const imageProcessingPromises = [];
+
+        // Blur main profilePic
+        if (friendList.profilePic) {
+          imageProcessingPromises.push(
+            imageBlurService.blurImage(friendList.profilePic).then((blurredUrl) => {
+              friendList.profilePic = blurredUrl;
+            })
+          );
+        }
+
+        // Blur userProfilePic array
+        if (Array.isArray(friendList.userProfilePic) && friendList.userProfilePic.length > 0) {
+          const photoBlurPromises = friendList.userProfilePic.map((photo, index) =>
+            imageBlurService.blurImage(photo.url).then((blurredUrl) => {
+              friendList.userProfilePic[index] = {
+                ...photo,
+                url: blurredUrl,
+              };
+            })
+          );
+          imageProcessingPromises.push(...photoBlurPromises);
+        }
+
+        await Promise.all(imageProcessingPromises);
+      }
+
+      return {
+        ...restFrdData,
+        friendList,
+        userList,
+      };
+    })
+  );
+
   return res.status(httpStatus.OK).send({ results: getuser });
 });
+
 export const getRejectedFrdRequests = catchAsync(async (req, res) => {
   const userId = req.user._id;
   const filter = {
@@ -182,9 +285,69 @@ export const getRequestedFriend = catchAsync(async (req, res) => {
     user: userId,
     status: EnumStatusOfFriend.REQUESTED,
   };
+
   const options = { page, limit };
-  const user = await friendService.getFriendList(filter, options, userId);
-  return res.status(httpStatus.OK).send({ results: user });
+  const users = await friendService.getFriendList(filter, options, userId);
+
+  const resultsWithBlur = await Promise.all(
+    users.results.map(async (frdData) => {
+      let friendList;
+      let userList;
+
+      if (frdData.friend._id.toString() === userId.toString()) {
+        friendList = frdData.user;
+        userList = frdData.friend;
+      } else {
+        friendList = frdData.friend;
+        userList = frdData.user;
+      }
+
+      const privacy = friendList.privacySettingCustom || {};
+      const friendsStatus = frdData.status;
+
+      const shouldBlurImage =
+        privacy.profilePhotoPrivacy === true || (privacy.showPhotoToFriendsOnly === true && friendsStatus !== 'accepted');
+
+      if (shouldBlurImage) {
+        const imageProcessingPromises = [];
+
+        if (friendList.profilePic) {
+          imageProcessingPromises.push(
+            imageBlurService.blurImage(friendList.profilePic).then((blurredUrl) => {
+              friendList.profilePic = blurredUrl;
+            })
+          );
+        }
+
+        if (Array.isArray(friendList.userProfilePic) && friendList.userProfilePic.length > 0) {
+          const photoBlurPromises = friendList.userProfilePic.map((photo, index) =>
+            imageBlurService.blurImage(photo.url).then((blurredUrl) => {
+              friendList.userProfilePic[index] = {
+                ...photo,
+                url: blurredUrl,
+              };
+            })
+          );
+          imageProcessingPromises.push(...photoBlurPromises);
+        }
+
+        await Promise.all(imageProcessingPromises);
+      }
+
+      const { friend, user, ...restFrdData } = frdData;
+
+      return {
+        ...restFrdData,
+        friendList,
+        userList,
+      };
+    })
+  );
+
+  return res.status(httpStatus.OK).send({
+    ...users,
+    results: resultsWithBlur,
+  });
 });
 
 export const getRequestedFriendv2 = catchAsync(async (req, res) => {
