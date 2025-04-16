@@ -41,9 +41,9 @@ export const getProfileViewerV2 = catchAsync(async (req, res) => {
     },
   };
 
-  const escalate = await profileviewerservice.getProfileViewertWithPagination(filter, options);
+  const user = await profileviewerservice.getProfileViewertWithPagination(filter, options);
 
-  const items = escalate && Array.isArray(escalate) && escalate.length > 0 ? escalate[0].paginatedResults || [] : [];
+  const items = user && Array.isArray(user) && user.length > 0 ? user[0].paginatedResults || [] : [];
 
   // Loop through and apply blur logic where needed
   // eslint-disable-next-line no-restricted-syntax
@@ -90,7 +90,7 @@ export const getProfileViewerV2 = catchAsync(async (req, res) => {
     }
   }
 
-  return res.status(httpStatus.OK).send({ escalate });
+  return res.status(httpStatus.OK).send({ user });
 });
 
 export const GetProfileviwerMobile = catchAsync(async (req, res) => {
