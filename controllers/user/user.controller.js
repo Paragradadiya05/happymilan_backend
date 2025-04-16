@@ -225,22 +225,18 @@ export const getUserByGender = catchAsync(async (req, res) => {
   };
   const userData = await userService.getGenderListV2(filter, options);
 
-  /**
-   * Image Privacy Feature:
-   * Check for users with profilePhotoPrivacy setting enabled
-   * If enabled, dynamically blur their profile images before returning in the response
-   * The blurred images are temporarily stored in S3 and automatically cleaned up after 24 hours
-   * This runs as a daily cron job at 4 AM IST (see cronjobs/imageBlurCleanup.job.js)
-   */
   if (userData[0] && userData[0].paginatedResults) {
-    // Process all users in parallel
     const processPromises = userData[0].paginatedResults.map(async (userItem) => {
-      // Check if the user has profilePhotoPrivacy enabled
-      if (userItem.privacySettingCustom && userItem.privacySettingCustom.profilePhotoPrivacy === true) {
-        // Create an array of all image processing promises
+      const privacy = userItem.privacySettingCustom;
+      const friendsStatus = userItem.friendsDetails.status;
+
+      const shouldBlurImage =
+        privacy.profilePhotoPrivacy === true || (privacy.showPhotoToFriendsOnly === true && friendsStatus !== 'accepted');
+
+      if (shouldBlurImage) {
         const imageProcessingPromises = [];
 
-        // Add the main profile pic to processing queue if it exists
+        // Blur main profilePic
         if (userItem.profilePic) {
           imageProcessingPromises.push(
             imageBlurService.blurImage(userItem.profilePic).then((blurredUrl) => {
@@ -250,12 +246,10 @@ export const getUserByGender = catchAsync(async (req, res) => {
           );
         }
 
-        // Process all user profile pics if they exist
-        if (userItem.userProfilePic && userItem.userProfilePic.length > 0) {
-          // Get all photo blurring promises at once
+        // Blur all userProfilePic photos
+        if (Array.isArray(userItem.userProfilePic) && userItem.userProfilePic.length > 0) {
           const photoBlurPromises = userItem.userProfilePic.map((photo, index) =>
             imageBlurService.blurImage(photo.url).then((blurredUrl) => {
-              // Directly update the array in place to avoid creating new objects
               // eslint-disable-next-line no-param-reassign
               userItem.userProfilePic[index] = {
                 ...photo,
@@ -263,18 +257,15 @@ export const getUserByGender = catchAsync(async (req, res) => {
               };
             })
           );
-
-          // Add all photo processing promises to the main queue
           imageProcessingPromises.push(...photoBlurPromises);
         }
 
-        // Wait for all image processing to complete before returning the user
         await Promise.all(imageProcessingPromises);
       }
+
       return userItem;
     });
 
-    // Wait for all user processing to complete
     userData[0].paginatedResults = await Promise.all(processPromises);
   }
 
@@ -557,14 +548,17 @@ export const getnewuser = catchAsync(async (req, res) => {
   const userData = await userService.getNewUserList(filter, options);
 
   if (userData[0] && userData[0].paginatedResults) {
-    // Process all users in parallel
     const processPromises = userData[0].paginatedResults.map(async (userItem) => {
-      // Check if the user has profilePhotoPrivacy enabled
-      if (userItem.privacySettingCustom && userItem.privacySettingCustom.profilePhotoPrivacy === true) {
-        // Create an array of all image processing promises
+      const privacy = userItem.privacySettingCustom;
+      const friendsStatus = userItem.friendsDetails.status;
+
+      const shouldBlurImage =
+        privacy.profilePhotoPrivacy === true || (privacy.showPhotoToFriendsOnly === true && friendsStatus !== 'accepted');
+
+      if (shouldBlurImage) {
         const imageProcessingPromises = [];
 
-        // Add the main profile pic to processing queue if it exists
+        // Blur main profilePic
         if (userItem.profilePic) {
           imageProcessingPromises.push(
             imageBlurService.blurImage(userItem.profilePic).then((blurredUrl) => {
@@ -574,12 +568,10 @@ export const getnewuser = catchAsync(async (req, res) => {
           );
         }
 
-        // Process all user profile pics if they exist
-        if (userItem.userProfilePic && userItem.userProfilePic.length > 0) {
-          // Get all photo blurring promises at once
+        // Blur all userProfilePic photos
+        if (Array.isArray(userItem.userProfilePic) && userItem.userProfilePic.length > 0) {
           const photoBlurPromises = userItem.userProfilePic.map((photo, index) =>
             imageBlurService.blurImage(photo.url).then((blurredUrl) => {
-              // Directly update the array in place to avoid creating new objects
               // eslint-disable-next-line no-param-reassign
               userItem.userProfilePic[index] = {
                 ...photo,
@@ -587,18 +579,15 @@ export const getnewuser = catchAsync(async (req, res) => {
               };
             })
           );
-
-          // Add all photo processing promises to the main queue
           imageProcessingPromises.push(...photoBlurPromises);
         }
 
-        // Wait for all image processing to complete before returning the user
         await Promise.all(imageProcessingPromises);
       }
+
       return userItem;
     });
 
-    // Wait for all user processing to complete
     userData[0].paginatedResults = await Promise.all(processPromises);
   }
 
