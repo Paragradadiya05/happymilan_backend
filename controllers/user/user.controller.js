@@ -15,8 +15,11 @@ export const get = catchAsync(async (req, res) => {
     const privacy = userItem.privacySettingCustom || {};
     const friendsStatus = userItem.friendsDetails.status;
 
+    const isFriendAccepted = friendsStatus === 'accepted';
+
     const shouldBlurImage =
-      privacy.profilePhotoPrivacy === true || (privacy.showPhotoToFriendsOnly === true && friendsStatus !== 'accepted');
+      (privacy.profilePhotoPrivacy === true && !isFriendAccepted) ||
+      (privacy.showPhotoToFriendsOnly === true && !isFriendAccepted);
 
     if (shouldBlurImage) {
       const imageProcessingPromises = [];
@@ -201,12 +204,52 @@ export const getUnique = catchAsync(async (req, res) => {
   // user => current user id
   // userID => other user id that we need to get
   // Step 2: Use the userId to call the getMatchUser service
-  const matchedUsers = await userService.getMatchUser({ userId: getUser._id, user: user._id });
+  const userData = await userService.getMatchUser({ userId: getUser._id, user: user._id });
+  if (userData && userData.length > 0) {
+    const userItem = userData[0];
+    const privacy = userItem.privacySettingCustom || {};
+    const friendsStatus = userItem.friendsDetails.status;
 
+    const isFriendAccepted = friendsStatus === 'accepted';
+
+    const shouldBlurImage =
+      (privacy.profilePhotoPrivacy === true && !isFriendAccepted) ||
+      (privacy.showPhotoToFriendsOnly === true && !isFriendAccepted);
+
+    if (shouldBlurImage) {
+      const imageProcessingPromises = [];
+
+      // Blur main profilePic
+      if (userItem.profilePic) {
+        imageProcessingPromises.push(
+          imageBlurService.blurImage(userItem.profilePic).then((blurredUrl) => {
+            userItem.profilePic = blurredUrl;
+            console.log('Blurred URL:', blurredUrl);
+          })
+        );
+      }
+
+      // Blur each photo in userProfilePic array
+      if (Array.isArray(userItem.userProfilePic) && userItem.userProfilePic.length > 0) {
+        const photoBlurPromises = userItem.userProfilePic.map((photo, index) =>
+          imageBlurService.blurImage(photo.url).then((blurredUrl) => {
+            userItem.userProfilePic[index] = {
+              ...photo,
+              url: blurredUrl,
+            };
+          })
+        );
+
+        imageProcessingPromises.push(...photoBlurPromises);
+      }
+
+      await Promise.all(imageProcessingPromises);
+    }
+  }
   // Step 3: Return the matched users
   return res.status(httpStatus.OK).json({
     success: true,
-    data: matchedUsers,
+    data: userData,
   });
 });
 
