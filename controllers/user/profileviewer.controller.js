@@ -41,54 +41,56 @@ export const getProfileViewerV2 = catchAsync(async (req, res) => {
     },
   };
 
-  const user = await profileviewerservice.getProfileViewertWithPagination(filter, options);
+  const escalate = await profileviewerservice.getProfileViewertWithPagination(filter, options);
 
-  // ✅ Fix here: Access the correct nested viewer array
-  const results = (user && user[0] && user[0].paginatedResults) || [];
+  const items = escalate && Array.isArray(escalate) && escalate.length > 0 ? escalate[0].paginatedResults || [] : [];
 
-  const blurPromises = results.map(async (item) => {
-    const viewer = item.user;
-    const friendsStatus = item.friendsDetails && item.friendsDetails.status ? item.friendsDetails.status : 'none';
-    const isFriendAccepted = friendsStatus === 'accepted';
+  // Loop through and apply blur logic where needed
+  // eslint-disable-next-line no-restricted-syntax
+  for (const item of items) {
+    const userItem = item.user;
 
-    if (viewer) {
-      const privacy = viewer.privacySettingCustom || {};
-      const profilePhotoPrivacy = privacy.profilePhotoPrivacy === true;
-      const showPhotoToFriendsOnly = privacy.showPhotoToFriendsOnly === true;
+    if (userItem) {
+      const privacy = userItem.privacySettingCustom || {};
+      const friendsStatus = item.friendsDetails && item.friendsDetails.status ? item.friendsDetails.status : 'none';
+      const isFriendAccepted = friendsStatus === 'accepted';
 
-      const shouldBlurImage = (profilePhotoPrivacy || showPhotoToFriendsOnly) && !isFriendAccepted;
+      const shouldBlurImage =
+        (privacy.profilePhotoPrivacy === true && !isFriendAccepted) ||
+        (privacy.showPhotoToFriendsOnly === true && !isFriendAccepted);
 
       if (shouldBlurImage) {
-        const processing = [];
+        const imageProcessingPromises = [];
 
-        if (viewer.profilePic) {
-          processing.push(
-            imageBlurService.blurImage(viewer.profilePic).then((blurredUrl) => {
-              viewer.profilePic = blurredUrl;
+        // Blur profilePic
+        if (userItem.profilePic) {
+          imageProcessingPromises.push(
+            imageBlurService.blurImage(userItem.profilePic).then((blurredUrl) => {
+              userItem.profilePic = blurredUrl;
             })
           );
         }
 
-        if (Array.isArray(viewer.userProfilePic) && viewer.userProfilePic.length > 0) {
-          const blurPhotos = viewer.userProfilePic.map((photo, index) =>
+        // Blur all userProfilePics
+        if (Array.isArray(userItem.userProfilePic)) {
+          const photoBlurPromises = userItem.userProfilePic.map((photo, index) =>
             imageBlurService.blurImage(photo.url).then((blurredUrl) => {
-              viewer.userProfilePic[index] = {
+              userItem.userProfilePic[index] = {
                 ...photo,
                 url: blurredUrl,
               };
             })
           );
-          processing.push(...blurPhotos);
+          imageProcessingPromises.push(...photoBlurPromises);
         }
 
-        await Promise.all(processing);
+        // eslint-disable-next-line no-await-in-loop
+        await Promise.all(imageProcessingPromises);
       }
     }
-  });
+  }
 
-  await Promise.all(blurPromises);
-
-  return res.status(httpStatus.OK).send({ results });
+  return res.status(httpStatus.OK).send({ escalate });
 });
 
 export const GetProfileviwerMobile = catchAsync(async (req, res) => {
