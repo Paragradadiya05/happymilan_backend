@@ -12,12 +12,11 @@ export const get = catchAsync(async (req, res) => {
 
   if (userData && userData.length > 0) {
     const userItem = userData[0];
+    const privacy = userItem.privacySettingCustom || {};
+    const friendsStatus = userItem.friendsDetails.status;
 
     const shouldBlurImage =
-      (userItem.privacySettingCustom && userItem.privacySettingCustom.profilePhotoPrivacy === true) ||
-      (userItem.privacySettingCustom &&
-        userItem.privacySettingCustom.showPhotoToFriendsOnly === true &&
-        (!userItem.friendsDetails || userItem.friendsDetails.status !== 'accepted'));
+      privacy.profilePhotoPrivacy === true || (privacy.showPhotoToFriendsOnly === true && friendsStatus !== 'accepted');
 
     if (shouldBlurImage) {
       const imageProcessingPromises = [];
@@ -227,7 +226,7 @@ export const getUserByGender = catchAsync(async (req, res) => {
 
   if (userData[0] && userData[0].paginatedResults) {
     const processPromises = userData[0].paginatedResults.map(async (userItem) => {
-      const privacy = userItem.privacySettingCustom;
+      const privacy = userItem.privacySettingCustom || {};
       const friendsStatus = userItem.friendsDetails.status;
 
       const shouldBlurImage =
@@ -549,7 +548,7 @@ export const getnewuser = catchAsync(async (req, res) => {
 
   if (userData[0] && userData[0].paginatedResults) {
     const processPromises = userData[0].paginatedResults.map(async (userItem) => {
-      const privacy = userItem.privacySettingCustom;
+      const privacy = userItem.privacySettingCustom || {};
       const friendsStatus = userItem.friendsDetails.status;
 
       const shouldBlurImage =

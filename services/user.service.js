@@ -3509,7 +3509,6 @@ export async function getNewUserList(filter, options = {}) {
     { name: 'age' },
     { name: 'maritalStatus' },
     { name: 'writeBoutYourSelf' },
-    { name: 'profilePhotoPrivacy' },
     { name: 'privacySettingCustom' },
   ];
 
