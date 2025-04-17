@@ -90,7 +90,7 @@ export const getProfileViewerV2 = catchAsync(async (req, res) => {
     }
   }
 
-  return res.status(httpStatus.OK).send({ user });
+  return res.status(httpStatus.OK).send({ results: user });
 });
 
 export const GetProfileviwerMobile = catchAsync(async (req, res) => {
