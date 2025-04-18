@@ -532,7 +532,8 @@ export async function addDeviceToken(user, body) {
 
 export async function getGenderListV2(filter, options = {}) {
   const userGender = filter.gender;
-  const { limit = 10, page = 1 } = options;
+  const page = parseInt(options.page, 10) || 1;
+  const limit = parseInt(options.limit, 10) || 10;
 
   let oppositeGender;
   if (userGender === EnumGenderOfUsers.MALE) {
@@ -913,6 +914,17 @@ export async function getGenderListV2(filter, options = {}) {
             },
           },
         },
+      },
+    },
+    {
+      $group: {
+        _id: '$_id',
+        doc: { $first: '$$ROOT' },
+      },
+    },
+    {
+      $replaceRoot: {
+        newRoot: '$doc',
       },
     },
     {

@@ -256,11 +256,22 @@ export const getUnique = catchAsync(async (req, res) => {
 export const getUserByGender = catchAsync(async (req, res) => {
   const { user } = req;
   const { query } = req;
-  const sortingObj = pick(query, ['sort', 'order']);
+
+  // Extract sort and order, and set defaults
+  const sortField = query.sort || 'createdAt';
+  const sortOrder = query.order === 'desc' ? -1 : 1;
+
+  // Stable sort object using _id as a tiebreaker
   const sortObj = {
-    [sortingObj.sort]: sortingObj.order,
+    [sortField]: sortOrder,
+    _id: sortOrder, // Ensures uniqueness in sort order
   };
-  const filter = { gender: user.gender, userId: user._id };
+
+  const filter = {
+    gender: user.gender,
+    userId: user._id,
+  };
+
   const options = {
     sort: sortObj,
     ...pick(query, ['limit', 'page']),
