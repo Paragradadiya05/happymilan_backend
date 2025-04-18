@@ -916,6 +916,7 @@ export async function getGenderListV2(filter, options = {}) {
         },
       },
     },
+    // for remove duplicate user
     {
       $group: {
         _id: '$_id',
