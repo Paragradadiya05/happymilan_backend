@@ -1,6 +1,6 @@
 import httpStatus from 'http-status';
 import { catchAsync } from '../../utils/catchAsync';
-import { userService } from '../../services';
+import { imageBlurService, userService } from '../../services';
 import enumModel from '../../models/enum.model';
 
 export const searchUser = catchAsync(async (req, res) => {
@@ -117,9 +117,49 @@ export const searchUser = catchAsync(async (req, res) => {
     return res.status(httpStatus.NOT_FOUND).send({ message: 'No users found' });
   }
   const { paginatedResults, totalDocs, totalPages, currentPage } = user[0] || {};
+  const blurredResults = await Promise.all(
+    paginatedResults.map(async (usr) => {
+      const privacy = usr.privacySettingCustom || {};
+      const friendsStatus = usr.friendsDetails.status;
+      const shouldBlur =
+        privacy.profilePhotoPrivacy === true || (privacy.showPhotoToFriendsOnly === true && friendsStatus !== 'accepted');
 
+      if (shouldBlur) {
+        const blurTasks = [];
+
+        // Blur profilePic
+        if (usr.profilePic) {
+          blurTasks.push(
+            imageBlurService.blurImage(usr.profilePic).then((blurred) => {
+              // eslint-disable-next-line no-param-reassign
+              usr.profilePic = blurred;
+            })
+          );
+        }
+
+        // Blur userProfilePic array
+        if (Array.isArray(usr.userProfilePic) && usr.userProfilePic.length > 0) {
+          usr.userProfilePic.forEach((photo, index) => {
+            blurTasks.push(
+              imageBlurService.blurImage(photo.url).then((blurredUrl) => {
+                // eslint-disable-next-line no-param-reassign
+                usr.userProfilePic[index] = {
+                  ...photo,
+                  url: blurredUrl,
+                };
+              })
+            );
+          });
+        }
+
+        await Promise.all(blurTasks);
+      }
+
+      return usr;
+    })
+  );
   res.status(httpStatus.OK).send({
-    data: paginatedResults || [],
+    data: blurredResults,
     pagination: {
       totalDocs: totalDocs || 0,
       totalPages: totalPages || 0,
