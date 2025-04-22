@@ -386,7 +386,7 @@ export async function getProfileViewertWithPagination(filter, options = {}) {
         shortlistData: 1,
       },
     },
-    { $sort: { createdAt: -1 } }, // Sort by match percentage in descending order
+    { $sort: { updatedAt: -1 } }, // Sort by match percentage in descending order
     // todo
 
     // { $skip: (page - 1) * limit }, // Skip documents for pagination
