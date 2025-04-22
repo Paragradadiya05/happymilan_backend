@@ -907,6 +907,31 @@ export async function getshortListforMobile(filter, options = {}) {
     },
   ];
   const matchedUsers = await Shortlist.aggregate(pipeline).exec();
+  const isPremiumUser = await checkUserPremiumStatus(filter.userId);
 
+  await Promise.all(
+    matchedUsers[0].paginatedResults.map(async (userData) => {
+      const matchInfo = await calculateMatchScore(
+        userData.shortlistId,
+        userPartnerPreferences,
+        userData.userId,
+        isPremiumUser
+      );
+      // eslint-disable-next-line no-param-reassign
+      userData.matchPercentage = matchInfo.matchPercentage;
+      // eslint-disable-next-line no-param-reassign
+      userData.matchedCriteria = matchInfo.matchedCriteria;
+
+      // remove fields from here
+      delete matchInfo.userLikeDetails;
+      delete matchInfo.friendsDetails;
+      delete matchInfo.defaultFields;
+      delete matchInfo.matchPercentage;
+      delete matchInfo.matchedCriteria;
+      delete matchInfo.userShortListDetails;
+      // eslint-disable-next-line no-param-reassign
+      userData.friendList = matchInfo;
+    })
+  );
   return matchedUsers;
 }

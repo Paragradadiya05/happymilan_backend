@@ -121,14 +121,17 @@ export const getShortlistMobile = catchAsync(async (req, res) => {
   const { userId } = req.params;
   const { query } = req;
   const { appUsesType } = req.query;
+
   const sortingObj = pick(query, ['sort', 'order']);
   const sortObj = {
-    [sortingObj.sort]: sortingObj.order,
+    [sortingObj.sort || 'createdAt']: sortingObj.order || 'desc',
   };
+
   const filter = {
     userId,
     appUsesType,
   };
+
   const options = {
     sort: sortObj,
     ...pick(query, ['limit', 'page']),
@@ -137,6 +140,54 @@ export const getShortlistMobile = catchAsync(async (req, res) => {
       populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
     },
   };
+
   const escalate = await shortlistervice.getshortListforMobile(filter, options);
+  const items = escalate && Array.isArray(escalate) && escalate.length > 0 ? escalate[0].paginatedResults || [] : [];
+
+  // Loop through and apply blur logic where needed
+  // eslint-disable-next-line no-restricted-syntax
+  for (const item of items) {
+    const userItem = item.friendList;
+
+    if (userItem) {
+      const privacy = userItem.privacySettingCustom || {};
+      const friendsStatus = item.friendsDetails && item.friendsDetails.status ? item.friendsDetails.status : 'none';
+      const isFriendAccepted = friendsStatus === 'accepted';
+
+      const shouldBlurImage =
+        (privacy.profilePhotoPrivacy === true && !isFriendAccepted) ||
+        (privacy.showPhotoToFriendsOnly === true && !isFriendAccepted);
+
+      if (shouldBlurImage) {
+        const imageProcessingPromises = [];
+
+        // Blur profilePic
+        if (userItem.profilePic) {
+          imageProcessingPromises.push(
+            imageBlurService.blurImage(userItem.profilePic).then((blurredUrl) => {
+              userItem.profilePic = blurredUrl;
+            })
+          );
+        }
+
+        // Blur all userProfilePics
+        if (Array.isArray(userItem.userProfilePic)) {
+          const photoBlurPromises = userItem.userProfilePic.map((photo, index) =>
+            imageBlurService.blurImage(photo.url).then((blurredUrl) => {
+              userItem.userProfilePic[index] = {
+                ...photo,
+                url: blurredUrl,
+              };
+            })
+          );
+          imageProcessingPromises.push(...photoBlurPromises);
+        }
+
+        // eslint-disable-next-line no-await-in-loop
+        await Promise.all(imageProcessingPromises);
+      }
+    }
+  }
+
   return res.status(httpStatus.OK).send({ results: escalate });
 });
