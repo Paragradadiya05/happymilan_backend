@@ -26,9 +26,7 @@ export const getProfileViewerV2 = catchAsync(async (req, res) => {
   const { userId } = req.params;
 
   const sortingObj = pick(query, ['sort', 'order']);
-  const sortObj = {
-    [sortingObj.sort]: sortingObj.order,
-  };
+  const sortObj = sortingObj.sort ? { [sortingObj.sort]: sortingObj.order === 'asc' ? 1 : -1 } : { createdAt: -1 };
 
   const filter = { userId, appUsesType };
   const options = {
