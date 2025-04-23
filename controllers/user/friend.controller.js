@@ -408,14 +408,11 @@ export const getRequestedFriend = catchAsync(async (req, res) => {
   users.results = await Promise.all(
     users.results.map(async (frdData) => {
       let friendList;
-      let userList;
 
       if (frdData.friend._id.toString() === userId.toString()) {
         friendList = frdData.user;
-        userList = frdData.friend;
       } else {
         friendList = frdData.friend;
-        userList = frdData.user;
       }
 
       const { friend, user, ...restFrdData } = frdData;
@@ -464,7 +461,6 @@ export const getRequestedFriend = catchAsync(async (req, res) => {
       return {
         ...restFrdData,
         friendList,
-        userList,
       };
     })
   );
