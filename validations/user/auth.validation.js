@@ -57,11 +57,17 @@ export const forgotPassword = {
 };
 
 export const verifyOtp = {
-  body: Joi.object().keys({
-    email: Joi.string().email().required(),
-    otp: Joi.number().required(),
-    deviceToken: Joi.string().allow(''),
-  }),
+  body: Joi.object()
+    .keys({
+      email: Joi.string().email(),
+      mobileNumber: Joi.string().pattern(/^\d+$/), // Allow only digits
+      otp: Joi.number().required(),
+      deviceToken: Joi.string().allow(''),
+    })
+    .or('email', 'mobileNumber') // At least one is required
+    .messages({
+      'object.missing': 'Please provide either email or mobileNumber to verify OTP',
+    }),
 };
 
 // Token-based Verification when user select forgotPassword

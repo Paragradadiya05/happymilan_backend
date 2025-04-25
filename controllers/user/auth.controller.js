@@ -257,9 +257,17 @@ export const verifyResetCode = catchAsync(async (req, res) => {
 
 export const verifyOtp = catchAsync(async (req, res) => {
   const { body } = req;
-  const { otp, email, deviceToken } = body;
-  await tokenService.verifyOtp(email, otp);
-  const user = await userService.getOne({ email });
+  const { otp, email, deviceToken, mobileNumber } = body;
+  await tokenService.verifyOtp(email || mobileNumber, otp);
+  const user = await userService.getOne({
+    ...(email && { email }),
+    ...(mobileNumber && { mobileNumber }),
+  });
+
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+  }
+
   const tokens = await tokenService.generateAuthTokens(user);
   if (deviceToken) {
     const updatedUser = await userService.addDeviceToken(user, req.body);
