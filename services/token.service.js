@@ -93,24 +93,32 @@ export const verifyCode = async (verificationRequest) => {
   return tokenDoc;
 };
 
-export const verifyOtp = async (email, otp, mobileNumber) => {
-  const query = email ? { email } : { mobileNumber };
-  console.log('=====query====>', query);
-  const user = await userService.getOne(query);
+export const verifyOtp = async ({ email, mobileNumber, otp }) => {
+  let user;
+
+  if (email) {
+    user = await userService.getOne({ email });
+  } else if (mobileNumber) {
+    user = await userService.getOne({ mobileNumber });
+  }
+
   if (!user) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'no user found with this email or mobile number');
+    throw new ApiError(httpStatus.BAD_REQUEST, 'No user found with this email or mobile number');
   }
+
   if (user.emailVerified) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'your email is already verified!');
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Your email is already verified!');
   }
-  // eslint-disable-next-line eqeqeq
-  const otpCode = _.find(user.codes, (code) => code.code == otp && code.codeType === EnumCodeTypeOfCode.LOGIN);
+
+  const otpCode = _.find(user.codes, (code) => code.code === otp && code.codeType === EnumCodeTypeOfCode.LOGIN);
   if (!otpCode || otpCode.expirationDate < Date.now()) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'otp is Invalid');
+    throw new ApiError(httpStatus.BAD_REQUEST, 'OTP is invalid or expired');
   }
+
   user.codes = _.filter(user.codes, (code) => code.code !== otp);
   user.emailVerified = true;
   user.active = true;
+
   return user.save();
 };
 

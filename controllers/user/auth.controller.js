@@ -256,64 +256,44 @@ export const verifyResetCode = catchAsync(async (req, res) => {
 });
 
 export const verifyOtp = catchAsync(async (req, res) => {
-  const { email, otp, mobileNumber, deviceToken } = req.body;
+  const { otp, email, mobileNumber, deviceToken } = req.body;
 
-  // Ensure only one of email or mobileNumber is provided
-  if (email && mobileNumber) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Please provide either email or mobile number, not both');
-  }
+  // Pass both to allow fallback
+  await tokenService.verifyOtp({ email, mobileNumber, otp });
 
-  // Log the received data to check
-  console.log('Received data:', { email, otp, mobileNumber });
-
-  // Prepare the query based on which field is provided
-  const query = {};
-  if (email) {
-    query.email = email;
-  } else if (mobileNumber) {
-    query.mobileNumber = mobileNumber;
-  } else {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Please provide either email or mobile number');
-  }
-
-  // Fetch the user based on the query
-  const user = await userService.getOne(query);
-  console.log('=====xx====>', user);
-  if (!user) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
-  }
+  const user = await userService.getOne(email ? { email } : { mobileNumber });
 
   const tokens = await tokenService.generateAuthTokens(user);
+
   if (deviceToken) {
     const updatedUser = await userService.addDeviceToken(user, req.body);
-    res.status(httpStatus.OK).send({ results: { user: updatedUser, tokens } });
-  } else {
-    await emailService.sendCongratulationEmail(user).then().catch();
-    const createNotificationForCongratulation = await Notification.create({
-      userId: user._id,
-      body: EnumOfNotification.CONGRATULATION,
-    });
-    // send notification
-    // check if usr hase deice token or not
-    if (user && user.deviceTokens && user.deviceTokens.length) {
-      // eslint-disable-next-line no-shadow
-      const deviceToken = user.deviceTokens.map((fcmToken) => fcmToken.deviceToken);
-      await sendNotification(
-        deviceToken,
-        {
-          data: {
-            _id: createNotificationForCongratulation._id.toString(),
-            userId: createNotificationForCongratulation.userId.toString(),
-            body: EnumOfNotification.CONGRATULATION,
-            createdAt: createNotificationForCongratulation.createdAt.toString(),
-            updatedAt: createNotificationForCongratulation.updatedAt.toString(),
-          },
-        },
-        {}
-      );
-    }
-    res.status(httpStatus.OK).send({ results: { user, tokens } });
+    return res.status(httpStatus.OK).send({ results: { user: updatedUser, tokens } });
   }
+
+  await emailService.sendCongratulationEmail(user).catch(); // Optional email sending
+  const createNotificationForCongratulation = await Notification.create({
+    userId: user._id,
+    body: EnumOfNotification.CONGRATULATION,
+  });
+
+  if (user.deviceTokens && user.deviceTokens.length) {
+    const deviceTokens = user.deviceTokens.map((fcmToken) => fcmToken.deviceToken);
+    await sendNotification(
+      deviceTokens,
+      {
+        data: {
+          _id: createNotificationForCongratulation._id.toString(),
+          userId: createNotificationForCongratulation.userId.toString(),
+          body: EnumOfNotification.CONGRATULATION,
+          createdAt: createNotificationForCongratulation.createdAt.toString(),
+          updatedAt: createNotificationForCongratulation.updatedAt.toString(),
+        },
+      },
+      {}
+    );
+  }
+
+  res.status(httpStatus.OK).send({ results: { user, tokens } });
 });
 
 export const resetPasswordOtp = catchAsync(async (req, res) => {
