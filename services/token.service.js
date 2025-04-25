@@ -109,10 +109,10 @@ export const verifyOtp = async ({ email, mobileNumber, otp }) => {
   if (user.emailVerified) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Your email is already verified!');
   }
-
-  const otpCode = _.find(user.codes, (code) => code.code === otp && code.codeType === EnumCodeTypeOfCode.LOGIN);
+  // eslint-disable-next-line
+  const otpCode = _.find(user.codes, (code) => code.code == otp && code.codeType === EnumCodeTypeOfCode.LOGIN);
   if (!otpCode || otpCode.expirationDate < Date.now()) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'OTP is invalid or expired');
+    throw new ApiError(httpStatus.BAD_REQUEST, 'otp is Invalid');
   }
 
   user.codes = _.filter(user.codes, (code) => code.code !== otp);
