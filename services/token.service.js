@@ -93,10 +93,12 @@ export const verifyCode = async (verificationRequest) => {
   return tokenDoc;
 };
 
-export const verifyOtp = async (email, otp) => {
-  const user = await userService.getOne({ email });
+export const verifyOtp = async (email, otp, mobileNumber) => {
+  const query = email ? { email } : { mobileNumber };
+  console.log('=====query====>', query);
+  const user = await userService.getOne(query);
   if (!user) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'no user found with this email');
+    throw new ApiError(httpStatus.BAD_REQUEST, 'no user found with this email or mobile number');
   }
   if (user.emailVerified) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'your email is already verified!');
