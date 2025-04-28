@@ -371,20 +371,12 @@ export const updateUserInfo = catchAsync(async (req, res) => {
 
 export const sendVerifyOtp = catchAsync(async (req, res) => {
   const { email, mobileNumber, countryCodeId } = req.body;
-
   // Ensure email or mobileNumber is provided in the request
   if (!email && !mobileNumber) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email or mobile number is required.');
   }
-
   // Fetch the user based on email or mobileNumber from the body
-  const user = await userService.getOne({
-    $or: [
-      { email }, // Case-insensitive search for email
-      { mobileNumber }, // Mobile number search
-    ],
-  });
-
+  const user = await userService.getOne(req.body);
   // If user not found, throw an error
   if (!user) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'No user found with this email or mobile number!');
