@@ -376,7 +376,12 @@ export const sendVerifyOtp = catchAsync(async (req, res) => {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email or mobile number is required.');
   }
   // Fetch the user based on email or mobileNumber from the body
-  const user = await userService.getOne(req.body);
+  const searchCondition = email
+    ? { email: { $regex: `^${email}$`, $options: 'i' } } // Case-insensitive exact match
+    : { mobileNumber };
+
+  // Fetch user
+  const user = await userService.getOne(searchCondition);
   // If user not found, throw an error
   if (!user) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'No user found with this email or mobile number!');
