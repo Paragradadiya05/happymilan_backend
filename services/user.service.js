@@ -1339,36 +1339,60 @@ export async function getMatchUser(filter) {
               },
               matchedFields: {
                 $filter: {
-                  input: [
-                    {
-                      field: 'age',
-                      isMatched: {
-                        $and: [
-                          { $gte: ['$age', userPartnerPreferences.age.min] },
-                          { $lte: ['$age', userPartnerPreferences.age.max] },
-                        ],
+                  input: {
+                    $map: {
+                      input: [
+                        { field: 'age', value: '$age' },
+                        { field: 'height', value: '$height' },
+                        { field: 'currentCountry', value: '$address.currentCountry' },
+                        { field: 'currentCity', value: '$address.currentCity' },
+                      ],
+                      as: 'item',
+                      in: {
+                        field: '$$item.field',
+                        value: '$$item.value',
+                        isMatched: {
+                          $switch: {
+                            branches: [
+                              {
+                                case: { $eq: ['$$item.field', 'age'] },
+                                then: {
+                                  $and: [
+                                    { $gte: ['$$item.value', userPartnerPreferences.age.min] },
+                                    { $lte: ['$$item.value', userPartnerPreferences.age.max] },
+                                  ],
+                                },
+                              },
+                              {
+                                case: { $eq: ['$$item.field', 'height'] },
+                                then: {
+                                  $and: [
+                                    { $gte: ['$$item.value', userPartnerPreferences.height.min] },
+                                    { $lte: ['$$item.value', userPartnerPreferences.height.max] },
+                                  ],
+                                },
+                              },
+                              {
+                                case: { $eq: ['$$item.field', 'currentCountry'] },
+                                then: {
+                                  $in: ['$$item.value', userPartnerPreferences.country],
+                                },
+                              },
+                              {
+                                case: { $eq: ['$$item.field', 'currentCity'] },
+                                then: {
+                                  $in: ['$$item.value', userPartnerPreferences.city],
+                                },
+                              },
+                            ],
+                            default: false,
+                          },
+                        },
                       },
                     },
-                    {
-                      field: 'height',
-                      isMatched: {
-                        $and: [
-                          { $gte: ['$height', userPartnerPreferences.height.min] },
-                          { $lte: ['$height', userPartnerPreferences.height.max] },
-                        ],
-                      },
-                    },
-                    {
-                      field: 'currentCountry',
-                      isMatched: { $in: ['$address.currentCountry', userPartnerPreferences.country] },
-                    },
-                    {
-                      field: 'currentCity',
-                      isMatched: { $in: ['$address.currentCity', userPartnerPreferences.city] },
-                    },
-                  ],
-                  as: 'match',
-                  cond: '$$match.isMatched',
+                  },
+                  as: 'fieldMatch',
+                  cond: { $eq: ['$$fieldMatch.isMatched', true] },
                 },
               },
             },
