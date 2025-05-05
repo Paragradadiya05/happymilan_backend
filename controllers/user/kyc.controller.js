@@ -1,5 +1,5 @@
 import httpStatus from 'http-status';
-import { KycService } from 'services';
+import { KycService, userService } from 'services';
 import { catchAsync } from 'utils/catchAsync';
 import { pick } from '../../utils/pick';
 
@@ -54,14 +54,65 @@ export const create = catchAsync(async (req, res) => {
 
 export const update = catchAsync(async (req, res) => {
   const { body } = req;
-  body.updatedBy = req.user;
   const { KycId } = req.params;
   const filter = {
     _id: KycId,
   };
+  const { user } = req;
+  body.updatedBy = user;
+
+  // Fetch current KYC record
+  const existingKyc = await KycService.getOne(filter);
+  if (!existingKyc) {
+    return res.status(httpStatus.NOT_FOUND).send({ message: 'KYC record not found' });
+  }
+  if (existingKyc.verify === false) {
+    return res.status(httpStatus.FORBIDDEN).send({ message: 'KYC is not verified, name request cannot be processed.' });
+  }
+  if (
+    (body.kycDocName && body.kycDocName !== existingKyc.kycDocName) ||
+    (body.kycDocImagePath && body.kycDocImagePath !== existingKyc.kycDocImagePath)
+  ) {
+    if (!body.docUploadHistory) body.docUploadHistory = [];
+
+    body.docUploadHistory.push({
+      docName: body.kycDocName || existingKyc.kycDocName,
+      docPath: body.kycDocImagePath || existingKyc.kycDocImagePath,
+      uploadedAt: new Date(),
+      uploadedBy: user._id,
+    });
+  }
+
+  // ✅ Handle nameRequest logic
+  if (body.nameRequest && body.nameRequest.length) {
+    const latestRequest = body.nameRequest[body.nameRequest.length - 1];
+
+    // If approved, update user's name
+    if (latestRequest.approvalStatus === 'approved') {
+      await userService.updateUser(
+        { _id: existingKyc.userId },
+        {
+          firstName: latestRequest.firstName,
+          lastName: latestRequest.lastName,
+        }
+      );
+
+      // Set approvedAt and approvedBy
+      latestRequest.approvedAt = new Date();
+      latestRequest.approvedBy = user._id;
+    }
+
+    // Optional: Add requestedAt if not sent
+    if (!latestRequest.requestedAt) {
+      latestRequest.requestedAt = new Date();
+    }
+  }
+
+  // ✅ Perform the update
   const options = { new: true };
-  const Kyc = await KycService.updatekyc(filter, body, options);
-  return res.status(httpStatus.OK).send({ results: Kyc });
+  const updatedKyc = await KycService.updatekyc(filter, body, options);
+
+  return res.status(httpStatus.OK).send({ results: updatedKyc });
 });
 
 export const remove = catchAsync(async (req, res) => {
