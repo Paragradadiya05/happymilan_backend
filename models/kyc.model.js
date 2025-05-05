@@ -38,6 +38,8 @@ const DocUploadHistorySchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  firstName: String,
+  lastName: String,
 });
 const KycSchema = mongoose.Schema(
   {

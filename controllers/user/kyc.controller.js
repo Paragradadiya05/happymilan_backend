@@ -69,20 +69,6 @@ export const update = catchAsync(async (req, res) => {
   if (existingKyc.verify === false) {
     return res.status(httpStatus.FORBIDDEN).send({ message: 'KYC is not verified, name request cannot be processed.' });
   }
-  if (
-    (body.kycDocName && body.kycDocName !== existingKyc.kycDocName) ||
-    (body.kycDocImagePath && body.kycDocImagePath !== existingKyc.kycDocImagePath)
-  ) {
-    if (!body.docUploadHistory) body.docUploadHistory = [];
-
-    body.docUploadHistory.push({
-      docName: body.kycDocName || existingKyc.kycDocName,
-      docPath: body.kycDocImagePath || existingKyc.kycDocImagePath,
-      uploadedAt: new Date(),
-      uploadedBy: user._id,
-    });
-  }
-
   // ✅ Handle nameRequest logic
   if (body.nameRequest && body.nameRequest.length) {
     const latestRequest = body.nameRequest[body.nameRequest.length - 1];

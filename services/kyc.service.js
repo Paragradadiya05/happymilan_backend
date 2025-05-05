@@ -26,7 +26,36 @@ export async function createkyc(body = {}) {
 }
 
 export async function updatekyc(filter, body, options = {}) {
-  const kyc = await Kyc.findOneAndUpdate(filter, body, options);
+  const kyc = await Kyc.findOne(filter, null, options);
+  if (!kyc) return null;
+  if (body.kycDocName) kyc.kycDocName = body.kycDocName;
+  if (body.kycDocImagePath) kyc.kycDocImagePath = body.kycDocImagePath;
+  if (body.nameRequest) kyc.nameRequest = body.nameRequest;
+
+  // Ensure history array exists
+  if (!Array.isArray(kyc.docUploadHistory)) {
+    kyc.docUploadHistory = [];
+  }
+
+  // Add history from latest nameRequest entry if valid
+  if (Array.isArray(body.nameRequest) && body.nameRequest.length > 0) {
+    const latestRequest = body.nameRequest[body.nameRequest.length - 1];
+
+    if (latestRequest.kycDocName && latestRequest.kycDocImagePath) {
+      const statusHistory = {
+        kycDocName: latestRequest.kycDocName,
+        kycDocImagePath: latestRequest.kycDocImagePath,
+        uploadedAt: new Date(),
+        firstName: latestRequest.firstName || null,
+        lastName: latestRequest.lastName || null,
+      };
+
+      kyc.docUploadHistory.push(statusHistory); // ✅ Add a new record each time
+    }
+  }
+
+  // Save the document
+  await kyc.save();
   return kyc;
 }
 

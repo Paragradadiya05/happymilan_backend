@@ -164,8 +164,14 @@ const EnumOfState = {
 
 const EnumOfCountry = {
   INDIA: 'india',
+  AUSTRALIA: 'australia',
   CANADA: 'canada',
   US: 'us',
+  UAE: 'uae',
+  JAPAN: 'japan',
+  SINGAPORE: 'singapore',
+  FRANCE: 'france',
+  UNITED_KINGDOM: 'united-kingdom',
   AFGHANISTAN: 'afghanistan',
   CHINA: 'china',
   MYANMAR: 'myanmar',
