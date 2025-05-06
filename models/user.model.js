@@ -531,6 +531,7 @@ const UserSchema = new mongoose.Schema(
           'height',
           'weight',
           'displayName',
+          'datingData',
           'name',
           'randomId',
           'maritalStatus',
@@ -557,6 +558,7 @@ const UserSchema = new mongoose.Schema(
           'firstName',
           'dateOfBirth',
           'birthTime',
+          'datingData',
           'religion',
           'caste',
           'height',
@@ -574,6 +576,7 @@ const UserSchema = new mongoose.Schema(
         ],
         premiumProfile: [
           'firstName',
+          'datingData',
           'lastName',
           'dateOfBirth',
           'birthTime',

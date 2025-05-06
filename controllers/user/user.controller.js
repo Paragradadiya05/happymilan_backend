@@ -63,8 +63,49 @@ export const getDatingUser = catchAsync(async (req, res) => {
     currentUserId,
   };
   const options = {};
-  const user = await userService.getUserWithDatingData(filter, options);
-  return res.status(httpStatus.OK).send({ results: user });
+  const userData = await userService.getUserWithDatingData(filter, options);
+  if (userData && userData.length > 0) {
+    const userItem = userData[0];
+    const privacy = userItem.privacySettingCustom || {};
+    const friendsStatus = userItem.friendsDetails.status;
+
+    const isFriendAccepted = friendsStatus === 'accepted';
+
+    const shouldBlurImage =
+      (privacy.profilePhotoPrivacy === true && !isFriendAccepted) ||
+      (privacy.showPhotoToFriendsOnly === true && !isFriendAccepted);
+
+    if (shouldBlurImage) {
+      const imageProcessingPromises = [];
+
+      // Blur main profilePic
+      if (userItem.profilePic) {
+        imageProcessingPromises.push(
+          imageBlurService.blurImage(userItem.profilePic).then((blurredUrl) => {
+            userItem.profilePic = blurredUrl;
+            console.log('Blurred URL:', blurredUrl);
+          })
+        );
+      }
+
+      // Blur each photo in userProfilePic array
+      if (Array.isArray(userItem.userProfilePic) && userItem.userProfilePic.length > 0) {
+        const photoBlurPromises = userItem.userProfilePic.map((photo, index) =>
+          imageBlurService.blurImage(photo.url).then((blurredUrl) => {
+            userItem.userProfilePic[index] = {
+              ...photo,
+              url: blurredUrl,
+            };
+          })
+        );
+
+        imageProcessingPromises.push(...photoBlurPromises);
+      }
+
+      await Promise.all(imageProcessingPromises);
+    }
+  }
+  return res.status(httpStatus.OK).send({ results: userData });
 });
 
 export const list = catchAsync(async (req, res) => {
@@ -361,37 +402,32 @@ export const checkPlan = catchAsync(async (req, res) => {
 });
 
 export const getUserByGenderDating = catchAsync(async (req, res) => {
-  const { user } = req;
-  const { query } = req;
+  const { user, query } = req;
   const sortingObj = pick(query, ['sort', 'order']);
   const sortObj = {
     [sortingObj.sort]: sortingObj.order,
   };
+
   const filter = { gender: user.gender, userId: user._id };
   const options = {
     sort: sortObj,
     ...pick(query, ['limit', 'page']),
   };
 
-  const userdata = await userService.getDatingPartnerList(filter, options);
+  const userData = await userService.getDatingPartnerList(filter, options);
 
-  /**
-   * Image Privacy Feature:
-   * Applied to dating profiles to protect user privacy
-   * Checks the profilePhotoPrivacy flag on each user's privacy settings
-   * For users with privacy enabled, blurs profile images on-the-fly using Sharp
-   * The blurred image is cached for 24 hours in S3 and database for performance
-   * Uses optimized Promise.all for parallel processing of all images
-   */
-  if (userdata && userdata.paginatedResults) {
-    // Process images asynchronously in parallel
-    const processPromises = userdata.paginatedResults.map(async (userItem) => {
-      // Check if the user has profilePhotoPrivacy enabled
-      if (userItem.privacySettingCustom && userItem.privacySettingCustom.profilePhotoPrivacy === true) {
-        // Create an array of all image processing promises
+  if (userData[0] && userData[0].paginatedResults) {
+    const processPromises = userData[0].paginatedResults.map(async (userItem) => {
+      const privacy = userItem.privacySettingCustom || {};
+      const friendsStatus = userItem.friendsDetails.status;
+
+      const shouldBlurImage =
+        privacy.profilePhotoPrivacy === true || (privacy.showPhotoToFriendsOnly === true && friendsStatus !== 'accepted');
+
+      if (shouldBlurImage) {
         const imageProcessingPromises = [];
 
-        // Add the main profile pic to processing queue if it exists
+        // Blur main profilePic
         if (userItem.profilePic) {
           imageProcessingPromises.push(
             imageBlurService.blurImage(userItem.profilePic).then((blurredUrl) => {
@@ -401,12 +437,10 @@ export const getUserByGenderDating = catchAsync(async (req, res) => {
           );
         }
 
-        // Process all user profile pics if they exist
-        if (userItem.userProfilePic && userItem.userProfilePic.length > 0) {
-          // Get all photo blurring promises at once
+        // Blur all userProfilePic photos
+        if (Array.isArray(userItem.userProfilePic) && userItem.userProfilePic.length > 0) {
           const photoBlurPromises = userItem.userProfilePic.map((photo, index) =>
             imageBlurService.blurImage(photo.url).then((blurredUrl) => {
-              // Directly update the array in place to avoid creating new objects
               // eslint-disable-next-line no-param-reassign
               userItem.userProfilePic[index] = {
                 ...photo,
@@ -414,22 +448,19 @@ export const getUserByGenderDating = catchAsync(async (req, res) => {
               };
             })
           );
-
-          // Add all photo processing promises to the main queue
           imageProcessingPromises.push(...photoBlurPromises);
         }
 
-        // Wait for all image processing to complete before returning the user
         await Promise.all(imageProcessingPromises);
       }
+
       return userItem;
     });
 
-    // Wait for all processing to complete
-    userdata.paginatedResults = await Promise.all(processPromises);
+    userData[0].paginatedResults = await Promise.all(processPromises);
   }
 
-  return res.status(httpStatus.OK).send({ results: userdata });
+  return res.status(httpStatus.OK).send({ results: userData });
 });
 
 export const getUserByGenderAndAgeAndMatchDating = catchAsync(async (req, res) => {
@@ -449,7 +480,7 @@ export const getUserByGenderAndAgeAndMatchDating = catchAsync(async (req, res) =
     ...pick(query, ['limit', 'page']),
   };
 
-  const userdata = await userService.getDatingPartnerListByAgeAndMatch(filter, ageRange, options);
+  const userData = await userService.getDatingPartnerListByAgeAndMatch(filter, ageRange, options);
 
   /**
    * Image Privacy Feature:
@@ -461,15 +492,18 @@ export const getUserByGenderAndAgeAndMatchDating = catchAsync(async (req, res) =
    * 4. Automatic cleanup via daily cron job at 4 AM (cronjobs/imageBlurCleanup.job.js)
    * 5. Promise.all for concurrent image processing to minimize response time
    */
-  if (userdata && userdata.paginatedResults) {
-    // Process images asynchronously in parallel
-    const processPromises = userdata.paginatedResults.map(async (userItem) => {
-      // Check if the user has profilePhotoPrivacy enabled
-      if (userItem.privacySettingCustom && userItem.privacySettingCustom.profilePhotoPrivacy === true) {
-        // Create an array of all image processing promises
+  if (userData[0] && userData[0].paginatedResults) {
+    const processPromises = userData[0].paginatedResults.map(async (userItem) => {
+      const privacy = userItem.privacySettingCustom || {};
+      const friendsStatus = userItem.friendsDetails.status;
+
+      const shouldBlurImage =
+        privacy.profilePhotoPrivacy === true || (privacy.showPhotoToFriendsOnly === true && friendsStatus !== 'accepted');
+
+      if (shouldBlurImage) {
         const imageProcessingPromises = [];
 
-        // Add the main profile pic to processing queue if it exists
+        // Blur main profilePic
         if (userItem.profilePic) {
           imageProcessingPromises.push(
             imageBlurService.blurImage(userItem.profilePic).then((blurredUrl) => {
@@ -479,12 +513,10 @@ export const getUserByGenderAndAgeAndMatchDating = catchAsync(async (req, res) =
           );
         }
 
-        // Process all user profile pics if they exist
-        if (userItem.userProfilePic && userItem.userProfilePic.length > 0) {
-          // Get all photo blurring promises at once
+        // Blur all userProfilePic photos
+        if (Array.isArray(userItem.userProfilePic) && userItem.userProfilePic.length > 0) {
           const photoBlurPromises = userItem.userProfilePic.map((photo, index) =>
             imageBlurService.blurImage(photo.url).then((blurredUrl) => {
-              // Directly update the array in place to avoid creating new objects
               // eslint-disable-next-line no-param-reassign
               userItem.userProfilePic[index] = {
                 ...photo,
@@ -492,22 +524,19 @@ export const getUserByGenderAndAgeAndMatchDating = catchAsync(async (req, res) =
               };
             })
           );
-
-          // Add all photo processing promises to the main queue
           imageProcessingPromises.push(...photoBlurPromises);
         }
 
-        // Wait for all image processing to complete before returning the user
         await Promise.all(imageProcessingPromises);
       }
+
       return userItem;
     });
 
-    // Wait for all processing to complete
-    userdata.paginatedResults = await Promise.all(processPromises);
+    userData[0].paginatedResults = await Promise.all(processPromises);
   }
 
-  return res.status(httpStatus.OK).send({ results: userdata });
+  return res.status(httpStatus.OK).send({ results: userData });
 });
 
 export const getFilteredDatingUsers = catchAsync(async (req, res) => {
@@ -528,8 +557,51 @@ export const getFilteredDatingUsers = catchAsync(async (req, res) => {
     ...pick(query, ['limit', 'page']),
   };
 
-  const userdata = await userService.getFilteredDatingInterestList(filter, options);
-  return res.status(httpStatus.OK).send({ results: userdata });
+  const userData = await userService.getFilteredDatingInterestList(filter, options);
+  if (userData[0] && userData[0].paginatedResults) {
+    const processPromises = userData[0].paginatedResults.map(async (userItem) => {
+      const privacy = userItem.privacySettingCustom || {};
+      const friendsStatus = userItem.friendsDetails.status;
+
+      const shouldBlurImage =
+        privacy.profilePhotoPrivacy === true || (privacy.showPhotoToFriendsOnly === true && friendsStatus !== 'accepted');
+
+      if (shouldBlurImage) {
+        const imageProcessingPromises = [];
+
+        // Blur main profilePic
+        if (userItem.profilePic) {
+          imageProcessingPromises.push(
+            imageBlurService.blurImage(userItem.profilePic).then((blurredUrl) => {
+              // eslint-disable-next-line no-param-reassign
+              userItem.profilePic = blurredUrl;
+            })
+          );
+        }
+
+        // Blur all userProfilePic photos
+        if (Array.isArray(userItem.userProfilePic) && userItem.userProfilePic.length > 0) {
+          const photoBlurPromises = userItem.userProfilePic.map((photo, index) =>
+            imageBlurService.blurImage(photo.url).then((blurredUrl) => {
+              // eslint-disable-next-line no-param-reassign
+              userItem.userProfilePic[index] = {
+                ...photo,
+                url: blurredUrl,
+              };
+            })
+          );
+          imageProcessingPromises.push(...photoBlurPromises);
+        }
+
+        await Promise.all(imageProcessingPromises);
+      }
+
+      return userItem;
+    });
+
+    userData[0].paginatedResults = await Promise.all(processPromises);
+  }
+  return res.status(httpStatus.OK).send({ results: userData });
 });
 
 export const searchUser = catchAsync(async (req, res) => {
@@ -550,8 +622,51 @@ export const searchUser = catchAsync(async (req, res) => {
     ...pick(query, ['limit', 'page']),
   };
 
-  const userdata = await userService.getFilteredDatingEthnicityList(filter, options);
-  return res.status(httpStatus.OK).send({ results: userdata });
+  const userData = await userService.getFilteredDatingEthnicityList(filter, options);
+  if (userData[0] && userData[0].paginatedResults) {
+    const processPromises = userData[0].paginatedResults.map(async (userItem) => {
+      const privacy = userItem.privacySettingCustom || {};
+      const friendsStatus = userItem.friendsDetails.status;
+
+      const shouldBlurImage =
+        privacy.profilePhotoPrivacy === true || (privacy.showPhotoToFriendsOnly === true && friendsStatus !== 'accepted');
+
+      if (shouldBlurImage) {
+        const imageProcessingPromises = [];
+
+        // Blur main profilePic
+        if (userItem.profilePic) {
+          imageProcessingPromises.push(
+            imageBlurService.blurImage(userItem.profilePic).then((blurredUrl) => {
+              // eslint-disable-next-line no-param-reassign
+              userItem.profilePic = blurredUrl;
+            })
+          );
+        }
+
+        // Blur all userProfilePic photos
+        if (Array.isArray(userItem.userProfilePic) && userItem.userProfilePic.length > 0) {
+          const photoBlurPromises = userItem.userProfilePic.map((photo, index) =>
+            imageBlurService.blurImage(photo.url).then((blurredUrl) => {
+              // eslint-disable-next-line no-param-reassign
+              userItem.userProfilePic[index] = {
+                ...photo,
+                url: blurredUrl,
+              };
+            })
+          );
+          imageProcessingPromises.push(...photoBlurPromises);
+        }
+
+        await Promise.all(imageProcessingPromises);
+      }
+
+      return userItem;
+    });
+
+    userData[0].paginatedResults = await Promise.all(processPromises);
+  }
+  return res.status(httpStatus.OK).send({ results: userData });
 });
 export const getprimeuser = catchAsync(async (req, res) => {
   const { user } = req;
