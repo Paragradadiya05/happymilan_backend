@@ -463,8 +463,8 @@ export const logout = catchAsync(async (req, res) => {
 
 export const socialLogin = catchAsync(async (req, res) => {
   const user = await authService.socialLogin(req.user);
-  const token = await tokenService.generateAuthTokens(req.user);
-  res.status(httpStatus.OK).send({ results: { user, token } });
+  const tokens = await tokenService.generateAuthTokens(req.user);
+  res.status(httpStatus.OK).send({ results: { user, tokens } });
 });
 
 export const registerDeviceToken = catchAsync(async (req, res) => {

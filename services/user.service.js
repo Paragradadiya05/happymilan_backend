@@ -2578,7 +2578,6 @@ export async function getUserWithDatingData(filter) {
       $project: createDynamicProjectionForPrivacySetting(fields, defaultFields, isPremiumUser),
     },
   ];
-  console.log('=====pipeline====>', pipeline);
   const matchedUser = await User.aggregate(pipeline).exec();
   return matchedUser;
 }

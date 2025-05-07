@@ -29,7 +29,6 @@ export const get = catchAsync(async (req, res) => {
         imageProcessingPromises.push(
           imageBlurService.blurImage(userItem.profilePic).then((blurredUrl) => {
             userItem.profilePic = blurredUrl;
-            console.log('Blurred URL:', blurredUrl);
           })
         );
       }
@@ -83,7 +82,6 @@ export const getDatingUser = catchAsync(async (req, res) => {
         imageProcessingPromises.push(
           imageBlurService.blurImage(userItem.profilePic).then((blurredUrl) => {
             userItem.profilePic = blurredUrl;
-            console.log('Blurred URL:', blurredUrl);
           })
         );
       }
@@ -265,7 +263,6 @@ export const getUnique = catchAsync(async (req, res) => {
         imageProcessingPromises.push(
           imageBlurService.blurImage(userItem.profilePic).then((blurredUrl) => {
             userItem.profilePic = blurredUrl;
-            console.log('Blurred URL:', blurredUrl);
           })
         );
       }
