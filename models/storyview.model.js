@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import mongoosePaginateV2 from 'mongoose-paginate-v2';
-import { toJSON } from 'models/plugins';
+import { softDelete, toJSON } from 'models/plugins';
 // for status viewer
 const StoryViewSchema = new mongoose.Schema(
   {
@@ -12,11 +12,17 @@ const StoryViewSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },
-    Time: { type: Date, default: Date.now },
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );
 StoryViewSchema.plugin(toJSON);
 StoryViewSchema.plugin(mongoosePaginateV2);
+StoryViewSchema.plugin(softDelete, {
+  isSoftDeleteAddon: true,
+  overrideMethods: 'all',
+  deleted: 'isDeleted',
+  deletedBy: 'deletedBy',
+  deletedAt: 'deletedAt',
+});
 const StoryViewModel = mongoose.models.StoryView || mongoose.model('StoryView', StoryViewSchema, 'StoryView');
 module.exports = StoryViewModel;
