@@ -17,3 +17,8 @@ export async function updateSubscription(filter, body, options = {}) {
   const subscription = await Subscription.findOneAndUpdate(filter, body, options);
   return subscription;
 }
+
+export async function getOne(query, options = {}) {
+  const subscription = await Subscription.findOne(query, options.projection, options);
+  return subscription;
+}

@@ -33,3 +33,4 @@ module.exports.SuccessStoryViewController = require('./successstoryview.controll
 module.exports.StoryLikeController = require('./storylike.controller');
 module.exports.UserPlanController = require('./userPlan.controller');
 module.exports.twoFactorAuthController = require('./twoFactorAuth.controller');
+module.exports.SubscriptionController = require('./subscription.controller');
