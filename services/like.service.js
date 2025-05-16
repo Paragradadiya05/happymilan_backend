@@ -40,7 +40,7 @@ export async function createLike(body = {}, user, appUsesType) {
     userId: body.likedUserId,
     otherUserId: user._id,
     userName: user.name,
-    body: EnumOfNotification.SOMEONE_LIKED_YOUR_PROFILE,
+    body: `${user.name} liked your profile`,
     title: EnumOfNotification.LIKE,
   });
   // await Notification.create({ userId, otherUserId: body.likedUserId, body: 'like' });
