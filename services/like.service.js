@@ -39,6 +39,7 @@ export async function createLike(body = {}, user, appUsesType) {
   const createNotificationForLikedProfile = await Notification.create({
     userId: body.likedUserId,
     otherUserId: user._id,
+    userName: user.name,
     body: EnumOfNotification.SOMEONE_LIKED_YOUR_PROFILE,
     title: EnumOfNotification.LIKE,
   });
@@ -47,25 +48,28 @@ export async function createLike(body = {}, user, appUsesType) {
 
   console.log('===== like deviceTokens ====>', user);
   console.log('=== var like deviceTokens.length ===>', user.deviceTokens.length);
-  if (user && user.deviceTokens && user.deviceTokens.length) {
-    await user.deviceTokens.map(async (fcmToken) => {
-      await sendNotification(
-        fcmToken.deviceToken,
-        {
-          data: {
-            _id: createNotificationForLikedProfile._id.toString(),
-            userId: createNotificationForLikedProfile.userId.toString(),
-            otherUserId: createNotificationForLikedProfile.otherUserId.toString(),
-            body: EnumOfNotification.SOMEONE_LIKED_YOUR_PROFILE,
-            title: EnumOfNotification.LIKE,
-            createdAt: createNotificationForLikedProfile.createdAt.toString(),
-            updatedAt: createNotificationForLikedProfile.updatedAt.toString(),
+  if (likedUser && likedUser.deviceTokens && likedUser.deviceTokens.length) {
+    await Promise.all(
+      likedUser.deviceTokens.map(async (fcmToken) => {
+        await sendNotification(
+          fcmToken.deviceToken,
+          {
+            data: {
+              _id: createNotificationForLikedProfile._id.toString(),
+              userId: createNotificationForLikedProfile.userId.toString(),
+              otherUserId: createNotificationForLikedProfile.otherUserId.toString(),
+              body: `${user.name} liked your profile`,
+              title: EnumOfNotification.LIKE,
+              createdAt: createNotificationForLikedProfile.createdAt.toString(),
+              updatedAt: createNotificationForLikedProfile.updatedAt.toString(),
+            },
           },
-        },
-        {}
-      );
-    });
+          {}
+        );
+      })
+    );
   }
+
   return Like.create({
     user: userId,
     likedUserId: body.likedUserId,
