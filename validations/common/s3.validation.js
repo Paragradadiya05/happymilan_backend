@@ -36,6 +36,8 @@ export const sendProposal = {
     emailAddresh: Joi.string().required(),
     contactNo: Joi.string().required(),
     projectDescription: Joi.string().required(),
+    help: Joi.string(),
+    Budget: Joi.number(),
     attachments: Joi.object({
       filename: Joi.string().required(),
       content: Joi.string(),

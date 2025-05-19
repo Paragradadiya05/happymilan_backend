@@ -21,13 +21,23 @@ export const UploadKycDoc = catchAsync(async (req, res) => {
 });
 
 export const sendProposal = catchAsync(async (req, res) => {
+  const { name, emailAddresh, contactNo, projectDescription, help, Budget, attachments } = req.body;
+
   const emailSendBody = {
-    from: req.body.emailAddresh,
+    from: emailAddresh,
     to: 'mntechgroup2@gmail.com',
-    subject: req.body.projectDescription,
-    html: `<b> name:  ${req.body.name}  contact no:  ${req.body.contactNo}  projectDescription : ${req.body.projectDescription}</b>`,
-    attachments: [{ filename: req.body.filename, content: req.body.content }],
+    subject: projectDescription,
+    html: `
+      <b>
+        Name:</b> ${name}<br/>
+      <b>Contact No:</b> ${contactNo}<br/>
+      <b>Project Description:</b> ${projectDescription}<br/>
+      ${help ? `<b>Help Needed:</b> ${help}<br/>` : ''}
+      ${Budget !== undefined ? `<b>Budget:</b> ₹${Budget}<br/>` : ''}
+    `,
+    attachments: attachments ? [{ filename: attachments.filename, content: attachments.content }] : [],
   };
+
   const s3PutObject = await sendMail(emailSendBody);
   return res.status(httpStatus.OK).send({ results: s3PutObject });
 });
