@@ -405,17 +405,17 @@ export const verifyOtpForUpdatePasswordEnaEmail = async ({ email, mobileNumber, 
  */
 export const loginUserWithEmailOrMobileAndPassword = async (email, mobileNumber, countryCodeId, password) => {
   let user;
-
+  const populateFields = ['address', 'userProfessional', 'userEducation', 'userPartner'];
   if (email) {
     // Login with email
-    user = await User.findOne({ email });
+    user = await User.findOne({ email }).populate(populateFields);
   } else if (mobileNumber && countryCodeId) {
     // Login with mobile number
     const countryCode = await countryCodeService.getCountryCodeById(countryCodeId);
     if (!countryCode) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid country code');
     }
-    user = await User.findOne({ mobileNumber, countryCode: countryCode.code });
+    user = await User.findOne({ mobileNumber, countryCode: countryCode.code }).populate(populateFields);
   } else {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email or mobile number is required');
   }
