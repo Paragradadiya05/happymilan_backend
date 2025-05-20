@@ -18,7 +18,7 @@ router.post('/uploadstoryimage', auth(), validate(s3Validation.UploadStoryImg), 
 
 router.post('/send-proposal', validate(s3Validation.sendProposal), s3Controller.sendProposal);
 
-router.post('/apply-internship', validate(s3Validation.ApplyInternship), s3Validation.ApplyInternship);
+router.post('/apply-internship', validate(s3Validation.ApplyInternship), s3Controller.ApplyInternship);
 
 router.post('/csr-initiative', validate(s3Validation.csrInitiative), s3Controller.csrInitiative);
 
