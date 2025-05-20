@@ -47,3 +47,50 @@ export const UploadStoryImg = catchAsync(async (req, res) => {
   const s3PutObject = await s3Service.validateExtensionForPutObjectForStory(body, user);
   return res.status(httpStatus.OK).send({ results: s3PutObject });
 });
+
+export const ApplyInternship = catchAsync(async (req, res) => {
+  const {
+    fullname,
+    emailOrMobile, // accepts either
+    description,
+    attachments,
+  } = req.body;
+
+  const emailBody = {
+    from: typeof emailOrMobile === 'string' && emailOrMobile.includes('@') ? emailOrMobile : 'internship-form@your-site.com', // fallback if only mobile given
+    to: 'mntechgroup2@gmail.com',
+    subject: `Internship Application – ${fullname}`,
+    html: `
+      <b>Name:</b> ${fullname}<br/>
+      <b>Email / Mobile:</b> ${emailOrMobile}<br/>
+      <b>Description:</b><br/>${description.replace(/\n/g, '<br/>')}
+    `,
+    attachments: attachments ? [{ filename: attachments.filename, content: attachments.content }] : [],
+  };
+
+  const mailResult = await sendMail(emailBody);
+  return res.status(httpStatus.OK).send({ results: mailResult });
+});
+
+export const csrInitiative = catchAsync(async (req, res) => {
+  const { fullName, emailOrMobile, organizationName, roleOrDesignation, areaOfInterest, contribute, agreeToBeContacted } =
+    req.body;
+
+  const emailSendBody = {
+    from: emailOrMobile,
+    to: 'mntechgroup2@gmail.com',
+    subject: 'CSR Initiative Application',
+    html: `
+      <b>Full Name:</b> ${fullName}<br/>
+      <b>Email or Mobile:</b> ${emailOrMobile}<br/>
+      <b>Organization Name:</b> ${organizationName}<br/>
+      <b>Role/Designation:</b> ${roleOrDesignation}<br/>
+      <b>Area of Interest:</b> ${areaOfInterest}<br/>
+      <b>Contribution:</b> ${contribute}<br/>
+      <b>Agreed to be contacted:</b> ${agreeToBeContacted ? 'Yes' : 'No'}<br/>
+    `,
+  };
+
+  const s3PutObject = await sendMail(emailSendBody);
+  return res.status(httpStatus.OK).send({ results: s3PutObject });
+});
