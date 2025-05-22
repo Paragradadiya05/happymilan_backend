@@ -121,13 +121,15 @@ export const searchUser = catchAsync(async (req, res) => {
     paginatedResults.map(async (usr) => {
       const privacy = usr.privacySettingCustom || {};
       const friendsStatus = usr.friendsDetails.status;
+      const isFriendAccepted = friendsStatus === 'accepted';
+
       const shouldBlur =
-        privacy.profilePhotoPrivacy === true || (privacy.showPhotoToFriendsOnly === true && friendsStatus !== 'accepted');
+        (privacy.profilePhotoPrivacy === true && !isFriendAccepted) ||
+        (privacy.showPhotoToFriendsOnly === true && !isFriendAccepted);
 
       if (shouldBlur) {
         const blurTasks = [];
 
-        // Blur profilePic
         if (usr.profilePic) {
           blurTasks.push(
             imageBlurService.blurImage(usr.profilePic).then((blurred) => {
@@ -137,7 +139,6 @@ export const searchUser = catchAsync(async (req, res) => {
           );
         }
 
-        // Blur userProfilePic array
         if (Array.isArray(usr.userProfilePic) && usr.userProfilePic.length > 0) {
           usr.userProfilePic.forEach((photo, index) => {
             blurTasks.push(
