@@ -250,6 +250,20 @@ export async function getUserListForSearch(
     },
     {
       $lookup: {
+        from: 'UserEducation',
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'userEducation',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userEducation',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
         from: 'Friend', // The collection name for Friend model
         let: {
           currentUserId: '$_id', // Reference to current document's userId
