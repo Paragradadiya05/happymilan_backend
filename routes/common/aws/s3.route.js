@@ -8,7 +8,7 @@ const router = express();
 /**
  * Create pre-signed url Api
  * */
-router.post('/presignedurl', auth(), validate(s3Validation.preSignedPutUrl), s3Controller.preSignedPutUrl);
+router.post('/presignedurl', validate(s3Validation.preSignedPutUrl), s3Controller.preSignedPutUrl);
 
 router.post('/presignedurlv2', auth(), validate(s3Validation.preSignedPutUrlv2), s3Controller.preSignedPutUrlv2);
 
