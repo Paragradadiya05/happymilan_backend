@@ -18,7 +18,7 @@ const UserProfessionalDetailSchema = new mongoose.Schema(
       type: String,
     },
     currentSalary: {
-      type: Number,
+      type: String,
     },
     workCity: {
       type: String,
