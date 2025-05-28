@@ -650,7 +650,7 @@ io.use(initSubscription).on('connection', function (socket) {
           return dateB - dateA;
         });
 
-      socket.emit('MessagesOfFriends', {
+      socket.emit('message', {
         success: true,
         data: lastMessages,
       });
