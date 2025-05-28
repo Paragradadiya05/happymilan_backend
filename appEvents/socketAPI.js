@@ -1,10 +1,11 @@
 import socketIO from 'socket.io';
 import httpStatus from 'http-status';
-import { messageservice, userService } from '../services';
+import { friendService, messageservice, userService } from '../services';
 import ApiError from '../utils/ApiError';
 import { uploadChatContent } from '../services/s3.service';
-import { EnumOfChatType } from '../models/enum.model';
+import { EnumOfChatType, EnumStatusOfFriend } from '../models/enum.model';
 import { Like, User } from '../models';
+import { MessageCountForUser } from '../services/message.service';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 const { ObjectId } = require('mongodb');
@@ -537,6 +538,129 @@ io.use(initSubscription).on('connection', function (socket) {
     }
     // add event while user comes onlie (from mobile or web)
     // when user gets offline at that time hit socket and makes inactive status in user data
+  });
+
+  socket.on('MessagesOfFriends', async (data) => {
+    try {
+      const userId = socket.user;
+      if (!userId) throw new Error('User not authenticated in socket');
+
+      const options = {
+        page: data.page || 1,
+        limit: data.limit || 100,
+      };
+
+      const filter = {
+        status: EnumStatusOfFriend.ACCEPTED,
+        $or: [{ friend: userId }, { user: userId }],
+      };
+
+      const friendsListResult = await friendService.getFriendAcceptedMobile(filter, options, userId);
+      // eslint-disable-next-line no-param-reassign
+      const friendsList = (friendsListResult && friendsListResult.results) || [];
+
+      // Step 1: Get unread counts grouped by sender (friends)
+      const unreadResults = await MessageCountForUser(userId, { limit: 1000, page: 1 });
+      // unreadResults = [{ _id: <friendId>, unreadMessageCount: Number }]
+
+      // Create a map for quick lookup: friendId -> unreadCount
+      const unreadMap = new Map();
+      if (unreadResults && unreadResults[0] && unreadResults[0].data) {
+        unreadResults[0].data.forEach((item) => {
+          unreadMap.set(item._id.toString(), item.unreadMessageCount);
+        });
+      }
+
+      let lastMessages = await Promise.all(
+        friendsList.map(async (friendDoc) => {
+          try {
+            const friendObj = friendDoc._doc || friendDoc;
+
+            const friendUser = friendObj.friend;
+            const mainUser = friendObj.user;
+
+            if (!friendUser || !mainUser || !friendUser._id || !mainUser._id) {
+              return {
+                friendId: null,
+                lastMessage: null,
+                friendName: null,
+                userProfilePic: null,
+                isUserActive: null,
+                unreadCount: 0,
+              };
+            }
+
+            const friendId =
+              friendUser._id.toString() === userId.toString() ? mainUser._id.toString() : friendUser._id.toString();
+
+            const friendData = friendUser._id.toString() === userId.toString() ? mainUser : friendUser;
+
+            if (!ObjectId.isValid(userId) || !ObjectId.isValid(friendId)) {
+              console.warn('Invalid ObjectId for user or friend');
+              return {
+                friendId: null,
+                lastMessage: null,
+                friendName: null,
+                userProfilePic: null,
+                isUserActive: null,
+                unreadCount: 0,
+              };
+            }
+
+            const query = {
+              $or: [
+                { from: new ObjectId(userId), to: new ObjectId(friendId) },
+                { from: new ObjectId(friendId), to: new ObjectId(userId) },
+              ],
+            };
+
+            const lastMessageArray = await messageservice.getMessageList(query);
+            const lastMessage = Array.isArray(lastMessageArray) ? lastMessageArray[0] : lastMessageArray;
+
+            // Step 2: Get unread count for this friend from pre-fetched map
+            const unreadCount = unreadMap.get(friendId) || 0;
+
+            return {
+              friendId,
+              lastMessage: lastMessage || null,
+              friendName: (friendData && friendData.name) || null,
+              userProfilePic: (friendData && friendData.profilePic) || null,
+              isUserActive: (friendData && friendData.isUserActive) || false,
+              unreadCount,
+            };
+          } catch (err) {
+            console.error('Error processing friend:', err);
+            return {
+              friendId: null,
+              lastMessage: null,
+              friendName: null,
+              userProfilePic: null,
+              isUserActive: null,
+              unreadCount: 0,
+            };
+          }
+        })
+      );
+
+      lastMessages = lastMessages
+        .filter((item) => item.lastMessage !== null)
+        .sort((a, b) => {
+          const dateA = new Date((a.lastMessage && a.lastMessage.sendAt) || 0);
+          const dateB = new Date((b.lastMessage && b.lastMessage.sendAt) || 0);
+          return dateB - dateA;
+        });
+
+      socket.emit('MessagesOfFriends', {
+        success: true,
+        data: lastMessages,
+      });
+    } catch (error) {
+      console.error('Error in getLastMessagesOfFriends:', error);
+      socket.emit('lastMessagesOfFriends', {
+        success: false,
+        message: error.message || 'Something went wrong',
+      });
+    }
   });
 
   socket.on('userInActive', async () => {

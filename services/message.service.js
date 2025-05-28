@@ -1,5 +1,6 @@
 import { Message, User, Notification } from 'models';
 import httpStatus from 'http-status';
+import { Types } from 'mongoose';
 import ApiError from '../utils/ApiError';
 import { sendNotification } from './notification.service';
 
@@ -69,6 +70,34 @@ export async function getUnreadMessageCountForUser(userId, options = {}) {
     {
       $match: {
         to: userId,
+        isReadMessage: false,
+      },
+    },
+    {
+      $group: {
+        _id: '$from',
+        unreadMessageCount: { $sum: 1 },
+      },
+    },
+    {
+      $facet: {
+        metadata: [{ $count: 'total' }, { $addFields: { page } }],
+        data: [{ $skip: (page - 1) * limit }, { $limit: limit }],
+      },
+    },
+  ];
+  const getMessage = await Message.aggregate(pipeline).exec();
+  return getMessage;
+}
+
+export async function MessageCountForUser(userId, options = {}) {
+  const { limit = 10, page = 1 } = options;
+  const userObjectId = typeof userId === 'string' ? new Types.ObjectId(userId) : userId;
+
+  const pipeline = [
+    {
+      $match: {
+        to: userObjectId,
         isReadMessage: false,
       },
     },
