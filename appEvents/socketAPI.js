@@ -556,16 +556,17 @@ io.use(initSubscription).on('connection', function (socket) {
       };
 
       const friendsListResult = await friendService.getFriendAcceptedMobile(filter, options, userId);
-      // eslint-disable-next-line no-param-reassign
       const friendsList = (friendsListResult && friendsListResult.results) || [];
 
-      // Step 1: Get unread counts grouped by sender (friends)
       const unreadResults = await MessageCountForUser(userId, { limit: 1000, page: 1 });
-      // unreadResults = [{ _id: <friendId>, unreadMessageCount: Number }]
 
-      // Create a map for quick lookup: friendId -> unreadCount
       const unreadMap = new Map();
-      if (unreadResults && unreadResults[0] && unreadResults[0].data) {
+      if (
+        Array.isArray(unreadResults) &&
+        unreadResults.length > 0 &&
+        unreadResults[0] &&
+        Array.isArray(unreadResults[0].data)
+      ) {
         unreadResults[0].data.forEach((item) => {
           unreadMap.set(item._id.toString(), item.unreadMessageCount);
         });
@@ -579,32 +580,19 @@ io.use(initSubscription).on('connection', function (socket) {
             const friendUser = friendObj.friend;
             const mainUser = friendObj.user;
 
-            if (!friendUser || !mainUser || !friendUser._id || !mainUser._id) {
-              return {
-                friendId: null,
-                lastMessage: null,
-                friendName: null,
-                userProfilePic: null,
-                isUserActive: null,
-                unreadCount: 0,
-              };
+            if (!friendUser || !friendUser._id || !mainUser || !mainUser._id) {
+              return null;
             }
 
             const friendId =
               friendUser._id.toString() === userId.toString() ? mainUser._id.toString() : friendUser._id.toString();
 
-            const friendData = friendUser._id.toString() === userId.toString() ? mainUser : friendUser;
+            const rawFriend = friendUser._id.toString() === userId.toString() ? mainUser : friendUser;
+            const rawUser = friendUser._id.toString() === userId.toString() ? friendUser : mainUser;
 
             if (!ObjectId.isValid(userId) || !ObjectId.isValid(friendId)) {
               console.warn('Invalid ObjectId for user or friend');
-              return {
-                friendId: null,
-                lastMessage: null,
-                friendName: null,
-                userProfilePic: null,
-                isUserActive: null,
-                unreadCount: 0,
-              };
+              return null;
             }
 
             const query = {
@@ -617,33 +605,33 @@ io.use(initSubscription).on('connection', function (socket) {
             const lastMessageArray = await messageservice.getMessageList(query);
             const lastMessage = Array.isArray(lastMessageArray) ? lastMessageArray[0] : lastMessageArray;
 
-            // Step 2: Get unread count for this friend from pre-fetched map
             const unreadCount = unreadMap.get(friendId) || 0;
 
+            // Extract selected fields only
+            const selectFields = ({ _id, name, firstName, lastName, profilePic, isUserActive }) => ({
+              _id,
+              name,
+              firstName,
+              lastName,
+              profilePic,
+              isUserActive,
+            });
+
             return {
-              friendId,
               lastMessage: lastMessage || null,
-              friendName: (friendData && friendData.name) || null,
-              userProfilePic: (friendData && friendData.profilePic) || null,
-              isUserActive: (friendData && friendData.isUserActive) || false,
               unreadCount,
+              friendList: selectFields(rawFriend),
+              userList: selectFields(rawUser),
             };
           } catch (err) {
             console.error('Error processing friend:', err);
-            return {
-              friendId: null,
-              lastMessage: null,
-              friendName: null,
-              userProfilePic: null,
-              isUserActive: null,
-              unreadCount: 0,
-            };
+            return null;
           }
         })
       );
 
       lastMessages = lastMessages
-        .filter((item) => item.lastMessage !== null)
+        .filter((item) => item && item.lastMessage !== null)
         .sort((a, b) => {
           const dateA = new Date((a.lastMessage && a.lastMessage.sendAt) || 0);
           const dateB = new Date((b.lastMessage && b.lastMessage.sendAt) || 0);
