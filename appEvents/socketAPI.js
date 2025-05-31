@@ -270,7 +270,7 @@ io.use(initSubscription).on('connection', function (socket) {
         throw new Error('Message ID, sender, receiver required');
       }
 
-      // Update the message's 'messageDeletedFrom' and 'messageDeletedTo' fields based on the provided values
+      // Update message deletion flags in the database
       await messageservice.updateMessage(
         { _id: messageId, from, to },
         {
@@ -281,14 +281,22 @@ io.use(initSubscription).on('connection', function (socket) {
         { new: true }
       );
 
-      socket.emit('message', {
-        data: {
-          status: true,
-          message: 'Message deletion status updated successfully',
-        },
+      // Notify the sender
+      socket.emit('messageDeleteStatusUpdateConfirmation', {
+        success: true,
+        message: 'Message deletion status updated successfully',
+        messageId,
       });
+
+      // If message should be deleted for both, notify the recipient as well
+      if (messageDeletedAll) {
+        // Emit to recipient's socket
+        socket.to(to).emit('messageDeleted', {
+          messageId,
+          deletedFor: 'both',
+        });
+      }
     } catch (e) {
-      // Handle errors
       console.error('Error updating message deletion status:', e.message);
       socket.emit('messageDeleteStatusUpdateConfirmation', {
         success: false,
