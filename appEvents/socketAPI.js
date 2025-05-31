@@ -282,7 +282,7 @@ io.use(initSubscription).on('connection', function (socket) {
       );
 
       // Notify the sender
-      socket.emit('messageDeleteStatusUpdateConfirmation', {
+      socket.emit('message', {
         success: true,
         message: 'Message deletion status updated successfully',
         messageId,
