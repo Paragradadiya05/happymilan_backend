@@ -4,7 +4,7 @@ import { friendService, messageservice, userService } from '../services';
 import ApiError from '../utils/ApiError';
 import { uploadChatContent } from '../services/s3.service';
 import { EnumOfChatType, EnumStatusOfFriend } from '../models/enum.model';
-import { Like, User } from '../models';
+import { Like, Message, User } from '../models';
 import { MessageCountForUser } from '../services/message.service';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -357,7 +357,6 @@ io.use(initSubscription).on('connection', function (socket) {
           sendMessage,
         },
       });
-
       // socket.to(to).emit('message', {
       //   from,
       //   to,
@@ -576,7 +575,6 @@ io.use(initSubscription).on('connection', function (socket) {
         friendsList.map(async (friendDoc) => {
           try {
             const friendObj = friendDoc._doc || friendDoc;
-
             const friendUser = friendObj.friend;
             const mainUser = friendObj.user;
 
@@ -600,14 +598,15 @@ io.use(initSubscription).on('connection', function (socket) {
                 { from: new ObjectId(userId), to: new ObjectId(friendId) },
                 { from: new ObjectId(friendId), to: new ObjectId(userId) },
               ],
+              messageDeletedAll: { $ne: true }, // ✅ Exclude deleted-for-all messages
             };
 
-            const lastMessageArray = await messageservice.getMessageList(query);
-            const lastMessage = Array.isArray(lastMessageArray) ? lastMessageArray[0] : lastMessageArray;
+            const lastMessage = await Message.findOne(query)
+              .sort({ sendAt: -1 }) // Get latest message
+              .lean();
 
             const unreadCount = unreadMap.get(friendId) || 0;
 
-            // Extract selected fields only
             const selectFields = ({ _id, name, firstName, lastName, profilePic, isUserActive }) => ({
               _id,
               name,

@@ -565,6 +565,7 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
       userId: user._id,
       body: EnumOfNotification.REQUEST_ACCEPTED,
       title: EnumOfNotification.REQUEST_ACCEPTED,
+      otherUserId: friendRequest.user,
     });
 
     const frdUserData = await User.findById(friendRequest.user);
@@ -579,6 +580,7 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
             data: {
               _id: createNotificationForAccepted._id.toString(),
               userId: createNotificationForAccepted.userId.toString(),
+              otherUserId: friendRequest.user.toString(),
               body: `${EnumOfNotification.REQUEST_ACCEPTED} of ${frdUserData.name}`,
               title: EnumOfNotification.REQUEST_ACCEPTED,
               createdAt: createNotificationForAccepted.createdAt.toString(),
