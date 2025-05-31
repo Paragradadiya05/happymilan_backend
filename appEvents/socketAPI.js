@@ -331,7 +331,7 @@ io.use(initSubscription).on('connection', function (socket) {
         },
         {
           page: page || 1,
-          limit: limit || 15,
+          limit: limit || 100,
           sort: { sendAt: -1 }, // Default limit to 10 if not specified
         }
       );
