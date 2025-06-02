@@ -54,7 +54,7 @@ const MessageSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    deleteChet: {
+    deleteChat: {
       type: Boolean,
       default: false,
     },

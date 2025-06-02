@@ -307,9 +307,9 @@ io.use(initSubscription).on('connection', function (socket) {
 
   socket.on('DeleteChat', async (data) => {
     try {
-      const { from, to, deleteChet } = data;
+      const { from, to, deleteChat } = data;
 
-      if (!from || !to || deleteChet !== true) {
+      if (!from || !to || deleteChat !== true) {
         throw new Error('Both sender and receiver IDs and deleteChet flag are required');
       }
 
