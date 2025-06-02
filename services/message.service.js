@@ -117,3 +117,7 @@ export async function MessageCountForUser(userId, options = {}) {
   const getMessage = await Message.aggregate(pipeline).exec();
   return getMessage;
 }
+
+export async function updateManyMessages(filter, update) {
+  return Message.updateMany(filter, update);
+}

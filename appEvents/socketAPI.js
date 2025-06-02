@@ -305,6 +305,52 @@ io.use(initSubscription).on('connection', function (socket) {
     }
   });
 
+  socket.on('DeleteChat', async (data) => {
+    try {
+      const { from, to, deleteChet } = data;
+
+      if (!from || !to || deleteChet !== true) {
+        throw new Error('Both sender and receiver IDs and deleteChet flag are required');
+      }
+
+      // Update all messages between these users in both directions
+      const result = await messageservice.updateManyMessages(
+        {
+          $or: [
+            { from, to },
+            { from: to, to: from },
+          ],
+        },
+        {
+          messageDeletedAll: true,
+          deleteChet: true,
+        }
+      );
+
+      // Notify sender
+      socket.emit('message', {
+        success: true,
+        message: 'Chat deleted successfully for both users',
+        from,
+        to,
+        count: result.modifiedCount || 0,
+      });
+
+      // Notify receiver
+      socket.to(to).emit('chatDeleted', {
+        from,
+        to,
+        deletedFor: 'both',
+      });
+    } catch (err) {
+      console.error('Error deleting chat:', err.message);
+      socket.emit('chatDeleteError', {
+        success: false,
+        message: err.message,
+      });
+    }
+  });
+
   socket.on('typing', (data) => {
     // Broadcast "typing" event to other users
     socket.broadcast.emit('typing', data);
@@ -638,7 +684,7 @@ io.use(initSubscription).on('connection', function (socket) {
       );
 
       lastMessages = lastMessages
-        .filter((item) => item && item.lastMessage !== null)
+        .filter((item) => item)
         .sort((a, b) => {
           const dateA = new Date((a.lastMessage && a.lastMessage.sendAt) || 0);
           const dateB = new Date((b.lastMessage && b.lastMessage.sendAt) || 0);

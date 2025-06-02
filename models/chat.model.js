@@ -54,6 +54,10 @@ const MessageSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    deleteChet: {
+      type: Boolean,
+      default: false,
+    },
     isFileUploaded: {
       type: Boolean,
       default: false,
