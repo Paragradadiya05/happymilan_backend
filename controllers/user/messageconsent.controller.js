@@ -42,8 +42,10 @@ export const list = catchAsync(async (req, res) => {
 
 export const getConsent = catchAsync(async (req, res) => {
   const { receiverId } = req.params;
+  const senderId = req.user._id;
   const filter = {
     receiverId,
+    senderId,
   };
   const options = {};
   const messageConsent = await messageConsentservice.getMessageConsentList(filter, options);
