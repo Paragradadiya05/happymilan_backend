@@ -25,6 +25,7 @@ export const create = catchAsync(async (req, res) => {
       userId,
       ...body,
     },
+    req.user,
     options
   );
   const consentToken = await tokenService.generateVerifyStoryConsentToken(userId, story._id);
