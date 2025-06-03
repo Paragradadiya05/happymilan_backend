@@ -486,7 +486,7 @@ io.use(initSubscription).on('connection', function (socket) {
       socket.to(likedUserId).emit('message', {
         data: {
           status: true,
-          message: 'some one like your profile',
+          message: 'Likes You!',
           data: message,
         },
       });

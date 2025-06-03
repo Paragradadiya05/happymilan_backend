@@ -218,10 +218,10 @@ const EnumOfImageTypes = {
 };
 const EnumOfNotification = {
   REQUEST_SENT: 'Request-sent',
-  REQUEST_RECEIVED: 'Request-received',
-  REQUEST_ACCEPTED: 'request-accepted',
+  REQUEST_RECEIVED: 'Sent you a request',
+  REQUEST_ACCEPTED: 'accepted your request',
   LIKE: 'like',
-  SOMEONE_LIKED_YOUR_PROFILE: 'someone-liked-your-profile',
+  SOMEONE_LIKED_YOUR_PROFILE: 'likes you',
   OTP_SEND: 'otp has been sent to your registered email',
   RESET_PASS: 'link has been sent to your registered email',
   CONGRATULATION:

@@ -423,7 +423,7 @@ export async function createFriend(body = {}, user, appUsesType) {
             _id: createNotificationForReceiver._id.toString(),
             userId: createNotificationForReceiver.userId.toString(),
             otherUserId: createNotificationForReceiver.otherUserId.toString(),
-            body: `${EnumOfNotification.REQUEST_RECEIVED} from ${user.name}`,
+            body: `${user.name} ${EnumOfNotification.REQUEST_RECEIVED}`,
             title: EnumOfNotification.REQUEST_RECEIVED,
           },
         });
@@ -581,7 +581,7 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
               _id: createNotificationForAccepted._id.toString(),
               userId: createNotificationForAccepted.userId.toString(),
               otherUserId: friendRequest.user.toString(),
-              body: `${EnumOfNotification.REQUEST_ACCEPTED} of ${frdUserData.name}`,
+              body: `${frdUserData.name} ${EnumOfNotification.REQUEST_ACCEPTED}`,
               title: EnumOfNotification.REQUEST_ACCEPTED,
               createdAt: createNotificationForAccepted.createdAt.toString(),
               updatedAt: createNotificationForAccepted.updatedAt.toString(),

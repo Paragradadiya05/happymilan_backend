@@ -40,7 +40,7 @@ export async function createLike(body = {}, user, appUsesType) {
     userId: body.likedUserId,
     otherUserId: user._id,
     userName: user.name,
-    body: `${user.name} liked your profile`,
+    body: `${user.name} likes you`,
     title: EnumOfNotification.LIKE,
   });
   // await Notification.create({ userId, otherUserId: body.likedUserId, body: 'like' });
@@ -58,7 +58,7 @@ export async function createLike(body = {}, user, appUsesType) {
               _id: createNotificationForLikedProfile._id.toString(),
               userId: createNotificationForLikedProfile.userId.toString(),
               otherUserId: createNotificationForLikedProfile.otherUserId.toString(),
-              body: `${user.name} liked your profile`,
+              body: `${user.name} likes you`,
               title: EnumOfNotification.LIKE,
               createdAt: createNotificationForLikedProfile.createdAt.toString(),
               updatedAt: createNotificationForLikedProfile.updatedAt.toString(),
