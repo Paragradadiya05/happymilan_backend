@@ -482,7 +482,7 @@ export async function createFriend(body = {}, user, appUsesType) {
           _id: createNotificationForReceiver._id.toString(),
           userId: createNotificationForReceiver.userId.toString(),
           otherUserId: createNotificationForReceiver.otherUserId.toString(),
-          body: `${EnumOfNotification.REQUEST_RECEIVED} from ${user.name}`,
+          body: `${user.name} ${EnumOfNotification.REQUEST_RECEIVED}  `,
           title: EnumOfNotification.REQUEST_RECEIVED,
           createdAt: createNotificationForReceiver.createdAt.toString(),
           updatedAt: createNotificationForReceiver.updatedAt.toString(),
