@@ -1,44 +1,42 @@
 import { Notification, Story, Token, User } from 'models';
+import httpStatus from 'http-status';
 import { tokenService } from './index';
 import { EnumTypeOfToken } from '../models/enum.model';
+import ApiError from '../utils/ApiError';
 import { sendNotification } from './notification.service';
 
-export async function createStory(body = {}, currentUser = null) {
-  const story = await Story.create(body);
-  if (body.partnerUserId && currentUser) {
-    const partnerUser = await User.findById(body.partnerUserId);
-    if (partnerUser) {
-      const notification = await Notification.create({
-        userId: partnerUser._id,
-        otherUserId: currentUser._id,
-        userName: currentUser.name,
-        body: `${currentUser.name} created a story and requested your consent.`,
-        title: 'STORY_CONSENT_REQUEST',
-      });
-      console.log('=====xx====>', currentUser);
-      if (partnerUser.deviceTokens && partnerUser.deviceTokens.length) {
-        await Promise.all(
-          partnerUser.deviceTokens.map(async (fcmToken) => {
-            await sendNotification(
-              fcmToken.deviceToken,
-              {
-                data: {
-                  _id: notification._id.toString(),
-                  userId: partnerUser._id.toString(),
-                  otherUserId: currentUser._id.toString(),
-                  body: `${currentUser.name} create story`,
-                  title: 'story',
-                  createdAt: notification.createdAt.toString(),
-                  updatedAt: notification.updatedAt.toString(),
-                },
-              },
-              {}
-            );
-          })
-        );
-      }
-    }
+export async function createStory(body = {}, user) {
+  const getUser = await User.findOne({ _id: body.partnerUserId });
+  if (!getUser) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'No such user exists');
   }
+  const partnerUser = await User.findById(body.partnerUserId);
+  if (!partnerUser) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'No such user exists');
+  }
+  const createNotificationForStory = await Notification.create({
+    userId: body.partnerUserId,
+    otherUserId: user._id,
+    userName: user.name,
+    body: `${user.name} Requested to approve a story`,
+    title: 'new story',
+  });
+  if (partnerUser.deviceTokens.length) {
+    await partnerUser.deviceTokens.map(async (fcmToken) => {
+      await sendNotification(fcmToken.deviceToken, {
+        data: {
+          _id: createNotificationForStory._id.toString(),
+          userId: createNotificationForStory.userId.toString(),
+          otherUserId: createNotificationForStory.otherUserId.toString(),
+          body: `${user.name} Requested to approve a story`,
+          title: 'new story',
+          createdAt: createNotificationForStory.createdAt.toString(),
+          updatedAt: createNotificationForStory.updatedAt.toString(),
+        },
+      });
+    });
+  }
+  const story = await Story.create(body);
   return story;
 }
 
