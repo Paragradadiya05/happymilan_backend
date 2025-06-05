@@ -60,13 +60,50 @@ export async function getStoryById(id, options = {}) {
   return story;
 }
 
-export async function verifyConsent(verifyRequest) {
+export async function verifyConsent(verifyRequest, loginUser) {
   const { consentToken } = verifyRequest;
   const verifyEmailTokenDoc = await tokenService.verifyToken(consentToken, EnumTypeOfToken.STORY_CONSENT);
   const { user, storyId } = verifyEmailTokenDoc;
   await Token.deleteMany({ user, storyId, type: EnumTypeOfToken.STORY_CONSENT });
 
-  return Story.findByIdAndUpdate(storyId, { isConsentTaken: true });
+  const updatedStory = Story.findByIdAndUpdate(storyId, { isConsentTaken: true });
+  const loginUserDoc = await User.findById(loginUser._id);
+  if (!loginUserDoc) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Logged-in user not found');
+  }
+
+  const createNotificationForConsent = await Notification.create({
+    userId: loginUser._id,
+    otherUserId: user,
+    userName: loginUserDoc.name,
+    body: `Your story consent is verified.`,
+    title: 'Consent Approved',
+  });
+
+  // ✅ Send push notification to loginUser
+  if (loginUserDoc.deviceTokens.length) {
+    await Promise.all(
+      loginUserDoc.deviceTokens.map(async (fcmToken) => {
+        try {
+          await sendNotification(fcmToken.deviceToken, {
+            data: {
+              _id: createNotificationForConsent._id.toString(),
+              userId: createNotificationForConsent.userId.toString(),
+              otherUserId: createNotificationForConsent.otherUserId.toString(),
+              body: `Your story consent is verified.`,
+              title: 'Consent Approved',
+              createdAt: createNotificationForConsent.createdAt.toString(),
+              updatedAt: createNotificationForConsent.updatedAt.toString(),
+            },
+          });
+        } catch (err) {
+          console.error('FCM error:', err.message);
+        }
+      })
+    );
+  }
+
+  return updatedStory;
 }
 
 export async function getStoryWithPagination(filter, options = {}) {

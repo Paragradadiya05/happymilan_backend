@@ -659,7 +659,7 @@ io.use(initSubscription).on('connection', function (socket) {
               .sort({ sendAt: -1 }) // Get latest message
               .lean();
 
-            const unreadCount = unreadMap.get(friendId) || 0;
+            const unreadCount = lastMessage ? unreadMap.get(friendId) || 0 : 0;
 
             const selectFields = ({ _id, name, firstName, lastName, profilePic, isUserActive }) => ({
               _id,
