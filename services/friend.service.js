@@ -410,8 +410,8 @@ export async function createFriend(body = {}, user, appUsesType) {
 
     // after creating Notification we need to send firebase noti. to user
     const createNotificationForReceiver = await Notification.create({
-      userId: body.user,
-      otherUserId: body.friend,
+      userId: body.friend,
+      otherUserId: body.user,
       body: EnumOfNotification.REQUEST_RECEIVED,
       title: EnumOfNotification.REQUEST_RECEIVED,
     });
