@@ -592,6 +592,14 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
       });
     }
   }
+  if (status === 'removed') {
+    // Delete notification when friend request is removed
+    await Notification.deleteOne({
+      userId: friendRequest.friend, // receiver
+      otherUserId: friendRequest.user, // sender
+      title: 'Sent you a request',
+    });
+  }
   return Friend.findByIdAndUpdate(request, {
     $set: { status, lastInitiatorUser: user },
     $push: { statusHistory: { status, initiatorUser: user } },
