@@ -445,33 +445,33 @@ export async function createFriend(body = {}, user, appUsesType) {
     );
   }
 
-  const createNotificationForUser = await Notification.create({
-    userId: body.user,
-    otherUserId: body.friend,
-    body: EnumOfNotification.REQUEST_SENT,
-    title: EnumOfNotification.REQUEST_SENT,
-  });
-  if (user.deviceTokens.length) {
-    await user.deviceTokens.map(async (fcmToken) => {
-      await sendNotification(
-        fcmToken.deviceToken,
-        {
-          data: {
-            _id: createNotificationForUser._id.toString(),
-            userId: createNotificationForUser.userId.toString(),
-            otherUserId: createNotificationForUser.otherUserId.toString(),
-            body: `${EnumOfNotification.REQUEST_SENT} to ${getFrdUser.name}`,
-            title: EnumOfNotification.REQUEST_SENT,
-          },
-        },
-        {}
-      );
-    });
-  }
+  // const createNotificationForUser = await Notification.create({
+  //   userId: body.user,
+  //   otherUserId: body.friend,
+  //   body: EnumOfNotification.REQUEST_SENT,
+  //   title: EnumOfNotification.REQUEST_SENT,
+  // });
+  // if (user.deviceTokens.length) {
+  //   await user.deviceTokens.map(async (fcmToken) => {
+  //     await sendNotification(
+  //       fcmToken.deviceToken,
+  //       {
+  //         data: {
+  //           _id: createNotificationForUser._id.toString(),
+  //           userId: createNotificationForUser.userId.toString(),
+  //           otherUserId: createNotificationForUser.otherUserId.toString(),
+  //           body: `${EnumOfNotification.REQUEST_SENT} to ${getFrdUser.name}`,
+  //           title: EnumOfNotification.REQUEST_SENT,
+  //         },
+  //       },
+  //       {}
+  //     );
+  //   });
+  // }
 
   const createNotificationForReceiver = await Notification.create({
-    otherUserId: body.user,
-    userId: body.friend,
+    otherUserId: body.friend,
+    userId: body.user,
     body: EnumOfNotification.REQUEST_RECEIVED,
     title: EnumOfNotification.REQUEST_RECEIVED,
   });
