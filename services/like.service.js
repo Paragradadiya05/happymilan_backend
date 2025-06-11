@@ -104,6 +104,13 @@ export async function updateLike(filter, body, options = {}, appUsesType) {
     };
     like.statusHistory.push(statusHistory);
     await like.save();
+    if (body.isLike === false) {
+      await Notification.deleteOne({
+        userId: like.likedUserId, // the user who received the like
+        otherUserId: like.user, // the user who gave the like
+        title: EnumOfNotification.LIKE, // match notification type
+      });
+    }
   }
   return like;
 }

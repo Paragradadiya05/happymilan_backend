@@ -560,13 +560,31 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
     throw new ApiError(httpStatus.BAD_REQUEST, `Friend request is already ${status}`);
   }
   if (status === 'accepted') {
+    // Try to update existing "Sent you a request" notification
+    const updatedNotification = await Notification.findOneAndUpdate(
+      {
+        userId: user._id, // Receiver of the original friend request
+        otherUserId: friendRequest.user, // Sender of the original friend request
+        title: 'Sent you a request',
+      },
+      {
+        $set: {
+          title: EnumOfNotification.REQUEST_ACCEPTED,
+          body: EnumOfNotification.REQUEST_ACCEPTED,
+        },
+      },
+      { new: true }
+    );
+
     // await Notification.create({ userId: user, body: `Friend request accepted` });
-    const createNotificationForAccepted = await Notification.create({
-      userId: user._id,
-      body: EnumOfNotification.REQUEST_ACCEPTED,
-      title: EnumOfNotification.REQUEST_ACCEPTED,
-      otherUserId: friendRequest.user,
-    });
+    const createNotificationForAccepted =
+      updatedNotification ||
+      (await Notification.create({
+        userId: user._id,
+        body: EnumOfNotification.REQUEST_ACCEPTED,
+        title: EnumOfNotification.REQUEST_ACCEPTED,
+        otherUserId: friendRequest.user,
+      }));
 
     const frdUserData = await User.findById(friendRequest.user);
 
