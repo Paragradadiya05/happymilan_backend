@@ -592,7 +592,7 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
       });
     }
   }
-  if (status === 'removed') {
+  if (status === 'rejected') {
     // Delete notification when friend request is removed
     await Notification.deleteOne({
       userId: friendRequest.friend, // receiver
