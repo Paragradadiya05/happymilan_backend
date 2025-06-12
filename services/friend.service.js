@@ -473,18 +473,12 @@ export async function aggregateFriendWithPagination(query, options = {}) {
 }
 
 export async function respondFriendRequest(request, status, userId = {}, appUsesType) {
-  const user = await User.findById(userId, appUsesType);
+  const user = await User.findById(userId, appUsesType).select('+name');
+  if (!user) throw new ApiError(httpStatus.BAD_REQUEST, 'User not found');
 
-  // Check if user is found
-  if (!user) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'User not found');
-  }
   const friendRequest = await Friend.findOne({ _id: request, friend: user });
-  if (!friendRequest) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'No such Friend Request');
-  }
+  if (!friendRequest) throw new ApiError(httpStatus.BAD_REQUEST, 'No such Friend Request');
 
-  // Check if the user is blocked
   if (friendRequest.status === EnumStatusOfFriend.BLOCKED && status !== EnumStatusOfFriend.REMOVED) {
     throw new ApiError(httpStatus.FORBIDDEN, 'Cannot process the request. User is blocked.');
   }
@@ -492,12 +486,14 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
   if (friendRequest.status === status) {
     throw new ApiError(httpStatus.BAD_REQUEST, `Friend request is already ${status}`);
   }
+
+  const frdUserData = await User.findById(friendRequest.user); // sender of original request
+  console.log('=== User in friend request ===', user);
   if (status === 'accepted') {
-    // Try to update existing "Sent you a request" notification
-    const updatedNotification = await Notification.findOneAndUpdate(
+    await Notification.findOneAndUpdate(
       {
-        userId: user._id, // Receiver of the original friend request
-        otherUserId: friendRequest.user, // Sender of the original friend request
+        userId: user._id,
+        otherUserId: friendRequest.user,
         title: 'Sent you a request',
       },
       {
@@ -509,50 +505,49 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
       { new: true }
     );
 
-    // await Notification.create({ userId: user, body: `Friend request accepted` });
-    const createNotificationForAccepted =
-      updatedNotification ||
-      (await Notification.create({
-        userId: user._id,
-        body: EnumOfNotification.REQUEST_ACCEPTED,
-        title: EnumOfNotification.REQUEST_ACCEPTED,
-        otherUserId: friendRequest.user,
-      }));
+    const notification = await Notification.create({
+      userId: friendRequest.user, // sender
+      otherUserId: user._id, // acceptor
+      title: EnumOfNotification.REQUEST_ACCEPTED,
+      body: `${user.name} ${EnumOfNotification.REQUEST_ACCEPTED}`,
+    });
 
-    const frdUserData = await User.findById(friendRequest.user);
-
-    // send notification
-    // check if usr hase deice token or not
-    if (frdUserData && frdUserData.deviceTokens && frdUserData.deviceTokens.length) {
-      await frdUserData.deviceTokens.map(async (fcmToken) => {
-        await sendNotification(
-          fcmToken.deviceToken,
-          {
-            data: {
-              _id: createNotificationForAccepted._id.toString(),
-              userId: createNotificationForAccepted.userId.toString(),
-              otherUserId: friendRequest.user.toString(),
-              body: `${frdUserData.name} ${EnumOfNotification.REQUEST_ACCEPTED}`,
-              title: EnumOfNotification.REQUEST_ACCEPTED,
-              createdAt: createNotificationForAccepted.createdAt.toString(),
-              updatedAt: createNotificationForAccepted.updatedAt.toString(),
-            },
-          },
-          {}
-        );
-      });
+    if (frdUserData.deviceTokens.length) {
+      await Promise.all(
+        frdUserData.deviceTokens.map(async (fcmToken) => {
+          try {
+            await sendNotification(fcmToken.deviceToken, {
+              data: {
+                _id: notification._id.toString(),
+                userId: notification.userId.toString(),
+                otherUserId: notification.otherUserId.toString(),
+                title: notification.title,
+                body: `${user.name} ${EnumOfNotification.REQUEST_ACCEPTED}`,
+                createdAt: notification.createdAt.toISOString(),
+                updatedAt: notification.updatedAt.toISOString(),
+              },
+            });
+          } catch (err) {
+            if (err.code === 'messaging/registration-token-not-registered') {
+              await User.updateOne(
+                { _id: frdUserData._id },
+                { $pull: { deviceTokens: { deviceToken: fcmToken.deviceToken } } }
+              );
+              console.warn(`Token removed: ${fcmToken.deviceToken}`);
+            }
+          }
+        })
+      );
     }
   }
-  if (status === 'rejected') {
-    // Check who is rejecting the request
-    const isReceiverRejecting = friendRequest.friend.toString() === user._id.toString();
 
+  if (status === 'rejected') {
+    const isReceiverRejecting = friendRequest.friend.toString() === user._id.toString();
     if (isReceiverRejecting) {
-      // Friend (receiver) is rejecting — update the notification
-      const updatedNotification = await Notification.findOneAndUpdate(
+      const notification = await Notification.findOneAndUpdate(
         {
-          userId: friendRequest.friend, // receiver of the request
-          otherUserId: friendRequest.user, // sender of the request
+          userId: friendRequest.friend,
+          otherUserId: friendRequest.user,
           title: 'Sent you a request',
         },
         {
@@ -564,37 +559,51 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
         { new: true }
       );
 
-      const frdUserData = await User.findById(friendRequest.user);
-
       if (frdUserData.deviceTokens.length) {
-        await frdUserData.deviceTokens.map(async (fcmToken) => {
-          await sendNotification(fcmToken.deviceToken, {
-            data: {
-              _id: updatedNotification._id.toString(),
-              userId: friendRequest.friend.toString(),
-              otherUserId: friendRequest.user.toString(),
-              body: `${user.name} ${EnumOfNotification.REQUEST_DECLINED}`,
-              title: EnumOfNotification.REQUEST_DECLINED,
-              createdAt: updatedNotification.createdAt.toString(),
-              updatedAt: updatedNotification.updatedAt.toString(),
-            },
-          });
-        });
+        await Promise.all(
+          frdUserData.deviceTokens.map(async (fcmToken) => {
+            try {
+              await sendNotification(fcmToken.deviceToken, {
+                data: {
+                  _id: notification._id.toString(),
+                  userId: friendRequest.friend.toString(),
+                  otherUserId: friendRequest.user.toString(),
+                  title: EnumOfNotification.REQUEST_DECLINED,
+                  body: `${user.name} ${EnumOfNotification.REQUEST_DECLINED}`,
+                  createdAt: notification.createdAt.toISOString(),
+                  updatedAt: notification.updatedAt.toISOString(),
+                },
+              });
+            } catch (err) {
+              if (err.code === 'messaging/registration-token-not-registered') {
+                await User.updateOne(
+                  { _id: frdUserData._id },
+                  { $pull: { deviceTokens: { deviceToken: fcmToken.deviceToken } } }
+                );
+              }
+            }
+          })
+        );
       }
     }
-    if (status === 'removed') {
-      // Delete notification when friend request is removed
-      await Notification.deleteOne({
-        userId: friendRequest.friend, // receiver
-        otherUserId: friendRequest.user, // sender
-        title: 'Sent you a request',
-      });
-    }
   }
-  return Friend.findByIdAndUpdate(request, {
-    $set: { status, lastInitiatorUser: user },
-    $push: { statusHistory: { status, initiatorUser: user } },
-  });
+
+  if (status === 'removed') {
+    await Notification.deleteOne({
+      userId: friendRequest.friend,
+      otherUserId: friendRequest.user,
+      title: 'Sent you a request',
+    });
+  }
+
+  return Friend.findByIdAndUpdate(
+    request,
+    {
+      $set: { status, lastInitiatorUser: user },
+      $push: { statusHistory: { status, initiatorUser: user } },
+    },
+    { new: true }
+  );
 }
 
 export async function getFriendv2(filter, options = {}, userId) {

@@ -22,7 +22,7 @@ export const getNotificationById = catchAsync(async (req, res) => {
   const filter = {
     userId: user,
     title: {
-      $in: ['Sent you a request', 'accepted your request', 'like', 'accepted your request', 'Declined your request'],
+      $in: ['Sent you a request', 'accepted your request', 'like', 'Declined your request', 'new story'],
     },
   };
   const notification = await notificationservice.getNotification(filter, options);
