@@ -25,6 +25,9 @@ const notificationSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    reqId: {
+      type: mongoose.Schema.Types.ObjectId,
+    },
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );

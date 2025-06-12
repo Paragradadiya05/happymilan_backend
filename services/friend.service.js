@@ -386,34 +386,13 @@ export async function createFriend(body = {}, user, appUsesType) {
       },
       { new: true }
     );
-    const createNotificationForUser = await Notification.create({
-      userId: body.user,
-      otherUserId: body.friend,
-      body: EnumOfNotification.REQUEST_SENT,
-      title: EnumOfNotification.REQUEST_SENT,
-    });
-    // send notification
-    // check if usr hase deice token or not
-    if (user.deviceTokens.length) {
-      await user.deviceTokens.map(async (fcmToken) => {
-        await sendNotification(fcmToken.deviceToken, {
-          data: {
-            _id: createNotificationForUser._id.toString(),
-            userId: createNotificationForUser.userId.toString(),
-            otherUserId: createNotificationForUser.otherUserId.toString(),
-            body: `${EnumOfNotification.REQUEST_SENT} to ${getFrdUser.name}`, // parag send friend request.
-            title: EnumOfNotification.REQUEST_SENT,
-          },
-        });
-      });
-    }
 
-    // after creating Notification we need to send firebase noti. to user
     const createNotificationForReceiver = await Notification.create({
       userId: body.friend,
       otherUserId: body.user,
       body: EnumOfNotification.REQUEST_RECEIVED,
       title: EnumOfNotification.REQUEST_RECEIVED,
+      reqId: getExistingFriendOrNot._id,
     });
 
     if (getFrdUser.deviceTokens.length) {
@@ -443,52 +422,6 @@ export async function createFriend(body = {}, user, appUsesType) {
       httpStatus.BAD_REQUEST,
       'user already friend or friend request is already sent or user may blocked you'
     );
-  }
-
-  // const createNotificationForUser = await Notification.create({
-  //   userId: body.user,
-  //   otherUserId: body.friend,
-  //   body: EnumOfNotification.REQUEST_SENT,
-  //   title: EnumOfNotification.REQUEST_SENT,
-  // });
-  // if (user.deviceTokens.length) {
-  //   await user.deviceTokens.map(async (fcmToken) => {
-  //     await sendNotification(
-  //       fcmToken.deviceToken,
-  //       {
-  //         data: {
-  //           _id: createNotificationForUser._id.toString(),
-  //           userId: createNotificationForUser.userId.toString(),
-  //           otherUserId: createNotificationForUser.otherUserId.toString(),
-  //           body: `${EnumOfNotification.REQUEST_SENT} to ${getFrdUser.name}`,
-  //           title: EnumOfNotification.REQUEST_SENT,
-  //         },
-  //       },
-  //       {}
-  //     );
-  //   });
-  // }
-
-  const createNotificationForReceiver = await Notification.create({
-    otherUserId: body.friend,
-    userId: body.user,
-    body: EnumOfNotification.REQUEST_RECEIVED,
-    title: EnumOfNotification.REQUEST_RECEIVED,
-  });
-  if (getFrdUser.deviceTokens.length) {
-    await getFrdUser.deviceTokens.map(async (fcmToken) => {
-      await sendNotification(fcmToken.deviceToken, {
-        data: {
-          _id: createNotificationForReceiver._id.toString(),
-          userId: createNotificationForReceiver.userId.toString(),
-          otherUserId: createNotificationForReceiver.otherUserId.toString(),
-          body: `${user.name} ${EnumOfNotification.REQUEST_RECEIVED}  `,
-          title: EnumOfNotification.REQUEST_RECEIVED,
-          createdAt: createNotificationForReceiver.createdAt.toString(),
-          updatedAt: createNotificationForReceiver.updatedAt.toString(),
-        },
-      });
-    });
   }
   return Friend.create({
     ...body,
@@ -611,12 +544,52 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
     }
   }
   if (status === 'rejected') {
-    // Delete notification when friend request is removed
-    await Notification.deleteOne({
-      userId: friendRequest.friend, // receiver
-      otherUserId: friendRequest.user, // sender
-      title: 'Sent you a request',
-    });
+    // Check who is rejecting the request
+    const isReceiverRejecting = friendRequest.friend.toString() === user._id.toString();
+
+    if (isReceiverRejecting) {
+      // Friend (receiver) is rejecting — update the notification
+      const updatedNotification = await Notification.findOneAndUpdate(
+        {
+          userId: friendRequest.friend, // receiver of the request
+          otherUserId: friendRequest.user, // sender of the request
+          title: 'Sent you a request',
+        },
+        {
+          $set: {
+            title: EnumOfNotification.REQUEST_DECLINED,
+            body: EnumOfNotification.REQUEST_DECLINED,
+          },
+        },
+        { new: true }
+      );
+
+      const frdUserData = await User.findById(friendRequest.user);
+
+      if (frdUserData.deviceTokens.length) {
+        await frdUserData.deviceTokens.map(async (fcmToken) => {
+          await sendNotification(fcmToken.deviceToken, {
+            data: {
+              _id: updatedNotification._id.toString(),
+              userId: friendRequest.friend.toString(),
+              otherUserId: friendRequest.user.toString(),
+              body: `${user.name} ${EnumOfNotification.REQUEST_DECLINED}`,
+              title: EnumOfNotification.REQUEST_DECLINED,
+              createdAt: updatedNotification.createdAt.toString(),
+              updatedAt: updatedNotification.updatedAt.toString(),
+            },
+          });
+        });
+      }
+    }
+    if (status === 'removed') {
+      // Delete notification when friend request is removed
+      await Notification.deleteOne({
+        userId: friendRequest.friend, // receiver
+        otherUserId: friendRequest.user, // sender
+        title: 'Sent you a request',
+      });
+    }
   }
   return Friend.findByIdAndUpdate(request, {
     $set: { status, lastInitiatorUser: user },

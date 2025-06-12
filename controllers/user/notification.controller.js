@@ -21,7 +21,9 @@ export const getNotificationById = catchAsync(async (req, res) => {
   const { user } = req;
   const filter = {
     userId: user,
-    title: { $in: ['Sent you a request', 'request-accepted', 'like'] },
+    title: {
+      $in: ['Sent you a request', 'accepted your request', 'like', 'accepted your request', 'Declined your request'],
+    },
   };
   const notification = await notificationservice.getNotification(filter, options);
   return res.status(httpStatus.OK).send({ results: notification });

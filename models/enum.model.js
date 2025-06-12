@@ -218,6 +218,7 @@ const EnumOfImageTypes = {
 };
 const EnumOfNotification = {
   REQUEST_SENT: 'Request-sent',
+  REQUEST_DECLINED: 'Declined your request',
   REQUEST_RECEIVED: 'Sent you a request',
   REQUEST_ACCEPTED: 'accepted your request',
   LIKE: 'like',
