@@ -14,7 +14,7 @@ export async function createNotification(appUsesType, body = {}) {
 }
 
 export async function getNotification(filter, options = {}) {
-  const notification = await Notification.find(filter, options.projection, options).populate({
+  const notification = await Notification.find(filter, options.projection, options).sort({ createdAt: -1 }).populate({
     path: 'otherUserId',
     select: 'name profilePic',
   });
