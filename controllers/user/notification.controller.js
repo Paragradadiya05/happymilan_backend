@@ -1,6 +1,7 @@
 import httpStatus from 'http-status';
 import { catchAsync } from '../../utils/catchAsync';
 import { notificationservice } from '../../services';
+import { Notification } from '../../models';
 
 export const createNotification = catchAsync(async (req, res) => {
   const options = {};
@@ -37,7 +38,18 @@ export const update = catchAsync(async (req, res) => {
     _id: notificationId,
   };
   const options = { new: true };
-  const notification = await notificationservice.updatenotification(filter, body, options, appUsesType);
+  const notification = await notificationservice.updatenotification(filter, body, appUsesType, options);
+  if (notification.read === true) {
+    // eslint-disable-next-line no-undef
+    await Notification.updateMany(
+      {
+        userId: req.user,
+        read: false,
+        createdAt: { $lte: notification.createdAt },
+      },
+      { $set: { read: true } }
+    );
+  }
   return res.status(httpStatus.OK).send({ results: notification });
 });
 

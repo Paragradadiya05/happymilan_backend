@@ -185,9 +185,9 @@ export const deleteUserImage = catchAsync(async (req, res) => {
 
   const user = await userService.getOne(filter);
 
-  if (user.profilePic === profileImageUrl) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'change profile pic first then you can able to delete this image');
-  }
+  // if (user.profilePic === profileImageUrl) {
+  //   throw new ApiError(httpStatus.BAD_REQUEST, 'change profile pic first then you can able to delete this image');
+  // }
 
   let foundImage = false;
   const updatedProfilePic = user.userProfilePic.map((image) => {
