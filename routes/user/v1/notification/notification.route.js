@@ -65,4 +65,13 @@ router.get(
   validate(notificationValidation.getNotificationId),
   notificationController.getById
 );
+
+router.delete(
+  '/delete-notification-byid',
+  auth(),
+  appUserType(),
+  validate(notificationValidation.deleteAllNotifications),
+  notificationController.deleteAllNotifications
+);
+
 export default router;

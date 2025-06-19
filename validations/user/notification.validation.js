@@ -28,11 +28,15 @@ export const getNotification = {
 
 export const getNotificationById = {
   params: Joi.object().keys({}),
-  query: Joi.object().keys({
-    appUsesType: Joi.string()
-      .valid(...Object.values(EnumAppUsesTypeOfUsers))
-      .optional(),
-  }),
+  query: Joi.object()
+    .keys({
+      page: Joi.number().default(1),
+      limit: Joi.number().default(10).max(100),
+      appUsesType: Joi.string()
+        .valid(...Object.values(EnumAppUsesTypeOfUsers))
+        .optional(),
+    })
+    .unknown(true),
 };
 
 export const updateNotification = {
@@ -67,6 +71,15 @@ export const getNotificationId = {
   params: Joi.object().keys({
     notificationId: Joi.objectId().required(),
   }),
+  query: Joi.object().keys({
+    appUsesType: Joi.string()
+      .valid(...Object.values(EnumAppUsesTypeOfUsers))
+      .optional(),
+  }),
+};
+
+export const deleteAllNotifications = {
+  params: Joi.object().keys({}),
   query: Joi.object().keys({
     appUsesType: Joi.string()
       .valid(...Object.values(EnumAppUsesTypeOfUsers))

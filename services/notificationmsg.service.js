@@ -14,10 +14,15 @@ export async function createNotification(appUsesType, body = {}) {
 }
 
 export async function getNotification(filter, options = {}) {
-  const notification = await Notification.find(filter, options.projection, options).sort({ createdAt: -1 }).populate({
-    path: 'otherUserId',
-    select: 'name profilePic',
+  const notification = await Notification.paginate(filter, {
+    ...options,
+    sort: { createdAt: -1 },
+    populate: {
+      path: 'otherUserId',
+      select: 'name profilePic',
+    },
   });
+
   return notification;
 }
 export async function getOne(query, options = {}) {
@@ -31,4 +36,8 @@ export async function updatenotification(filter, body, appUsesType, options = {}
 export async function removeNotification(filter) {
   const notification = await Notification.findOneAndRemove(filter);
   return notification;
+}
+
+export async function deleteNotificationsByUser(userId) {
+  await Notification.deleteMany({ userId });
 }

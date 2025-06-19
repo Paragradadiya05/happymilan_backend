@@ -18,13 +18,19 @@ export const getNotification = catchAsync(async (req, res) => {
 });
 
 export const getNotificationById = catchAsync(async (req, res) => {
-  const options = {};
   const { user } = req;
+  const { page, limit } = req.query;
+  const pageNumber = parseInt(page, 10);
+  const limitNumber = parseInt(limit, 10);
   const filter = {
     userId: user,
     title: {
       $in: ['Sent you a request', 'accepted your request', 'like', 'Declined your request', 'new story'],
     },
+  };
+  const options = {
+    page: pageNumber,
+    limit: limitNumber,
   };
   const notification = await notificationservice.getNotification(filter, options);
   return res.status(httpStatus.OK).send({ results: notification });
@@ -69,4 +75,10 @@ export const getById = catchAsync(async (req, res) => {
   };
   const notification = await notificationservice.getOne(filter);
   return res.status(httpStatus.OK).send({ results: notification });
+});
+
+export const deleteAllNotifications = catchAsync(async (req, res) => {
+  const { user } = req;
+  await notificationservice.deleteNotificationsByUser(user);
+  return res.status(httpStatus.OK).send({ message: 'All notifications deleted successfully' });
 });
