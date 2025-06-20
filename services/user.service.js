@@ -1634,6 +1634,12 @@ export async function getDatingPartnerList(filter, options = {}) {
       },
     },
     {
+      $unwind: {
+        path: '$userLikeDetails',
+        preserveNullAndEmptyArrays: true, // Include users with no matching friends
+      },
+    },
+    {
       $lookup: {
         from: 'shortlists',
         let: { currentUserIdForShortList: '$_id' },
@@ -1647,6 +1653,12 @@ export async function getDatingPartnerList(filter, options = {}) {
           },
         ],
         as: 'userShortListDetails',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userShortListDetails',
+        preserveNullAndEmptyArrays: true,
       },
     },
     {
@@ -1672,6 +1684,12 @@ export async function getDatingPartnerList(filter, options = {}) {
           },
         ],
         as: 'friendsDetails',
+      },
+    },
+    {
+      $unwind: {
+        path: '$friendsDetails',
+        preserveNullAndEmptyArrays: true, // Include users with no matching friends
       },
     },
     {
