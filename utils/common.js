@@ -321,3 +321,92 @@ export const createDynamicProjectionForPrivacySetting = (fields, defaultFields) 
 
   return projection;
 };
+
+// eslint-disable-next-line no-shadow
+export const createDynamicProjectionForPrivacySettingForDating = (fields, defaultFields) => {
+  const projection = {
+    _id: 1,
+    matchPercentage: '$matchData.matchPercentage',
+    matchedCriteria: '$matchData.matchedCriteria',
+    matchedFields: '$matchData.matchedFields',
+    userLikeDetails: 1,
+    'userShortListDetails.userId': 1,
+    'userShortListDetails.shortlistId': { $getField: { field: 'shortlistId', input: '$userShortListDetails' } },
+    'userShortListDetails.id': { $getField: { field: '_id', input: '$userShortListDetails' } },
+    'subscriptionDetails.status': { $getField: { field: 'status', input: '$subscriptionDetails' } },
+    'subscriptionDetails.selectedPlan': { $getField: { field: 'selectedPlan', input: '$subscriptionDetails' } },
+    friendsDetails: 1,
+  };
+
+  // Add default fields if privacySetting is 'default'
+  projection.defaultFields = {
+    $cond: {
+      if: { $eq: ['$privacySetting', 'default'] },
+      then: defaultFields,
+      else: {},
+    },
+  };
+
+  // Add individual field conditions with an additional check for premium user
+  fields.forEach(({ name }) => {
+    // console.log('$privacySettingCustom.publicProfile === ', `$privacySettingCustom.publicProfile`);
+    projection[name] = {
+      $cond: {
+        if: {
+          $or: [
+            // Check if the field is in `publicProfile`
+            {
+              $and: [
+                { $eq: ['$privacySetting', EnumOfPrivacySetting.PUBLIC_PROFILE] },
+                { $in: [name, { $ifNull: ['$privacySettingCustom.publicProfile', []] }] },
+              ],
+            },
+            // Check if the field is in `privateProfile` and the user is private
+            {
+              $and: [
+                { $eq: ['$privacySetting', EnumOfPrivacySetting.PRIVATE_PROFILE] },
+
+                {
+                  $in: [
+                    name,
+                    {
+                      $ifNull: ['$privacySettingCustom.privateProfile', []],
+                    },
+                  ],
+                },
+              ],
+            },
+            // Check if the field is in `premiumProfile` and the user is premium
+            {
+              $and: [
+                { $eq: ['$privacySetting', EnumOfPrivacySetting.PREMIUM_PROFILE] },
+                { $in: [name, { $ifNull: ['$privacySettingCustom.premiumProfile', []] }] },
+                // { $literal: isPremiumUser },
+              ],
+            },
+
+            // // Check for `OnlyAcceptedMembers` and friend status
+            // {
+            //   $and: [
+            //     { $eq: ['$privacySetting', 'OnlyAcceptedMembers'] },
+            //     { $eq: ['$friendsDetails.status', 'ACCEPTED'] }, // EnumStatusOfFriend.ACCEPTED
+            //   ],
+            // },
+            // // // Fallback to `privateProfile` if friend status is not ACCEPTED
+            // {
+            //   $and: [
+            //     { $eq: ['$privacySetting', 'OnlyAcceptedMembers'] },
+            //     { $ne: ['$friendsDetails.status', 'ACCEPTED'] },
+            //     { $in: ['privateProfile', conditions] },
+            //   ],
+            // },
+          ],
+        },
+        then: `$${name}`,
+        else: null,
+      },
+    };
+  });
+
+  return projection;
+};

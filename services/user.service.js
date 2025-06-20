@@ -14,7 +14,10 @@ import enumModel, {
   EnumOfUserPlan,
   EnumStatusOfFriend,
 } from '../models/enum.model';
-import { createDynamicProjectionForPrivacySetting } from '../utils/common';
+import {
+  createDynamicProjectionForPrivacySetting,
+  createDynamicProjectionForPrivacySettingForDating,
+} from '../utils/common';
 
 export async function getUserById(id, options = {}) {
   const user = await User.findById(id, options.projection, options)
@@ -1875,7 +1878,7 @@ export async function getDatingPartnerList(filter, options = {}) {
       },
     },
     {
-      $project: createDynamicProjectionForPrivacySetting(fields, defaultFields, isPremiumUser),
+      $project: createDynamicProjectionForPrivacySettingForDating(fields, defaultFields, isPremiumUser),
     },
     { $sort: { matchPercentage: -1 } },
     {
