@@ -1679,28 +1679,17 @@ export async function getDatingPartnerList(filter, options = {}) {
     },
     {
       $match: {
-        $and: [
+        $or: [
+          { friendsDetails: { $eq: [] } }, // No friend relation
           {
-            $or: [
-              { friendsDetails: null }, // No friend relationship
-              {
-                $and: [
-                  // Not accepted
-                  { 'friendsDetails.status': { $ne: EnumStatusOfFriend.ACCEPTED } },
-
-                  // Not a request sent by current user
-                  {
-                    $or: [
-                      { 'friendsDetails.status': { $ne: EnumStatusOfFriend.REQUESTED } },
-                      { 'friendsDetails.user': { $ne: filter.userId } },
-                    ],
-                  },
-
-                  // Not blocked
-                  { 'friendsDetails.status': { $ne: EnumStatusOfFriend.BLOCKED } },
-                ],
+            // Make sure every element in friendsDetails array is not in undesired statuses
+            friendsDetails: {
+              $not: {
+                $elemMatch: {
+                  status: { $in: [EnumStatusOfFriend.REQUESTED, EnumStatusOfFriend.ACCEPTED, EnumStatusOfFriend.BLOCKED] },
+                },
               },
-            ],
+            },
           },
         ],
       },
