@@ -2098,12 +2098,6 @@ export async function getDatingPartnerListByAgeAndMatch(filter, ageRange, option
       },
     },
     {
-      $unwind: {
-        path: '$userLikeDetails',
-        preserveNullAndEmptyArrays: true, // Include users with no matching friends
-      },
-    },
-    {
       $lookup: {
         from: 'shortlists',
         let: { currentUserIdForShortList: '$_id' },
@@ -2117,12 +2111,6 @@ export async function getDatingPartnerListByAgeAndMatch(filter, ageRange, option
           },
         ],
         as: 'userShortListDetails',
-      },
-    },
-    {
-      $unwind: {
-        path: '$userShortListDetails',
-        preserveNullAndEmptyArrays: true,
       },
     },
     {
@@ -2173,12 +2161,6 @@ export async function getDatingPartnerListByAgeAndMatch(filter, ageRange, option
     {
       $match: {
         'friendsDetails.status': { $ne: EnumStatusOfFriend.BLOCKED },
-      },
-    },
-    {
-      $unwind: {
-        path: '$friendsDetails',
-        preserveNullAndEmptyArrays: true, // Include users with no matching friends
       },
     },
     {
