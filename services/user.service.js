@@ -1679,32 +1679,30 @@ export async function getDatingPartnerList(filter, options = {}) {
     },
     {
       $match: {
-        $or: [
-          { friendsDetails: { $exists: false } }, // Include users without any friend details
-          // Case 2: Exclude blocked and accepted statuses
+        $and: [
           {
-            $and: [
-              { 'friendsDetails.status': { $nin: [EnumStatusOfFriend.BLOCKED, EnumStatusOfFriend.ACCEPTED] } },
+            $or: [
+              { friendsDetails: null }, // No friend relationship
               {
-                $or: [
-                  // Keep REQUESTED status unless the user made the request
-                  { $expr: { $ne: ['$friendsDetails.friend', filter.userId] } },
-                  { 'friendsDetails.status': { $ne: EnumStatusOfFriend.REQUESTED } },
+                $and: [
+                  // Not accepted
+                  { 'friendsDetails.status': { $ne: EnumStatusOfFriend.ACCEPTED } },
+
+                  // Not a request sent by current user
+                  {
+                    $or: [
+                      { 'friendsDetails.status': { $ne: EnumStatusOfFriend.REQUESTED } },
+                      { 'friendsDetails.user': { $ne: filter.userId } },
+                    ],
+                  },
+
+                  // Not blocked
+                  { 'friendsDetails.status': { $ne: EnumStatusOfFriend.BLOCKED } },
                 ],
               },
             ],
           },
         ],
-      },
-    },
-    {
-      $match: {
-        'friendsDetails.status': { $ne: EnumStatusOfFriend.BLOCKED },
-      },
-    },
-    {
-      $match: {
-        'friendsDetails.status': { $ne: EnumStatusOfFriend.BLOCKED },
       },
     },
     {
