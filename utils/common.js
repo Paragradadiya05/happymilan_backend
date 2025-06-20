@@ -329,13 +329,17 @@ export const createDynamicProjectionForPrivacySettingForDating = (fields, defaul
     matchPercentage: '$matchData.matchPercentage',
     matchedCriteria: '$matchData.matchedCriteria',
     matchedFields: '$matchData.matchedFields',
-    userLikeDetails: 1,
+    'userLikeDetails.isLike': 1,
+    'userLikeDetails.user': 1,
+    'userLikeDetails.likedUserId': 1,
+    'userLikeDetails._id': 1,
     'userShortListDetails.userId': 1,
     'userShortListDetails.shortlistId': { $getField: { field: 'shortlistId', input: '$userShortListDetails' } },
     'userShortListDetails.id': { $getField: { field: '_id', input: '$userShortListDetails' } },
     'subscriptionDetails.status': { $getField: { field: 'status', input: '$subscriptionDetails' } },
     'subscriptionDetails.selectedPlan': { $getField: { field: 'selectedPlan', input: '$subscriptionDetails' } },
-    friendsDetails: 1,
+    'friendsDetails.status': 1,
+    'friendsDetails._id': 1,
   };
 
   // Add default fields if privacySetting is 'default'

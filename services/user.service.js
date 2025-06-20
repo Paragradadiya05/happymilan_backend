@@ -2319,7 +2319,7 @@ export async function getDatingPartnerListByAgeAndMatch(filter, ageRange, option
       },
     },
     {
-      $project: createDynamicProjectionForPrivacySetting(fields, defaultFields, isPremiumUser),
+      $project: createDynamicProjectionForPrivacySettingForDating(fields, defaultFields, isPremiumUser),
     },
     { $sort: { 'matchData.matchPercentage': -1 } }, // Sort by match percentage
     {
@@ -2518,12 +2518,6 @@ export async function getUserWithDatingData(filter) {
       },
     },
     {
-      $unwind: {
-        path: '$friendsDetails',
-        preserveNullAndEmptyArrays: true, // Include users with no matching friends
-      },
-    },
-    {
       $lookup: {
         from: 'likes',
         let: { currentUserIdForLike: '$_id' },
@@ -2543,12 +2537,6 @@ export async function getUserWithDatingData(filter) {
       },
     },
     {
-      $unwind: {
-        path: '$userLikeDetails',
-        preserveNullAndEmptyArrays: true, // Include users with no matching friends
-      },
-    },
-    {
       $match: {
         'friendsDetails.status': { $ne: EnumStatusOfFriend.BLOCKED },
       },
@@ -2556,7 +2544,7 @@ export async function getUserWithDatingData(filter) {
 
     // Populate datingData field (based on your schema)
     {
-      $project: createDynamicProjectionForPrivacySetting(fields, defaultFields, isPremiumUser),
+      $project: createDynamicProjectionForPrivacySettingForDating(fields, defaultFields, isPremiumUser),
     },
   ];
   const matchedUser = await User.aggregate(pipeline).exec();
@@ -2706,12 +2694,6 @@ export async function getFilteredDatingInterestList(filter, options = {}) {
       },
     },
     {
-      $unwind: {
-        path: '$friendsDetails',
-        preserveNullAndEmptyArrays: true, // Include users with no matching friends
-      },
-    },
-    {
       $lookup: {
         from: 'likes',
         let: { currentUserIdForLike: '$_id' },
@@ -2725,12 +2707,6 @@ export async function getFilteredDatingInterestList(filter, options = {}) {
           },
         ],
         as: 'userLikeDetails',
-      },
-    },
-    {
-      $unwind: {
-        path: '$userLikeDetails',
-        preserveNullAndEmptyArrays: true, // Include users with no matching friends
       },
     },
     {
@@ -2774,7 +2750,7 @@ export async function getFilteredDatingInterestList(filter, options = {}) {
       },
     },
     {
-      $project: createDynamicProjectionForPrivacySetting(fields, defaultFields, isPremiumUser),
+      $project: createDynamicProjectionForPrivacySettingForDating(fields, defaultFields, isPremiumUser),
     },
     { $sort: { _id: 1 } }, // Sort by ID or another field as required
     {
@@ -2984,12 +2960,6 @@ export async function getFilteredDatingEthnicityList(filter, options = {}) {
       },
     },
     {
-      $unwind: {
-        path: '$friendsDetails',
-        preserveNullAndEmptyArrays: true, // Include users with no matching friends
-      },
-    },
-    {
       $addFields: {
         age: {
           $cond: {
@@ -3024,12 +2994,6 @@ export async function getFilteredDatingEthnicityList(filter, options = {}) {
       },
     },
     {
-      $unwind: {
-        path: '$userLikeDetails',
-        preserveNullAndEmptyArrays: true, // Include users with no matching friends
-      },
-    },
-    {
       $lookup: {
         from: 'shortlists',
         let: { currentUserIdForShortList: '$_id' },
@@ -3053,7 +3017,7 @@ export async function getFilteredDatingEthnicityList(filter, options = {}) {
     },
 
     {
-      $project: createDynamicProjectionForPrivacySetting(fields, defaultFields, isPremiumUser),
+      $project: createDynamicProjectionForPrivacySettingForDating(fields, defaultFields, isPremiumUser),
     },
     { $sort: { _id: 1 } }, // Sort by ID or another field as required
     {
