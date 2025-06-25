@@ -69,7 +69,7 @@ export const getBlockList = catchAsync(async (req, res) => {
   const userId = req.user._id;
   const filter = {
     status: EnumStatusOfFriend.BLOCKED,
-    user: userId,
+    friend: userId,
   };
   const { query } = req;
   const sortingObj = pick(query, ['sort', 'order']);
@@ -86,8 +86,16 @@ export const getBlockList = catchAsync(async (req, res) => {
 
   getuser.results = await Promise.all(
     getuser.results.map(async (frdData) => {
-      const { friend } = frdData;
-      const { user } = frdData;
+      let friend;
+      let user;
+
+      if (frdData.friend._id.toString() === userId.toString()) {
+        friend = frdData.user;
+        user = frdData.friend;
+      } else {
+        friend = frdData.friend;
+        user = frdData.user;
+      }
 
       const { friend: _f, user: _u, ...restFrdData } = frdData;
 
