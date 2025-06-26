@@ -802,8 +802,13 @@ export async function blockUser(body = {}, user) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'No such user exists');
   }
 
-  // Find exact pair as passed
-  const existingFriend = await Friend.findOne({ user: userId, friend: friendId });
+  // Look for an existing friendship in any direction
+  const existingFriend = await Friend.findOne({
+    $or: [
+      { user: userId, friend: friendId },
+      { user: friendId, friend: userId },
+    ],
+  });
 
   let result;
 
@@ -812,11 +817,13 @@ export async function blockUser(body = {}, user) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'User is already blocked');
     }
 
-    // Update to BLOCKED
-    result = await Friend.findOneAndUpdate(
-      { user: userId, friend: friendId },
+    // Update status to BLOCKED and force user/friend to match request body
+    result = await Friend.findByIdAndUpdate(
+      existingFriend._id,
       {
         $set: {
+          user: userId, // ✅ forcefully set as in body
+          friend: friendId,
           status: EnumStatusOfFriend.BLOCKED,
           lastInitiatorUser: user,
           date: Date.now(),
@@ -849,7 +856,6 @@ export async function blockUser(body = {}, user) {
     });
   }
 
-  // Return exact order (already correct)
   return result;
 }
 export async function getFriendAcceptedMobile(filter, options = {}, userId) {
