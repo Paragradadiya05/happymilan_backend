@@ -88,7 +88,6 @@ export const getBlockList = catchAsync(async (req, res) => {
     getuser.results.map(async (frdData) => {
       const { friend } = frdData;
       const { user } = frdData;
-
       const { friend: _f, user: _u, ...restFrdData } = frdData;
 
       if (friend.shortlistData === undefined || friend.shortlistData.length === 0) {
@@ -147,7 +146,7 @@ export const getRequests = catchAsync(async (req, res) => {
   const userId = req.user._id;
 
   const filter = {
-    user: userId,
+    friend: userId,
     status: EnumStatusOfFriend.REQUESTED,
   };
 
@@ -155,61 +154,57 @@ export const getRequests = catchAsync(async (req, res) => {
   const users = await friendService.getFriendList(filter, options, userId);
 
   users.results = await Promise.all(
-    users.results
-      .filter((frdData) => frdData.user._id.toString() === userId.toString()) // ✅ Only show entries where current user did the block
-      .map(async (frdData) => {
-        const { friend } = frdData;
-        const { user } = frdData;
+    users.results.map(async (frdData) => {
+      const otherUser = frdData.user; // The one who sent the request (not current user)
 
-        const { friend: _f, user: _u, ...restFrdData } = frdData;
+      // Remove empty shortlistData
+      if (!otherUser.shortlistData || otherUser.shortlistData.length === 0) {
+        delete otherUser.shortlistData;
+      }
 
-        if (friend.shortlistData === undefined || friend.shortlistData.length === 0) {
-          delete friend.shortlistData;
+      // === Blur Logic ===
+      const privacy = otherUser.privacySettingCustom || {};
+      const isFriendAccepted = frdData.status === 'accepted';
+
+      const shouldBlurImage =
+        (privacy.profilePhotoPrivacy === true && !isFriendAccepted) ||
+        (privacy.showPhotoToFriendsOnly === true && !isFriendAccepted);
+
+      if (shouldBlurImage) {
+        const imageProcessingPromises = [];
+
+        // Blur main profilePic
+        if (otherUser.profilePic) {
+          imageProcessingPromises.push(
+            imageBlurService.blurImage(otherUser.profilePic).then((blurredUrl) => {
+              otherUser.profilePic = blurredUrl;
+            })
+          );
         }
 
-        // === Blur Logic ===
-        const privacy = friend.privacySettingCustom || {};
-        const friendsStatus = frdData.status;
-        const isFriendAccepted = friendsStatus === 'accepted';
-
-        const shouldBlurImage =
-          (privacy.profilePhotoPrivacy === true && !isFriendAccepted) ||
-          (privacy.showPhotoToFriendsOnly === true && !isFriendAccepted);
-
-        if (shouldBlurImage) {
-          const imageProcessingPromises = [];
-
-          // Blur main profilePic
-          if (friend.profilePic) {
-            imageProcessingPromises.push(
-              imageBlurService.blurImage(friend.profilePic).then((blurredUrl) => {
-                friend.profilePic = blurredUrl;
-              })
-            );
-          }
-
-          // Blur userProfilePic array
-          if (Array.isArray(friend.userProfilePic) && friend.userProfilePic.length > 0) {
-            const photoBlurPromises = friend.userProfilePic.map((photo, index) =>
-              imageBlurService.blurImage(photo.url).then((blurredUrl) => {
-                friend.userProfilePic[index] = {
-                  ...photo,
-                  url: blurredUrl,
-                };
-              })
-            );
-            imageProcessingPromises.push(...photoBlurPromises);
-          }
-
-          await Promise.all(imageProcessingPromises);
+        // Blur userProfilePic array
+        if (Array.isArray(otherUser.userProfilePic) && otherUser.userProfilePic.length > 0) {
+          const photoBlurPromises = otherUser.userProfilePic.map((photo, index) =>
+            imageBlurService.blurImage(photo.url).then((blurredUrl) => {
+              otherUser.userProfilePic[index] = {
+                ...photo,
+                url: blurredUrl,
+              };
+            })
+          );
+          imageProcessingPromises.push(...photoBlurPromises);
         }
 
-        return {
-          ...restFrdData,
-          friend,
-          user,
-        };
-      })
+        await Promise.all(imageProcessingPromises);
+      }
+
+      const { friend, user, ...restFrdData } = frdData;
+
+      return {
+        ...restFrdData,
+        user, // other user who sent the request (blurred if needed)
+      };
+    })
   );
 
   return res.status(httpStatus.OK).send({ results: users });

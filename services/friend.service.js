@@ -679,12 +679,19 @@ export async function getFriendv2(filter, options = {}, userId) {
 
 // Function to calculate match score for each friend
 export async function getBlock(filter, options = {}, userId) {
-  const page = options.page || 1;
-  const limit = options.limit || 10;
+  const page = parseInt(options.page, 10) || 1;
+  const limit = parseInt(options.limit, 10) || 10;
   const skip = (page - 1) * limit;
 
-  const totalDocs = await Friend.countDocuments(filter);
-  const friends = await Friend.find(filter, options.projection, { ...options, limit, skip })
+  // ⛔ Enforce filtering on userId no matter what was passed
+  const strictFilter = {
+    ...filter,
+    user: userId, // ✅ Only return blocks created by current user
+  };
+
+  const totalDocs = await Friend.countDocuments(strictFilter);
+
+  const friends = await Friend.find(strictFilter, options.projection, { ...options, limit, skip })
     .populate({
       path: 'friend',
       populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
@@ -693,77 +700,48 @@ export async function getBlock(filter, options = {}, userId) {
       path: 'user',
       populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
     })
-    .lean() // Ensure results are plain JavaScript objects
+    .lean()
     .exec();
 
   const isPremiumUser = await checkUserPremiumStatus(userId);
 
-  // Get user partner preferences for match score
-  // const userPartnerPreferences = await Partner.findOne({ userId });
-  //
-  // if (!userPartnerPreferences) {
-  //   throw new Error('User Partner Preferences not found');
-  // }
-
-  // Iterate over each friend to calculate the match score
   const friendsWithMatchData = await Promise.all(
     friends.map(async (friendEntry) => {
       const { friend, user } = friendEntry;
-      if (user && user.userPartner) {
-        /* we are fetching friend data.
-         ( there are two possible thing
-            1. current login user is friend
-            2. current login user is user )
 
-         if current login user is friend in data then we need to pass other user in calculateMatchScore function as friend id
-         */
+      let friendId = friend._id;
+      let userPartnerData = user.userPartner;
 
-        let friendId = friend._id;
-        let userPartnerData = user.userPartner;
-
-        if (userId.toString() === friend._id.toString()) {
-          friendId = user._id;
-          userPartnerData = friend.userPartner;
-        }
-
-        const matchInfo = await calculateMatchScore(friendId, userPartnerData, userId, isPremiumUser);
-        return {
-          ...friendEntry, // Already a plain object, no need for toObject()
-          friend: {
-            ...friend,
-            matchPercentage: matchInfo.matchPercentage,
-            matchedCriteria: matchInfo.matchedCriteria,
-            shortlistData: matchInfo.shortlistData,
-          },
-        };
+      if (userId.toString() === friend._id.toString()) {
+        friendId = user._id;
+        userPartnerData = friend.userPartner;
       }
 
-      // Attach default values if no match data is available
+      const matchInfo = await calculateMatchScore(friendId, userPartnerData, userId, isPremiumUser);
+
       return {
         ...friendEntry,
         friend: {
           ...friend,
-          matchPercentage: 0,
-          matchedCriteria: [],
-          shortlistData: [],
+          matchPercentage: matchInfo.matchPercentage,
+          matchedCriteria: matchInfo.matchedCriteria,
+          shortlistData: matchInfo.shortlistData,
         },
       };
     })
   );
 
-  // Calculate total pages
   const totalPages = Math.ceil(totalDocs / limit);
 
-  // Return paginated results with metadata, including the current page
   return {
     results: friendsWithMatchData,
     totalDocs,
     limit,
-    page, // Current page
+    page,
     totalPages,
     hasNextPage: page < totalPages,
     hasPrevPage: page > 1,
-    currentPage: page, // Optional explicit field for current page
+    currentPage: page,
   };
 }
 
@@ -800,11 +778,6 @@ export async function blockUser(body = {}, user) {
         ],
       },
       {
-        $set: {
-          status: EnumStatusOfFriend.BLOCKED,
-          lastInitiatorUser: user,
-          date: Date.now(),
-        },
         $push: { statusHistory: { status: EnumStatusOfFriend.BLOCKED, initiatorUser: user, date: Date.now() } },
       },
       { new: true }
