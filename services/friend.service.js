@@ -677,21 +677,23 @@ export async function getFriendv2(filter, options = {}, userId) {
   };
 }
 
-// Function to calculate match score for each friend
 export async function getBlock(filter, options = {}, userId) {
   const page = parseInt(options.page, 10) || 1;
   const limit = parseInt(options.limit, 10) || 10;
   const skip = (page - 1) * limit;
 
-  // ⛔ Enforce filtering on userId no matter what was passed
   const strictFilter = {
     ...filter,
-    user: userId, // ✅ Only return blocks created by current user
+    user: userId,
   };
 
   const totalDocs = await Friend.countDocuments(strictFilter);
 
-  const friends = await Friend.find(strictFilter, options.projection, { ...options, limit, skip })
+  const friends = await Friend.find(strictFilter, options.projection, {
+    ...options,
+    limit,
+    skip,
+  })
     .populate({
       path: 'friend',
       populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
@@ -705,31 +707,72 @@ export async function getBlock(filter, options = {}, userId) {
 
   const isPremiumUser = await checkUserPremiumStatus(userId);
 
-  const friendsWithMatchData = await Promise.all(
-    friends.map(async (friendEntry) => {
-      const { friend, user } = friendEntry;
+  const friendsWithMatchData = (
+    await Promise.all(
+      friends.map(async (friendEntry) => {
+        const { friend, user } = friendEntry;
 
-      let friendId = friend._id;
-      let userPartnerData = user.userPartner;
+        if (!friend || !user) return null;
 
-      if (userId.toString() === friend._id.toString()) {
-        friendId = user._id;
-        userPartnerData = friend.userPartner;
-      }
+        // Default fallback preferences
+        const defaultPartnerPrefs = {
+          age: { min: 18, max: 100 },
+          height: { min: 100, max: 250 },
+          country: [],
+          city: [],
+        };
 
-      const matchInfo = await calculateMatchScore(friendId, userPartnerData, userId, isPremiumUser);
+        // Determine match target and preferences
+        let friendId = friend._id;
+        let userPartnerData = user.userPartner || {};
 
-      return {
-        ...friendEntry,
-        friend: {
-          ...friend,
-          matchPercentage: matchInfo.matchPercentage,
-          matchedCriteria: matchInfo.matchedCriteria,
-          shortlistData: matchInfo.shortlistData,
-        },
-      };
-    })
-  );
+        if (userId.toString() === friend._id.toString()) {
+          friendId = user._id;
+          userPartnerData = friend.userPartner || {};
+        }
+
+        // Merge real data with safe defaults
+        const mergedPartnerPrefs = {
+          age: {
+            min:
+              userPartnerData && userPartnerData.age && userPartnerData.age.min !== undefined
+                ? userPartnerData.age.min
+                : defaultPartnerPrefs.age.min,
+            max:
+              userPartnerData && userPartnerData.age && userPartnerData.age.max !== undefined
+                ? userPartnerData.age.max
+                : defaultPartnerPrefs.age.max,
+          },
+          height: {
+            min:
+              userPartnerData && userPartnerData.height && userPartnerData.height.min !== undefined
+                ? userPartnerData.height.min
+                : defaultPartnerPrefs.height.min,
+            max:
+              userPartnerData && userPartnerData.height && userPartnerData.height.max !== undefined
+                ? userPartnerData.height.max
+                : defaultPartnerPrefs.height.max,
+          },
+          country: Array.isArray(userPartnerData && userPartnerData.country)
+            ? userPartnerData.country
+            : defaultPartnerPrefs.country,
+          city: Array.isArray(userPartnerData && userPartnerData.city) ? userPartnerData.city : defaultPartnerPrefs.city,
+        };
+
+        const matchInfo = await calculateMatchScore(friendId, mergedPartnerPrefs, userId, isPremiumUser);
+
+        return {
+          ...friendEntry,
+          friend: {
+            ...friend,
+            matchPercentage: matchInfo.matchPercentage,
+            matchedCriteria: matchInfo.matchedCriteria,
+            shortlistData: matchInfo.shortlistData,
+          },
+        };
+      })
+    )
+  ).filter(Boolean); // remove nulls
 
   const totalPages = Math.ceil(totalDocs / limit);
 
@@ -753,17 +796,14 @@ export async function blockUser(body = {}, user) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'You cannot block yourself');
   }
 
-  // Check if the friend exists
+  // Check if friend exists
   const getFrdUser = await User.findById(friendId);
   if (!getFrdUser) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'No such user exists');
   }
 
-  // Normalize order for storage
-  const [userA, userB] = userId < friendId ? [userId, friendId] : [friendId, userId];
-
-  // Check for existing relationship
-  const existingFriend = await Friend.findOne({ user: userA, friend: userB });
+  // Find exact pair as passed
+  const existingFriend = await Friend.findOne({ user: userId, friend: friendId });
 
   let result;
 
@@ -772,9 +812,9 @@ export async function blockUser(body = {}, user) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'User is already blocked');
     }
 
-    // Update existing record
+    // Update to BLOCKED
     result = await Friend.findOneAndUpdate(
-      { user: userA, friend: userB },
+      { user: userId, friend: friendId },
       {
         $set: {
           status: EnumStatusOfFriend.BLOCKED,
@@ -792,10 +832,10 @@ export async function blockUser(body = {}, user) {
       { new: true }
     );
   } else {
-    // Create new blocked relationship
+    // No existing relationship — create new
     result = await Friend.create({
-      user: userA,
-      friend: userB,
+      user: userId,
+      friend: friendId,
       status: EnumStatusOfFriend.BLOCKED,
       lastInitiatorUser: user,
       date: Date.now(),
@@ -809,12 +849,8 @@ export async function blockUser(body = {}, user) {
     });
   }
 
-  // Force response to match input order
-  return {
-    ...result.toObject(),
-    user: userId,
-    friend: friendId,
-  };
+  // Return exact order (already correct)
+  return result;
 }
 export async function getFriendAcceptedMobile(filter, options = {}, userId) {
   const page = options.page || 1;
