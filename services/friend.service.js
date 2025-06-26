@@ -747,53 +747,74 @@ export async function getBlock(filter, options = {}, userId) {
 
 export async function blockUser(body = {}, user) {
   const userId = body.user.toString();
-  const friend = body.friend.toString();
+  const friendId = body.friend.toString();
 
-  if (userId === friend) {
+  if (userId === friendId) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'You cannot block yourself');
   }
 
-  const getFrdUser = await User.findById(friend);
+  // Check if the friend exists
+  const getFrdUser = await User.findById(friendId);
   if (!getFrdUser) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'No such user exists');
   }
 
-  let getExistingFriendOrNot = await Friend.findOne({
-    $or: [
-      { friend: body.friend, user: body.user },
-      { friend: body.user, user: body.friend },
-    ],
-  });
+  // Normalize order for storage
+  const [userA, userB] = userId < friendId ? [userId, friendId] : [friendId, userId];
 
-  if (getExistingFriendOrNot) {
-    if (getExistingFriendOrNot.status === EnumStatusOfFriend.BLOCKED) {
+  // Check for existing relationship
+  const existingFriend = await Friend.findOne({ user: userA, friend: userB });
+
+  let result;
+
+  if (existingFriend) {
+    if (existingFriend.status === EnumStatusOfFriend.BLOCKED) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'User is already blocked');
     }
 
-    getExistingFriendOrNot = await Friend.findOneAndUpdate(
+    // Update existing record
+    result = await Friend.findOneAndUpdate(
+      { user: userA, friend: userB },
       {
-        $or: [
-          { friend: body.friend, user: body.user },
-          { friend: body.user, user: body.friend },
-        ],
-      },
-      {
-        $push: { statusHistory: { status: EnumStatusOfFriend.BLOCKED, initiatorUser: user, date: Date.now() } },
+        $set: {
+          status: EnumStatusOfFriend.BLOCKED,
+          lastInitiatorUser: user,
+          date: Date.now(),
+        },
+        $push: {
+          statusHistory: {
+            status: EnumStatusOfFriend.BLOCKED,
+            initiatorUser: user,
+            date: Date.now(),
+          },
+        },
       },
       { new: true }
     );
-
-    return getExistingFriendOrNot;
+  } else {
+    // Create new blocked relationship
+    result = await Friend.create({
+      user: userA,
+      friend: userB,
+      status: EnumStatusOfFriend.BLOCKED,
+      lastInitiatorUser: user,
+      date: Date.now(),
+      statusHistory: [
+        {
+          status: EnumStatusOfFriend.BLOCKED,
+          initiatorUser: user,
+          date: Date.now(),
+        },
+      ],
+    });
   }
 
-  // If no existing relationship, create a new blocked entry
-  return Friend.create({
-    ...body,
-    status: EnumStatusOfFriend.BLOCKED,
-    lastInitiatorUser: user,
-    date: Date.now(),
-    statusHistory: [{ status: EnumStatusOfFriend.BLOCKED, initiatorUser: user, date: Date.now() }],
-  });
+  // Force response to match input order
+  return {
+    ...result.toObject(),
+    user: userId,
+    friend: friendId,
+  };
 }
 export async function getFriendAcceptedMobile(filter, options = {}, userId) {
   const page = options.page || 1;
