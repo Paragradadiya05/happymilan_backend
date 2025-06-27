@@ -48,9 +48,9 @@ export async function createLike(body = {}, user, appUsesType) {
 
   console.log('===== like deviceTokens ====>', user);
   console.log('=== var like deviceTokens.length ===>', user.deviceTokens.length);
-  if (likedUser && likedUser.deviceTokens && likedUser.deviceTokens.length) {
+  if (getUser && getUser.deviceTokens && getUser.deviceTokens.length) {
     await Promise.all(
-      likedUser.deviceTokens.map(async (fcmToken) => {
+      getUser.deviceTokens.map(async (fcmToken) => {
         await sendNotification(
           fcmToken.deviceToken,
           {
