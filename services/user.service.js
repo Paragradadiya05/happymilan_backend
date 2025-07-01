@@ -2119,19 +2119,11 @@ export async function getDatingPartnerListByAgeAndMatch(filter, ageRange, option
     {
       $match: {
         $or: [
-          { friendsDetails: { $exists: false } }, // Include users without any friend details
-          // Case 2: Exclude blocked and accepted statuses
+          { friendsDetails: { $exists: false } },
           {
-            $and: [
-              { 'friendsDetails.status': { $nin: [EnumStatusOfFriend.BLOCKED, EnumStatusOfFriend.ACCEPTED] } },
-              {
-                $or: [
-                  // Keep REQUESTED status unless the user made the request
-                  { $expr: { $ne: ['$friendsDetails.friend', filter.userId] } },
-                  { 'friendsDetails.status': { $ne: EnumStatusOfFriend.REQUESTED } },
-                ],
-              },
-            ],
+            'friendsDetails.status': {
+              $nin: [EnumStatusOfFriend.REQUESTED, EnumStatusOfFriend.ACCEPTED, EnumStatusOfFriend.BLOCKED],
+            },
           },
         ],
       },
@@ -2691,27 +2683,13 @@ export async function getFilteredDatingInterestList(filter, options = {}) {
       },
     },
     {
-      $unwind: {
-        path: '$friendsDetails',
-        preserveNullAndEmptyArrays: true, // Include users with no matching friends
-      },
-    },
-    {
       $match: {
         $or: [
-          { friendsDetails: { $exists: false } }, // Include users without any friend details
-          // Case 2: Exclude blocked and accepted statuses
+          { friendsDetails: { $exists: false } },
           {
-            $and: [
-              { 'friendsDetails.status': { $nin: [EnumStatusOfFriend.BLOCKED, EnumStatusOfFriend.ACCEPTED] } },
-              {
-                $or: [
-                  // Keep REQUESTED status unless the user made the request
-                  { $expr: { $ne: ['$friendsDetails.friend', filter.userId] } },
-                  { 'friendsDetails.status': { $ne: EnumStatusOfFriend.REQUESTED } },
-                ],
-              },
-            ],
+            'friendsDetails.status': {
+              $nin: [EnumStatusOfFriend.REQUESTED, EnumStatusOfFriend.ACCEPTED, EnumStatusOfFriend.BLOCKED],
+            },
           },
         ],
       },
