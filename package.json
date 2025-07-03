@@ -17,7 +17,7 @@
     "lint:fix": "eslint node-setup --fix",
     "prettier": "prettier --check **/*.js",
     "prettier:fix": "prettier --write **/*.js",
-    "update-stage": "git pull && rm -rf build && npm run build && pm2 restart hm-be-staging"
+    "update-stage": "git pull origin staging && rm -rf build && npm run build && pm2 restart hm-be-staging"
   },
   "dependencies": {
     "aws-sdk": "^2.936.0",
