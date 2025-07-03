@@ -42,12 +42,9 @@ export async function createLike(body = {}, user, appUsesType) {
     userName: user.name,
     body: `${user.name} likes you`,
     title: EnumOfNotification.LIKE,
+    screen: 'Alerts',
   });
   // await Notification.create({ userId, otherUserId: body.likedUserId, body: 'like' });
-  console.log('=====createNotificationForLikedProfile====>', createNotificationForLikedProfile);
-
-  console.log('===== like deviceTokens ====>', user);
-  console.log('=== var like deviceTokens.length ===>', user.deviceTokens.length);
   if (getUser && getUser.deviceTokens && getUser.deviceTokens.length) {
     await Promise.all(
       getUser.deviceTokens.map(async (fcmToken) => {
@@ -62,6 +59,7 @@ export async function createLike(body = {}, user, appUsesType) {
               title: EnumOfNotification.LIKE,
               createdAt: createNotificationForLikedProfile.createdAt.toString(),
               updatedAt: createNotificationForLikedProfile.updatedAt.toString(),
+              screen: 'Alerts',
             },
           },
           {}

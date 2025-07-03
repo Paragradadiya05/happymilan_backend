@@ -497,7 +497,6 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
         userId: user._id,
         otherUserId: friendRequest.user,
         title: 'Sent you a request',
-        screen: 'Alerts',
       },
       {
         $set: {
