@@ -393,6 +393,7 @@ export async function createFriend(body = {}, user, appUsesType) {
       body: EnumOfNotification.REQUEST_RECEIVED,
       title: EnumOfNotification.REQUEST_RECEIVED,
       reqId: getExistingFriendOrNot._id,
+      screen: 'Alerts',
     });
 
     if (getFrdUser.deviceTokens.length) {
@@ -404,6 +405,7 @@ export async function createFriend(body = {}, user, appUsesType) {
             otherUserId: createNotificationForReceiver.otherUserId.toString(),
             body: `${user.name} ${EnumOfNotification.REQUEST_RECEIVED}`,
             title: EnumOfNotification.REQUEST_RECEIVED,
+            screen: 'Alerts',
           },
         });
       });
@@ -495,6 +497,7 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
         userId: user._id,
         otherUserId: friendRequest.user,
         title: 'Sent you a request',
+        screen: 'Alerts',
       },
       {
         $set: {
@@ -510,6 +513,7 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
       otherUserId: user._id, // acceptor
       title: EnumOfNotification.REQUEST_ACCEPTED,
       body: `${user.name} ${EnumOfNotification.REQUEST_ACCEPTED}`,
+      screen: 'Alerts',
     });
 
     if (frdUserData.deviceTokens.length) {
@@ -525,6 +529,7 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
                 body: `${user.name || 'Someone'} ${EnumOfNotification.REQUEST_ACCEPTED}`,
                 createdAt: notification.createdAt.toISOString(),
                 updatedAt: notification.updatedAt.toISOString(),
+                screen: 'Alerts',
               },
             });
           } catch (err) {
@@ -549,6 +554,7 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
           userId: friendRequest.friend,
           otherUserId: friendRequest.user,
           title: 'Sent you a request',
+          screen: 'Alerts',
         },
         {
           $set: {
@@ -572,6 +578,7 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
                   body: `${user.name || 'Someone'} ${EnumOfNotification.REQUEST_DECLINED}`,
                   createdAt: notification.createdAt.toISOString(),
                   updatedAt: notification.updatedAt.toISOString(),
+                  screen: 'Alerts',
                 },
               });
             } catch (err) {
@@ -593,6 +600,7 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
       userId: friendRequest.friend,
       otherUserId: friendRequest.user,
       title: 'Sent you a request',
+      screen: 'Alerts',
     });
   }
 
