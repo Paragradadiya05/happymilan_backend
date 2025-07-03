@@ -28,6 +28,7 @@ const notificationSchema = new mongoose.Schema(
     reqId: {
       type: mongoose.Schema.Types.ObjectId,
     },
+    screen: { type: String, default: 'Alerts' },
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );
