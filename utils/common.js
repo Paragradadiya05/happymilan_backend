@@ -247,6 +247,8 @@ export const createDynamicProjectionForPrivacySetting = (fields, defaultFields) 
     'subscriptionDetails.selectedPlan': { $getField: { field: 'selectedPlan', input: '$subscriptionDetails' } },
     'friendsDetails.status': { $getField: { field: 'status', input: '$friendsDetails' } },
     'friendsDetails._id': { $getField: { field: '_id', input: '$friendsDetails' } },
+    'friendsDetails.user': { $getField: { field: 'user', input: '$friendsDetails' } },
+    'friendsDetails.friend': { $getField: { field: 'friend', input: '$friendsDetails' } },
   };
 
   // Add default fields if privacySetting is 'default'
