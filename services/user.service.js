@@ -891,7 +891,7 @@ export async function getGenderListV2(filter, options = {}) {
         matchData: {
           $let: {
             vars: {
-              totalCriteria: 4, // Update to the total number of criteria used
+              totalCriteria: 8, // Total number of fields you're matching
               matchedCriteria: {
                 $add: [
                   {
@@ -918,8 +918,45 @@ export async function getGenderListV2(filter, options = {}) {
                       0,
                     ],
                   },
-                  { $cond: [{ $in: ['$address.currentCountry', userPartnerPreferences.country] }, 1, 0] },
-                  { $cond: [{ $in: ['$address.currentCity', userPartnerPreferences.city] }, 1, 0] },
+                  {
+                    $cond: [
+                      {
+                        $and: [
+                          { $gte: ['$userProfessional.currentSalary', userPartnerPreferences.income.min] },
+                          { $lte: ['$userProfessional.currentSalary', userPartnerPreferences.income.max] },
+                        ],
+                      },
+                      1,
+                      0,
+                    ],
+                  },
+                  {
+                    $cond: [{ $in: ['$address.currentCountry', userPartnerPreferences.country] }, 1, 0],
+                  },
+                  {
+                    $cond: [{ $in: ['$address.state', userPartnerPreferences.state] }, 1, 0],
+                  },
+                  {
+                    $cond: [{ $in: ['$address.currentCity', userPartnerPreferences.city] }, 1, 0],
+                  },
+                  {
+                    $cond: [
+                      {
+                        $gt: [{ $size: { $setIntersection: ['$userPartnerDetails.diet', userPartnerPreferences.diet] } }, 0],
+                      },
+                      1,
+                      0,
+                    ],
+                  },
+                  {
+                    $cond: [
+                      {
+                        $gt: [{ $size: { $setIntersection: ['$hobbies', userPartnerPreferences.hobbies] } }, 0],
+                      },
+                      1,
+                      0,
+                    ],
+                  },
                 ],
               },
             },
@@ -1323,7 +1360,7 @@ export async function getMatchUser(filter) {
         matchData: {
           $let: {
             vars: {
-              totalCriteria: 4,
+              totalCriteria: 8,
               matchedCriteria: {
                 $add: [
                   {
@@ -1332,6 +1369,18 @@ export async function getMatchUser(filter) {
                         $and: [
                           { $gte: ['$age', userPartnerPreferences.age.min] },
                           { $lte: ['$age', userPartnerPreferences.age.max] },
+                        ],
+                      },
+                      1,
+                      0,
+                    ],
+                  },
+                  {
+                    $cond: [
+                      {
+                        $and: [
+                          { $gte: ['$userProfessional.currentSalary', userPartnerPreferences.income.min] },
+                          { $lte: ['$userProfessional.currentSalary', userPartnerPreferences.income.max] },
                         ],
                       },
                       1,
@@ -1352,64 +1401,110 @@ export async function getMatchUser(filter) {
                   },
                   { $cond: [{ $in: ['$address.currentCountry', userPartnerPreferences.country] }, 1, 0] },
                   { $cond: [{ $in: ['$address.currentCity', userPartnerPreferences.city] }, 1, 0] },
+                  { $cond: [{ $in: ['$address.currentCity', userPartnerPreferences.city] }, 1, 0] },
+                  {
+                    $cond: [
+                      {
+                        $gt: [{ $size: { $setIntersection: ['$userPartnerDetails.diet', userPartnerPreferences.diet] } }, 0],
+                      },
+                      1,
+                      0,
+                    ],
+                  },
+                  // Hobbies
+                  {
+                    $cond: [
+                      {
+                        $gt: [{ $size: { $setIntersection: ['$hobbies', userPartnerPreferences.hobbies] } }, 0],
+                      },
+                      1,
+                      0,
+                    ],
+                  },
                 ],
               },
               matchedFields: {
-                $filter: {
-                  input: {
-                    $map: {
-                      input: [
-                        { field: 'age', value: '$age' },
-                        { field: 'height', value: '$height' },
-                        { field: 'currentCountry', value: '$address.currentCountry' },
-                        { field: 'currentCity', value: '$address.currentCity' },
-                      ],
-                      as: 'item',
-                      in: {
-                        field: '$$item.field',
-                        value: '$$item.value',
-                        isMatched: {
-                          $switch: {
-                            branches: [
-                              {
-                                case: { $eq: ['$$item.field', 'age'] },
-                                then: {
-                                  $and: [
-                                    { $gte: ['$$item.value', userPartnerPreferences.age.min] },
-                                    { $lte: ['$$item.value', userPartnerPreferences.age.max] },
-                                  ],
-                                },
-                              },
-                              {
-                                case: { $eq: ['$$item.field', 'height'] },
-                                then: {
-                                  $and: [
-                                    { $gte: ['$$item.value', userPartnerPreferences.height.min] },
-                                    { $lte: ['$$item.value', userPartnerPreferences.height.max] },
-                                  ],
-                                },
-                              },
-                              {
-                                case: { $eq: ['$$item.field', 'currentCountry'] },
-                                then: {
-                                  $in: ['$$item.value', userPartnerPreferences.country],
-                                },
-                              },
-                              {
-                                case: { $eq: ['$$item.field', 'currentCity'] },
-                                then: {
-                                  $in: ['$$item.value', userPartnerPreferences.city],
-                                },
-                              },
-                            ],
-                            default: false,
+                $map: {
+                  input: [
+                    { field: 'age', value: '$age', expected: userPartnerPreferences.age },
+                    { field: 'height', value: '$height', expected: userPartnerPreferences.height },
+                    { field: 'income', value: '$userProfessional.currentSalary', expected: userPartnerPreferences.income },
+                    { field: 'currentCountry', value: '$address.currentCountry', expected: userPartnerPreferences.country },
+                    { field: 'currentState', value: '$address.state', expected: userPartnerPreferences.state },
+                    { field: 'currentCity', value: '$address.currentCity', expected: userPartnerPreferences.city },
+                    { field: 'diet', value: '$userPartnerDetails.diet', expected: userPartnerPreferences.diet },
+                    { field: 'hobbies', value: '$hobbies', expected: userPartnerPreferences.hobbies },
+                  ],
+                  as: 'item',
+                  in: {
+                    field: '$$item.field',
+                    value: '$$item.value',
+                    expected: '$$item.expected',
+                    isMatched: {
+                      $switch: {
+                        branches: [
+                          {
+                            case: { $eq: ['$$item.field', 'age'] },
+                            then: {
+                              $and: [
+                                { $gte: ['$$item.value', '$$item.expected.min'] },
+                                { $lte: ['$$item.value', '$$item.expected.max'] },
+                              ],
+                            },
                           },
-                        },
+                          {
+                            case: { $eq: ['$$item.field', 'height'] },
+                            then: {
+                              $and: [
+                                { $gte: ['$$item.value', '$$item.expected.min'] },
+                                { $lte: ['$$item.value', '$$item.expected.max'] },
+                              ],
+                            },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'income'] },
+                            then: {
+                              $and: [
+                                { $gte: ['$$item.value', '$$item.expected.min'] },
+                                { $lte: ['$$item.value', '$$item.expected.max'] },
+                              ],
+                            },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'currentCountry'] },
+                            then: {
+                              $in: ['$$item.value', '$$item.expected'],
+                            },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'currentState'] },
+                            then: {
+                              $in: ['$$item.value', '$$item.expected'],
+                            },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'currentCity'] },
+                            then: {
+                              $in: ['$$item.value', '$$item.expected'],
+                            },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'diet'] },
+                            then: {
+                              $gt: [{ $size: { $setIntersection: ['$$item.value', '$$item.expected'] } }, 0],
+                            },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'hobbies'] },
+                            then: {
+                              $gt: [{ $size: { $setIntersection: ['$$item.value', '$$item.expected'] } }, 0],
+                            },
+                          },
+                        ],
+                        default: false,
                       },
                     },
                   },
-                  as: 'fieldMatch',
-                  cond: { $eq: ['$$fieldMatch.isMatched', true] },
                 },
               },
             },
@@ -3713,7 +3808,7 @@ export async function getNewUserList(filter, options = {}) {
         matchData: {
           $let: {
             vars: {
-              totalCriteria: 4, // Update to the total number of criteria used
+              totalCriteria: 8, // Total number of fields you're matching
               matchedCriteria: {
                 $add: [
                   {
@@ -3740,8 +3835,45 @@ export async function getNewUserList(filter, options = {}) {
                       0,
                     ],
                   },
-                  { $cond: [{ $in: ['$address.currentCountry', userPartnerPreferences.country] }, 1, 0] },
-                  { $cond: [{ $in: ['$address.currentCity', userPartnerPreferences.city] }, 1, 0] },
+                  {
+                    $cond: [
+                      {
+                        $and: [
+                          { $gte: ['$userProfessional.currentSalary', userPartnerPreferences.income.min] },
+                          { $lte: ['$userProfessional.currentSalary', userPartnerPreferences.income.max] },
+                        ],
+                      },
+                      1,
+                      0,
+                    ],
+                  },
+                  {
+                    $cond: [{ $in: ['$address.currentCountry', userPartnerPreferences.country] }, 1, 0],
+                  },
+                  {
+                    $cond: [{ $in: ['$address.state', userPartnerPreferences.state] }, 1, 0],
+                  },
+                  {
+                    $cond: [{ $in: ['$address.currentCity', userPartnerPreferences.city] }, 1, 0],
+                  },
+                  {
+                    $cond: [
+                      {
+                        $gt: [{ $size: { $setIntersection: ['$userPartnerDetails.diet', userPartnerPreferences.diet] } }, 0],
+                      },
+                      1,
+                      0,
+                    ],
+                  },
+                  {
+                    $cond: [
+                      {
+                        $gt: [{ $size: { $setIntersection: ['$hobbies', userPartnerPreferences.hobbies] } }, 0],
+                      },
+                      1,
+                      0,
+                    ],
+                  },
                 ],
               },
             },
