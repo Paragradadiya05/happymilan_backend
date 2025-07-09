@@ -1439,14 +1439,14 @@ export async function getMatchUser(filter) {
               matchedFields: {
                 $map: {
                   input: [
-                    { field: 'age', value: '$age', expected: userPartnerPreferences.age },
-                    { field: 'height', value: '$height', expected: userPartnerPreferences.height },
-                    { field: 'income', value: '$userProfessional.currentSalary', expected: userPartnerPreferences.income },
-                    { field: 'currentCountry', value: '$address.currentCountry', expected: userPartnerPreferences.country },
-                    { field: 'currentState', value: '$address.state', expected: userPartnerPreferences.state },
-                    { field: 'currentCity', value: '$address.currentCity', expected: userPartnerPreferences.city },
-                    { field: 'diet', value: '$userPartnerDetails.diet', expected: userPartnerPreferences.diet },
-                    { field: 'hobbies', value: '$hobbies', expected: userPartnerPreferences.hobbies },
+                    { field: 'age', value: '$age', expected: '$userPartnerDetails.age' },
+                    { field: 'height', value: '$height', expected: '$userPartnerDetails.height' },
+                    { field: 'income', value: '$userProfessional.currentSalary', expected: '$userPartnerDetails.income' },
+                    { field: 'currentCountry', value: '$address.currentCountry', expected: '$userPartnerDetails.country' },
+                    { field: 'currentState', value: '$address.state', expected: '$userPartnerDetails.state' },
+                    { field: 'currentCity', value: '$address.currentCity', expected: '$userPartnerDetails.city' },
+                    { field: 'diet', value: '$userPartnerDetails.diet', expected: '$userPartnerDetails.diet' }, // comparing to self is OK
+                    { field: 'hobbies', value: '$hobbies', expected: '$userPartnerDetails.hobbies' },
                   ],
                   as: 'item',
                   in: {
@@ -1485,21 +1485,15 @@ export async function getMatchUser(filter) {
                           },
                           {
                             case: { $eq: ['$$item.field', 'currentCountry'] },
-                            then: {
-                              $in: ['$$item.value', '$$item.expected'],
-                            },
+                            then: { $in: ['$$item.value', '$$item.expected'] },
                           },
                           {
                             case: { $eq: ['$$item.field', 'currentState'] },
-                            then: {
-                              $in: ['$$item.value', '$$item.expected'],
-                            },
+                            then: { $in: ['$$item.value', '$$item.expected'] },
                           },
                           {
                             case: { $eq: ['$$item.field', 'currentCity'] },
-                            then: {
-                              $in: ['$$item.value', '$$item.expected'],
-                            },
+                            then: { $in: ['$$item.value', '$$item.expected'] },
                           },
                           {
                             case: { $eq: ['$$item.field', 'diet'] },
