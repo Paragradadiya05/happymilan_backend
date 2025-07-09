@@ -886,6 +886,7 @@ export async function getGenderListV2(filter, options = {}) {
         as: 'userPartnerDetails',
       },
     },
+
     {
       $addFields: {
         matchData: {
@@ -942,7 +943,17 @@ export async function getGenderListV2(filter, options = {}) {
                   {
                     $cond: [
                       {
-                        $gt: [{ $size: { $setIntersection: ['$userPartnerDetails.diet', userPartnerPreferences.diet] } }, 0],
+                        $gt: [
+                          {
+                            $size: {
+                              $setIntersection: [
+                                { $ifNull: [{ $arrayElemAt: ['$userPartnerDetails.diet', 0] }, []] },
+                                userPartnerPreferences.diet,
+                              ],
+                            },
+                          },
+                          0,
+                        ],
                       },
                       1,
                       0,
@@ -1036,6 +1047,8 @@ export async function getGenderListV2(filter, options = {}) {
       },
     },
   ];
+  console.log('userPartnerPreferences:', JSON.stringify(userPartnerPreferences));
+
   const matchedUsers = await User.aggregate(pipeline).exec();
   return matchedUsers;
 }

@@ -169,6 +169,7 @@ export const defaultFields = {
   community: '$community',
   motherTongue: '$motherTongue',
   weight: '$weight',
+  diet: '$diet',
   // userEducation: '$userEducation',
   // userProfessional: {
   //   _id: { $getField: { field: '_id', input: '$userProfessional' } },
