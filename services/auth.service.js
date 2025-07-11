@@ -394,13 +394,26 @@ export const updateEmailAndMobile = async ({ email, mobileNumber, user }) => {
 
 export const verifyOtpForUpdatePasswordEnaEmail = async ({ email, mobileNumber, user }) => {
   console.log('=== var mobileNumber ===>', mobileNumber);
+
+  // Handle email update
   if (email && email.currentEmail === user.email) {
-    // verify otp
+    // verify email OTP
     await tokenService.verifyResetOtpForChangeEmailOrNumber(user, email.otp);
 
-    // update user
-    return userService.updateUser({ email: user.email }, { email: email.newEmail });
+    // update email
+    await userService.updateUser({ _id: user._id }, { email: email.newEmail });
   }
+
+  // Handle mobile number update
+  if (mobileNumber && mobileNumber.currentMobileNumber === user.mobileNumber) {
+    // verify mobile OTP
+    await tokenService.verifyResetOtpForChangeEmailOrNumber(user, mobileNumber.otp);
+
+    // update mobile number
+    await userService.updateUser({ _id: user._id }, { mobileNumber: mobileNumber.newMobileNumber });
+  }
+
+  return user;
 };
 
 /**

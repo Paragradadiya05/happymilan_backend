@@ -556,5 +556,5 @@ export const verifyEmailAndMobile = catchAsync(async (req, res) => {
   const { user } = req;
   // const result =
   await authService.verifyOtpForUpdatePasswordEnaEmail({ email, mobileNumber, user });
-  res.status(httpStatus.OK).send({ results: { success: true, message: 'email has been reset successfully' } });
+  res.status(httpStatus.OK).send({ results: { success: true, message: 'reset successfully' } });
 });
