@@ -892,7 +892,7 @@ export async function getGenderListV2(filter, options = {}) {
         matchData: {
           $let: {
             vars: {
-              totalCriteria: 8, // Total number of fields you're matching
+              totalCriteria: 8,
               matchedCriteria: {
                 $add: [
                   {
@@ -931,29 +931,13 @@ export async function getGenderListV2(filter, options = {}) {
                       0,
                     ],
                   },
-                  {
-                    $cond: [{ $in: ['$address.currentCountry', userPartnerPreferences.country] }, 1, 0],
-                  },
-                  {
-                    $cond: [{ $in: ['$address.state', userPartnerPreferences.state] }, 1, 0],
-                  },
-                  {
-                    $cond: [{ $in: ['$address.currentCity', userPartnerPreferences.city] }, 1, 0],
-                  },
+                  { $cond: [{ $in: ['$address.currentCountry', userPartnerPreferences.country] }, 1, 0] },
+                  { $cond: [{ $in: ['$address.state', userPartnerPreferences.state] }, 1, 0] },
+                  { $cond: [{ $in: ['$address.currentCity', userPartnerPreferences.city] }, 1, 0] },
                   {
                     $cond: [
                       {
-                        $gt: [
-                          {
-                            $size: {
-                              $setIntersection: [
-                                { $ifNull: [{ $arrayElemAt: ['$userPartnerDetails.diet', 0] }, []] },
-                                userPartnerPreferences.diet,
-                              ],
-                            },
-                          },
-                          0,
-                        ],
+                        $gt: [{ $size: { $setIntersection: ['$userPartnerDetails.diet', userPartnerPreferences.diet] } }, 0],
                       },
                       1,
                       0,
@@ -981,7 +965,15 @@ export async function getGenderListV2(filter, options = {}) {
         },
       },
     },
-    // for remove duplicate user
+
+    // Extract matchPercentage for sorting
+    {
+      $addFields: {
+        matchPercentage: '$matchData.matchPercentage',
+      },
+    },
+
+    // Group by _id to remove duplicates
     {
       $group: {
         _id: '$_id',
@@ -993,6 +985,14 @@ export async function getGenderListV2(filter, options = {}) {
         newRoot: '$doc',
       },
     },
+
+    // Sort by matchPercentage
+    {
+      $sort: {
+        matchPercentage: -1,
+      },
+    },
+
     {
       $project: createDynamicProjectionForPrivacySetting(fields, defaultFields, isPremiumUser),
     },
@@ -1373,69 +1373,6 @@ export async function getMatchUser(filter) {
         matchData: {
           $let: {
             vars: {
-              totalCriteria: 8,
-              matchedCriteria: {
-                $add: [
-                  {
-                    $cond: [
-                      {
-                        $and: [
-                          { $gte: ['$age', userPartnerPreferences.age.min] },
-                          { $lte: ['$age', userPartnerPreferences.age.max] },
-                        ],
-                      },
-                      1,
-                      0,
-                    ],
-                  },
-                  {
-                    $cond: [
-                      {
-                        $and: [
-                          { $gte: ['$userProfessional.currentSalary', userPartnerPreferences.income.min] },
-                          { $lte: ['$userProfessional.currentSalary', userPartnerPreferences.income.max] },
-                        ],
-                      },
-                      1,
-                      0,
-                    ],
-                  },
-                  {
-                    $cond: [
-                      {
-                        $and: [
-                          { $gte: ['$height', userPartnerPreferences.height.min] },
-                          { $lte: ['$height', userPartnerPreferences.height.max] },
-                        ],
-                      },
-                      1,
-                      0,
-                    ],
-                  },
-                  { $cond: [{ $in: ['$address.currentCountry', userPartnerPreferences.country] }, 1, 0] },
-                  { $cond: [{ $in: ['$address.currentCity', userPartnerPreferences.city] }, 1, 0] },
-                  { $cond: [{ $in: ['$address.currentCity', userPartnerPreferences.city] }, 1, 0] },
-                  {
-                    $cond: [
-                      {
-                        $gt: [{ $size: { $setIntersection: ['$userPartnerDetails.diet', userPartnerPreferences.diet] } }, 0],
-                      },
-                      1,
-                      0,
-                    ],
-                  },
-                  // Hobbies
-                  {
-                    $cond: [
-                      {
-                        $gt: [{ $size: { $setIntersection: ['$hobbies', userPartnerPreferences.hobbies] } }, 0],
-                      },
-                      1,
-                      0,
-                    ],
-                  },
-                ],
-              },
               matchedFields: {
                 $map: {
                   input: [
@@ -1445,7 +1382,7 @@ export async function getMatchUser(filter) {
                     { field: 'currentCountry', value: '$address.currentCountry', expected: '$userPartnerDetails.country' },
                     { field: 'currentState', value: '$address.state', expected: '$userPartnerDetails.state' },
                     { field: 'currentCity', value: '$address.currentCity', expected: '$userPartnerDetails.city' },
-                    { field: 'diet', value: '$userPartnerDetails.diet', expected: '$userPartnerDetails.diet' }, // comparing to self is OK
+                    { field: 'diet', value: '$userPartnerDetails.diet', expected: '$userPartnerDetails.diet' },
                     { field: 'hobbies', value: '$hobbies', expected: '$userPartnerDetails.hobbies' },
                   ],
                   as: 'item',
@@ -1516,21 +1453,47 @@ export async function getMatchUser(filter) {
               },
             },
             in: {
-              matchPercentage: {
-                $multiply: [{ $divide: ['$$matchedCriteria', '$$totalCriteria'] }, 100],
-              },
-              matchedCriteria: '$$matchedCriteria',
               matchedFields: '$$matchedFields',
+              matchedCriteria: {
+                $size: {
+                  $filter: {
+                    input: '$$matchedFields',
+                    as: 'item',
+                    cond: { $eq: ['$$item.isMatched', true] },
+                  },
+                },
+              },
+              matchPercentage: {
+                $multiply: [
+                  {
+                    $divide: [
+                      {
+                        $size: {
+                          $filter: {
+                            input: '$$matchedFields',
+                            as: 'item',
+                            cond: { $eq: ['$$item.isMatched', true] },
+                          },
+                        },
+                      },
+                      8,
+                    ],
+                  },
+                  100,
+                ],
+              },
             },
           },
         },
       },
     },
+    { $addFields: { matchPercentage: '$matchData.matchPercentage' } },
+    { $sort: { matchPercentage: -1 } },
     {
       $project: createDynamicProjectionForPrivacySetting(fields, defaultFields, isPremiumUser),
     },
-    { $sort: { matchPercentage: -1 } }, // Sort by match percentage in descending order
   ];
+
   const matchedUsers = await User.aggregate(pipeline).exec();
   return matchedUsers;
 }
