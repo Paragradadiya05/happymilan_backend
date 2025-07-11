@@ -12,6 +12,7 @@ import jwt from 'jsonwebtoken';
 import config from 'config/config';
 import mongoose from 'mongoose';
 import { sendNotification } from './notification.service';
+import { sendOtpToMobile } from './mobileotp.service';
 
 /**
  * Login with username and password
@@ -379,7 +380,14 @@ export const updateEmailAndMobile = async ({ email, mobileNumber, user }) => {
     // create jwt payload with otp data
   }
   if (mobileNumber && mobileNumber.currentMobileNumber === user.mobileNumber) {
-    // todo : after we add mobile otp flow we need to add code here for reset mobile number
+    try {
+      await userService.updateUser({ mobileNumber: user.mobileNumber }, body, { new: true });
+      await sendOtpToMobile(`${user.countryCode}${mobileNumber.newMobileNumber}`, otp);
+      console.log('OTP sent to mobile via MSG91');
+    } catch (error) {
+      console.error('Error sending OTP to mobile:', error);
+      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Error sending OTP to mobile');
+    }
   }
   return user;
 };
