@@ -94,7 +94,7 @@ export async function calculateMatchScore(friendId, userPartnerPreferences, user
         matchData: {
           $let: {
             vars: {
-              totalCriteria: 4, // Update to the total number of criteria used
+              totalCriteria: 8,
               matchedCriteria: {
                 $add: [
                   {
@@ -121,8 +121,39 @@ export async function calculateMatchScore(friendId, userPartnerPreferences, user
                       0,
                     ],
                   },
+                  {
+                    $cond: [
+                      {
+                        $and: [
+                          { $gte: ['$userProfessional.currentSalary', userPartnerPreferences.income.min] },
+                          { $lte: ['$userProfessional.currentSalary', userPartnerPreferences.income.max] },
+                        ],
+                      },
+                      1,
+                      0,
+                    ],
+                  },
                   { $cond: [{ $in: ['$address.currentCountry', userPartnerPreferences.country] }, 1, 0] },
+                  { $cond: [{ $in: ['$address.state', userPartnerPreferences.state] }, 1, 0] },
                   { $cond: [{ $in: ['$address.currentCity', userPartnerPreferences.city] }, 1, 0] },
+                  {
+                    $cond: [
+                      {
+                        $gt: [{ $size: { $setIntersection: ['$userPartnerDetails.diet', userPartnerPreferences.diet] } }, 0],
+                      },
+                      1,
+                      0,
+                    ],
+                  },
+                  {
+                    $cond: [
+                      {
+                        $gt: [{ $size: { $setIntersection: ['$hobbies', userPartnerPreferences.hobbies] } }, 0],
+                      },
+                      1,
+                      0,
+                    ],
+                  },
                 ],
               },
             },
@@ -134,6 +165,12 @@ export async function calculateMatchScore(friendId, userPartnerPreferences, user
             },
           },
         },
+      },
+    },
+    {
+      $addFields: {
+        matchPercentage: '$matchData.matchPercentage',
+        matchedCriteria: '$matchData.matchedCriteria',
       },
     },
     {
