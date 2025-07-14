@@ -3778,7 +3778,7 @@ export async function getNewUserList(filter, options = {}) {
         matchData: {
           $let: {
             vars: {
-              totalCriteria: 8, // Total number of fields you're matching
+              totalCriteria: 8,
               matchedCriteria: {
                 $add: [
                   {
@@ -3817,15 +3817,9 @@ export async function getNewUserList(filter, options = {}) {
                       0,
                     ],
                   },
-                  {
-                    $cond: [{ $in: ['$address.currentCountry', userPartnerPreferences.country] }, 1, 0],
-                  },
-                  {
-                    $cond: [{ $in: ['$address.state', userPartnerPreferences.state] }, 1, 0],
-                  },
-                  {
-                    $cond: [{ $in: ['$address.currentCity', userPartnerPreferences.city] }, 1, 0],
-                  },
+                  { $cond: [{ $in: ['$address.currentCountry', userPartnerPreferences.country] }, 1, 0] },
+                  { $cond: [{ $in: ['$address.state', userPartnerPreferences.state] }, 1, 0] },
+                  { $cond: [{ $in: ['$address.currentCity', userPartnerPreferences.city] }, 1, 0] },
                   {
                     $cond: [
                       {
@@ -3855,6 +3849,13 @@ export async function getNewUserList(filter, options = {}) {
             },
           },
         },
+      },
+    },
+
+    // Extract matchPercentage for sorting
+    {
+      $addFields: {
+        matchPercentage: '$matchData.matchPercentage',
       },
     },
     {
