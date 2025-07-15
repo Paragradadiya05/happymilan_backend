@@ -19,3 +19,8 @@ export async function getBlogList(filter, options = {}) {
   const blog = await Blog.find(filter, options.projection, options);
   return blog;
 }
+
+export async function getOne(query, options = {}) {
+  const blog = await Blog.findOne(query, options.projection, options);
+  return blog;
+}

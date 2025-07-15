@@ -38,3 +38,13 @@ export const list = catchAsync(async (req, res) => {
   const blog = await blogservice.getBlogList(filter, options);
   return res.status(httpStatus.OK).send({ results: blog });
 });
+
+export const getBlogbyId = catchAsync(async (req, res) => {
+  const { blogId } = req.params;
+  const filter = {
+    _id: blogId,
+  };
+  const options = {};
+  const blog = await blogservice.getOne(filter, options);
+  return res.status(httpStatus.OK).send({ results: blog });
+});

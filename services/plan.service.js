@@ -29,3 +29,8 @@ export async function removeplan(filter) {
   const plan = await Plan.findOneAndRemove(filter);
   return plan;
 }
+
+export async function removeSelectedPlans(planIds) {
+  const deletedPlans = await Plan.deleteMany({ _id: { $in: planIds } });
+  return deletedPlans;
+}

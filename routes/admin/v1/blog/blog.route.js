@@ -8,11 +8,25 @@ const router = express.Router();
 /**
  * create blog
  * */
-router.post('/create-blog', auth(['admin']), validate(blogValidation.createBlog), blogController.create);
+router.post(
+  '/create-blog',
+  // auth(['admin']),
+  validate(blogValidation.createBlog),
+  blogController.create
+);
 /**
  * get blog
  * */
 router.get('/get-blog', auth(['admin']), validate(blogValidation.getBlog), blogController.list);
+/**
+ * get blog byid
+ * */
+router.get(
+  '/get-blog/:blogId',
+  // auth(['admin']),
+  validate(blogValidation.getBlogbyId),
+  blogController.getBlogbyId
+);
 /**
  * update blog
  * */

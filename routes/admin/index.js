@@ -10,6 +10,7 @@ import xlsxRoutes from './v1/uploadxlsx/uploadxlsx.route';
 import roleRoutes from './v1/Role/role.route';
 import dashboardRoutes from './v1/dashboard/dashboard.route';
 import KycRoute from './v1/kyc/kyc.route';
+import spamRoute from './v1/spamUser/spam.route';
 
 const router = express.Router();
 router.use('/user', userRoutes);
@@ -23,5 +24,6 @@ router.use('/upload', xlsxRoutes);
 router.use('/role', roleRoutes);
 router.use('/dashboard', dashboardRoutes);
 router.use('/kyc', KycRoute);
+router.use('/spam', spamRoute);
 
 module.exports = router;

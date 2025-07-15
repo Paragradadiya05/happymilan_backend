@@ -8,3 +8,4 @@ module.exports.subscriptionController = require('./subscription.controller');
 module.exports.xlxsController = require('./uploadxlsx.controller');
 module.exports.roleController = require('./role.controller');
 module.exports.KycController = require('./kyc.controller');
+module.exports.spamUserController = require('./spamuser.controller');

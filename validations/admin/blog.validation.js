@@ -30,3 +30,9 @@ export const deleteBlogById = {
 export const getBlog = {
   body: Joi.object().keys({}).unknown(true),
 };
+
+export const getBlogbyId = {
+  params: Joi.object().keys({
+    blogId: Joi.objectId().required(),
+  }),
+};

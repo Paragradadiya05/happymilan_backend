@@ -35,3 +35,15 @@ export const Delete = catchAsync(async (req, res) => {
   const plan = await planservice.removeplan(filter);
   return res.status(httpStatus.OK).send({ results: plan });
 });
+
+export const deleteSelectedPlans = catchAsync(async (req, res) => {
+  const { planIds } = req.body; // Expecting an array of plan IDs
+
+  if (!Array.isArray(planIds) || planIds.length === 0) {
+    return res.status(httpStatus.BAD_REQUEST).send({ message: 'planIds must be a non-empty array' });
+  }
+
+  const deletedPlans = await planservice.removeSelectedPlans(planIds);
+
+  return res.status(httpStatus.OK).send({ message: 'Selected plans deleted successfully', results: deletedPlans });
+});

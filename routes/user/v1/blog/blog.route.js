@@ -12,6 +12,7 @@ router.post('/create-blog', validate(blogvalidation.createBlog), blogController.
  * get blog
  * */
 router.get('/get-blog', validate(blogvalidation.getBlog), blogController.list);
+
 /**
  * update blog
  * */

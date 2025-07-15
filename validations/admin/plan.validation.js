@@ -36,3 +36,9 @@ export const deletePlan = {
     planId: Joi.objectId().required(),
   }),
 };
+
+export const deleteSelectedPlans = {
+  body: Joi.object().keys({
+    planIds: Joi.array().items(Joi.string().required()).min(1).required(),
+  }),
+};
