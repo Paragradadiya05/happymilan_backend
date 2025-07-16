@@ -886,91 +886,286 @@ export async function getGenderListV2(filter, options = {}) {
         as: 'userPartnerDetails',
       },
     },
-
     {
       $addFields: {
         matchData: {
           $let: {
             vars: {
-              totalCriteria: 8,
-              matchedCriteria: {
-                $add: [
-                  {
-                    $cond: [
-                      {
-                        $and: [
-                          { $gte: ['$age', userPartnerPreferences.age.min] },
-                          { $lte: ['$age', userPartnerPreferences.age.max] },
+              matchedFields: {
+                $map: {
+                  input: [
+                    {
+                      field: 'age',
+                      value: '$age',
+                      expected: {
+                        min: {
+                          $ifNull: [{ $arrayElemAt: ['$userPartnerDetails.age.min', 0] }, '$userPartnerDetails.age.min'],
+                        },
+                        max: {
+                          $ifNull: [{ $arrayElemAt: ['$userPartnerDetails.age.max', 0] }, '$userPartnerDetails.age.max'],
+                        },
+                      },
+                    },
+                    {
+                      field: 'height',
+                      value: '$height',
+                      expected: {
+                        min: {
+                          $ifNull: [
+                            { $arrayElemAt: ['$userPartnerDetails.height.min', 0] },
+                            '$userPartnerDetails.height.min',
+                          ],
+                        },
+                        max: {
+                          $ifNull: [
+                            { $arrayElemAt: ['$userPartnerDetails.height.max', 0] },
+                            '$userPartnerDetails.height.max',
+                          ],
+                        },
+                      },
+                    },
+                    {
+                      field: 'income',
+                      value: '$userProfessional.currentSalary',
+                      expected: {
+                        min: {
+                          $ifNull: [
+                            { $arrayElemAt: ['$userPartnerDetails.income.min', 0] },
+                            '$userPartnerDetails.income.min',
+                          ],
+                        },
+                        max: {
+                          $ifNull: [
+                            { $arrayElemAt: ['$userPartnerDetails.income.max', 0] },
+                            '$userPartnerDetails.income.max',
+                          ],
+                        },
+                      },
+                    },
+                    {
+                      field: 'currentCountry',
+                      value: '$address.currentCountry',
+                      expected: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$userPartnerDetails.country' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.country', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$userPartnerDetails.country', 0] },
+                          { $ifNull: ['$userPartnerDetails.country', []] },
                         ],
                       },
-                      1,
-                      0,
-                    ],
-                  },
-                  {
-                    $cond: [
-                      {
-                        $and: [
-                          { $gte: ['$height', userPartnerPreferences.height.min] },
-                          { $lte: ['$height', userPartnerPreferences.height.max] },
+                    },
+                    {
+                      field: 'currentState',
+                      value: '$address.state',
+                      expected: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$userPartnerDetails.state' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.state', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$userPartnerDetails.state', 0] },
+                          { $ifNull: ['$userPartnerDetails.state', []] },
                         ],
                       },
-                      1,
-                      0,
-                    ],
-                  },
-                  {
-                    $cond: [
-                      {
-                        $and: [
-                          { $gte: ['$userProfessional.currentSalary', userPartnerPreferences.income.min] },
-                          { $lte: ['$userProfessional.currentSalary', userPartnerPreferences.income.max] },
+                    },
+                    {
+                      field: 'currentCity',
+                      value: '$address.currentCity',
+                      expected: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$userPartnerDetails.city' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.city', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$userPartnerDetails.city', 0] },
+                          { $ifNull: ['$userPartnerDetails.city', []] },
                         ],
                       },
-                      1,
-                      0,
-                    ],
-                  },
-                  { $cond: [{ $in: ['$address.currentCountry', userPartnerPreferences.country] }, 1, 0] },
-                  { $cond: [{ $in: ['$address.state', userPartnerPreferences.state] }, 1, 0] },
-                  { $cond: [{ $in: ['$address.currentCity', userPartnerPreferences.city] }, 1, 0] },
-                  {
-                    $cond: [
-                      {
-                        $gt: [{ $size: { $setIntersection: ['$userPartnerDetails.diet', userPartnerPreferences.diet] } }, 0],
+                    },
+                    {
+                      field: 'diet',
+                      value: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$userPartnerDetails.diet' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.diet', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$userPartnerDetails.diet', 0] }, // unwrap [["vegetarian"]] → ["vegetarian"]
+                          {
+                            $cond: [
+                              { $isArray: '$userPartnerDetails.diet' },
+                              '$userPartnerDetails.diet', // already ["vegetarian"]
+                              [],
+                            ],
+                          },
+                        ],
                       },
-                      1,
-                      0,
-                    ],
-                  },
-                  {
-                    $cond: [
-                      {
-                        $gt: [{ $size: { $setIntersection: ['$hobbies', userPartnerPreferences.hobbies] } }, 0],
+                      expected: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: userPartnerPreferences.diet },
+                              { $eq: [{ $type: { $arrayElemAt: [userPartnerPreferences.diet, 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: [userPartnerPreferences.diet, 0] }, // unwrap [["vegetarian"]] → ["vegetarian"]
+                          {
+                            $cond: [
+                              { $isArray: userPartnerPreferences.diet },
+                              userPartnerPreferences.diet, // already ["vegetarian"]
+                              [],
+                            ],
+                          },
+                        ],
                       },
-                      1,
-                      0,
-                    ],
+                    },
+
+                    {
+                      field: 'hobbies',
+                      value: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$hobbies' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$hobbies', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$hobbies', 0] }, // unwrap [["reading","cooking"]] → ["reading","cooking"]
+                          { $ifNull: ['$hobbies', []] },
+                        ],
+                      },
+                      expected: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$userPartnerDetails.hobbies' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.hobbies', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$userPartnerDetails.hobbies', 0] },
+                          { $ifNull: ['$userPartnerDetails.hobbies', []] },
+                        ],
+                      },
+                    },
+                  ],
+                  as: 'item',
+                  in: {
+                    field: '$$item.field',
+                    value: '$$item.value',
+                    expected: '$$item.expected',
+                    isMatched: {
+                      $switch: {
+                        branches: [
+                          {
+                            case: { $eq: ['$$item.field', 'age'] },
+                            then: {
+                              $and: [
+                                { $gte: ['$$item.value', '$$item.expected.min'] },
+                                { $lte: ['$$item.value', '$$item.expected.max'] },
+                              ],
+                            },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'height'] },
+                            then: {
+                              $and: [
+                                { $gte: ['$$item.value', '$$item.expected.min'] },
+                                { $lte: ['$$item.value', '$$item.expected.max'] },
+                              ],
+                            },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'income'] },
+                            then: {
+                              $and: [
+                                { $gte: ['$$item.value', '$$item.expected.min'] },
+                                { $lte: ['$$item.value', '$$item.expected.max'] },
+                              ],
+                            },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'currentCountry'] },
+                            then: { $in: ['$$item.value', '$$item.expected'] },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'currentState'] },
+                            then: { $in: ['$$item.value', '$$item.expected'] },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'currentCity'] },
+                            then: { $in: ['$$item.value', '$$item.expected'] },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'diet'] },
+                            then: {
+                              $gt: [{ $size: { $setIntersection: ['$$item.value', '$$item.expected'] } }, 0],
+                            },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'hobbies'] },
+                            then: {
+                              $gt: [{ $size: { $setIntersection: ['$$item.value', '$$item.expected'] } }, 0],
+                            },
+                          },
+                        ],
+                        default: false,
+                      },
+                    },
                   },
-                ],
+                },
               },
             },
             in: {
-              matchPercentage: {
-                $multiply: [{ $divide: ['$$matchedCriteria', '$$totalCriteria'] }, 100],
+              matchedCriteria: {
+                $size: {
+                  $filter: {
+                    input: '$$matchedFields',
+                    as: 'm',
+                    cond: { $eq: ['$$m.isMatched', true] },
+                  },
+                },
               },
-              matchedCriteria: '$$matchedCriteria',
+              matchPercentage: {
+                $multiply: [
+                  {
+                    $divide: [
+                      {
+                        $size: {
+                          $filter: {
+                            input: '$$matchedFields',
+                            as: 'm',
+                            cond: { $eq: ['$$m.isMatched', true] },
+                          },
+                        },
+                      },
+                      8,
+                    ],
+                  },
+                  100,
+                ],
+              },
             },
           },
         },
       },
     },
-
-    // Extract matchPercentage for sorting
     {
       $addFields: {
         matchPercentage: '$matchData.matchPercentage',
       },
+    },
+    {
+      $sort: { matchPercentage: -1 },
     },
 
     // Group by _id to remove duplicates
@@ -983,13 +1178,6 @@ export async function getGenderListV2(filter, options = {}) {
     {
       $replaceRoot: {
         newRoot: '$doc',
-      },
-    },
-
-    // Sort by matchPercentage
-    {
-      $sort: {
-        matchPercentage: -1,
       },
     },
 
@@ -1382,7 +1570,37 @@ export async function getMatchUser(filter) {
                     { field: 'currentCountry', value: '$address.currentCountry', expected: '$userPartnerDetails.country' },
                     { field: 'currentState', value: '$address.state', expected: '$userPartnerDetails.state' },
                     { field: 'currentCity', value: '$address.currentCity', expected: '$userPartnerDetails.city' },
-                    { field: 'diet', value: '$userPartnerDetails.diet', expected: '$userPartnerDetails.diet' },
+                    {
+                      field: 'diet',
+                      value: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: userPartnerPreferences.diet },
+                              { $eq: [{ $type: { $arrayElemAt: [userPartnerPreferences.diet, 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: [userPartnerPreferences.diet, 0] },
+                          {
+                            $cond: [{ $isArray: userPartnerPreferences.diet }, userPartnerPreferences.diet, []],
+                          },
+                        ],
+                      },
+                      expected: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$userPartnerDetails.diet' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.diet', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$userPartnerDetails.diet', 0] },
+                          {
+                            $cond: [{ $isArray: '$userPartnerDetails.diet' }, '$userPartnerDetails.diet', []],
+                          },
+                        ],
+                      },
+                    },
                     { field: 'hobbies', value: '$hobbies', expected: '$userPartnerDetails.hobbies' },
                   ],
                   as: 'item',
