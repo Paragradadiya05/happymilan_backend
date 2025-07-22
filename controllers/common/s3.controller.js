@@ -1,6 +1,7 @@
 import httpStatus from 'http-status';
 import { catchAsync } from 'utils/catchAsync';
 import { s3Service } from 'services';
+import axios from 'axios';
 import { sendMail } from '../../utils/sendMailMnteh';
 // eslint-disable-next-line import/prefer-default-export
 export const preSignedPutUrl = catchAsync(async (req, res) => {
@@ -23,25 +24,44 @@ export const UploadKycDoc = catchAsync(async (req, res) => {
 export const sendProposal = catchAsync(async (req, res) => {
   const { name, emailAddresh, contactNo, projectDescription, help, Budget, attachments } = req.body;
 
+  const mailAttachments = [];
+
+  if (attachments.content) {
+    try {
+      // ✅ Download PDF from the given URL
+      const response = await axios.get(attachments.content, {
+        responseType: 'arraybuffer',
+      });
+
+      mailAttachments.push({
+        filename: attachments.filename,
+        content: Buffer.from(response.data), // ✅ Attach actual PDF binary
+      });
+    } catch (error) {
+      return res.status(httpStatus.BAD_REQUEST).send({
+        message: 'Failed to download attachment from provided URL',
+        error: error.message,
+      });
+    }
+  }
+
   const emailSendBody = {
     from: emailAddresh,
     to: 'mntechgroup2@gmail.com',
     subject: projectDescription,
     html: `
-      <b>
-        Name:</b> ${name}<br/>
+      <b>Name:</b> ${name}<br/>
       <b>Contact No:</b> ${contactNo}<br/>
       <b>Project Description:</b> ${projectDescription}<br/>
       ${help ? `<b>Help Needed:</b> ${help}<br/>` : ''}
       ${Budget !== undefined ? `<b>Budget:</b> ₹${Budget}<br/>` : ''}
     `,
-    attachments: attachments ? [{ filename: attachments.filename, content: attachments.content }] : [],
+    attachments: mailAttachments,
   };
 
   const s3PutObject = await sendMail(emailSendBody);
   return res.status(httpStatus.OK).send({ results: s3PutObject });
 });
-
 export const UploadStoryImg = catchAsync(async (req, res) => {
   const { body, user } = req;
   const s3PutObject = await s3Service.validateExtensionForPutObjectForStory(body, user);
@@ -49,15 +69,30 @@ export const UploadStoryImg = catchAsync(async (req, res) => {
 });
 
 export const ApplyInternship = catchAsync(async (req, res) => {
-  const {
-    fullname,
-    emailOrMobile, // accepts either
-    description,
-    attachments,
-  } = req.body;
+  const { fullname, emailOrMobile, description, attachments } = req.body;
+
+  const mailAttachments = [];
+
+  if (attachments.content) {
+    try {
+      const response = await axios.get(attachments.content, {
+        responseType: 'arraybuffer',
+      });
+
+      mailAttachments.push({
+        filename: attachments.filename,
+        content: Buffer.from(response.data),
+      });
+    } catch (error) {
+      return res.status(httpStatus.BAD_REQUEST).send({
+        message: 'Could not download PDF from given URL',
+        error: error.message,
+      });
+    }
+  }
 
   const emailBody = {
-    from: typeof emailOrMobile === 'string' && emailOrMobile.includes('@') ? emailOrMobile : 'internship-form@your-site.com', // fallback if only mobile given
+    from: typeof emailOrMobile === 'string' && emailOrMobile.includes('@') ? emailOrMobile : 'internship-form@your-site.com',
     to: 'mntechgroup2@gmail.com',
     subject: `Internship Application – ${fullname}`,
     html: `
@@ -65,13 +100,12 @@ export const ApplyInternship = catchAsync(async (req, res) => {
       <b>Email / Mobile:</b> ${emailOrMobile}<br/>
       <b>Description:</b><br/>${description.replace(/\n/g, '<br/>')}
     `,
-    attachments: attachments ? [{ filename: attachments.filename, content: attachments.content }] : [],
+    attachments: mailAttachments,
   };
 
   const mailResult = await sendMail(emailBody);
   return res.status(httpStatus.OK).send({ results: mailResult });
 });
-
 export const csrInitiative = catchAsync(async (req, res) => {
   const { fullName, emailOrMobile, organizationName, roleOrDesignation, areaOfInterest, contribute, agreeToBeContacted } =
     req.body;
