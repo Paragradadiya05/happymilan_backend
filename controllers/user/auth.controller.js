@@ -3,13 +3,7 @@ import { generateOtp, generateRandomId } from 'utils/common';
 import ApiError from 'utils/ApiError';
 import { catchAsync } from 'utils/catchAsync';
 import { authService, tokenService, userService, emailService, countryCodeService, twoFactorAuthService } from 'services';
-import {
-  EnumTypeOfToken,
-  EnumCodeTypeOfCode,
-  EnumForTimeDurationOfProfileHide,
-  EnumOfNotification,
-  EnumOf2faMethod,
-} from 'models/enum.model';
+import { EnumTypeOfToken, EnumCodeTypeOfCode, EnumOfNotification, EnumOf2faMethod } from 'models/enum.model';
 import { resendOtpToMobile, sendOtpToMobile } from '../../services/mobileotp.service';
 import { Notification } from '../../models';
 import { sendNotification } from '../../services/notification.service';
@@ -333,33 +327,33 @@ export const updateUserInfo = catchAsync(async (req, res) => {
   const filter = { _id: req.user._id };
   const { body } = req;
 
-  if (body.profileHideAndDelete) {
-    if (body.profileHideAndDelete.isProfileHide && !body.profileHideAndDelete.timeForProfileHide) {
-      const sixMonthsLater = new Date();
-      body.profileHideAndDelete.timeForProfileHide = sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
-    } else if (body.profileHideAndDelete.isProfileHide && body.profileHideAndDelete.timeForProfileHide) {
-      if (body.profileHideAndDelete.timeForProfileHide === EnumForTimeDurationOfProfileHide.ONE_MONTH) {
-        const oneMonthsLater = new Date();
-        body.profileHideAndDelete.timeForProfileHide = oneMonthsLater.setMonth(oneMonthsLater.getMonth() + 1);
-      }
-      if (body.profileHideAndDelete.timeForProfileHide === EnumForTimeDurationOfProfileHide.THREE_MONTH) {
-        const threeMonthsLater = new Date();
-        body.profileHideAndDelete.timeForProfileHide = threeMonthsLater.setMonth(threeMonthsLater.getMonth() + 3);
-      }
-      if (body.profileHideAndDelete.timeForProfileHide === EnumForTimeDurationOfProfileHide.SIX_MONTH) {
-        const sixMonthsLater = new Date();
-        body.profileHideAndDelete.timeForProfileHide = sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
-      }
-      if (body.profileHideAndDelete.timeForProfileHide === EnumForTimeDurationOfProfileHide.ONE_WEEK) {
-        const oneWeekLater = new Date();
-        body.profileHideAndDelete.timeForProfileHide = oneWeekLater.setDate(oneWeekLater.getDate() + 7);
-      }
-      if (body.profileHideAndDelete.timeForProfileHide === EnumForTimeDurationOfProfileHide.TWO_WEEK) {
-        const twoWeekLater = new Date();
-        body.profileHideAndDelete.timeForProfileHide = twoWeekLater.setDate(twoWeekLater.getDate() + 14);
-      }
-    }
-  }
+  // if (body.profileHideAndDelete) {
+  //   if (body.profileHideAndDelete.isProfileHide && !body.profileHideAndDelete.timeForProfileHide) {
+  //     const sixMonthsLater = new Date();
+  //     body.profileHideAndDelete.timeForProfileHide = sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
+  //   } else if (body.profileHideAndDelete.isProfileHide && body.profileHideAndDelete.timeForProfileHide) {
+  //     if (body.profileHideAndDelete.timeForProfileHide === EnumForTimeDurationOfProfileHide.ONE_MONTH) {
+  //       const oneMonthsLater = new Date();
+  //       body.profileHideAndDelete.timeForProfileHide = oneMonthsLater.setMonth(oneMonthsLater.getMonth() + 1);
+  //     }
+  //     if (body.profileHideAndDelete.timeForProfileHide === EnumForTimeDurationOfProfileHide.THREE_MONTH) {
+  //       const threeMonthsLater = new Date();
+  //       body.profileHideAndDelete.timeForProfileHide = threeMonthsLater.setMonth(threeMonthsLater.getMonth() + 3);
+  //     }
+  //     if (body.profileHideAndDelete.timeForProfileHide === EnumForTimeDurationOfProfileHide.SIX_MONTH) {
+  //       const sixMonthsLater = new Date();
+  //       body.profileHideAndDelete.timeForProfileHide = sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
+  //     }
+  //     if (body.profileHideAndDelete.timeForProfileHide === EnumForTimeDurationOfProfileHide.ONE_WEEK) {
+  //       const oneWeekLater = new Date();
+  //       body.profileHideAndDelete.timeForProfileHide = oneWeekLater.setDate(oneWeekLater.getDate() + 7);
+  //     }
+  //     if (body.profileHideAndDelete.timeForProfileHide === EnumForTimeDurationOfProfileHide.TWO_WEEK) {
+  //       const twoWeekLater = new Date();
+  //       body.profileHideAndDelete.timeForProfileHide = twoWeekLater.setDate(twoWeekLater.getDate() + 14);
+  //     }
+  //   }
+  // }
   const userData = await userService.updateUserForAuth(
     filter,
     body,

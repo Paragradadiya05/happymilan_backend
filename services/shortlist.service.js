@@ -62,6 +62,8 @@ export async function getshortListWithPagination(filter, options = {}) {
     {
       $match: {
         userId: mongoose.Types.ObjectId(filter.userId), // find the current user
+        'profileHideAndDelete.isProfileHide': { $ne: true },
+        'profileHideAndDelete.isProfileDelete': { $ne: true },
       },
     },
     {

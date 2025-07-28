@@ -11,6 +11,8 @@ export async function calculateMatchScore(friendId, userPartnerPreferences, user
   const matchData = await User.aggregate([
     {
       $match: { _id: mongoose.Types.ObjectId(friendId) },
+      'profileHideAndDelete.isProfileHide': { $ne: true },
+      'profileHideAndDelete.isProfileDelete': { $ne: true },
     },
     // find address
     {

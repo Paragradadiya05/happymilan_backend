@@ -79,7 +79,8 @@ const ProfileHideAndDelete = new mongoose.Schema(
       default: false,
     },
     timeForProfileHide: {
-      type: Date,
+      type: String,
+      enum: Object.values(enumModel.EnumForTimeDurationOfProfileHide),
     },
     isProfileDelete: {
       type: Boolean,
@@ -88,6 +89,9 @@ const ProfileHideAndDelete = new mongoose.Schema(
     reasonForProfileDelete: {
       type: String,
       enum: Object.values(enumModel.EnumOfReasonForProfileDelete),
+    },
+    reason: {
+      type: String,
     },
   },
   { timestamps: { createdAt: true, updatedAt: true } }
@@ -461,7 +465,7 @@ const UserSchema = new mongoose.Schema(
     },
     userProfilePic: [UserImagesSchema],
     userProfileVideo: [UserVideoSchema],
-    profileHideAndDelete: [ProfileHideAndDelete],
+    profileHideAndDelete: ProfileHideAndDelete,
     datingData: [datingData],
     platform: {
       type: String,

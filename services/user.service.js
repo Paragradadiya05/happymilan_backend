@@ -689,6 +689,8 @@ export async function getGenderListV2(filter, options = {}) {
         platform: { $eq: EnumOfPlatformType.HAPPY_MILAN },
         gender: oppositeGender,
         appUsesType: EnumAppUsesTypeOfUsers.MARRIAGE,
+        'profileHideAndDelete.isProfileHide': { $ne: true },
+        'profileHideAndDelete.isProfileDelete': { $ne: true },
       },
     },
     {
@@ -1365,6 +1367,7 @@ export async function getMatchUser(filter) {
       $match: {
         _id: { $eq: mongoose.Types.ObjectId(filter.userId) }, // only for the current user
         platform: { $eq: EnumOfPlatformType.HAPPY_MILAN },
+        'profileHideAndDelete.isProfileHide': { $ne: true },
       },
     },
     {
@@ -1901,6 +1904,8 @@ export async function getDatingPartnerList(filter, options = {}) {
         appUsesType: EnumAppUsesTypeOfUsers.DATING,
         platform: { $eq: EnumOfPlatformType.HAPPY_MILAN },
         gender: oppositeGender,
+        'profileHideAndDelete.isProfileHide': { $ne: true },
+        'profileHideAndDelete.isProfileDelete': { $ne: true },
       },
     },
     {
@@ -2328,6 +2333,8 @@ export async function getDatingPartnerListByAgeAndMatch(filter, ageRange, option
         _id: { $ne: mongoose.Types.ObjectId(filter.userId) }, // Exclude the current user
         appUsesType: EnumAppUsesTypeOfUsers.DATING,
         platform: { $eq: EnumOfPlatformType.HAPPY_MILAN },
+        'profileHideAndDelete.isProfileHide': { $ne: true },
+        'profileHideAndDelete.isProfileDelete': { $ne: true },
         gender: oppositeGender,
         // Filter based on age calculated from dateOfBirth
         dateOfBirth: {
@@ -2731,6 +2738,8 @@ export async function getUserWithDatingData(filter) {
         _id: mongoose.Types.ObjectId(userId),
         platform: EnumOfPlatformType.HAPPY_MILAN,
         appUsesType: EnumAppUsesTypeOfUsers.DATING,
+        'profileHideAndDelete.isProfileHide': { $ne: true },
+        'profileHideAndDelete.isProfileDelete': { $ne: true },
       },
     },
     {
@@ -2937,6 +2946,8 @@ export async function getFilteredDatingInterestList(filter, options = {}) {
         _id: { $ne: mongoose.Types.ObjectId(filter.userId) }, // Exclude the current user
         appUsesType: EnumAppUsesTypeOfUsers.DATING,
         platform: { $eq: EnumOfPlatformType.HAPPY_MILAN },
+        'profileHideAndDelete.isProfileHide': { $ne: true },
+        'profileHideAndDelete.isProfileDelete': { $ne: true },
         'datingData.interestedIn': interestedIn, // Filter based on single interestedIn value
       },
     },
@@ -3190,6 +3201,8 @@ export async function getFilteredDatingEthnicityList(filter, options = {}) {
         _id: { $ne: mongoose.Types.ObjectId(filter.userId) }, // Exclude the current user
         appUsesType: EnumAppUsesTypeOfUsers.DATING,
         platform: { $eq: EnumOfPlatformType.HAPPY_MILAN },
+        'profileHideAndDelete.isProfileHide': { $ne: true },
+        'profileHideAndDelete.isProfileDelete': { $ne: true },
         'datingData.Ethnicity': Ethnicity, // Filter based on single interestedIn value
       },
     },
