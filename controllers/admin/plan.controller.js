@@ -47,3 +47,10 @@ export const deleteSelectedPlans = catchAsync(async (req, res) => {
 
   return res.status(httpStatus.OK).send({ message: 'Selected plans deleted successfully', results: deletedPlans });
 });
+
+export const getPlanById = catchAsync(async (req, res) => {
+  const { planId } = req.params;
+  const options = {};
+  const plan = await planservice.getPlanById(planId, options);
+  return res.status(httpStatus.OK).send({ results: plan });
+});

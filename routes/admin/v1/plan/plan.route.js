@@ -21,6 +21,10 @@ router.post(
  * */
 router.get('/get-plan', auth(), planController.listPlan);
 /**
+ * get plan by id
+ * */
+router.get('/get-plan/:planId', auth(['admin']), validate(planValidation.getPlanById), planController.getPlanById);
+/**
  * update plan
  * */
 router.put('/update-plan/:planId', auth(['admin']), validate(planValidation.updatePlan), planController.update);
