@@ -7,6 +7,7 @@ export const createBlog = {
     title: Joi.string().required(),
     content: Joi.string().required(),
     images: Joi.any().required(),
+    status: Joi.boolean(),
   }),
 };
 
@@ -18,6 +19,7 @@ export const updateBlog = {
     title: Joi.string().required(),
     content: Joi.string().required(),
     images: Joi.any().required(),
+    status: Joi.boolean(),
   }),
 };
 

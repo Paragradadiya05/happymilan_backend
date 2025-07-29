@@ -13,6 +13,10 @@ const BlogSchema = new mongoose.Schema(
     images: {
       type: [mongoose.Mixed],
     },
+    status: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );
