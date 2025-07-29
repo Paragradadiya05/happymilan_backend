@@ -205,10 +205,15 @@ const EnumForTimeDurationOfProfileHide = {
   SIX_MONTH: 'sixMonth',
 };
 const EnumOfReasonForProfileDelete = {
-  FOUND_MY_MATCH: 'found-my-match',
-  WANTS_TO_TAKE_BREAK: 'wants-to-take-break',
-  NOT_SATISFIED_BY_MATCHES: 'not-satisfied-by-matches',
-  OTHER_REASON: 'other-reason',
+  FOUND_SUITABLE_PARTNER: 'found-suitable-partner',
+  MARRIED_OR_ENGAGED: 'married-or-engaged',
+  TAKING_BREAK: 'taking-break',
+  PRIVACY_OR_SAFETY_CONCERNS: 'privacy-or-safety-concerns',
+  DIFFICULT_TO_USE: 'difficult-to-use',
+  TOO_MANY_UNRELATED_MATCHES: 'too-many-unrelated-matches',
+  DID_NOT_GET_EXPECTED_RESPONSES: 'did-not-get-expected-responses',
+  TOO_COSTLY_OR_NOT_VALUABLE: 'too-costly-or-not-valuable',
+  OTHER: 'other',
 };
 
 const EnumOfImageTypes = {
