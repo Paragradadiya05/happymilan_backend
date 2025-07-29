@@ -465,7 +465,7 @@ const UserSchema = new mongoose.Schema(
     },
     userProfilePic: [UserImagesSchema],
     userProfileVideo: [UserVideoSchema],
-    profileHideAndDelete: ProfileHideAndDelete,
+    profileHideAndDelete: [ProfileHideAndDelete],
     datingData: [datingData],
     platform: {
       type: String,
