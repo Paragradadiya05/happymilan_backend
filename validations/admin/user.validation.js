@@ -84,6 +84,7 @@ export const paginatedUser = {
 
 export const createUserWithAllModelData = {
   body: Joi.object().keys({
+    emailVerified: Joi.bool(),
     generalDetails: Joi.object()
       .keys({
         firstName: Joi.string().required(),
@@ -92,7 +93,7 @@ export const createUserWithAllModelData = {
           .valid(...Object.values(EnumGenderOfUsers))
           .required(),
         dateOfBirth: Joi.date().required(),
-        birthTime: Joi.string().required(),
+        birthTime: Joi.date().required(),
         religion: Joi.string().required(),
         caste: Joi.string().allow(null, ''),
         height: Joi.number().required(),
@@ -147,5 +148,47 @@ export const dashboard = {
     appUsesType: Joi.string()
       .valid(...Object.values(EnumAppUsesTypeOfUsers))
       .optional(),
+  }),
+};
+
+export const updateUserWithAllModelData = {
+  body: Joi.object().keys({
+    generalDetails: Joi.object().keys({
+      firstName: Joi.string(),
+      lastName: Joi.string(),
+      gender: Joi.string().valid(...Object.values(EnumGenderOfUsers)),
+      dateOfBirth: Joi.date(),
+      birthTime: Joi.string(),
+      religion: Joi.string(),
+      caste: Joi.string().allow(null, ''),
+      height: Joi.number(),
+      weight: Joi.number(),
+    }),
+    address: Joi.object().keys({
+      currentResidenceAddress: Joi.string(),
+      currentCity: Joi.string(),
+      currentCountry: Joi.string().valid(...Object.values(EnumOfCurrentCountry)),
+    }),
+    contactDetails: Joi.object().keys({
+      mobileNumber: Joi.number(), // todo : add num validation here
+      homeMobileNumber: Joi.number().allow(null, ''),
+      email: Joi.string().email(),
+    }),
+    eductionDetails: Joi.object().keys({
+      degree: Joi.string(),
+      collage: Joi.string(),
+      city: Joi.string(),
+      state: Joi.string(),
+      country: Joi.string(),
+    }),
+    professionalDetails: Joi.object().keys({
+      companyName: Joi.string(),
+      jobTitle: Joi.string(),
+      jobType: Joi.string().valid('Full-time', 'Part-time', 'Contract', 'Internship'),
+      currentSalary: Joi.number(),
+      workCity: Joi.string(),
+      workCountry: Joi.string(),
+    }),
+    hobbies: Joi.array().items(Joi.string()),
   }),
 };

@@ -43,5 +43,10 @@ router
    * createUser for happy milan
    * */
   .post(auth(['admin']), validate(userValidation.createUserWithAllModelData), userController.createUser);
-
+router
+  .route('/update-user/:userId')
+  /**
+   * Update user for Happy Milan
+   */
+  .put(auth(['admin']), validate(userValidation.updateUserWithAllModelData), userController.updateUser);
 export default router;

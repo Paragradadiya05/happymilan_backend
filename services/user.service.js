@@ -470,6 +470,9 @@ export async function updateUser(filter, body, options = {}) {
   if (body.email && (await User.isEmailTaken(body.email, userData.id))) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
   }
+  if (body.mobileNumber && (await User.isMobileNumberTaken(body.mobileNumber))) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Mobile number already taken');
+  }
   const user = await User.findOneAndUpdate(filter, body, options);
   return user;
 }

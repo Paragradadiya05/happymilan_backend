@@ -101,7 +101,7 @@ export const createUser = catchAsync(async (req, res) => {
       updatedBy: adminUserId,
     });
 
-    const password = generatePassword(9);
+    const password = generatePassword(8);
 
     // update user here
     const updateUser = await userService.updateUserForAuth(
@@ -159,4 +159,66 @@ export const dashboard = catchAsync(async (req, res) => {
     silverPlan,
     PlatinumPlan,
   });
+});
+
+export const updateUser = catchAsync(async (req, res) => {
+  const adminUserId = req.user._id;
+  const { userId } = req.params;
+  const { generalDetails, contactDetails, hobbies, address, eductionDetails, professionalDetails } = req.body;
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const options = {};
+
+    // Update core user info
+    const updatedUser = await userService.updateUser(
+      { _id: userId },
+      {
+        ...generalDetails,
+        ...contactDetails,
+        hobbies,
+        updatedBy: adminUserId,
+      },
+      options
+    );
+
+    // Update or create address
+    await addressService.updateAddress(
+      { userId },
+      {
+        ...address,
+        updatedBy: adminUserId,
+      }
+    );
+
+    // Update or create education
+    await educationservice.updateEducation(
+      { userId },
+      {
+        ...eductionDetails,
+        updatedBy: adminUserId,
+      }
+    );
+
+    // Update or create professional details
+    await userProfessionalDetailService.updateUserProfessionalDetail(
+      { userId },
+      {
+        ...professionalDetails,
+        updatedBy: adminUserId,
+      }
+    );
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return res.status(httpStatus.OK).send({ message: 'User updated successfully', results: updatedUser });
+  } catch (e) {
+    await session.abortTransaction();
+    session.endSession();
+    console.error('Update transaction error:', e);
+    return res.status(httpStatus.BAD_REQUEST).send({ error: 'Update User Transaction error', details: e.message });
+  }
 });
