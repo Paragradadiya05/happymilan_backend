@@ -19,10 +19,8 @@ export const createKyc = {
 
 export const updateKyc = {
   body: Joi.object().keys({
-    kycDocName: Joi.string()
-      .valid(...Object.values(enumModel.EnumOfKyc))
-      .required(),
-    kycDocImagePath: Joi.string().required(),
+    kycDocName: Joi.string().valid(...Object.values(enumModel.EnumOfKyc)),
+    kycDocImagePath: Joi.string(),
     verify: Joi.boolean().default(false),
     verifyUserId: Joi.boolean().default(false),
     userId: Joi.objectId(),
