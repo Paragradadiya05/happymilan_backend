@@ -1,5 +1,5 @@
 import httpStatus from 'http-status';
-import { KycService } from 'services';
+import { KycService, userService } from 'services';
 import { catchAsync } from 'utils/catchAsync';
 import { pick } from '../../utils/pick';
 
@@ -51,6 +51,33 @@ export const update = catchAsync(async (req, res) => {
   const filter = {
     _id: KycId,
   };
+  const existingKyc = await KycService.getOne(filter);
+  if (!existingKyc) {
+    return res.status(httpStatus.NOT_FOUND).send({ message: 'KYC record not found' });
+  }
+  if (body.nameRequest && body.nameRequest.length) {
+    const latestRequest = body.nameRequest[body.nameRequest.length - 1];
+
+    // If approved, update user's name
+    if (latestRequest.approvalStatus === 'approved') {
+      await userService.updateUser(
+        { _id: existingKyc.userId },
+        {
+          firstName: latestRequest.firstName,
+          lastName: latestRequest.lastName,
+        }
+      );
+
+      // Set approvedAt and approvedBy
+      latestRequest.approvedAt = new Date();
+      latestRequest.approvedBy = req.admin._id;
+    }
+
+    // Optional: Add requestedAt if not sent
+    if (!latestRequest.requestedAt) {
+      latestRequest.requestedAt = new Date();
+    }
+  }
   const options = { new: true };
   const Kyc = await KycService.updatekyc(filter, body, options);
   return res.status(httpStatus.OK).send({ results: Kyc });

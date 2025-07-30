@@ -31,7 +31,9 @@ export async function updatekyc(filter, body, options = {}) {
   if (body.kycDocName) kyc.kycDocName = body.kycDocName;
   if (body.kycDocImagePath) kyc.kycDocImagePath = body.kycDocImagePath;
   if (body.nameRequest) kyc.nameRequest = body.nameRequest;
-
+  if (typeof body.verify === 'boolean') kyc.verify = body.verify;
+  if (typeof body.isDocRejected === 'boolean') kyc.isDocRejected = body.isDocRejected;
+  if (body.rejectReason !== undefined) kyc.rejectReason = body.rejectReason;
   // Ensure history array exists
   if (!Array.isArray(kyc.docUploadHistory)) {
     kyc.docUploadHistory = [];
