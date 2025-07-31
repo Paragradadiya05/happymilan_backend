@@ -1,4 +1,4 @@
-import { paymentHistoryService, planservice, userPlanService } from 'services';
+import { emailService, paymentHistoryService, planservice, userPlanService } from 'services';
 import httpStatus from 'http-status';
 import jwt from 'jsonwebtoken';
 import config from 'config/config';
@@ -86,6 +86,18 @@ export const complete = catchAsync(async (req, res) => {
     // update user plan here
     console.log('=====redirect====>', `${config.frontendUrl}${config.paymentPath}`);
     res.redirect(`${config.frontendUrl}${config.paymentPath}`);
+    await emailService.sendPlanConfirmationEmail({
+      to: req.user.email,
+      subject: 'Your Plan is Activated',
+      template: 'planConfirmation', // e.g., views/emails/planConfirmation.hbs
+      context: {
+        name: req.user.fullName || req.user.name,
+        planTitle: getPaymentHistory.planId.title,
+        startDate: startDate.toDateString(),
+        endDate: endDate.toDateString(),
+        price: getPaymentHistory.planId.totalPrice || getPaymentHistory.planId.price,
+      },
+    });
   } else {
     // todo : handle error here with help of fe side and also update payment
     // Redirect to homepage if payment status is not captured
