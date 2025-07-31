@@ -1,4 +1,4 @@
-import { emailService, paymentHistoryService, planservice, userPlanService } from 'services';
+import { paymentHistoryService, planservice, userPlanService } from 'services';
 import httpStatus from 'http-status';
 import jwt from 'jsonwebtoken';
 import config from 'config/config';
@@ -51,12 +51,15 @@ export const complete = catchAsync(async (req, res) => {
   if (!req.body.razorpay_payment_id || !req.query.paymentHistoryToken) {
     throw new ApiError(httpStatus.NOT_FOUND, 'razorpay_payment_id Not Available');
   }
-
+  // Fetch payment details from Razorpay using the payment ID
   const paymentDocument = await razorpayInstance.payments.fetch(req.body.razorpay_payment_id);
 
+  // Check if payment status is captured
   if (paymentDocument.status === 'captured') {
-    const paymentHistoryToken = jwt.verify(req.query.paymentHistoryToken, 'PAYMENT');
+    // decrypt payment jwt token
+    const paymentHistoryToken = jwt.verify(req.query.paymentHistoryToken, 'PAYMENT'); // todo : make this from env
 
+    // todo:get plan here by populate
     const getPaymentHistory = await paymentHistoryService.updatePaymentHistory(
       { _id: paymentHistoryToken.data },
       {
@@ -65,41 +68,29 @@ export const complete = catchAsync(async (req, res) => {
       },
       {
         new: true,
-        populate: { path: 'planId' },
+        populate: {
+          path: 'planId',
+        },
       }
     );
 
+    // todo :  make function for calculated date based on plan details.
     const { startDate, endDate } = calculateDates(paymentHistoryToken.data.planDuration);
-
     await userPlanService.createUserPlan({
       userId: req.user._id,
-      planId: getPaymentHistory.planId._id,
+      planId: getPaymentHistory.planId, // todo : update id here planId
       startDate,
       endDate,
       status: EnumOfUserPlan.ACTIVE,
     });
 
-    // ✅ Send plan confirmation email
-    const emailContext = {
-      name: req.user.fullName || req.user.name,
-    };
-
-    await emailService.sendPlanConfirmationEmail({
-      to: req.user.email,
-      subject: 'Your Plan is Activated',
-      template: 'planConfirmation',
-      context: emailContext,
-    });
-
-    // ✅ Log info
-    console.log('📧 Email sent to:', req.user.email);
-    console.log('🧑 User name:', emailContext.name);
-    console.log('📦 Plan:', emailContext.planTitle, '| ₹', emailContext.price);
-
-    // ✅ Redirect after everything completes
+    // update user plan here
+    console.log('=====redirect====>', `${config.frontendUrl}${config.paymentPath}`);
     res.redirect(`${config.frontendUrl}${config.paymentPath}`);
   } else {
-    res.redirect('/');
+    // todo : handle error here with help of fe side and also update payment
+    // Redirect to homepage if payment status is not captured
+    res.redirect('/'); // todo : throw error something went wrong
   }
 });
 
