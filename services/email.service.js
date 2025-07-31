@@ -1672,3 +1672,66 @@ export const DeleteUserEmail = async (user) => {
     .then(() => logger.info('email sent successfully'))
     .catch((error) => logger.warn(`Unable to send mail ${error}`));
 };
+
+export const sendPlanConfirmationEmail = async (user, planDetails) => {
+  const { email: to, name } = user;
+  const { planTitle, startDate, endDate, price } = planDetails;
+
+  const subject = 'Your Plan is Now Active – Welcome to Premium!';
+
+  const text = `
+  <html lang="en">
+  <head>
+    <style>
+      .btn {
+        display: inline-block;
+        font-weight: 400;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        user-select: none;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        border-radius: 0.25rem;
+        transition: 0.15s ease-in-out;
+        color: #ffffff !important;
+        background-color: #28a745;
+        border: 1px solid #28a745;
+        text-decoration: none;
+      }
+      .text-center {
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <div>Dear ${name},</div><br>
+      
+      <div>🎉 Thank you for upgrading to our premium plan!</div><br>
+
+      <div>Here are your subscription details:</div><br>
+      <ul>
+        <li><strong>Plan:</strong> ${planTitle}</li>
+        <li><strong>Start Date:</strong> ${new Date(startDate).toDateString()}</li>
+        <li><strong>End Date:</strong> ${new Date(endDate).toDateString()}</li>
+        <li><strong>Amount Paid:</strong> ₹${price}</li>
+      </ul><br>
+
+      <div>We're thrilled to have you on board. Your premium access is now active and you can enjoy all the exclusive features we offer.</div><br>
+
+      <div>If you have any questions or need support, feel free to contact us at support@example.com</div><br>
+
+      <div>Thanks again for choosing us!</div><br><br>
+
+      <img src="${config.front.url}/images/logo.jpg"><br><br>
+   
+      <a class="text-center" target="_blank" href="https://www.google.com">unsubscribe from this list</a><br><br>
+    </div>
+  </body>
+  </html>
+  `;
+
+  await sendEmail({ to, subject, text, isHtml: true });
+};
