@@ -1,4 +1,4 @@
-import { emailService, paymentHistoryService, planservice, userPlanService } from 'services';
+import { paymentHistoryService, planservice, userPlanService } from 'services';
 import httpStatus from 'http-status';
 import jwt from 'jsonwebtoken';
 import config from 'config/config';
@@ -82,18 +82,6 @@ export const complete = catchAsync(async (req, res) => {
       startDate,
       endDate,
       status: EnumOfUserPlan.ACTIVE,
-    });
-    await emailService.sendPlanConfirmationEmail({
-      to: req.user.email,
-      subject: 'Your Plan is Activated',
-      template: 'planConfirmation', // e.g., views/emails/planConfirmation.hbs
-      context: {
-        name: req.user.fullName || req.user.name,
-        planTitle: getPaymentHistory.planId.title,
-        startDate: startDate.toDateString(),
-        endDate: endDate.toDateString(),
-        price: getPaymentHistory.planId.totalPrice || getPaymentHistory.planId.price,
-      },
     });
     // update user plan here
     console.log('=====redirect====>', `${config.frontendUrl}${config.paymentPath}`);
