@@ -464,18 +464,16 @@ export async function getFriendList(filter, options = {}, userId) {
   const limit = options.limit || 10;
   const skip = (page - 1) * limit;
 
-  // Get total count of matching friends for pagination
   const totalDocs = await Friend.countDocuments(filter);
-
   const isPremiumUser = await checkUserPremiumStatus(userId);
-  // todo: use in all query and remove countDocuments paginate
-  // Retrieve paginated list of friends
+
+  // Step 1: Get friends with populated user and friend info
   const friends = await Friend.find(filter, options.projection, { ...options, limit, skip })
     .populate({
       path: 'friend',
       select:
-        'privacySetting name email userUniqueId userProfilePic privacySettingCustom datingData appUsesType dateOfBirth firstName lastName caste gender height maritalStatus' +
-        'religion weight writeBoutYourSelf homeMobileNumber mobileNumber profilePic',
+        'privacySetting name email userUniqueId userProfilePic privacySettingCustom datingData appUsesType dateOfBirth firstName lastName caste gender height maritalStatus ' +
+        'religion weight writeBoutYourSelf homeMobileNumber mobileNumber profilePic profileHideAndDelete hobbies',
       populate: [
         { path: 'address', select: 'userId currentCountry currentState currentCity' },
         { path: 'userEducation', select: 'degree collage city country state' },
@@ -486,8 +484,8 @@ export async function getFriendList(filter, options = {}, userId) {
     .populate({
       path: 'user',
       select:
-        'privacySetting name email userUniqueId userProfilePic privacySettingCustom datingData appUsesType dateOfBirth firstName lastName caste gender height maritalStatus' +
-        'religion weight writeBoutYourSelf homeMobileNumber mobileNumber profilePic',
+        'privacySetting name email userUniqueId userProfilePic privacySettingCustom datingData appUsesType dateOfBirth firstName lastName caste gender height maritalStatus ' +
+        'religion weight writeBoutYourSelf homeMobileNumber mobileNumber profilePic profileHideAndDelete hobbies',
       populate: [
         { path: 'address', select: 'userId currentCountry currentState currentCity' },
         { path: 'userEducation', select: 'degree collage city country state' },
@@ -497,19 +495,22 @@ export async function getFriendList(filter, options = {}, userId) {
     })
     .exec();
 
-  // Process each friend to calculate match data
+  // Step 2: Filter out profiles that are hidden or deleted
+  const visibleFriends = friends.filter((entry) => {
+    const friendProfile = entry.friend.profileHideAndDelete || [];
+    const userProfile = entry.user.profileHideAndDelete || [];
+
+    const isFriendVisible = !friendProfile.some((p) => p.isProfileHide || p.isProfileDelete);
+    const isUserVisible = !userProfile.some((p) => p.isProfileHide || p.isProfileDelete);
+
+    return isFriendVisible && isUserVisible;
+  });
+
+  // Step 3: Attach match info
   const friendsWithMatchData = await Promise.all(
-    friends.map(async (friendEntry) => {
+    visibleFriends.map(async (friendEntry) => {
       const { friend, user } = friendEntry;
       if (user && user.userPartner) {
-        /* we are fetching friend data.
-         ( there are two possible thing
-            1. current login user is friend
-            2. current login user is user )
-
-         if current login user is friend in data then we need to pass other user in calculateMatchScore function as friend id
-         */
-
         let friendId = friend._id;
         let userPartnerData = user.userPartner;
         let isFriendData = true;
@@ -519,16 +520,11 @@ export async function getFriendList(filter, options = {}, userId) {
           userPartnerData = friend.userPartner;
           isFriendData = true;
         }
-
-        // we need to find friend privacySetting and privacySettingCustom for user
-        // after we get privacySetting we need to find key for same and return that fields from friend data
-
         const matchInfo = await calculateMatchScore(friendId, userPartnerData, userId, isPremiumUser);
 
         if (isFriendData) {
           // eslint-disable-next-line no-param-reassign
           friendEntry.friend._doc = matchInfo;
-
           // eslint-disable-next-line no-param-reassign
           friendEntry.user = friend;
         } else {
@@ -538,7 +534,6 @@ export async function getFriendList(filter, options = {}, userId) {
           friendEntry.friend = user;
         }
 
-        // Attach match data directly to the friend object
         return {
           ...friendEntry.toObject(),
           matchPercentage: matchInfo.matchPercentage,
@@ -547,11 +542,10 @@ export async function getFriendList(filter, options = {}, userId) {
         };
       }
 
-      // If no match data is available, attach default values to the friend object
       return {
         ...friendEntry.toObject(),
         friend: {
-          ...friend.toObject(),
+          ...friendEntry.friend.toObject(),
           matchPercentage: 0,
           matchedCriteria: [],
           userShortListDetails: [],
@@ -560,10 +554,8 @@ export async function getFriendList(filter, options = {}, userId) {
     })
   );
 
-  // Calculate total pages
   const totalPages = Math.ceil(totalDocs / limit);
 
-  // Return paginated results with metadata
   return {
     results: friendsWithMatchData,
     totalDocs,
