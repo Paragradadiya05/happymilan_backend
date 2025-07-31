@@ -82,10 +82,6 @@ export const complete = catchAsync(async (req, res) => {
     // ✅ Send plan confirmation email
     const emailContext = {
       name: req.user.fullName || req.user.name,
-      planTitle: getPaymentHistory.planId.title,
-      startDate: startDate.toDateString(),
-      endDate: endDate.toDateString(),
-      price: getPaymentHistory.planId.totalPrice || getPaymentHistory.planId.price,
     };
 
     await emailService.sendPlanConfirmationEmail({
