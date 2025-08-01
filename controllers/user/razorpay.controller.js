@@ -94,6 +94,10 @@ export const complete = catchAsync(async (req, res) => {
       await emailService.sendPlanConfirmationEmail({
         email: user.email,
         name: user.fullName || user.name || 'User',
+        planName: populatedPlan.planName,
+        startDate,
+        endDate,
+        price: populatedPlan.totalPrice,
       });
       console.log('📧 Plan confirmation email sent to:', user.email);
     } catch (error) {

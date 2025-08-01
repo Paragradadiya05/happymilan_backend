@@ -1673,10 +1673,8 @@ export const DeleteUserEmail = async (user) => {
     .catch((error) => logger.warn(`Unable to send mail ${error}`));
 };
 
-export const sendPlanConfirmationEmail = async (user, planDetails) => {
-  const { email: to, name } = user;
-  const { planTitle, startDate, endDate, price } = planDetails;
-
+export const sendPlanConfirmationEmail = async (user) => {
+  const { email: to, name, planName, startDate, endDate, price } = user;
   const subject = 'Your Plan is Now Active – Welcome to Premium!';
 
   const text = `
@@ -1713,10 +1711,10 @@ export const sendPlanConfirmationEmail = async (user, planDetails) => {
 
       <div>Here are your subscription details:</div><br>
       <ul>
-        <li><strong>Plan:</strong> ${planTitle}</li>
+        <li><strong>Plan:</strong> ${planName}</li>
         <li><strong>Start Date:</strong> ${new Date(startDate).toDateString()}</li>
         <li><strong>End Date:</strong> ${new Date(endDate).toDateString()}</li>
-        <li><strong>Amount Paid:</strong> ₹${price}</li>
+        <li><strong>Total Price:</strong> ₹${price}</li>
       </ul><br>
 
       <div>We're thrilled to have you on board. Your premium access is now active and you can enjoy all the exclusive features we offer.</div><br>
@@ -1726,7 +1724,7 @@ export const sendPlanConfirmationEmail = async (user, planDetails) => {
       <div>Thanks again for choosing us!</div><br><br>
 
       <img src="${config.front.url}/images/logo.jpg"><br><br>
-   
+
       <a class="text-center" target="_blank" href="https://www.google.com">unsubscribe from this list</a><br><br>
     </div>
   </body>
