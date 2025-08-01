@@ -1,4 +1,4 @@
-import { paymentHistoryService, planservice, userPlanService } from 'services';
+import { paymentHistoryService, planservice, subscriptionservice, userPlanService } from 'services';
 import httpStatus from 'http-status';
 import jwt from 'jsonwebtoken';
 import config from 'config/config';
@@ -73,7 +73,16 @@ export const complete = catchAsync(async (req, res) => {
         },
       }
     );
-
+    const populatedPlan = getPaymentHistory.planId;
+    if (!populatedPlan || !populatedPlan.planName) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Plan not found or planName missing');
+    }
+    console.log('=====xx====>', populatedPlan);
+    // 1. Create Subscription
+    await subscriptionservice.createSubscription({
+      user: req.user._id,
+      selectedPlan: populatedPlan.planName,
+    });
     // todo :  make function for calculated date based on plan details.
     const { startDate, endDate } = calculateDates(paymentHistoryToken.data.planDuration);
     await userPlanService.createUserPlan({
