@@ -6,7 +6,7 @@ export async function getUserPlanById(id, options = {}) {
 }
 
 export async function getOne(query, options = {}) {
-  const test = await UserPlan.findOne(query, options.projection, options);
+  const test = await UserPlan.findOne(query, options.projection, options).populate('planId');
   return test;
 }
 

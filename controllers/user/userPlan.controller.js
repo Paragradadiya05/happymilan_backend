@@ -5,11 +5,11 @@ import { userPlanService } from '../../services';
 export const getUserPlanId = catchAsync(async (req, res) => {
   const userId = req.user._id;
   const filter = {
-    _id: userId,
+    userId,
   };
   const options = {};
-  const SearchHistory = await userPlanService.getOne(filter, options);
-  return res.status(httpStatus.OK).send({ results: SearchHistory });
+  const user = await userPlanService.getOne(filter, options);
+  return res.status(httpStatus.OK).send({ results: user });
 });
 
 export const list = catchAsync(async (req, res) => {
