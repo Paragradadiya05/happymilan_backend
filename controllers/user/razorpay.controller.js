@@ -1,4 +1,4 @@
-import { paymentHistoryService, planservice, subscriptionservice, userPlanService } from 'services';
+import { emailService, paymentHistoryService, planservice, subscriptionservice, userPlanService } from 'services';
 import httpStatus from 'http-status';
 import jwt from 'jsonwebtoken';
 import config from 'config/config';
@@ -68,16 +68,14 @@ export const complete = catchAsync(async (req, res) => {
       },
       {
         new: true,
-        populate: {
-          path: 'planId',
-        },
+        populate: [{ path: 'planId' }, { path: 'userId', select: 'email fullName' }],
       }
     );
     const populatedPlan = getPaymentHistory.planId;
+    const user = getPaymentHistory.userId || req.user;
     if (!populatedPlan || !populatedPlan.planName) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Plan not found or planName missing');
     }
-    console.log('=====xx====>', populatedPlan);
     // 1. Create Subscription
     await subscriptionservice.createSubscription({
       user: req.user._id,
@@ -92,7 +90,15 @@ export const complete = catchAsync(async (req, res) => {
       endDate,
       status: EnumOfUserPlan.ACTIVE,
     });
-
+    try {
+      await emailService.sendPlanConfirmationEmail({
+        email: user.email,
+        name: user.fullName || user.name || 'User',
+      });
+      console.log('📧 Plan confirmation email sent to:', user.email);
+    } catch (error) {
+      console.error('❌ Failed to send confirmation email:', error);
+    }
     // update user plan here
     console.log('=====redirect====>', `${config.frontendUrl}${config.paymentPath}`);
     res.redirect(`${config.frontendUrl}${config.paymentPath}`);
