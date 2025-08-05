@@ -17,7 +17,7 @@ router.post(
 /**
  * get blog
  * */
-router.get('/get-blog', auth(['admin']), validate(blogValidation.getBlog), blogController.list);
+router.get('/get-blog', validate(blogValidation.getBlog), blogController.list);
 /**
  * get blog byid
  * */
