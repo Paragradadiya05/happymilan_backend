@@ -38,3 +38,29 @@ export const list = catchAsync(async (req, res) => {
   const blog = await blogservice.getBlogList(filter, options);
   return res.status(httpStatus.OK).send({ results: blog });
 });
+
+export const getBlogbyId = catchAsync(async (req, res) => {
+  const { blogId } = req.params;
+  const filter = {
+    _id: blogId,
+  };
+  const options = {};
+  const blog = await blogservice.getOne(filter, options);
+  return res.status(httpStatus.OK).send({ results: blog });
+});
+
+export const getBlogsByType = catchAsync(async (req, res) => {
+  const { blogType } = req.params;
+
+  const filter = {
+    blogType,
+    status: true, // Optional: Only fetch published/active blogs
+  };
+
+  const options = {
+    sort: { createdAt: -1 }, // Latest first (optional)
+  };
+
+  const blogs = await blogservice.getBlogList(filter, options);
+  return res.status(httpStatus.OK).send({ results: blogs });
+});

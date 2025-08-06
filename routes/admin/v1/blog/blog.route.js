@@ -28,6 +28,11 @@ router.get(
   blogController.getBlogbyId
 );
 /**
+ * get blog by blog type
+ * */
+router.get('/get-blog/:blogType', validate(blogValidation.getBlogbyType), blogController.getBlogsByType);
+
+/**
  * update blog
  * */
 router.put('/update-blog/:blogId', auth(['admin']), validate(blogValidation.updateBlog), blogController.update);

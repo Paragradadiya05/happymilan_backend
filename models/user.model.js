@@ -463,6 +463,9 @@ const UserSchema = new mongoose.Schema(
       type: String,
       enum: Object.values(enumModel.EnumOfDiet),
     },
+    employId: {
+      type: String,
+    },
     userProfilePic: [UserImagesSchema],
     userProfileVideo: [UserVideoSchema],
     profileHideAndDelete: [ProfileHideAndDelete],

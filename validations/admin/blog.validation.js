@@ -40,3 +40,8 @@ export const getBlogbyId = {
     blogId: Joi.objectId().required(),
   }),
 };
+export const getBlogbyType = {
+  params: Joi.object().keys({
+    blogType: Joi.objectId().required(),
+  }),
+};
