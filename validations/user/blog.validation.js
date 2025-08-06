@@ -4,9 +4,11 @@ Joi.objectId = require('joi-objectid')(Joi);
 
 export const createBlog = {
   body: Joi.object().keys({
-    title: Joi.string().required(),
-    content: Joi.string().required(),
-    images: Joi.any().required(),
+    title: Joi.string(),
+    content: Joi.string(),
+    images: Joi.any(),
+    status: Joi.boolean(),
+    blogType: Joi.string(),
   }),
 };
 
@@ -15,9 +17,11 @@ export const updateBlog = {
     blogId: Joi.objectId().required(),
   }),
   body: Joi.object().keys({
-    title: Joi.string().required(),
-    content: Joi.string().required(),
-    images: Joi.any().required(),
+    title: Joi.string(),
+    content: Joi.string(),
+    images: Joi.any(),
+    status: Joi.boolean(),
+    blogType: Joi.string(),
   }),
 };
 

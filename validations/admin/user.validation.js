@@ -27,6 +27,7 @@ const githubProviderEmbed = Joi.object().keys({
 });
 export const createUser = {
   body: Joi.object().keys({
+    employId: Joi.string(),
     name: Joi.string(),
     email: Joi.string().email(),
     role: Joi.objectId().required(),
@@ -41,6 +42,7 @@ export const createUser = {
 
 export const updateUser = {
   body: Joi.object().keys({
+    employId: Joi.string(),
     name: Joi.string(),
     email: Joi.string().email(),
     role: Joi.string().valid(...Object.values(enumFields.EnumRoleOfUser)),

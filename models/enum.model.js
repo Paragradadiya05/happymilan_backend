@@ -321,6 +321,11 @@ const EnumOfZodiac = {
   PISCES: 'Pisces',
 };
 
+const EnumOfBlogType = {
+  BLOGS: 'blogs',
+  VIDEO: 'video',
+  PHOTOS: 'photos',
+};
 module.exports = {
   EnumCodeTypeOfCode,
   EnumRoleOfUser,
@@ -360,4 +365,5 @@ module.exports = {
   EnumOfGothra,
   EnumOfZodiac,
   EnumOflanguage,
+  EnumOfBlogType,
 };

@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import mongoosePaginateV2 from 'mongoose-paginate-v2';
 import { toJSON } from 'models/plugins';
+import enumModel from './enum.model';
 
 const BlogSchema = new mongoose.Schema(
   {
@@ -16,6 +17,10 @@ const BlogSchema = new mongoose.Schema(
     status: {
       type: Boolean,
       default: false,
+    },
+    blogType: {
+      type: String,
+      enum: Object.values(enumModel.EnumOfBlogType),
     },
   },
   { timestamps: { createdAt: true, updatedAt: true } }
