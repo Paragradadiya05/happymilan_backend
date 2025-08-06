@@ -6,7 +6,10 @@ export async function getUserPlanById(id, options = {}) {
 }
 
 export async function getOne(query, options = {}) {
-  const test = await UserPlan.findOne(query, options.projection, options).populate('planId');
+  const test = await UserPlan.findOne(query, options.projection, {
+    ...options,
+    sort: { createdAt: -1 }, // Get the latest by createdAt
+  }).populate('planId');
   return test;
 }
 
