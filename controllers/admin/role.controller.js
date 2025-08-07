@@ -8,6 +8,21 @@ export const add = catchAsync(async (req, res) => {
   return res.status(httpStatus.OK).send({ results: role });
 });
 
+export const listv2 = catchAsync(async (req, res) => {
+  const filter = {};
+  const options = {};
+  const roles = await roleservice.getRoleList(filter, options);
+
+  const minimalRoles = roles.map((role) => ({
+    role: role.role,
+    id: role.id, // or role._id.toString() if `id` is not virtual
+  }));
+
+  return res.status(httpStatus.OK).send({
+    status: 'Success',
+    data: minimalRoles,
+  });
+});
 export const list = catchAsync(async (req, res) => {
   const filter = {};
   const options = {};

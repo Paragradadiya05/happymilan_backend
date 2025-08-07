@@ -86,6 +86,22 @@ export async function getshortListWithPagination(filter, options = {}) {
       },
     },
     {
+      $match: {
+        $or: [
+          { 'user.profileHideAndDelete': { $exists: false } },
+          {
+            'user.profileHideAndDelete': {
+              $not: {
+                $elemMatch: {
+                  $or: [{ isProfileHide: true }, { isProfileDelete: true }],
+                },
+              },
+            },
+          },
+        ],
+      },
+    },
+    {
       $lookup: {
         from: 'Subscription',
         let: { userId: '$_id' },

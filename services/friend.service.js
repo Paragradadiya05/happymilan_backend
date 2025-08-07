@@ -1103,7 +1103,9 @@ export async function getFriendAcceptedMobile(filter, options = {}, userId) {
   const page = options.page || 1;
   const limit = options.limit || 10;
   const skip = (page - 1) * limit;
-  await Friend.countDocuments(filter);
+
+  await Friend.countDocuments(filter); // Optional: can be removed if not used
+
   const isPremiumUser = await checkUserPremiumStatus(userId);
 
   const friends = await Friend.find(filter, options.projection, { ...options, limit, skip })
@@ -1121,6 +1123,18 @@ export async function getFriendAcceptedMobile(filter, options = {}, userId) {
     friends.map(async (friendEntry) => {
       const { friend, user } = friendEntry;
 
+      // ✅ Step 1: Check if either profile is hidden or deleted safely
+      const friendProfile = Array.isArray(friend.profileHideAndDelete) ? friend.profileHideAndDelete : [];
+      const userProfile = Array.isArray(user.profileHideAndDelete) ? user.profileHideAndDelete : [];
+
+      const isFriendVisible = !friendProfile.some((p) => p.isProfileHide || p.isProfileDelete);
+      const isUserVisible = !userProfile.some((p) => p.isProfileHide || p.isProfileDelete);
+
+      if (!isFriendVisible || !isUserVisible) {
+        return null; // ❌ Skip hidden/deleted profiles
+      }
+
+      // ✅ Step 2: Privacy check
       let friendList = friend;
       let isFriendData = true;
 
@@ -1131,11 +1145,15 @@ export async function getFriendAcceptedMobile(filter, options = {}, userId) {
 
       const { privacySetting, privacySettingCustom = {} } = friendList;
 
-      if (privacySetting === 'private' && !(privacySettingCustom.privateProfile || []).includes(userId)) {
-        return null; // Skip this user if the logged-in user is not allowed
+      if (
+        privacySetting === 'private' &&
+        !(Array.isArray(privacySettingCustom.privateProfile) && privacySettingCustom.privateProfile.includes(userId))
+      ) {
+        return null; // ❌ Skip private profile if not allowed
       }
 
-      if (friendList && friendList.userPartner) {
+      // ✅ Step 3: Attach match info
+      if (friendList.userPartner) {
         const matchInfo = await calculateMatchScore(friendList._id, friendList.userPartner, userId, isPremiumUser);
 
         if (isFriendData) {
@@ -1153,6 +1171,8 @@ export async function getFriendAcceptedMobile(filter, options = {}, userId) {
           userShortListDetails: matchInfo.userShortListDetails,
         };
       }
+
+      // Default if no match info available
       return {
         ...friendEntry,
         friend: {
@@ -1165,7 +1185,7 @@ export async function getFriendAcceptedMobile(filter, options = {}, userId) {
     })
   );
 
-  const filteredResults = friendsWithMatchData.filter(Boolean);
+  const filteredResults = friendsWithMatchData.filter(Boolean); // remove nulls
   const totalPages = Math.ceil(filteredResults.length / limit);
 
   return {

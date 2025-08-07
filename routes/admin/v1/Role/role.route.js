@@ -11,6 +11,14 @@ const router = express.Router();
  * */
 router.post('/create-role', auth([EnumRoleOfUser.SUPER_ADMIN]), validate(roleValidation.addRole), roleController.add);
 /**
+ * get role for create role
+ * */
+router.get(
+  '/get-role-v2',
+  auth([EnumRoleOfUser.ADMIN, EnumRoleOfUser.SUPER_ADMIN, EnumRoleOfUser.CO_ADMIN]),
+  roleController.listv2
+);
+/**
  * get role
  * */
 router.get(

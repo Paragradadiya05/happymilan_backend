@@ -84,6 +84,13 @@ export async function getProfileViewertWithPagination(filter, options = {}) {
     {
       $match: {
         user: mongoose.Types.ObjectId(filter.userId), // find the current user
+        profileHideAndDelete: {
+          $not: {
+            $elemMatch: {
+              $or: [{ isProfileHide: true }, { isProfileDelete: true }],
+            },
+          },
+        },
       },
     },
     {
@@ -98,6 +105,22 @@ export async function getProfileViewertWithPagination(filter, options = {}) {
       $unwind: {
         path: '$user',
         preserveNullAndEmptyArrays: true, // Include users with no matching friends
+      },
+    },
+    {
+      $match: {
+        $or: [
+          { 'user.profileHideAndDelete': { $exists: false } },
+          {
+            'user.profileHideAndDelete': {
+              $not: {
+                $elemMatch: {
+                  $or: [{ isProfileHide: true }, { isProfileDelete: true }],
+                },
+              },
+            },
+          },
+        ],
       },
     },
     {
