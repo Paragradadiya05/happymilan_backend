@@ -53,7 +53,7 @@ export const complete = catchAsync(async (req, res) => {
   }
   // Fetch payment details from Razorpay using the payment ID
   const paymentDocument = await razorpayInstance.payments.fetch(req.body.razorpay_payment_id);
-
+  const paymentMethod = paymentDocument.method;
   // Check if payment status is captured
   if (paymentDocument.status === 'captured') {
     // decrypt payment jwt token
@@ -63,7 +63,7 @@ export const complete = catchAsync(async (req, res) => {
     const getPaymentHistory = await paymentHistoryService.updatePaymentHistory(
       { _id: paymentHistoryToken.data },
       {
-        $set: { status: paymentDocument.status, razorpayLatestResponse: paymentDocument },
+        $set: { status: paymentDocument.status, razorpayLatestResponse: paymentDocument, paymentMethod },
         $push: { razorpayResponses: paymentDocument },
       },
       {
@@ -88,6 +88,7 @@ export const complete = catchAsync(async (req, res) => {
       planId: getPaymentHistory.planId, // todo : update id here planId
       startDate,
       endDate,
+      paymentMethod,
       status: EnumOfUserPlan.ACTIVE,
     });
     try {

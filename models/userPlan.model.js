@@ -24,6 +24,9 @@ const userPlanSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+    paymentMethod: {
+      type: String,
+    },
     status: {
       type: String,
       enum: Object.values(enumModel.EnumOfUserPlan),
