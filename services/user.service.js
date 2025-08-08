@@ -1,7 +1,7 @@
 import ApiError from 'utils/ApiError';
 import httpStatus from 'http-status';
 // eslint-disable-next-line no-unused-vars
-import { Partner, User, Datingpartner, Like, Friend } from 'models';
+import { Partner, User, Datingpartner, Like, Friend, Role } from 'models';
 import _ from 'lodash';
 import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
@@ -41,15 +41,68 @@ export async function getOne(query, options = {}) {
     .exec();
   return user;
 }
+
+export async function getOnerole(query) {
+  const user = await User.findOne(
+    query,
+    { email: 1, role: 1, employId: 1, name: 1 } // projection
+  )
+    .populate('role', 'role') // only get 'role' field from role collection
+    .exec();
+
+  return user;
+}
 export async function getUserList(filter, options = {}) {
+  // Step 1: Get role IDs to exclude
+  const excludedRoles = await Role.find(
+    { role: { $in: ['project-owner', 'super-admin', 'admin', 'co-admin'] } },
+    '_id'
+  ).lean();
+
+  const excludedRoleIds = excludedRoles.map((r) => r._id);
+
+  // Step 2: Add filters
   // eslint-disable-next-line no-param-reassign
   filter['profileHideAndDelete.isProfileHide'] = { $ne: true };
+  // eslint-disable-next-line no-param-reassign
+  filter.role = { $nin: excludedRoleIds };
+
+  // Step 3: Query users
   const user = await User.find(filter, options.projection, options)
     .populate('address')
     .populate('userEducation')
     .populate('userPartner')
     .populate('userProfessional')
+    .populate('role', 'role')
     .populate('userPartnerPrefForDating');
+
+  return user;
+}
+
+export async function getAdminAndOwnerUsers(filter = {}) {
+  // Step 1: Get role IDs to include
+  const includedRoles = await Role.find(
+    { role: { $in: ['project-owner', 'super-admin', 'admin', 'co-admin'] } },
+    '_id'
+  ).lean();
+
+  const includedRoleIds = includedRoles.map((r) => r._id);
+
+  // Step 2: Add filters
+
+  // eslint-disable-next-line no-param-reassign
+  filter['profileHideAndDelete.isProfileHide'] = { $ne: true };
+  // eslint-disable-next-line no-param-reassign
+  filter.role = { $in: includedRoleIds };
+
+  // Step 3: Query users with only specific fields
+  const user = await User.find(
+    filter,
+    { email: 1, role: 1, employId: 1, name: 1 } // projection
+  )
+    .populate('role', 'role') // only get the role field from Role model
+    .lean(); // optional: returns plain JS objects instead of Mongoose docs
+
   return user;
 }
 

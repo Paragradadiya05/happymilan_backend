@@ -22,10 +22,26 @@ export const get = catchAsync(async (req, res) => {
   return res.status(httpStatus.OK).send({ results: user });
 });
 
+export const getRole = catchAsync(async (req, res) => {
+  const { userId } = req.params;
+  const filter = {
+    _id: userId,
+  };
+  const options = {};
+  const user = await userService.getOnerole(filter, options);
+  return res.status(httpStatus.OK).send({ results: user });
+});
 export const list = catchAsync(async (req, res) => {
   const filter = {};
   const options = {};
   const user = await userService.getUserList(filter, options);
+  return res.status(httpStatus.OK).send({ results: user });
+});
+
+export const listroles = catchAsync(async (req, res) => {
+  const filter = {};
+  const options = {};
+  const user = await userService.getAdminAndOwnerUsers(filter, options);
   return res.status(httpStatus.OK).send({ results: user });
 });
 

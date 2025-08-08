@@ -10,11 +10,17 @@ router
   /**
    * createUser
    * */
-  .post(auth(['admin']), validate(userValidation.createUser), userController.create)
+  .post(auth(['super-admin']), validate(userValidation.createUser), userController.create)
   /**
    * getUser
    * */
   .get(auth(['admin']), validate(userValidation.getUser), userController.list);
+router
+  .route('/roles')
+  /**
+   * getUserRole
+   * */
+  .get(auth(['super-admin']), validate(userValidation.getUser), userController.listroles);
 router
   .route('/paginated')
   /**
@@ -36,6 +42,12 @@ router
    * getUserById
    * */
   .get(auth(['admin']), validate(userValidation.getUserById), userController.get);
+router
+  .route('/role/:userId')
+  /**
+   * getUserRoleByID
+   * */
+  .get(auth(['super-admin']), validate(userValidation.getUserById), userController.getRole);
 
 router
   .route('/create-user')
@@ -48,5 +60,5 @@ router
   /**
    * Update user for Happy Milan
    */
-  .put(auth(['admin']), validate(userValidation.updateUserWithAllModelData), userController.updateUser);
+  .put(auth(['super-admin']), validate(userValidation.updateUserWithAllModelData), userController.updateUser);
 export default router;
