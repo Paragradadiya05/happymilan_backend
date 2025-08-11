@@ -1,5 +1,16 @@
 import Joi from 'joi';
-import enumFields, { EnumAppUsesTypeOfUsers, EnumGenderOfUsers, EnumOfCurrentCountry } from 'models/enum.model';
+import enumFields, {
+  EnumAppUsesTypeOfUsers,
+  EnumCreatingProfileFor,
+  EnumGenderOfUsers,
+  EnumOfCurrentCountry,
+  EnumOfGothra,
+  EnumOflanguage,
+  EnumOfManglikStatus,
+  EnumOfMaritalStatus,
+  EnumOfMotherTongue,
+  EnumOfZodiac,
+} from 'models/enum.model';
 
 Joi.objectId = require('joi-objectid')(Joi);
 
@@ -89,10 +100,28 @@ export const createUserWithAllModelData = {
     emailVerified: Joi.bool(),
     generalDetails: Joi.object()
       .keys({
+        creatingProfileFor: Joi.string()
+          .valid(...Object.values(EnumCreatingProfileFor))
+          .required(),
         firstName: Joi.string().required(),
         lastName: Joi.string().required(),
         gender: Joi.string()
           .valid(...Object.values(EnumGenderOfUsers))
+          .required(),
+        maritalStatus: Joi.string()
+          .valid(...Object.values(EnumOfMaritalStatus))
+          .required(),
+        manglikStatus: Joi.string()
+          .valid(...Object.values(EnumOfManglikStatus))
+          .required(),
+        gothra: Joi.string()
+          .valid(...Object.values(EnumOfGothra))
+          .required(),
+        zodiac: Joi.string()
+          .valid(...Object.values(EnumOfZodiac))
+          .required(),
+        motherTongue: Joi.string()
+          .valid(...Object.values(EnumOfMotherTongue))
           .required(),
         dateOfBirth: Joi.date().required(),
         birthTime: Joi.date().required(),
@@ -105,7 +134,7 @@ export const createUserWithAllModelData = {
 
     address: Joi.object()
       .keys({
-        currentResidenceAddress: Joi.string().required(),
+        currentState: Joi.string().required(),
         currentCity: Joi.string().required(),
         currentCountry: Joi.string()
           .valid(...Object.values(EnumOfCurrentCountry))
@@ -142,6 +171,9 @@ export const createUserWithAllModelData = {
       })
       .required(),
     hobbies: Joi.array().items(Joi.string()).required(),
+    language: Joi.array()
+      .items(Joi.string().valid(...Object.values(EnumOflanguage)))
+      .required(),
   }),
 };
 
