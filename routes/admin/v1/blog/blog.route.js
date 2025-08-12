@@ -30,7 +30,7 @@ router.get(
 /**
  * get blog by blog type
  * */
-router.get('/get-blog/:blogType', validate(blogValidation.getBlogbyType), blogController.getBlogsByType);
+router.get('/get-blog-type/:blogType', validate(blogValidation.getBlogbyType), blogController.getBlogsByType);
 
 /**
  * update blog
