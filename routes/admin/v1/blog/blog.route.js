@@ -17,28 +17,43 @@ router.post(
 /**
  * get blog
  * */
-router.get('/get-blog', validate(blogValidation.getBlog), blogController.list);
+router.get('/get-blog', auth(['admin', 'super-admin']), validate(blogValidation.getBlog), blogController.list);
 /**
  * get blog byid
  * */
 router.get(
   '/get-blog/:blogId',
-  // auth(['admin']),
+  auth(['admin', 'super-admin']),
   validate(blogValidation.getBlogbyId),
   blogController.getBlogbyId
 );
 /**
  * get blog by blog type
  * */
-router.get('/get-blog-type/:blogType', validate(blogValidation.getBlogbyType), blogController.getBlogsByType);
+router.get(
+  '/get-blog-type/:blogType',
+  auth(['admin', 'super-admin']),
+  validate(blogValidation.getBlogbyType),
+  blogController.getBlogsByType
+);
 
 /**
  * update blog
  * */
-router.put('/update-blog/:blogId', auth(['admin']), validate(blogValidation.updateBlog), blogController.update);
+router.put(
+  '/update-blog/:blogId',
+  auth(['admin', 'super-admin']),
+  validate(blogValidation.updateBlog),
+  blogController.update
+);
 /**
  * deleteblogById
  * */
-router.delete('/delete-blog/:blogId', auth(['admin']), validate(blogValidation.deleteBlogById), blogController.remove);
+router.delete(
+  '/delete-blog/:blogId',
+  auth(['admin', 'super-admin']),
+  validate(blogValidation.deleteBlogById),
+  blogController.remove
+);
 
 export default router;
