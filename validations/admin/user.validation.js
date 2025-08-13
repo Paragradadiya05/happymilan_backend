@@ -226,3 +226,19 @@ export const updateUserWithAllModelData = {
     hobbies: Joi.array().items(Joi.string()),
   }),
 };
+
+export const resetUserCredits = {
+  params: Joi.object().keys({
+    userId: Joi.objectId().required(),
+  }),
+  body: Joi.object().keys({
+    reason: Joi.string().optional().min(3).max(100),
+  }),
+};
+
+export const resetMultipleUserCredits = {
+  body: Joi.object().keys({
+    userIds: Joi.array().items(Joi.objectId()).min(1).max(100).required(),
+    reason: Joi.string().optional().min(3).max(100),
+  }),
+};

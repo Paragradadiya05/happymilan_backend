@@ -15,10 +15,10 @@ const messaging = admin
 export const verifyFCMToken = async (fcmToken) => {
   try {
     const isValid = await messaging.send(
-        {
-          token: fcmToken,
-        },
-        false
+      {
+        token: fcmToken,
+      },
+      false
     );
     return isValid;
   } catch (er) {}

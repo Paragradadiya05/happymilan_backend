@@ -5,6 +5,7 @@ import config from 'config/config';
 import { catchAsync } from '../../utils/catchAsync';
 import ApiError from '../../utils/ApiError';
 import { EnumOfPlanDuration, EnumOfUserPlan } from '../../models/enum.model';
+import { Credit, CreditHistory } from '../../models';
 
 const razorpay = require('razorpay');
 
@@ -91,6 +92,62 @@ export const complete = catchAsync(async (req, res) => {
       paymentMethod,
       status: EnumOfUserPlan.ACTIVE,
     });
+
+    // Handle Credit System for Plan Purchase
+    try {
+      const userId = req.user._id;
+      const planId = getPaymentHistory.planId._id;
+      const creditAmount = 20; // Static amount as requested
+
+      // First, reset the credit balance to 0
+      let userCredit = await Credit.findOne({ userId });
+      if (userCredit) {
+        // If credit record exists, reset to 0 and create history entry
+        if (userCredit.creditBalance > 0) {
+          await CreditHistory.create({
+            creditId: userCredit._id,
+            userId,
+            transactionType: 'debit',
+            amount: userCredit.creditBalance,
+            reason: 'Plan Purchase',
+            planId,
+            balanceAfterTransaction: 0,
+            notes: 'Credit reset before new plan purchase',
+          });
+        }
+        // Reset balance to 0
+        userCredit.creditBalance = 0;
+        await userCredit.save();
+      } else {
+        // Create new credit record if doesn't exist
+        userCredit = await Credit.create({
+          userId,
+          creditBalance: 0,
+        });
+      }
+
+      // Now add the new credit amount
+      userCredit.creditBalance = creditAmount;
+      await userCredit.save();
+
+      // Create history entry for the credit addition
+      await CreditHistory.create({
+        creditId: userCredit._id,
+        userId,
+        transactionType: 'credit',
+        amount: creditAmount,
+        reason: 'Plan Purchase',
+        planId,
+        balanceAfterTransaction: creditAmount,
+        notes: `Added ${creditAmount} credits for plan purchase: ${populatedPlan.planName}`,
+      });
+
+      console.log(`✅ Credit system updated: User ${userId} received ${creditAmount} credits for plan purchase`);
+    } catch (creditError) {
+      console.error('❌ Failed to update credit system:', creditError);
+      // Don't throw error here as payment was successful, just log the credit system error
+    }
+
     try {
       await emailService.sendPlanConfirmationEmail({
         email: user.email,

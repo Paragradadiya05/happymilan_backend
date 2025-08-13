@@ -37,3 +37,5 @@ module.exports.Datingpartner = require('./partnerpredating.model');
 module.exports.CountryCode = require('./countryCode.model');
 module.exports.SuccessStoryview = require('./successstoryview.model');
 module.exports.StoryLike = require('./storylike.model');
+module.exports.Credit = require('./credit.model');
+module.exports.CreditHistory = require('./creditHistory.model');

@@ -61,4 +61,19 @@ router
    * Update user for Happy Milan
    */
   .put(auth(['super-admin']), validate(userValidation.updateUserWithAllModelData), userController.updateUser);
+
+router
+  .route('/reset-credits/:userId')
+  /**
+   * Reset credits for a specific user
+   */
+  .post(auth(['admin']), validate(userValidation.resetUserCredits), userController.resetUserCredits);
+
+router
+  .route('/reset-credits-bulk')
+  /**
+   * Reset credits for multiple users
+   */
+  .post(auth(['admin']), validate(userValidation.resetMultipleUserCredits), userController.resetMultipleUserCredits);
+
 export default router;
