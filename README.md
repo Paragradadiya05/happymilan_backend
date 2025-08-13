@@ -1,36 +1,43 @@
 # demo-project
-___
+
+---
+
 demo-project\
 This is a server-side application in Node.js using Express web application framework and and Mongoose ODM.
 
 ## Requirements
-___
+
+---
 
 - **Node.js** : Node.js is an open-source server environment. Node.js is cross-platform and runs on Windows, Linux, Unix, and macOS. Node.js is a back-end JavaScript runtime environment.
 - **MongoDB** : MongoDB is a source-available cross-platform document-oriented database program. Classified as a NoSQL database program, MongoDB uses JSON-like documents with optional schemas.
 - **Redis** : Redis is an open source, in-memory data structure store used as a database, cache, message broker, and streaming engine
 - **Docker** : Docker is a set of platform as a service products that use OS-level virtualization to deliver software in packages called containers. The service has both free and premium tiers.
-               The software that hosts the containers is called Docker Engine.
+  The software that hosts the containers is called Docker Engine.
 
 ## Features
-___
 
-| Feature                          | Summary                                                                                                                                                                                    |
-|----------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Authentication via JsonWebToken | Supports authentication using [jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken).  |
-| Code Linting                    | JavaScript code linting is done using [ESLint](http://eslint.org) - a pluggable linter tool for identifying and reporting on patterns in JavaScript.|
-| Auto server restart             | Restart the server using [nodemon](https://github.com/remy/nodemon) in real-time anytime an edit is made, with babel compilation and eslint.|
-| Express                         | [Express](https://www.npmjs.com/package/express) is a minimal and flexible Node.js web application framework that provides a robust set of features for web and mobile applications.|
+---
+
+| Feature                         | Summary                                                                                                                                                                              |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Authentication via JsonWebToken | Supports authentication using [jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken).                                                                                            |
+| Code Linting                    | JavaScript code linting is done using [ESLint](http://eslint.org) - a pluggable linter tool for identifying and reporting on patterns in JavaScript.                                 |
+| Auto server restart             | Restart the server using [nodemon](https://github.com/remy/nodemon) in real-time anytime an edit is made, with babel compilation and eslint.                                         |
+| Express                         | [Express](https://www.npmjs.com/package/express) is a minimal and flexible Node.js web application framework that provides a robust set of features for web and mobile applications. |
 
 ## Getting Started
-___
+
+---
 
 **Install dependencies**:
+
 ```sh
 npm install
 ```
 
 **Start server**:
+
 ```sh
 npm run dev-es6
 ```
@@ -39,8 +46,8 @@ Or
 
 `open package.json file and run dev-es6 script`
 
-
 ## .env file
+
 ```
 File is placed at the base of the project directory and contains all necessary variables for application
 like port number, database url and different credentials.
@@ -145,7 +152,8 @@ AWS_BUCKET_REGION=bucket_region
 ```
 
 ## Project Structure
-___
+
+---
 
 ```
    ├── config            -  contains config files.
@@ -160,9 +168,11 @@ ___
 ```
 
 ## Flow of code
-___
+
+---
 
 - **Routes** : index.js file exports all model routes from all userRoles, imported into app.js to access all the routes.
+
 ```
     ├── routes
        ├── user
@@ -174,7 +184,9 @@ ___
            └── index.js               - exports all models routes
     └── index.js                     - exports all userRole routes
 ```
+
 - **Validations**: Joi validations schema files for each route api.
+
 ```
    ├── validations
       ├── user
@@ -182,7 +194,9 @@ ___
          ├── user.validation.js   - contains all validation schema of user model route
        └── index.js                - exports all validation schemas
 ```
+
 - **Controllers**: Controller files calls appropriate service functions.
+
 ```
   ├── controllers
      ├── user
@@ -190,12 +204,14 @@ ___
         ├── user.controller.js   - contains all controller function of user model route
       └── index.js                - exports all controller functions
 ```
+
 - **Services**: Service files contains execution logic for a single web route only.
+
 ```
   ├── services
      ├── auth.service.js      - contains all service functions of auth route
      ├── user.controller.js   - contains all service function of user model route
    └── index.js                - exports all service functions
 ```
-- **Models**: Model files contains schema for model.
 
+- **Models**: Model files contains schema for model.

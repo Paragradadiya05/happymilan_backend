@@ -67,3 +67,5 @@ module.exports.SuccessStoryviewValidation = require('./SuccessStoryview.validati
 module.exports.StoryLikeValidation = require('./storylike.validation');
 
 module.exports.twoFactorAuthAValidation = require('./twoFactorAuth.validation');
+
+module.exports.mobileNumberRequestValidation = require('./mobileNumberRequest.validation');

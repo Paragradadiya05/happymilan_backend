@@ -20,14 +20,14 @@
     "mimeType": "image/png"
   },
   {
-     "key": "jpg",
-     "extension": ".jpg",
-     "mimeType": "image/jpeg"
+    "key": "jpg",
+    "extension": ".jpg",
+    "mimeType": "image/jpeg"
   },
   {
-     "key": "jpeg",
-     "extension": ".jpeg",
-     "mimeType": "image/jpeg"
+    "key": "jpeg",
+    "extension": ".jpeg",
+    "mimeType": "image/jpeg"
   },
   {
     "key": "svg",

@@ -6,12 +6,13 @@ import {
   tokenService,
   userProfessionalDetailService,
   userService,
+  creditService,
 } from 'services';
 import { catchAsync } from 'utils/catchAsync';
 import mongoose from 'mongoose';
 import { pick } from '../../utils/pick';
 import { generatePassword } from '../../utils/passwordGenerator';
-import { Credit, CreditHistory } from '../../models';
+import ApiError from '../../utils/ApiError';
 
 export const get = catchAsync(async (req, res) => {
   const { userId } = req.params;
@@ -254,42 +255,33 @@ export const resetUserCredits = catchAsync(async (req, res) => {
     return res.status(httpStatus.NOT_FOUND).send({ error: 'User not found' });
   }
 
-  // Find user's credit record
-  const userCredit = await Credit.findOne({ userId });
-  if (!userCredit) {
-    return res.status(httpStatus.NOT_FOUND).send({ error: 'User has no credit record' });
-  }
-
-  if (userCredit.creditBalance === 0) {
+  // Check current credit balance
+  const currentBalance = await creditService.getUserCreditBalance(userId);
+  if (currentBalance === 0) {
     return res.status(httpStatus.BAD_REQUEST).send({
       message: 'User already has zero credits',
       currentBalance: 0,
     });
   }
 
-  const previousBalance = userCredit.creditBalance;
+  // Reset credits using credit service
+  try {
+    await creditService.resetCredits({
+      userId,
+      reason: 'Admin Reset',
+      notes: `Admin reset by ${adminId}. Reason: ${reason}. Previous balance: ${currentBalance}`,
+    });
 
-  // Create history entry for the admin reset
-  await CreditHistory.create({
-    creditId: userCredit._id,
-    userId,
-    transactionType: 'debit',
-    amount: previousBalance,
-    reason: 'Admin Reset',
-    balanceAfterTransaction: 0,
-    notes: `Admin reset by ${adminId}. Reason: ${reason}. Previous balance: ${previousBalance}`,
-  });
-
-  // Reset credit balance to 0
-  await Credit.findByIdAndUpdate(userCredit._id, { creditBalance: 0 });
-
-  return res.status(httpStatus.OK).send({
-    message: 'User credits reset successfully',
-    previousBalance,
-    currentBalance: 0,
-    resetBy: adminId,
-    reason,
-  });
+    return res.status(httpStatus.OK).send({
+      message: 'User credits reset successfully',
+      previousBalance: currentBalance,
+      currentBalance: 0,
+      resetBy: adminId,
+      reason,
+    });
+  } catch (error) {
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, `Failed to reset credits: ${error.message}`);
+  }
 });
 
 /**
@@ -315,50 +307,47 @@ export const resetMultipleUserCredits = catchAsync(async (req, res) => {
     });
   }
 
-  // Find credit records for all users
-  const userCredits = await Credit.find({
-    userId: { $in: userIds },
-    creditBalance: { $gt: 0 },
-  });
-
-  if (userCredits.length === 0) {
-    return res.status(httpStatus.BAD_REQUEST).send({
-      message: 'No users found with credits to reset',
-    });
-  }
-
+  // Get users with credits to reset
   const resetResults = [];
 
   // Process all users in parallel
-  const results = await Promise.allSettled(
-    userCredits.map(async (userCredit) => {
-      const previousBalance = userCredit.creditBalance;
-
-      // Create history entry
-      await CreditHistory.create({
-        creditId: userCredit._id,
-        userId: userCredit.userId,
-        transactionType: 'debit',
-        amount: previousBalance,
-        reason: 'Admin Reset',
-        balanceAfterTransaction: 0,
-        notes: `Bulk admin reset by ${adminId}. Reason: ${reason}. Previous balance: ${previousBalance}`,
-      });
-
-      // Reset credit balance
-      await Credit.findByIdAndUpdate(userCredit._id, { creditBalance: 0 });
-
+  const resetPromises = userIds.map(async (userId) => {
+    try {
+      const currentBalance = await creditService.getUserCreditBalance(userId);
+      if (currentBalance > 0) {
+        await creditService.resetCredits({
+          userId,
+          reason: 'Admin Reset',
+          notes: `Bulk admin reset by ${adminId}. Reason: ${reason}. Previous balance: ${currentBalance}`,
+        });
+        return {
+          userId,
+          previousBalance: currentBalance,
+          currentBalance: 0,
+          success: true,
+        };
+      }
       return {
-        userId: userCredit.userId,
-        previousBalance,
+        userId,
+        previousBalance: 0,
         currentBalance: 0,
+        success: false,
+        message: 'User already has zero credits',
       };
-    })
-  );
+    } catch (error) {
+      return {
+        userId,
+        success: false,
+        error: error.message,
+      };
+    }
+  });
 
-  // Collect successful resets
+  const results = await Promise.allSettled(resetPromises);
+
+  // Collect results
   results.forEach((result) => {
-    if (result.status === 'fulfilled') {
+    if (result.status === 'fulfilled' && result.value.success) {
       resetResults.push(result.value);
     }
   });

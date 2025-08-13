@@ -44,3 +44,4 @@ module.exports.SuccessStoryviewService = require('./successstoryview.service');
 module.exports.StorylikeService = require('./storylike.service');
 module.exports.twoFactorAuthService = require('./twoFactorAuth.service');
 module.exports.imageBlurService = require('./imageblur.service');
+module.exports.creditService = require('./credit.service');
