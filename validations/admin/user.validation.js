@@ -165,9 +165,9 @@ export const createUserWithAllModelData = {
         companyName: Joi.string().required(),
         jobTitle: Joi.string().required(),
         jobType: Joi.string().valid('Full-time', 'Part-time', 'Contract', 'Internship').required(),
-        currentSalary: Joi.number().required(),
-        workCity: Joi.string().required(),
-        workCountry: Joi.string().required(),
+        currentSalary: Joi.number(),
+        workCity: Joi.string(),
+        workCountry: Joi.string(),
       })
       .required(),
     hobbies: Joi.array().items(Joi.string()).required(),
