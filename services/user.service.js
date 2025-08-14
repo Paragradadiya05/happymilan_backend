@@ -66,9 +66,13 @@ export async function getUserList(filter, options = {}) {
   filter['profileHideAndDelete.isProfileHide'] = { $ne: true };
   // eslint-disable-next-line no-param-reassign
   filter.role = { $nin: excludedRoleIds };
-
+  const projection = {
+    ...options.projection,
+    mobileNumber: 0,
+    homeMobileNumber: 0,
+  };
   // Step 3: Query users
-  const user = await User.find(filter, options.projection, options)
+  const user = await User.find(filter, projection, options)
     .populate('address')
     .populate('userEducation')
     .populate('userPartner')
