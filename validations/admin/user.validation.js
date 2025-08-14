@@ -106,6 +106,7 @@ export const createUserWithAllModelData = {
         creatingProfileFor: Joi.string()
           .valid(...Object.values(EnumCreatingProfileFor))
           .required(),
+        name: Joi.string().required(),
         firstName: Joi.string().required(),
         lastName: Joi.string().required(),
         gender: Joi.string()
