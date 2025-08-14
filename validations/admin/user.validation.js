@@ -154,9 +154,9 @@ export const createUserWithAllModelData = {
       .keys({
         degree: Joi.string().required(),
         collage: Joi.string().required(),
-        city: Joi.string().required(),
-        state: Joi.string().required(),
-        country: Joi.string().required(),
+        city: Joi.string(),
+        state: Joi.string(),
+        country: Joi.string(),
       })
       .required(),
 
