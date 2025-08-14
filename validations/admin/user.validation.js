@@ -98,11 +98,11 @@ export const paginatedUser = {
 export const createUserWithAllModelData = {
   body: Joi.object().keys({
     emailVerified: Joi.bool(),
-    appUsesType: Joi.string()
-      .valid(...Object.values(EnumAppUsesTypeOfUsers))
-      .required(),
     generalDetails: Joi.object()
       .keys({
+        appUsesType: Joi.string()
+          .valid(...Object.values(EnumAppUsesTypeOfUsers))
+          .required(),
         creatingProfileFor: Joi.string()
           .valid(...Object.values(EnumCreatingProfileFor))
           .required(),
