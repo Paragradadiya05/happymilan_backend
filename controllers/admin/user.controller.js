@@ -129,6 +129,7 @@ export const createUser = catchAsync(async (req, res) => {
         userProfessional: createProfessionalDetail._id,
         createdBy: adminUserId,
         updatedBy: adminUserId,
+        userProfileCompleted: true,
       },
       {},
       user
