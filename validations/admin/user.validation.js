@@ -100,9 +100,13 @@ export const createUserWithAllModelData = {
     emailVerified: Joi.bool(),
     generalDetails: Joi.object()
       .keys({
+        appUsesType: Joi.string()
+          .valid(...Object.values(EnumAppUsesTypeOfUsers))
+          .required(),
         creatingProfileFor: Joi.string()
           .valid(...Object.values(EnumCreatingProfileFor))
           .required(),
+        name: Joi.string().required(),
         firstName: Joi.string().required(),
         lastName: Joi.string().required(),
         gender: Joi.string()
@@ -154,9 +158,9 @@ export const createUserWithAllModelData = {
       .keys({
         degree: Joi.string().required(),
         collage: Joi.string().required(),
-        city: Joi.string().required(),
-        state: Joi.string().required(),
-        country: Joi.string().required(),
+        city: Joi.string(),
+        state: Joi.string(),
+        country: Joi.string(),
       })
       .required(),
 
@@ -165,9 +169,9 @@ export const createUserWithAllModelData = {
         companyName: Joi.string().required(),
         jobTitle: Joi.string().required(),
         jobType: Joi.string().valid('Full-time', 'Part-time', 'Contract', 'Internship').required(),
-        currentSalary: Joi.number().required(),
-        workCity: Joi.string().required(),
-        workCountry: Joi.string().required(),
+        currentSalary: Joi.number(),
+        workCity: Joi.string(),
+        workCountry: Joi.string(),
       })
       .required(),
     hobbies: Joi.array().items(Joi.string()).required(),
