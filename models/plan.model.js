@@ -56,6 +56,30 @@ planSchema.pre('save', function (next) {
   }
   next();
 });
+planSchema.pre(['findOneAndUpdate', 'updateOne', 'updateMany'], function (next) {
+  let update = this.getUpdate();
+
+  // Merge $set into update if present
+  if (update.$set) {
+    update = { ...update, ...update.$set };
+  }
+
+  const price = update.price || 0; // default to 0 if not provided
+  const discount = update.discount || 0;
+
+  if (update.price !== undefined || update.discount !== undefined) {
+    const discountAmount = discount > 0 ? (price * discount) / 100 : 0;
+    const totalPrice = price - discountAmount;
+
+    this.set({
+      discountAmount,
+      totalPrice,
+    });
+  }
+
+  next();
+});
+
 planSchema.plugin(toJSON);
 planSchema.plugin(mongoosePaginateV2);
 const planModel = mongoose.models.plan || mongoose.model('Plan', planSchema, 'Plan');
