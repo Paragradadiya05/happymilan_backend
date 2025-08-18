@@ -895,5 +895,9 @@ export const getCreditByUserId = catchAsync(async (req, res) => {
     });
   }
 
-  res.status(httpStatus.OK).send(credit);
+  res.status(httpStatus.OK).json({
+    success: true,
+    message: 'Credit fetched successfully',
+    credit,
+  });
 });

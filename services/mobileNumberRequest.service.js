@@ -110,7 +110,12 @@ export const acceptMobileNumberRequest = async (requestId, targetUserId) => {
   }
 
   // Deduct credits if needed in future using creditService
-  // await creditService.deductCredits(...)
+  await creditService.deductCredits({
+    userId: mobileRequest.requesterId._id,
+    amount: MOBILE_REQUEST_COST,
+    reason: 'Mobile Number Request',
+    notes: `Deducted ${MOBILE_REQUEST_COST} credits for mobile number request acceptance`,
+  });
 
   mobileRequest.status = 'accepted';
   mobileRequest.acceptedAt = new Date();
