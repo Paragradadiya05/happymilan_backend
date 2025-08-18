@@ -1,5 +1,5 @@
 import httpStatus from 'http-status';
-import { emailService, friendService, userService, imageBlurService } from 'services';
+import { emailService, friendService, userService, imageBlurService, creditService } from 'services';
 import { catchAsync } from 'utils/catchAsync';
 import { pick } from '../../utils/pick';
 import { EnumStatusOfFriend } from '../../models/enum.model';
@@ -882,4 +882,18 @@ export const updateUser = catchAsync(async (req, res) => {
   await userService.updateUserForAuth(filter, body, { returnNewDocument: true, new: true, upsert: true }, req.user);
 
   res.status(httpStatus.OK).send({ message: 'User updated successfully' });
+});
+
+export const getCreditByUserId = catchAsync(async (req, res) => {
+  const { userId } = req.params;
+
+  const credit = await creditService.getUserCreditBalance(userId);
+
+  if (!credit) {
+    return res.status(httpStatus.NOT_FOUND).send({
+      message: 'Credit record not found for this user',
+    });
+  }
+
+  res.status(httpStatus.OK).send(credit);
 });

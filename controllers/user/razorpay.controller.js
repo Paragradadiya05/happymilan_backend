@@ -103,7 +103,7 @@ export const complete = catchAsync(async (req, res) => {
     try {
       const userId = req.user._id;
       const planId = getPaymentHistory.planId._id;
-      const creditAmount = 20; // Static amount as requested
+      const creditAmount = populatedPlan.allowNumberOfRequest || 0; // Static amount as requested
 
       // First, reset the user's credits to 0
       await creditService.resetCredits({

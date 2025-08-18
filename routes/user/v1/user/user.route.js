@@ -113,5 +113,11 @@ router
    * getUserByUserUniqueId
    * */
   .get(auth(), validate(userValidation.get), userController.getUnique);
+router
+  .route('/get-credit/:userId')
+  /**
+   * getUserByUserUniqueId
+   * */
+  .get(auth(), validate(userValidation.getCredit), userController.getCreditByUserId);
 
 export default router;

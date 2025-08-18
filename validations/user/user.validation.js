@@ -207,3 +207,9 @@ export const updateUserPrivacy = {
     }),
   }),
 };
+
+export const getCredit = {
+  params: Joi.object().keys({
+    userId: Joi.string().required(),
+  }),
+};
