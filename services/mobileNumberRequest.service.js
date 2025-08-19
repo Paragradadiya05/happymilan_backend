@@ -288,3 +288,27 @@ export const getAccessibleMobileNumbers = async (userId, { page = 1, limit = 10 
 
   return MobileNumberRequest.paginate(filter, options);
 };
+
+export const getAccessibleMobileNumbersById = async ({ page = 1, limit = 10, targetUserId }) => {
+  const filter = {
+    status: 'accepted',
+  };
+
+  if (targetUserId) {
+    filter.targetUserId = targetUserId; // only from params
+  }
+
+  const options = {
+    page: parseInt(page, 10),
+    limit: parseInt(limit, 10),
+    sort: { acceptedAt: -1 },
+    populate: [
+      {
+        path: 'targetUserId',
+        select: 'fullName email mobileNumber profilePhoto',
+      },
+    ],
+  };
+
+  return MobileNumberRequest.paginate(filter, options);
+};
