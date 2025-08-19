@@ -94,10 +94,69 @@ export const remove = catchAsync(async (req, res) => {
 
 export const getKycByUserId = catchAsync(async (req, res) => {
   const { userId } = req.params;
-  const filter = {
-    userId,
-  };
+
+  const filter = { userId };
   const options = {};
-  const Kyc = await KycService.getOne(filter, options);
-  return res.status(httpStatus.OK).send({ results: Kyc });
+
+  const kycList = await KycService.getkycList(filter, options);
+
+  if (!kycList || kycList.length === 0) {
+    return res.status(httpStatus.NOT_FOUND).send({
+      status: 'Failed',
+      message: 'KYC record not found',
+    });
+  }
+
+  const data = {
+    selfie: [],
+    document: [],
+  };
+
+  kycList.forEach((kyc) => {
+    if (kyc.kycDocName === 'selfie' && kyc.isSelfieUpload) {
+      // exclude nameRequest
+      data.selfie.push({
+        verify: kyc.verify,
+        verifyUserId: kyc.verifyUserId,
+        isDocRejected: kyc.isDocRejected,
+        isDocUpload: kyc.isDocUpload,
+        isSelfieUpload: kyc.isSelfieUpload,
+        isDeleted: kyc.isDeleted,
+        deletedAt: kyc.deletedAt,
+        userId: kyc.userId,
+        docName: kyc.kycDocName,
+        kycDocImagePath: kyc.kycDocImagePath,
+        docUploadHistory: kyc.docUploadHistory,
+        createdAt: kyc.createdAt,
+        updatedAt: kyc.updatedAt,
+        rejectReason: kyc.rejectReason,
+        id: kyc.id,
+      });
+    } else if (kyc.isDocUpload) {
+      // include nameRequest
+      data.document.push({
+        verify: kyc.verify,
+        verifyUserId: kyc.verifyUserId,
+        isDocRejected: kyc.isDocRejected,
+        isDocUpload: kyc.isDocUpload,
+        isSelfieUpload: kyc.isSelfieUpload,
+        isDeleted: kyc.isDeleted,
+        deletedAt: kyc.deletedAt,
+        userId: kyc.userId,
+        docName: kyc.kycDocName,
+        kycDocImagePath: kyc.kycDocImagePath,
+        nameRequest: kyc.nameRequest,
+        docUploadHistory: kyc.docUploadHistory,
+        createdAt: kyc.createdAt,
+        updatedAt: kyc.updatedAt,
+        rejectReason: kyc.rejectReason,
+        id: kyc.id,
+      });
+    }
+  });
+
+  return res.status(httpStatus.OK).send({
+    status: 'Success',
+    data,
+  });
 });
