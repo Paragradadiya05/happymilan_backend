@@ -77,7 +77,7 @@ export const createMobileNumberRequest = async (requesterId, targetUserId) => {
                 updatedAt: notificationData.updatedAt.toString(),
                 screen: 'MobileNumberRequests',
                 type: 'mobile_number_request',
-                requestId: mobileRequest._id.toString(),
+                reqId: mobileRequest._id.toString(),
               },
             },
             {}
