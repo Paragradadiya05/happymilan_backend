@@ -102,3 +102,19 @@ export const getAccessibleMobileNumbers = catchAsync(async (req, res) => {
     results: requests,
   });
 });
+
+export const getAccessibleMobileNumbersById = catchAsync(async (req, res) => {
+  const userId = req.user._id;
+  const { page = 1, limit = 10 } = req.query;
+  const { targetUserId } = req.params;
+  const requests = await mobileNumberRequestService.getAccessibleMobileNumbers(userId, {
+    page,
+    limit,
+    targetUserId,
+  });
+
+  return res.status(httpStatus.OK).send({
+    message: 'Accessible mobile numbers fetched successfully',
+    results: requests,
+  });
+});

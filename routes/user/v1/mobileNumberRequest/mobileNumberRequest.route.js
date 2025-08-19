@@ -67,5 +67,15 @@ router
     validate(mobileNumberRequestValidation.getRequests),
     mobileNumberRequestController.getAccessibleMobileNumbers
   );
+router
+  .route('/accessible-ById/:targetUserId')
+  /**
+   * Get accessible mobile numbers (numbers the user has access to)
+   */
+  .get(
+    auth(['user']),
+    validate(mobileNumberRequestValidation.getById),
+    mobileNumberRequestController.getAccessibleMobileNumbersById
+  );
 
 export default router;
