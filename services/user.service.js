@@ -1348,9 +1348,9 @@ export async function getMatchUser(filter) {
     { name: 'maritalStatus' },
     { name: 'address' },
     { name: 'gender' },
-
+    { name: 'email' },
     // contact details this will be hidden for all
-    // { name: 'email', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
+    // , conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
     // { name: 'mobileNumber', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
 
     // education details
@@ -1392,6 +1392,7 @@ export async function getMatchUser(filter) {
     emailVerified: '$emailVerified',
     maritalStatus: '$maritalStatus',
     gender: '$gender',
+    email: '$email',
     // dateOfBirth: '$dateOfBirth',
     // birthTime: '$birthTime',
     // religion: '$religion',

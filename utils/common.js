@@ -157,6 +157,7 @@ export const defaultFields = {
   emailVerified: '$emailVerified',
   maritalStatus: '$maritalStatus',
   gender: '$gender',
+  email: '$email',
   // dateOfBirth: '$dateOfBirth',
   // birthTime: '$birthTime',
   // religion: '$religion',
@@ -206,7 +207,7 @@ export const fields = [
   { name: 'maritalStatus' },
   { name: 'address' },
   { name: 'gender' },
-
+  { name: 'email' },
   // contact details this will be hidden for all
   // { name: 'email', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
   // { name: 'mobileNumber', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
@@ -345,6 +346,7 @@ export const createDynamicProjectionForPrivacySettingForDating = (fields, defaul
     'friendsDetails._id': 1,
     'friendsDetails.user': 1,
     'friendsDetails.friend': 1,
+    email: '$email',
   };
 
   // Add default fields if privacySetting is 'default'

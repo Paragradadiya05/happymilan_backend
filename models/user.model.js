@@ -560,6 +560,7 @@ const UserSchema = new mongoose.Schema(
           'manglikStatus',
           'gothra',
           'zodiac',
+          'email',
         ],
         privateProfile: [
           'firstName',
@@ -580,6 +581,7 @@ const UserSchema = new mongoose.Schema(
           'motherTongue',
           'gender',
           'privacySettingCustom',
+          'email',
         ],
         premiumProfile: [
           'firstName',
@@ -602,6 +604,7 @@ const UserSchema = new mongoose.Schema(
           'privacySetting',
           'gender',
           'privacySettingCustom',
+          'email',
         ],
       }),
     },
