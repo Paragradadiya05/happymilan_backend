@@ -57,6 +57,7 @@ export const createMobileNumberRequest = async (requesterId, targetUserId) => {
       otherUserId: requesterId,
       userName: requesterName,
       body: `${requesterName} requested your mobile number`,
+      reqId: mobileRequest._id.toString(),
       title: 'Mobile Number Request',
       screen: 'MobileNumberRequests',
     });
