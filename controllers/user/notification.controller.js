@@ -32,6 +32,8 @@ export const getNotificationById = catchAsync(async (req, res) => {
         'Declined your request',
         'new story',
         'Mobile Number Request',
+        'Request Accepted',
+        'Request Rejected',
       ],
     },
   };

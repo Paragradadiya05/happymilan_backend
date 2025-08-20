@@ -126,7 +126,22 @@ export const acceptMobileNumberRequest = async (requestId, targetUserId) => {
   try {
     const requesterUser = await User.findById(mobileRequest.requesterId._id).select('deviceTokens');
     const targetUserName = mobileRequest.targetUserId.fullName || mobileRequest.targetUserId.name || 'User';
-
+    await Notification.findOneAndUpdate(
+      {
+        reqId: mobileRequest._id.toString(), // match the same request
+        userId: mobileRequest.targetUserId._id, // notification originally sent to targetUser
+        otherUserId: mobileRequest.requesterId._id,
+        screen: 'MobileNumberRequests',
+      },
+      {
+        $set: {
+          title: 'Request Accepted',
+          body: `${targetUserName} accepted your mobile number request`,
+          type: 'mobile_number_request_accepted',
+          updatedAt: new Date(),
+        },
+      }
+    );
     const notificationData = await Notification.create({
       userId: mobileRequest.requesterId._id,
       otherUserId: mobileRequest.targetUserId._id,
@@ -199,12 +214,73 @@ export const rejectMobileNumberRequest = async (requestId, targetUserId) => {
   mobileRequest.rejectedAt = new Date();
   await mobileRequest.save();
 
+  try {
+    const requesterUser = await User.findById(mobileRequest.requesterId._id).select('deviceTokens');
+    const targetUserName = mobileRequest.targetUserId.fullName || mobileRequest.targetUserId.name || 'User';
+
+    // Update the original notification (sent when request was created)
+    await Notification.findOneAndUpdate(
+      {
+        reqId: mobileRequest._id.toString(),
+        userId: mobileRequest.targetUserId._id,
+        otherUserId: mobileRequest.requesterId._id,
+        screen: 'MobileNumberRequests',
+      },
+      {
+        $set: {
+          title: 'Request Rejected',
+          body: `${targetUserName} rejected your mobile number request`,
+          type: 'mobile_number_request_rejected',
+          updatedAt: new Date(),
+        },
+      }
+    );
+
+    // Create a new notification for requester (optional, just like accept)
+    const notificationData = await Notification.create({
+      userId: mobileRequest.requesterId._id,
+      otherUserId: mobileRequest.targetUserId._id,
+      userName: targetUserName,
+      body: `${targetUserName} rejected your mobile number request`,
+      title: 'Request Rejected',
+      screen: 'MobileNumberRequests',
+    });
+
+    if (requesterUser.deviceTokens.length > 0) {
+      await Promise.all(
+        requesterUser.deviceTokens.map(async (fcmToken) => {
+          await sendNotification(
+            fcmToken.deviceToken,
+            {
+              data: {
+                _id: notificationData._id.toString(),
+                userId: notificationData.userId.toString(),
+                otherUserId: notificationData.otherUserId.toString(),
+                body: `${targetUserName} rejected your mobile number request`,
+                title: 'Request Rejected',
+                createdAt: notificationData.createdAt.toString(),
+                updatedAt: notificationData.updatedAt.toString(),
+                screen: 'MobileNumberRequests',
+                type: 'mobile_number_request_rejected',
+                requestId: mobileRequest._id.toString(),
+              },
+            },
+            {}
+          );
+        })
+      );
+    }
+  } catch (notificationError) {
+    console.error('Failed to send mobile number request rejection notification:', notificationError);
+  }
+
   return {
     requestId: mobileRequest._id,
     status: mobileRequest.status,
     rejectedAt: mobileRequest.rejectedAt,
   };
 };
+
 /**
  * Get received mobile number requests for a user with pagination
  * @param {string} userId - Target user ID
