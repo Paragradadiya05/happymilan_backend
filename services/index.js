@@ -46,3 +46,4 @@ module.exports.twoFactorAuthService = require('./twoFactorAuth.service');
 module.exports.imageBlurService = require('./imageblur.service');
 module.exports.creditService = require('./credit.service');
 module.exports.mobileNumberRequestService = require('./mobileNumberRequest.service');
+module.exports.cancelPlanService = require('./cancelPlan.service');

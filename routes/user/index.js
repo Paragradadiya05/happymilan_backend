@@ -35,6 +35,7 @@ import userPlanRoute from './v1/userPlan/userPlan.route';
 import twoFactorAuthRoute from './twoFactorAuth.route';
 import subscriptionRoute from './v1/subscription/subscription.route';
 import mobileNumberRequestRoute from './v1/mobileNumberRequest/mobileNumberRequest.route';
+import cancelRequestRoute from './v1/cancelPlan/cancelPlan.route';
 
 const router = express.Router();
 router.use('/user', userRoutes);
@@ -73,6 +74,7 @@ router.use('/user-plan', userPlanRoute);
 router.use('/2fa', twoFactorAuthRoute);
 router.use('/subscription', subscriptionRoute);
 router.use('/mobile-number-request', mobileNumberRequestRoute);
+router.use('/cancel-plan-request', cancelRequestRoute);
 
 // router.use('/userEducation', userEducationRoutes);
 // router.use('/commentOnStory', commentOnStoryRoutes);

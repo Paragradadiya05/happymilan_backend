@@ -326,6 +326,17 @@ const EnumOfBlogType = {
   VIDEO: 'video',
   PHOTOS: 'photos',
 };
+const EnumOfCancelReason = {
+  ACCIDENTAL_PURCHASE: 'accidental-purchase', // Accidental purchase / wrong plan selected
+  CHANGED_MIND: 'changed-mind', // Changed mind before using premium features
+  TECHNICAL_ISSUES: 'technical-issues', // Technical issues after upgrade
+  OTHER: 'other', // Other reason
+};
+const EnumOfRefundStatus = {
+  PENDING: 'pending',
+  PROCESSED: 'processed',
+  NOT_APPLICABLE: 'not_applicable',
+};
 module.exports = {
   EnumCodeTypeOfCode,
   EnumRoleOfUser,
@@ -344,6 +355,7 @@ module.exports = {
   EnumOfCommunity,
   EnumOfMotherTongue,
   EnumOfCurrentCountry,
+  EnumOfRefundStatus,
   EnumOfState,
   EnumOfCountry,
   EnumOfCreative,
@@ -353,6 +365,7 @@ module.exports = {
   EnumOfReasonForProfileDelete,
   EnumOfImageTypes,
   EnumOfNotification,
+  EnumOfCancelReason,
   EnumOfChatType,
   EnumOfOffer,
   EnumOfUserPlan,
