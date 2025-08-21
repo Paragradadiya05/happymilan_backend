@@ -19,6 +19,7 @@ export const createCancelPlan = {
     refundAmount: Joi.number().min(0),
     effectiveCancellationDate: Joi.date(),
     status: Joi.string().valid('pending', 'approved', 'rejected'),
+    hasRequested: Joi.boolean().default(false),
   }),
 };
 
@@ -33,6 +34,7 @@ export const updateCancelPlan = {
     refundAmount: Joi.number().min(0),
     effectiveCancellationDate: Joi.date(),
     status: Joi.string().valid('pending', 'approved', 'rejected'),
+    hasRequested: Joi.boolean().default(false),
   }),
 };
 
