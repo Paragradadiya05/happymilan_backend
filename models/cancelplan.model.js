@@ -59,21 +59,21 @@ const cancelPlanSchema = new mongoose.Schema(
 );
 
 // Compound unique index so a user cannot request cancel for same plan twice
-cancelPlanSchema.index({ userId: 1, userPlanId: 1 }, { unique: true });
-
-// Validation hook (before save) to throw friendly error
-cancelPlanSchema.pre('save', async function (next) {
-  const existing = await mongoose.models.cancelPlan.findOne({
-    userId: this.userId,
-    userPlanId: this.userPlanId,
-  });
-
-  if (existing) {
-    const err = new Error('Cancellation request already exists for this plan.');
-    return next(err);
-  }
-  next();
-});
+// cancelPlanSchema.index({ userId: 1, userPlanId: 1 }, { unique: true });
+//
+// // Validation hook (before save) to throw friendly error
+// cancelPlanSchema.pre('save', async function (next) {
+//   const existing = await mongoose.models.cancelPlan.findOne({
+//     userId: this.userId,
+//     userPlanId: this.userPlanId,
+//   });
+//
+//   if (existing) {
+//     const err = new Error('Cancellation request already exists for this plan.');
+//     return next(err);
+//   }
+//   next();
+// });
 
 cancelPlanSchema.plugin(toJSON);
 cancelPlanSchema.plugin(mongoosePaginateV2);
