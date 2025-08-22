@@ -11,7 +11,7 @@ export async function getOne(query, options = {}) {
 }
 
 export async function getkycList(filter, options = {}) {
-  const kyc = await Kyc.find(filter, options.projection, options);
+  const kyc = await Kyc.find(filter, options.projection, options).sort(options.sort || {});
   return kyc;
 }
 
