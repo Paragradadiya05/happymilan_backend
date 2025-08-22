@@ -12,7 +12,7 @@ import ApiError from '../utils/ApiError';
  */
 export const getUserCreditBalance = async (userId) => {
   const credit = await Credit.findOne({ userId });
-  return credit ? credit.creditBalance : 0;
+  return credit;
 };
 
 /**

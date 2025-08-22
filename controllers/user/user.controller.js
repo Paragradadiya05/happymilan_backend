@@ -889,7 +889,7 @@ export const getCreditByUserId = catchAsync(async (req, res) => {
 
   const credit = await creditService.getUserCreditBalance(userId);
 
-  if (!credit) {
+  if (credit === null || credit === undefined) {
     return res.status(httpStatus.BAD_REQUEST).send({
       message: 'Credit record not found for this user',
     });
