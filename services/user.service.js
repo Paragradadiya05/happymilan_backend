@@ -1792,10 +1792,20 @@ export async function getMatchUser(filter) {
 }
 
 export async function getUserCounts(appUsesType) {
-  const filter = appUsesType ? { appUsesType } : {};
+  const filter = {};
+
+  // ✅ Only apply filter if not "all"
+  if (appUsesType && appUsesType !== 'all') {
+    filter.appUsesType = appUsesType;
+  }
 
   const totalUsers = await User.countDocuments(filter);
-  const activeUsers = totalUsers;
+
+  // If "active" means online, use same as onlineUsers
+  const activeUsers = await User.countDocuments({
+    ...filter,
+    isUserActive: true,
+  });
 
   const oneWeekAgo = moment().subtract(7, 'days').toDate();
 
