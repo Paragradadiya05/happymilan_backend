@@ -9,3 +9,4 @@ module.exports.xlxsController = require('./uploadxlsx.controller');
 module.exports.roleController = require('./role.controller');
 module.exports.KycController = require('./kyc.controller');
 module.exports.spamUserController = require('./spamuser.controller');
+module.exports.CancelPlanRequestController = require('./cancelPlan.controller');

@@ -17,3 +17,5 @@ module.exports.roleValidation = require('./role.validation');
 module.exports.KycValidation = require('./kyc.validation');
 
 module.exports.spamUserValidation = require('./spamUser.validation');
+
+module.exports.CancelPlanValidation = require('./cancelPlan.validation');

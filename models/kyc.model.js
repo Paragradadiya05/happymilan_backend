@@ -79,6 +79,8 @@ const KycSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    adminDocUpload: { type: Boolean, default: false },
+    adminSelfieUpload: { type: Boolean, default: false },
     nameRequest: [NameRequestSchema],
     docUploadHistory: [DocUploadHistorySchema],
   },

@@ -41,6 +41,7 @@ export const create = catchAsync(async (req, res) => {
   body.updatedBy = req.user;
   const userId = req.user._id;
   body.isDocUpload = true;
+  body.adminDocUpload = true;
   const options = {};
   const Kyc = await KycService.createkyc(
     {

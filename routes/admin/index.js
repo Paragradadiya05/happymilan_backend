@@ -11,6 +11,7 @@ import roleRoutes from './v1/Role/role.route';
 import dashboardRoutes from './v1/dashboard/dashboard.route';
 import KycRoute from './v1/kyc/kyc.route';
 import spamRoute from './v1/spamUser/spam.route';
+import cancelRequestRoute from './v1/cancelPlan/cancelPlan.route';
 
 const router = express.Router();
 router.use('/user', userRoutes);
@@ -25,5 +26,6 @@ router.use('/role', roleRoutes);
 router.use('/dashboard', dashboardRoutes);
 router.use('/kyc', KycRoute);
 router.use('/spam', spamRoute);
+router.use('/cancel-plan-request', cancelRequestRoute);
 
 module.exports = router;
