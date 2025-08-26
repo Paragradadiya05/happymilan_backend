@@ -78,12 +78,7 @@ export const update = catchAsync(async (req, res) => {
       latestRequest.requestedAt = new Date();
     }
   }
-  if (body.isDocRejected === true) {
-    body.adminDocUpload = false;
-    body.adminSelfieUpload = false;
-    body.isDocUpload = false;
-    body.isSelfieUpload = false;
-  }
+
   const options = { new: true };
   const Kyc = await KycService.updatekyc(filter, body, options);
   return res.status(httpStatus.OK).send({ results: Kyc });
