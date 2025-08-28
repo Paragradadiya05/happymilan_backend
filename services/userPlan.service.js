@@ -9,7 +9,9 @@ export async function getOne(query, options = {}) {
   const test = await UserPlan.findOne(query, options.projection, {
     ...options,
     sort: { createdAt: -1 }, // Get the latest by createdAt
-  }).populate('planId');
+  })
+    .populate('planId')
+    .populate('userId', 'name email');
   return test;
 }
 
