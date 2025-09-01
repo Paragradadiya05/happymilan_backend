@@ -119,7 +119,7 @@ export const downloadUserPlanReceipt = catchAsync(async (req, res) => {
 
   // Launch Puppeteer and generate PDF
   const browser = await puppeteer.launch({
-    executablePath: '/usr/bin/google-chrome',
+    executablePath: puppeteer.executablePath(), // auto-detect bundled Chromium
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
     headless: true,
   });
