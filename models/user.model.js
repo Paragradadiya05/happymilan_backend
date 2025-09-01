@@ -359,9 +359,9 @@ const UserSchema = new mongoose.Schema(
     interest: {
       type: String,
     },
-    homeMobileNumber: {
-      type: Number,
-    },
+    // homeMobileNumber: {
+    //   type: Number,
+    // },
     creatingProfileFor: {
       type: String,
       enum: Object.values(enumModel.EnumCreatingProfileFor),
