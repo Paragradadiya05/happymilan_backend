@@ -4317,7 +4317,7 @@ export async function checkMissingFieldsMobile(userId) {
   // Define categories with their corresponding fields
   const fieldCategories = {
     basicDetails: ['writeBoutYourSelf', 'height', 'weight', 'caste', 'religion', 'maritalStatus', 'gender'], // renamed 'generalDetails' to 'basicDetails'
-    contactDetails: ['email', 'homeMobileNumber', 'mobileNumber'],
+    contactDetails: ['email'],
     hobbiesAndInterest: ['hobbies'],
   };
   console.log('=====xx====>', fieldCategories);
