@@ -81,4 +81,13 @@ router
    * getUserRoleByID
    * */
   .get(auth(['super-admin', 'admin']), validate(userValidation.getUserByappUsesType), userController.paginateappUsesType);
+/**
+ * getUserRoleByID
+ * */
+router.delete(
+  '/delete-selected-user',
+  auth(['admin']),
+  validate(userValidation.deleteSelectedUser),
+  userController.deleteSelectedUsers
+);
 export default router;

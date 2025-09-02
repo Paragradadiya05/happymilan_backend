@@ -4405,3 +4405,8 @@ export async function getUserListWithappUsesType(filter, options = {}) {
   }
   return User.paginate(filter, options);
 }
+
+export async function removeSelectedUsers(userId) {
+  const deletedusers = await User.deleteMany({ _id: { $in: userId } });
+  return deletedusers;
+}

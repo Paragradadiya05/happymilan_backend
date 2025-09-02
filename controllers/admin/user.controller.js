@@ -386,3 +386,13 @@ export const paginateappUsesType = catchAsync(async (req, res) => {
   const users = await userService.getUserListWithappUsesType(filter, options);
   return res.status(httpStatus.OK).send({ results: users });
 });
+
+export const deleteSelectedUsers = catchAsync(async (req, res) => {
+  const { userId } = req.body;
+
+  if (!Array.isArray(userId) || userId.length === 0) {
+    return res.status(httpStatus.BAD_REQUEST).send({ message: 'UserIds must be a non-empty array' });
+  }
+  const deletedUsers = await userService.removeSelectedUsers(userId);
+  return res.status(httpStatus.OK).send({ message: 'Selected user deleted successfully', results: deletedUsers });
+});

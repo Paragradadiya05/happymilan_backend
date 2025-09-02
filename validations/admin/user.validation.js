@@ -254,3 +254,9 @@ export const getUserByappUsesType = {
       .optional(),
   }),
 };
+
+export const deleteSelectedUser = {
+  body: Joi.object().keys({
+    userId: Joi.array().items(Joi.string().required()).min(1).required(),
+  }),
+};
