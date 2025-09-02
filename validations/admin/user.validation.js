@@ -246,3 +246,11 @@ export const resetMultipleUserCredits = {
     reason: Joi.string().optional().min(3).max(100),
   }),
 };
+
+export const getUserByappUsesType = {
+  params: Joi.object().keys({
+    appUsesType: Joi.string()
+      .valid(...Object.values(EnumAppUsesTypeOfUsers))
+      .optional(),
+  }),
+};

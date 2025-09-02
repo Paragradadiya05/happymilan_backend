@@ -75,5 +75,10 @@ router
    * Reset credits for multiple users
    */
   .post(auth(['admin']), validate(userValidation.resetMultipleUserCredits), userController.resetMultipleUserCredits);
-
+router
+  .route('/getUser/:appUsesType')
+  /**
+   * getUserRoleByID
+   * */
+  .get(auth(['super-admin', 'admin']), validate(userValidation.getUserByappUsesType), userController.paginateappUsesType);
 export default router;

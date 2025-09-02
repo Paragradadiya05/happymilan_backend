@@ -360,3 +360,29 @@ export const resetMultipleUserCredits = catchAsync(async (req, res) => {
     reason,
   });
 });
+
+export const paginateappUsesType = catchAsync(async (req, res) => {
+  const { query, params } = req;
+
+  const sortingObj = pick(query, ['sort', 'order']);
+  const sortObj = {
+    [sortingObj.sort]: sortingObj.order,
+  };
+
+  // Default filter
+  const filter = {};
+
+  // Handle appUsesType from params
+  if (params.appUsesType && params.appUsesType !== 'all') {
+    filter.appUsesType = params.appUsesType; // marriage OR dating
+  }
+  // if "all", don't add filter → return both types
+
+  const options = {
+    sort: sortObj,
+    ...pick(query, ['limit', 'page']),
+  };
+
+  const users = await userService.getUserListWithappUsesType(filter, options);
+  return res.status(httpStatus.OK).send({ results: users });
+});

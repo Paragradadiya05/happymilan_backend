@@ -4389,3 +4389,19 @@ export async function checkMissingFieldsMobile(userId) {
 
   return missingFields;
 }
+
+export async function getUserListWithappUsesType(filter, options = {}) {
+  const excludedRoles = await Role.find(
+    { role: { $in: ['project-owner', 'super-admin', 'admin', 'co-admin'] } },
+    '_id'
+  ).lean();
+
+  const excludedRoleIds = excludedRoles.map((r) => r._id);
+  // eslint-disable-next-line no-param-reassign
+  filter.role = { $nin: excludedRoleIds };
+  if (!options.page && !options.limit) {
+    // No pagination → return all users
+    return User.find(filter).sort(options.sort || {});
+  }
+  return User.paginate(filter, options);
+}
