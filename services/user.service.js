@@ -4238,7 +4238,7 @@ export async function checkMissingFields(userId) {
   const fieldCategories = {
     createProfile: ['creatingProfileFor', 'birthTime', 'dateOfBirth', 'lastName', 'firstName'],
     generalDetails: ['writeBoutYourSelf', 'height', 'weight', 'caste', 'religion', 'maritalStatus', 'gender'],
-    contactDetails: ['email', 'homeMobileNumber', 'mobileNumber'],
+    contactDetails: ['email', 'mobileNumber'],
     hobbies: ['hobbies'],
   };
 
@@ -4317,7 +4317,7 @@ export async function checkMissingFieldsMobile(userId) {
   // Define categories with their corresponding fields
   const fieldCategories = {
     basicDetails: ['writeBoutYourSelf', 'height', 'weight', 'caste', 'religion', 'maritalStatus', 'gender'], // renamed 'generalDetails' to 'basicDetails'
-    contactDetails: ['email'],
+    contactDetails: ['email', 'mobileNumber'],
     hobbiesAndInterest: ['hobbies'],
   };
   console.log('=====xx====>', fieldCategories);

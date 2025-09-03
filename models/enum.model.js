@@ -30,7 +30,11 @@ const EnumAppUsesTypeOfUsers = {
 const EnumGenderOfUsers = {
   MALE: 'male',
   FEMALE: 'female',
+  NON_BINARY: 'nonBinary',
+  PREFER_NOT_TO_SAY: 'preferNotToSay',
+  OTHER: 'other',
 };
+
 const EnumStatusOfFriend = {
   REQUESTED: 'requested',
   RECEIVED: 'received',
@@ -46,6 +50,9 @@ const EnumCreatingProfileFor = {
   MY_DAUGHTER: 'myDaughter',
   MY_BROTHER: 'myBrother',
   MY_FRIEND: 'myFriend',
+  MY_RELATIVES: 'myRelatives',
+  MY_COUSIN: 'myCousin',
+  MY_NEPHEW: 'myNephew',
 };
 
 const EnumOfPlan = {
@@ -71,33 +78,63 @@ const EnumOfStatus = {
 };
 const EnumOfMaritalStatus = {
   SINGLE: 'single',
-  NEVER_MARRIED: 'never-married',
+  NEVER_MARRIED: 'neverMarried',
   MARRIED: 'married',
+  DIVORCEE: 'divorcee',
 };
+
 const EnumOfReligion = {
   HINDU: 'hindu',
   MUSLIM: 'muslim',
+  CHRISTIAN: 'christian',
   SIKH: 'sikh',
+  BUDDHIST: 'buddhist',
+  JAIN: 'jain',
+  ISLAM: 'islam',
+  OTHER: 'other',
 };
+
 const EnumOfCommunity = {
   PATEL: 'patel',
   SHAH: 'shah',
   SONI: 'soni',
 };
 const EnumOfMotherTongue = {
+  ASSAMESE: 'assamese',
+  BENGALI: 'bengali',
+  BODO: 'bodo',
+  DOGRI: 'dogri',
   GUJARATI: 'gujarati',
   HINDI: 'hindi',
+  KANNADA: 'kannada',
+  KASHMIRI: 'kashmiri',
+  KONKINI: 'konkini',
+  MANIPURI: 'manipuri',
+  MARATHI: 'marathi',
+  NEPALI: 'nepali',
+  ODIA: 'odia',
+  PUNJABI: 'punjabi',
+  SANSKRIT: 'sanskrit',
+  SANTALI: 'santali',
+  SINDHI: 'sindhi',
+  TAMIL: 'tamil',
+  TELUGU: 'telugu',
+  URDU: 'urdu',
   ENGLISH: 'english',
 };
+
 const EnumOflanguage = {
   GUJARATI: 'gujarati',
   HINDI: 'hindi',
   ENGLISH: 'english',
 };
 const EnumOfManglikStatus = {
-  YES: 'yes',
-  No: 'no',
+  MANGLIK: 'manglik',
+  NON_MANGLIK: 'non-manglik',
+  ANSHIK_MANGLIK: 'anshik-manglik',
+  DONT_KNOW: 'dont-know',
 };
+
 const EnumOfCurrentCountry = {
   INDIA: 'india',
   CANADA: 'canada',
@@ -254,21 +291,46 @@ const EnumOfUserPlan = {
   EXPIRED: 'expired',
 };
 const EnumOfGothra = {
-  AGASTHI: 'Agasthi',
+  BHARADVAJA: 'Bharadvaja',
+  KASHYAPA: 'Kashyapa',
   ATRI: 'Atri',
-  ANGIRASA: 'Angirasa',
-  BHARADWAJ: 'Bharadwaj',
-  GAUTAM: 'Gautam',
-  JAMADAGNI: 'Jamadagni',
-  KASHYAP: 'Kashyap',
-  VASISHTA: 'Vasishta',
+  VASHISTHA: 'Vashistha',
   VISHWAMITRA: 'Vishwamitra',
+  GAUTAMA: 'Gautama',
+  JAMADAGNI: 'Jamadagni',
+  AGASTYA: 'Agastya',
   BHRIGU: 'Bhrigu',
-  SHANDILYA: 'Shandilya',
-  KAUSHIK: 'Kaushik',
-  PARASHAR: 'Parashar',
+  KAUSHIKA: 'Kaushika',
+  SANDILYA: 'Sandilya',
+  PARASHARA: 'Parashara',
+  MANDAVYA: 'Mandavya',
+  HARITA: 'Harita',
+  KUTSA: 'Kutsa',
+  SHRIVATSA: 'Shrivatsa',
+  MUDGALA: 'Mudgala',
   VATSA: 'Vatsa',
-  MUDGAL: 'Mudgal',
+  MAITREYA: 'Maitreya',
+  DURVASA: 'Durvasa',
+  CHYAVANA: 'Chyavana',
+  MARICHI: 'Marichi',
+  PULASTYA: 'Pulastya',
+  PULAHA: 'Pulaha',
+  KRATU: 'Kratu',
+  ANGIRASA: 'Angirasa',
+  VISHNUVARDHANA: 'Vishnuvardhana',
+  SHUNAKA: 'Shunak',
+  KAPILA: 'Kapila',
+  VYASA: 'Vyasa',
+  RISHYASHRINGA: 'Rishyashringa',
+  SANKRITI: 'Sankriti',
+  SAUNAKA: 'Saunaka',
+  ROHINI: 'Rohini',
+  LOMASHA: 'Lomasha',
+  DEVALA: 'Devala',
+  YAJNAVALKYA: 'Yajnavalkya',
+  VALMIKI: 'Valmiki',
+  GALAVA: 'Galava',
+  VAMADEVA: 'Vamadeva',
   OTHER: 'Other',
 };
 
