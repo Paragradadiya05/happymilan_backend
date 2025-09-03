@@ -355,7 +355,10 @@ const UserSchema = new mongoose.Schema(
       type: String,
       enum: Object.values(enumModel.EnumAppUsesTypeOfUsers),
     },
-    hobbies: [String], // todo : this is changed in new flow. so we can remove old flow for now.
+    hobbies: {
+      type: [String],
+      enum: Object.values(enumModel.EnumOfHobby),
+    }, // todo : this is changed in new flow. so we can remove old flow for now.
     interest: {
       type: String,
     },

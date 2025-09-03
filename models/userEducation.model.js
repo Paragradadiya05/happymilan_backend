@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import mongoosePaginateV2 from 'mongoose-paginate-v2';
 import { toJSON } from 'models/plugins';
+import enumModel from './enum.model';
 
 const UserEducationSchema = new mongoose.Schema(
   {
@@ -10,6 +11,7 @@ const UserEducationSchema = new mongoose.Schema(
     },
     degree: {
       type: String,
+      enum: Object.values(enumModel.EnumOfDegree),
     },
     collage: {
       type: String,

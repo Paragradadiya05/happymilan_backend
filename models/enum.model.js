@@ -137,14 +137,6 @@ const EnumOfManglikStatus = {
 
 const EnumOfCurrentCountry = {
   INDIA: 'india',
-  CANADA: 'canada',
-  US: 'us',
-  AFGHANISTAN: 'afghanistan',
-  CHINA: 'china',
-  MYANMAR: 'Myanmar',
-  NEPAL: 'nepal',
-  SRI_LANKA: 'sri-Lanka',
-  PAKISTAN: 'pakistan',
 };
 const EnumOfState = {
   GUJARAT: 'gujarat',
@@ -223,7 +215,14 @@ const EnumOfCreative = {
 };
 const EnumOfDiet = {
   VEGETARIAN: 'vegetarian',
+  EGGETARIAN: 'eggetarian',
   NON_VEGETARIAN: 'non_vegetarian',
+  VEGAN: 'vegan',
+  JAIN: 'jain',
+  OCCASIONALLY_NON_VEGETARIAN: 'occasionally_non_vegetarian',
+  OCCASIONALLY_VEGETARIAN: 'occasionally_vegetarian',
+  SATVIK: 'satvik',
+  OTHER: 'other',
 };
 
 const EnumOfPrivacySetting = {
@@ -258,6 +257,42 @@ const EnumOfImageTypes = {
   STATUS_IMAGE: 'statusImage',
   PROFILE_VIDEO: 'profileVideo',
 };
+
+const EnumOfHobby = {
+  WRITING: 'writing',
+  PLAY_INSTRUMENT: 'play_instrument',
+  POETRY: 'poetry',
+  COOKING: 'cooking',
+  PAINTING: 'painting',
+  GARDENING: 'gardening',
+  SINGING: 'singing',
+  DIY_CRAFTS: 'diy_crafts',
+  BLOGGING: 'blogging',
+  PHOTOGRAPHY: 'photography',
+  DANCING: 'dancing',
+  CONTENT_CREATION: 'content_creation',
+  MOVIE: 'movie',
+  SPORTS: 'sports',
+  BIKING: 'biking',
+  MUSIC: 'music',
+  SOCIAL_MEDIA: 'social_media',
+  CLUBBING: 'clubbing',
+  TRAVELLING: 'travelling',
+  GAMING: 'gaming',
+  SHOPPING: 'shopping',
+  READING: 'reading',
+  BINGE_WATCHING: 'binge_watching',
+  THEATER_EVENTS: 'theater_events',
+  RUNNING: 'running',
+  CYCLING: 'cycling',
+  YOGA: 'yoga',
+  WALKING: 'walking',
+  WORKING_OUT: 'working_out',
+  TREKKING: 'trekking',
+  AEROBICS_ZUMBA: 'aerobics_zumba',
+  SWIMMING: 'swimming',
+};
+
 const EnumOfNotification = {
   REQUEST_SENT: 'Request-sent',
   REQUEST_DECLINED: 'Declined your request',
@@ -399,8 +434,55 @@ const EnumOfRefundStatus = {
   PROCESSED: 'processed',
   NOT_APPLICABLE: 'not_applicable',
 };
+const EnumOfJobType = {
+  GOVERNMENT: 'government',
+  PRIVATE: 'private',
+  RETIRED: 'retired',
+  // STUDENT: 'student',
+  // PREFER_NOT_TO_SAY: 'prefer_not_to_say',
+  // NOT_WORKING: 'not_working',
+  HOMEMAKER: 'homemaker',
+};
+const EnumOfDegree = {
+  BACHELORS_ARTS: 'Bachelors Arts',
+  BACHELORS_SCIENCE: 'Science',
+  BACHELORS_COMMERCE: 'Commerce',
+  B_PHIL: 'B Phil',
+  BACHELORS_ENGINEERING: 'Bachelors Engineering',
+  COMPUTERS: 'Computers',
+  BCA: 'BCA',
+  MCA: 'MCA',
+  BBA: 'BBA',
+  BSC: 'BSC',
+  MSC: 'MSC',
+  DIPLOMA: 'Diploma',
+  HIGHER_SECONDARY: 'Higher Secondary',
+  SECONDARY: 'Secondary',
+  LEGAL_BL: 'Legal BL',
+  ML: 'ML',
+  LLB: 'LLB',
+  LLM: 'LLM',
+  MANAGEMENT_BBA: 'Management BBA',
+  MBA: 'MBA',
+  MASTERS_ARTS: 'Masters Arts',
+  MASTERS_SCIENCE: 'Masters Science',
+  MASTERS_COMMERCE: 'Masters Commerce',
+  M_PHIL: 'M Phil',
+  MASTERS_ENGINEERING: 'Masters Engineering',
+  MASTERS_COMPUTERS: 'Computers (Masters)',
+  MEDICINE_GENERAL: 'Medicine General',
+  DENTAL: 'Dental',
+  SURGEON: 'Surgeon',
+  PHD: 'Ph.D',
+  SERVICE_IAS: 'IAS',
+  SERVICE_IPS: 'IPS',
+  SERVICE_IRS: 'IRS',
+  SERVICE_IES: 'IES',
+  SERVICE_IFS: 'IF',
+};
 module.exports = {
   EnumCodeTypeOfCode,
+  EnumOfDegree,
   EnumRoleOfUser,
   EnumPlatformOfDeviceToken,
   EnumTypeOfToken,
@@ -441,4 +523,6 @@ module.exports = {
   EnumOfZodiac,
   EnumOflanguage,
   EnumOfBlogType,
+  EnumOfJobType,
+  EnumOfHobby,
 };
