@@ -26,6 +26,21 @@ export const updateKyc = {
     userId: Joi.objectId(),
     isDocRejected: Joi.boolean().default(false),
     rejectReason: Joi.string().optional(),
+
+    nameRequest: Joi.array()
+      .items(
+        Joi.object().keys({
+          firstName: Joi.string().optional(),
+          lastName: Joi.string().optional(),
+          kycDocName: Joi.string()
+            .valid(...Object.values(enumModel.EnumOfKyc))
+            .optional(),
+          kycDocImagePath: Joi.string().optional(),
+          approvalStatus: Joi.string().valid('pending', 'approved', 'rejected').default('pending'),
+          rejectReason: Joi.string().optional(),
+        })
+      )
+      .optional(),
   }),
   params: Joi.object().keys({
     KycId: Joi.objectId().required(),
