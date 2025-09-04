@@ -47,24 +47,22 @@ export const create = catchAsync(async (req, res) => {
 export const update = catchAsync(async (req, res) => {
   const { body } = req;
   const { KycId } = req.params;
-  const filter = { _id: KycId };
+  const filter = {
+    _id: KycId,
+  };
   const { user } = req;
-  body.updatedBy = user._id;
+  body.updatedBy = user;
 
   // Fetch current KYC record
   const existingKyc = await KycService.getOne(filter);
   if (!existingKyc) {
     return res.status(httpStatus.NOT_FOUND).send({ message: 'KYC record not found' });
   }
-
-  if (existingKyc.verify === false) {
-    return res.status(httpStatus.FORBIDDEN).send({ message: 'KYC is not verified, name request cannot be processed.' });
-  }
-
   // ✅ Handle nameRequest logic
   if (body.nameRequest && body.nameRequest.length) {
     const latestRequest = body.nameRequest[body.nameRequest.length - 1];
 
+    // If approved, update user's name
     if (latestRequest.approvalStatus === 'approved') {
       await userService.updateUser(
         { _id: existingKyc.userId },
@@ -74,21 +72,20 @@ export const update = catchAsync(async (req, res) => {
         }
       );
 
+      // Set approvedAt and approvedBy
       latestRequest.approvedAt = new Date();
       latestRequest.approvedBy = user._id;
     }
 
+    // Optional: Add requestedAt if not sent
     if (!latestRequest.requestedAt) {
       latestRequest.requestedAt = new Date();
     }
   }
 
-  // ✅ Merge old + new data so we don't lose fields
-  const mergedData = { ...existingKyc.toObject(), ...body };
-
-  // ✅ Perform the update (returns full updated doc)
+  // ✅ Perform the update
   const options = { new: true };
-  const updatedKyc = await KycService.updatekyc(filter, mergedData, options);
+  const updatedKyc = await KycService.updatekyc(filter, body, options);
 
   return res.status(httpStatus.OK).send({ results: updatedKyc });
 });
