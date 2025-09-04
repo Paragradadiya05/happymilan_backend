@@ -30,6 +30,7 @@ const AddressSchema = new mongoose.Schema(
     },
     currentState: {
       type: String,
+      enum: Object.values(enumModel.EnumOfState),
     },
     /**
      * created By
