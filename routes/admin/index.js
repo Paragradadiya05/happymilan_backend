@@ -12,6 +12,7 @@ import dashboardRoutes from './v1/dashboard/dashboard.route';
 import KycRoute from './v1/kyc/kyc.route';
 import spamRoute from './v1/spamUser/spam.route';
 import cancelRequestRoute from './v1/cancelPlan/cancelPlan.route';
+import userPlanRoute from './v1/userPlan/userPlan.route';
 
 const router = express.Router();
 router.use('/user', userRoutes);
@@ -27,5 +28,6 @@ router.use('/dashboard', dashboardRoutes);
 router.use('/kyc', KycRoute);
 router.use('/spam', spamRoute);
 router.use('/cancel-plan-request', cancelRequestRoute);
+router.use('/user-plan', userPlanRoute);
 
 module.exports = router;

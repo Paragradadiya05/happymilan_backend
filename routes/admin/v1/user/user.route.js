@@ -84,10 +84,10 @@ router
 /**
  * getUserRoleByID
  * */
-router.delete(
-  '/delete-selected-user',
-  auth(['admin']),
-  validate(userValidation.deleteSelectedUser),
-  userController.deleteSelectedUsers
-);
+router
+  .route('/delete-selected-user')
+  /**
+   * getUserRoleByID
+   * */
+  .delete(auth(['super-admin', 'admin']), validate(userValidation.deleteSelectedUser), userController.deleteSelectedUsers);
 export default router;
