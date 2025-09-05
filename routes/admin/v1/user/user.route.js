@@ -27,6 +27,12 @@ router
    * getUserPaginated
    * */
   .get(auth(['admin']), validate(userValidation.paginatedUser), userController.paginate);
+router
+  .route('/delete-selected-user')
+  /**
+   * getUserRoleByID
+   * */
+  .delete(auth(['super-admin', 'admin']), validate(userValidation.deleteSelectedUser), userController.deleteSelectedUsers);
 
 router
   .route('/:userId')
@@ -81,13 +87,5 @@ router
    * getUserRoleByID
    * */
   .get(auth(['super-admin', 'admin']), validate(userValidation.getUserByappUsesType), userController.paginateappUsesType);
-/**
- * getUserRoleByID
- * */
-router
-  .route('/delete-selected-user')
-  /**
-   * getUserRoleByID
-   * */
-  .delete(auth(['super-admin', 'admin']), validate(userValidation.deleteSelectedUser), userController.deleteSelectedUsers);
+
 export default router;
