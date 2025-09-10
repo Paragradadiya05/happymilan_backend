@@ -206,37 +206,22 @@ export async function calculateMatchScore(friendId, userPartnerPreferences, user
                       value: {
                         $cond: [
                           {
-                            $and: [
-                              { $isArray: '$userPartnerDetails.diet' },
-                              { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.diet', 0] } }, 'array'] },
-                            ],
+                            $and: [{ $isArray: '$diet' }, { $eq: [{ $type: { $arrayElemAt: ['$diet', 0] } }, 'array'] }],
                           },
-                          { $arrayElemAt: ['$userPartnerDetails.diet', 0] }, // unwrap [["vegetarian"]] → ["vegetarian"]
-                          {
-                            $cond: [
-                              { $isArray: '$userPartnerDetails.diet' },
-                              '$userPartnerDetails.diet', // already ["vegetarian"]
-                              [],
-                            ],
-                          },
+                          { $arrayElemAt: ['$diet', 0] }, // unwrap [["reading","cooking"]] → ["reading","cooking"]
+                          { $ifNull: ['$diet', []] },
                         ],
                       },
                       expected: {
                         $cond: [
                           {
                             $and: [
-                              { $isArray: userPartnerPreferences.diet },
-                              { $eq: [{ $type: { $arrayElemAt: [userPartnerPreferences.diet, 0] } }, 'array'] },
+                              { $isArray: '$userPartnerDetails.diet' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.diet', 0] } }, 'array'] },
                             ],
                           },
-                          { $arrayElemAt: [userPartnerPreferences.diet, 0] }, // unwrap [["vegetarian"]] → ["vegetarian"]
-                          {
-                            $cond: [
-                              { $isArray: userPartnerPreferences.diet },
-                              userPartnerPreferences.diet, // already ["vegetarian"]
-                              [],
-                            ],
-                          },
+                          { $arrayElemAt: ['$userPartnerDetails.diet', 0] },
+                          { $ifNull: ['$userPartnerDetails.diet', []] },
                         ],
                       },
                     },
