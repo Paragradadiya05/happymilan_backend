@@ -259,19 +259,25 @@ export const verifyOtp = catchAsync(async (req, res) => {
 
   const tokens = await tokenService.generateAuthTokens(user);
 
+  let updatedUser = user;
+
   if (deviceToken) {
-    const updatedUser = await userService.addDeviceToken(user, req.body);
-    return res.status(httpStatus.OK).send({ results: { user: updatedUser, tokens } });
+    updatedUser = await userService.addDeviceToken(user, req.body);
   }
 
-  await emailService.sendCongratulationEmail(user).catch(); // Optional email sending
+  // Send congratulation email
+  await emailService.sendCongratulationEmail(user);
+
+  // Create notification in DB
   const createNotificationForCongratulation = await Notification.create({
-    userId: user._id,
+    userId: updatedUser._id,
     body: EnumOfNotification.CONGRATULATION,
   });
 
-  if (user.deviceTokens && user.deviceTokens.length) {
-    const deviceTokens = user.deviceTokens.map((fcmToken) => fcmToken.deviceToken);
+  // Send push notification if user has device tokens
+  if (updatedUser.deviceTokens && updatedUser.deviceTokens.length) {
+    const deviceTokens = updatedUser.deviceTokens.map((fcmToken) => fcmToken.deviceToken);
+
     await sendNotification(
       deviceTokens,
       {
@@ -287,7 +293,7 @@ export const verifyOtp = catchAsync(async (req, res) => {
     );
   }
 
-  res.status(httpStatus.OK).send({ results: { user, tokens } });
+  return res.status(httpStatus.OK).send({ results: { user: updatedUser, tokens } });
 });
 
 export const resetPasswordOtp = catchAsync(async (req, res) => {
