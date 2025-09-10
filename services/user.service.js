@@ -1630,37 +1630,7 @@ export async function getMatchUser(filter) {
                     { field: 'currentCountry', value: '$address.currentCountry', expected: '$userPartnerDetails.country' },
                     { field: 'currentState', value: '$address.state', expected: '$userPartnerDetails.state' },
                     { field: 'currentCity', value: '$address.currentCity', expected: '$userPartnerDetails.city' },
-                    {
-                      field: 'diet',
-                      value: {
-                        $cond: [
-                          {
-                            $and: [
-                              { $isArray: userPartnerPreferences.diet },
-                              { $eq: [{ $type: { $arrayElemAt: [userPartnerPreferences.diet, 0] } }, 'array'] },
-                            ],
-                          },
-                          { $arrayElemAt: [userPartnerPreferences.diet, 0] },
-                          {
-                            $cond: [{ $isArray: userPartnerPreferences.diet }, userPartnerPreferences.diet, []],
-                          },
-                        ],
-                      },
-                      expected: {
-                        $cond: [
-                          {
-                            $and: [
-                              { $isArray: '$userPartnerDetails.diet' },
-                              { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.diet', 0] } }, 'array'] },
-                            ],
-                          },
-                          { $arrayElemAt: ['$userPartnerDetails.diet', 0] },
-                          {
-                            $cond: [{ $isArray: '$userPartnerDetails.diet' }, '$userPartnerDetails.diet', []],
-                          },
-                        ],
-                      },
-                    },
+                    { field: 'diet', value: '$diet', expected: '$userPartnerDetails.diet' },
                     { field: 'hobbies', value: '$hobbies', expected: '$userPartnerDetails.hobbies' },
                   ],
                   as: 'item',
