@@ -426,6 +426,13 @@ export async function getshortListforMobile(filter, options = {}) {
     {
       $match: {
         userId: mongoose.Types.ObjectId(filter.userId), // find the current user
+        profileHideAndDelete: {
+          $not: {
+            $elemMatch: {
+              $or: [{ isProfileHide: true }, { isProfileDelete: true }],
+            },
+          },
+        },
       },
     },
     {
@@ -468,6 +475,21 @@ export async function getshortListforMobile(filter, options = {}) {
       $unwind: {
         path: '$user',
         preserveNullAndEmptyArrays: true, // Include users with no matching friends
+      },
+    },
+    {
+      $match: {
+        // 1. Ensure the looked-up user actually exists
+        'user._id': { $exists: true },
+
+        // 2. Filter out users that are hidden or deleted in a simpler way
+        'user.profileHideAndDelete': {
+          $not: {
+            $elemMatch: {
+              $or: [{ isProfileHide: true }, { isProfileDelete: true }],
+            },
+          },
+        },
       },
     },
     // {
