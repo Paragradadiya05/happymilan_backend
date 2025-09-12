@@ -109,18 +109,17 @@ export async function getProfileViewertWithPagination(filter, options = {}) {
     },
     {
       $match: {
-        $or: [
-          { 'user.profileHideAndDelete': { $exists: false } },
-          {
-            'user.profileHideAndDelete': {
-              $not: {
-                $elemMatch: {
-                  $or: [{ isProfileHide: true }, { isProfileDelete: true }],
-                },
-              },
+        // 1. Ensure the looked-up user actually exists
+        'user._id': { $exists: true },
+
+        // 2. Filter out users that are hidden or deleted in a simpler way
+        'user.profileHideAndDelete': {
+          $not: {
+            $elemMatch: {
+              $or: [{ isProfileHide: true }, { isProfileDelete: true }],
             },
           },
-        ],
+        },
       },
     },
     {
