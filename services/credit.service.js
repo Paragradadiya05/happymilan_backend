@@ -81,7 +81,7 @@ export const deductCredits = async ({ userId, amount, reason, planId = null, not
   }
 
   // Check if user has sufficient credits
-  const hasEnoughCredits = await hasSufficientCredits(userId, amount);
+  const hasEnoughCredits = hasSufficientCredits(userId, amount);
   if (!hasEnoughCredits) {
     throw new ApiError(400, `Insufficient credits. Required: ${amount}`);
   }
