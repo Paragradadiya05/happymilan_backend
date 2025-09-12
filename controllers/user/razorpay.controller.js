@@ -146,7 +146,7 @@ export const complete = catchAsync(async (req, res) => {
       console.error('❌ Failed to send confirmation email:', error);
     }
     // update user plan here
-    console.log('=====redirect====>', `${config.frontendUrl}${config.paymentPath}`);
+    // console.log('=====redirect====>', `${config.frontendUrl}${config.paymentPath}`);
     res.status(httpStatus.OK).json({
       success: true,
       message: 'Payment captured successfully',
