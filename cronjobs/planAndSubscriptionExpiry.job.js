@@ -41,20 +41,30 @@ const expireUserPlans = async () => {
  */
 const expireSubscriptions = async () => {
   try {
-    logger.info('Starting subscription expiry process...');
-
     const now = new Date();
+    logger.info('🚀 Starting subscription expiry process...');
+    logger.info(`📅 Current time: ${now.toISOString()}`);
 
     // Find active subscriptions with endDate < now
     const expiredSubs = await Subscription.find({
-      status: 'active',
-      endDate: { $lt: now },
+      status: 'ACTIVE',
     });
+    console.log('=====xx====>', expiredSubs);
+    logger.info(`🔍 Query -> status: 'active', endDate < ${now.toISOString()}`);
+    logger.info(`📊 Found ${expiredSubs.length} expired subscriptions`);
 
     if (expiredSubs.length === 0) {
-      logger.info('No subscriptions to expire');
+      logger.info('✅ No subscriptions to expire');
       return { processed: 0 };
     }
+
+    // Log first few expired subscription IDs for debug
+    logger.info(
+      `🆔 Expired subscription IDs: ${expiredSubs
+        .slice(0, 5)
+        .map((s) => s._id.toString())
+        .join(', ')}${expiredSubs.length > 5 ? ' ...' : ''}`
+    );
 
     // Update all expired subscriptions
     const updateResult = await Subscription.updateMany(
@@ -62,10 +72,11 @@ const expireSubscriptions = async () => {
       { $set: { status: 'inactive' } }
     );
 
-    logger.info(`Expired ${expiredSubs.length} subscriptions -> Updated: ${updateResult.modifiedCount}`);
+    logger.info(`⚡ Expired ${expiredSubs.length} subscriptions -> Updated: ${updateResult.modifiedCount}`);
+
     return { processed: expiredSubs.length, updated: updateResult.modifiedCount };
   } catch (error) {
-    logger.error('Error expiring subscriptions:', error);
+    logger.error('❌ Error expiring subscriptions:', error);
     throw error;
   }
 };
@@ -76,7 +87,7 @@ const expireSubscriptions = async () => {
 export const schedulePlanAndSubscriptionExpiryJob = () => {
   // Runs every day at 2:30 AM IST
   cron.schedule(
-    '30 2 * * *',
+    '* * * * *',
     async () => {
       try {
         await expireUserPlans();

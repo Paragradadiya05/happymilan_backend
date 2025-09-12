@@ -11,7 +11,7 @@ import jwt from 'jsonwebtoken';
 import config from 'config/config';
 import { catchAsync } from '../../utils/catchAsync';
 import ApiError from '../../utils/ApiError';
-import { EnumOfPlanDuration, EnumOfUserPlan } from '../../models/enum.model';
+import { EnumOfPlanDuration, EnumOfStatus, EnumOfUserPlan } from '../../models/enum.model';
 
 const razorpay = require('razorpay');
 
@@ -83,13 +83,17 @@ export const complete = catchAsync(async (req, res) => {
     if (!populatedPlan || !populatedPlan.planName) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Plan not found or planName missing');
     }
+    const { startDate, endDate } = calculateDates(paymentHistoryToken.data.planDuration);
     // 1. Create Subscription
     await subscriptionservice.createSubscription({
       user: req.user._id,
       selectedPlan: populatedPlan.planName,
+      startDate,
+      endDate,
+      status: EnumOfStatus.ACTIVE,
     });
     // todo :  make function for calculated date based on plan details.
-    const { startDate, endDate } = calculateDates(paymentHistoryToken.data.planDuration);
+
     await userPlanService.createUserPlan({
       userId: req.user._id,
       planId: getPaymentHistory.planId, // todo : update id here planId

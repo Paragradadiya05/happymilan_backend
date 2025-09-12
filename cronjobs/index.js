@@ -2,6 +2,7 @@
 import { scheduleBlurredImageCleanup } from './imageBlurCleanup.job';
 import { scheduleRedisCacheSync } from './redisCacheSync.job'; // Import the new job
 import { scheduleCreditExpiryJob } from './creditExpiry.job';
+import { schedulePlanAndSubscriptionExpiryJob } from './planAndSubscriptionExpiry.job';
 import { logger } from '../config/logger';
 
 /**
@@ -12,7 +13,7 @@ export const initCronJobs = () => {
   scheduleBlurredImageCleanup();
   scheduleRedisCacheSync(); // Initialize the new job
   scheduleCreditExpiryJob(); // Initialize credit expiry job
-
+  schedulePlanAndSubscriptionExpiryJob();
   // Add other scheduled tasks here as needed
 
   logger.info('All cron jobs initialized');
