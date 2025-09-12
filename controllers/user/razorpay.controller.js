@@ -147,23 +147,27 @@ export const complete = catchAsync(async (req, res) => {
     }
     // update user plan here
     console.log('=====redirect====>', `${config.frontendUrl}${config.paymentPath}`);
-    if (req.headers['x-client-type'] === 'mobile') {
-      return res.status(httpStatus.OK).json({
-        success: true,
-        message: 'Payment captured successfully',
-        data: {
-          paymentId: paymentDocument.id,
-          plan: populatedPlan.planName,
-          startDate,
-          endDate,
+    res.status(httpStatus.OK).json({
+      success: true,
+      message: 'Payment captured successfully',
+      data: {
+        paymentId: paymentDocument.id,
+        status: paymentDocument.status,
+        plan: populatedPlan.planName,
+        startDate,
+        endDate,
+        user: {
+          id: user._id,
+          email: user.email,
+          fullName: user.fullName,
         },
-      });
-    }
-    return res.redirect(`${config.frontendUrl}${config.paymentPath}`);
+      },
+    });
+  } else {
+    // todo : handle error here with help of fe side and also update payment
+    // Redirect to homepage if payment status is not captured
+    res.redirect('/'); // todo : throw error something went wrong
   }
-  // todo : handle error here with help of fe side and also update payment
-  // Redirect to homepage if payment status is not captured
-  res.redirect('/'); // todo : throw error something went wrong
 });
 
 export const createOrder = catchAsync(async (req, res) => {
