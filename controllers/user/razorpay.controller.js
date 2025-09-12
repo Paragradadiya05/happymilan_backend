@@ -146,23 +146,8 @@ export const complete = catchAsync(async (req, res) => {
       console.error('❌ Failed to send confirmation email:', error);
     }
     // update user plan here
-    // console.log('=====redirect====>', `${config.frontendUrl}${config.paymentPath}`);
-    res.status(httpStatus.OK).json({
-      success: true,
-      message: 'Payment captured successfully',
-      data: {
-        paymentId: paymentDocument.id,
-        status: paymentDocument.status,
-        plan: populatedPlan.planName,
-        startDate,
-        endDate,
-        user: {
-          id: user._id,
-          email: user.email,
-          fullName: user.fullName,
-        },
-      },
-    });
+    console.log('=====redirect====>', `${config.frontendUrl}${config.paymentPath}`);
+    res.redirect(`${config.frontendUrl}${config.paymentPath}`);
   } else {
     // todo : handle error here with help of fe side and also update payment
     // Redirect to homepage if payment status is not captured
