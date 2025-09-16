@@ -5,7 +5,7 @@ import { Notification, Token, User } from 'models';
 import { countryCodeService, emailService, tokenService, userService } from 'services';
 import { EnumCodeTypeOfCode, EnumOfNotification, EnumTypeOfToken } from 'models/enum.model';
 import bcrypt from 'bcryptjs';
-import { generateOtp } from 'utils/common';
+import { generateOtp, generateRandomId } from 'utils/common';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import Pusher from 'pusher';
 import jwt from 'jsonwebtoken';
@@ -185,6 +185,11 @@ export const refreshAuth = async (refreshToken) => {
 export const socialLogin = async (user) => {
   if (!user) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid SingIn');
+  }
+  if (!user.userUniqueId) {
+    // eslint-disable-next-line no-param-reassign
+    user.userUniqueId = generateRandomId();
+    await user.save();
   }
   return user;
 };
