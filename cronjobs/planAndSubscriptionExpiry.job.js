@@ -1,37 +1,39 @@
 import cron from 'node-cron';
 import { Subscription, UserPlan } from 'models';
 import { logger } from '../config/logger';
+import { subscriptionservice, userPlanService } from '../services';
 
 /**
  * Expire user plans when endDate is passed
  */
 const expireUserPlans = async () => {
   try {
-    logger.info('Starting user plan expiry process...');
+    logger.info('🚀 Starting user plan expiry process...');
 
-    const now = new Date();
+    // Filter: find active plans with endDate before now
+    const filter = {
+      status: 'active',
+      endDate: { $lt: new Date() },
+    };
 
-    // Find active plans with endDate < now
-    const expiredPlans = await UserPlan.find({
-      status: 'ACTIVE',
-      endDate: { $lt: now },
-    });
+    const expiredPlans = await userPlanService.getUserPlanList(filter);
 
-    if (expiredPlans.length === 0) {
-      logger.info('No user plans to expire');
+    if (!expiredPlans || expiredPlans.length === 0) {
+      logger.info('✅ No user plans to expire');
       return { processed: 0 };
     }
 
     // Update all expired plans
     const updateResult = await UserPlan.updateMany(
       { _id: { $in: expiredPlans.map((plan) => plan._id) } },
-      { $set: { status: 'INACTIVE' } }
+      { $set: { status: 'inactive' } }
     );
 
-    logger.info(`Expired ${expiredPlans.length} user plans -> Updated: ${updateResult.modifiedCount}`);
+    logger.info(`⚡ Expired ${expiredPlans.length} user plans -> Updated: ${updateResult.modifiedCount}`);
+
     return { processed: expiredPlans.length, updated: updateResult.modifiedCount };
   } catch (error) {
-    logger.error('Error expiring user plans:', error);
+    logger.error('❌ Error expiring user plans:', error);
     throw error;
   }
 };
@@ -41,32 +43,18 @@ const expireUserPlans = async () => {
  */
 const expireSubscriptions = async () => {
   try {
-    const now = new Date();
-    logger.info('🚀 Starting subscription expiry process...');
-    logger.info(`📅 Current time: ${now.toISOString()}`);
+    // filter: only active subscriptions with endDate < now
+    const filter = {
+      status: 'active',
+      endDate: { $lt: new Date() },
+    };
 
-    // Find active subscriptions with endDate < now
-    const expiredSubs = await Subscription.find({
-      status: 'ACTIVE',
-    });
-    console.log('=====xx====>', expiredSubs);
-    logger.info(`🔍 Query -> status: 'active', endDate < ${now.toISOString()}`);
-    logger.info(`📊 Found ${expiredSubs.length} expired subscriptions`);
-
-    if (expiredSubs.length === 0) {
+    const expiredSubs = await subscriptionservice.getSubscription(filter);
+    if (!expiredSubs || expiredSubs.length === 0) {
       logger.info('✅ No subscriptions to expire');
       return { processed: 0 };
     }
 
-    // Log first few expired subscription IDs for debug
-    logger.info(
-      `🆔 Expired subscription IDs: ${expiredSubs
-        .slice(0, 5)
-        .map((s) => s._id.toString())
-        .join(', ')}${expiredSubs.length > 5 ? ' ...' : ''}`
-    );
-
-    // Update all expired subscriptions
     const updateResult = await Subscription.updateMany(
       { _id: { $in: expiredSubs.map((sub) => sub._id) } },
       { $set: { status: 'inactive' } }
@@ -106,3 +94,5 @@ export const schedulePlanAndSubscriptionExpiryJob = () => {
 
 // Export individual functions for manual run if needed
 export { expireUserPlans, expireSubscriptions };
+
+// Run every minute

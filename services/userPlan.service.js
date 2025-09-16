@@ -16,13 +16,36 @@ export async function getOne(query, options = {}) {
 }
 
 export async function getUserPlanList(filter, options = {}) {
-  const test = await UserPlan.find(filter, options.projection, options);
+  const test = await UserPlan.find(filter, options.projection, options)
+    .populate('planId')
+    .populate('userId', 'name email appUsesType userUniqueId');
   return test;
 }
 
-export async function getUserPlanListWithPagination(filter, options = {}) {
-  const test = await UserPlan.paginate(filter, options);
-  return test;
+export async function getUserPlanListWithPagination(filter, options = {}, appUsesType) {
+  const queryOptions = {
+    ...options,
+    populate: [
+      { path: 'planId' },
+      {
+        path: 'userId',
+        select: 'name email appUsesType userUniqueId',
+        match: appUsesType && appUsesType !== 'all' ? { appUsesType } : {},
+      },
+    ],
+  };
+
+  const result = await UserPlan.paginate(filter, queryOptions);
+
+  // 🔥 Remove docs where userId = null
+  if (Array.isArray(result.docs)) {
+    result.docs = result.docs.filter((doc) => doc.userId !== null);
+    // also fix totalDocs & totalPages
+    result.totalDocs = result.docs.length;
+    result.totalPages = Math.ceil(result.totalDocs / (result.limit || 10));
+  }
+
+  return result;
 }
 
 export async function createUserPlan(body = {}) {

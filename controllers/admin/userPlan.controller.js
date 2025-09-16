@@ -136,3 +136,31 @@ export const downloadUserPlanReceipt = catchAsync(async (req, res) => {
   });
   res.end(pdfBuffer);
 });
+
+// controller
+export const listdata = catchAsync(async (req, res) => {
+  const { query, params } = req;
+
+  // build safe sort object
+  let sortObj = { createdAt: -1 }; // default sort
+  if (query.sort && query.order) {
+    sortObj = {
+      [query.sort]: query.order === 'asc' ? 1 : -1,
+    };
+  }
+
+  // pagination setup
+  const page = parseInt(query.page, 10) || 1;
+  const limit = parseInt(query.limit, 10) || 10;
+  const skip = (page - 1) * limit;
+
+  const filter = {}; // base filter for UserPlan
+
+  const address = await userPlanService.getUserPlanListWithPagination(
+    filter,
+    { page, limit, skip, sort: sortObj },
+    params.appUsesType
+  );
+
+  return res.status(httpStatus.OK).send({ results: address });
+});

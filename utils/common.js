@@ -9,14 +9,23 @@ export const asyncForEach = async (array, callback) => {
 };
 
 export function generateRandomId() {
-  // Current date string
-  const dateString = new Date().toISOString().slice(0, 10).replace(/-/g, '').slice(4, 8);
-  // Generate random characters
-  const randomChars = Array.from({ length: 4 }, () => Math.random().toString(36).charAt(2)).join('');
+  // Current date string (MMDD)
+  const dateString = new Date()
+      .toISOString()
+      .slice(0, 10)
+      .replace(/-/g, '')
+      .slice(4, 8);
+
+  // Generate random uppercase characters
+  const randomChars = Array.from({ length: 4 }, () =>
+      Math.random().toString(36).charAt(2).toUpperCase()
+  ).join('');
+
   // Combine date string and random characters
   const uniqueId = dateString + randomChars;
   return uniqueId;
 }
+
 
 /* eslint-enable */
 /**

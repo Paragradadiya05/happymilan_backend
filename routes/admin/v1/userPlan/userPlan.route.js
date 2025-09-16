@@ -15,4 +15,10 @@ router.get('/get-user-plan-list', auth(), UserPlanController.list);
  * get receipt
  * */
 router.get('/receipt', auth(), UserPlanController.downloadUserPlanReceipt);
+router
+  .route('/get-by-user-type/:appUsesType')
+  /**
+   * getUserRoleByID
+   * */
+  .get(auth(['super-admin', 'admin']), UserPlanController.listdata);
 module.exports = router;
