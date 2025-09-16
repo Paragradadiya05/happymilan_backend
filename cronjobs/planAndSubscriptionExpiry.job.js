@@ -75,7 +75,7 @@ const expireSubscriptions = async () => {
 export const schedulePlanAndSubscriptionExpiryJob = () => {
   // Runs every day at 2:30 AM IST
   cron.schedule(
-    '* * * * *',
+    '0 2 * * *',
     async () => {
       try {
         await expireUserPlans();
