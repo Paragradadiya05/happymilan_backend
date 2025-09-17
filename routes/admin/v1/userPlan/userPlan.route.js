@@ -1,6 +1,8 @@
 import express from 'express';
 import { UserPlanController } from 'controllers/admin';
 import auth from 'middlewares/auth';
+import validate from '../../../../middlewares/validate';
+import { userPlanValidation } from '../../../../validations/admin';
 
 const router = express();
 /**
@@ -20,5 +22,9 @@ router
   /**
    * getUserRoleByID
    * */
-  .get(auth(['super-admin', 'admin']), UserPlanController.listdata);
+  .get(
+    auth(['super-admin', 'admin']),
+    validate(userPlanValidation.getUserByappUsesType),
+    UserPlanController.listByAppUsesType
+  );
 module.exports = router;

@@ -137,30 +137,18 @@ export const downloadUserPlanReceipt = catchAsync(async (req, res) => {
   res.end(pdfBuffer);
 });
 
-// controller
-export const listdata = catchAsync(async (req, res) => {
-  const { query, params } = req;
+// In your controller file (e.g., userPlan.controller.js)
 
-  // build safe sort object
-  let sortObj = { createdAt: -1 }; // default sort
-  if (query.sort && query.order) {
-    sortObj = {
-      [query.sort]: query.order === 'asc' ? 1 : -1,
-    };
-  }
+export const listByAppUsesType = catchAsync(async (req, res) => {
+  const { appUsesType } = req.params;
 
-  // pagination setup
-  const page = parseInt(query.page, 10) || 1;
-  const limit = parseInt(query.limit, 10) || 10;
-  const skip = (page - 1) * limit;
+  // Get page and limit from the validated query
+  const options = {
+    page: req.query.page,
+    limit: req.query.limit,
+  };
 
-  const filter = {}; // base filter for UserPlan
-
-  const address = await userPlanService.getUserPlanListWithPagination(
-    filter,
-    { page, limit, skip, sort: sortObj },
-    params.appUsesType
-  );
-
-  return res.status(httpStatus.OK).send({ results: address });
+  const result = await userPlanService.getUserPlanListByAppUsesType(appUsesType, options);
+  // The service now returns a full pagination object
+  return res.status(httpStatus.OK).json(result);
 });
