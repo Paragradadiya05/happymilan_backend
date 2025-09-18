@@ -426,13 +426,6 @@ export async function getshortListforMobile(filter, options = {}) {
     {
       $match: {
         userId: mongoose.Types.ObjectId(filter.userId), // find the current user
-        profileHideAndDelete: {
-          $not: {
-            $elemMatch: {
-              $or: [{ isProfileHide: true }, { isProfileDelete: true }],
-            },
-          },
-        },
       },
     },
     {
