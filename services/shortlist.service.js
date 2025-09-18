@@ -85,22 +85,22 @@ export async function getshortListWithPagination(filter, options = {}) {
         preserveNullAndEmptyArrays: true, // Include users with no matching friends
       },
     },
-    // {
-    //   $match: {
-    //     $or: [
-    //       { 'user.profileHideAndDelete': { $exists: false } },
-    //       {
-    //         'user.profileHideAndDelete': {
-    //           $not: {
-    //             $elemMatch: {
-    //               $or: [{ isProfileHide: true }, { isProfileDelete: true }],
-    //             },
-    //           },
-    //         },
-    //       },
-    //     ],
-    //   },
-    // },
+    {
+      $match: {
+        $or: [
+          { 'user.profileHideAndDelete': { $exists: false } },
+          {
+            'user.profileHideAndDelete': {
+              $not: {
+                $elemMatch: {
+                  $or: [{ isProfileHide: true }, { isProfileDelete: true }],
+                },
+              },
+            },
+          },
+        ],
+      },
+    },
     {
       $lookup: {
         from: 'Subscription',
@@ -426,6 +426,13 @@ export async function getshortListforMobile(filter, options = {}) {
     {
       $match: {
         userId: mongoose.Types.ObjectId(filter.userId), // find the current user
+        profileHideAndDelete: {
+          $not: {
+            $elemMatch: {
+              $or: [{ isProfileHide: true }, { isProfileDelete: true }],
+            },
+          },
+        },
       },
     },
     {
