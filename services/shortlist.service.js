@@ -85,22 +85,22 @@ export async function getshortListWithPagination(filter, options = {}) {
         preserveNullAndEmptyArrays: true, // Include users with no matching friends
       },
     },
-    {
-      $match: {
-        $or: [
-          { 'user.profileHideAndDelete': { $exists: false } },
-          {
-            'user.profileHideAndDelete': {
-              $not: {
-                $elemMatch: {
-                  $or: [{ isProfileHide: true }, { isProfileDelete: true }],
-                },
-              },
-            },
-          },
-        ],
-      },
-    },
+    // {
+    //   $match: {
+    //     $or: [
+    //       { 'user.profileHideAndDelete': { $exists: false } },
+    //       {
+    //         'user.profileHideAndDelete': {
+    //           $not: {
+    //             $elemMatch: {
+    //               $or: [{ isProfileHide: true }, { isProfileDelete: true }],
+    //             },
+    //           },
+    //         },
+    //       },
+    //     ],
+    //   },
+    // },
     {
       $lookup: {
         from: 'Subscription',
