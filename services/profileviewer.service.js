@@ -107,21 +107,21 @@ export async function getProfileViewertWithPagination(filter, options = {}) {
         preserveNullAndEmptyArrays: true, // Include users with no matching friends
       },
     },
-    // {
-    //   $match: {
-    //     // 1. Ensure the looked-up user actually exists
-    //     'user._id': { $exists: true },
-    //
-    //     // 2. Filter out users that are hidden or deleted in a simpler way
-    //     'user.profileHideAndDelete': {
-    //       $not: {
-    //         $elemMatch: {
-    //           $or: [{ isProfileHide: true }, { isProfileDelete: true }],
-    //         },
-    //       },
-    //     },
-    //   },
-    // },
+    {
+      $match: {
+        // 1. Ensure the looked-up user actually exists
+        'user._id': { $exists: true },
+
+        // 2. Filter out users that are hidden or deleted in a simpler way
+        'user.profileHideAndDelete': {
+          $not: {
+            $elemMatch: {
+              $or: [{ isProfileHide: true }, { isProfileDelete: true }],
+            },
+          },
+        },
+      },
+    },
     {
       $lookup: {
         from: 'Subscription', // Ensure this matches the subscription collection name
