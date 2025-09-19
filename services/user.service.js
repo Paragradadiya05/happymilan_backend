@@ -535,44 +535,60 @@ export async function updateUser(filter, body, options = {}) {
 }
 
 export async function updateUserForAuth(filter, body, options = {}, user) {
+  // Use standard checks instead of optional chaining to avoid potential ESLint parsing issues
   const oldPrivacyValue = user.privacySettingCustom && user.privacySettingCustom.profilePhotoPrivacy;
   const newPrivacyValue = body.privacySettingCustom && body.privacySettingCustom.profilePhotoPrivacy;
-  const profilePicUrl = user.profilePic;
+  const profilePicUrl = user.profilePic; // Get profile pic URL from state before update
 
-  // Check for duplicate email
+  // --- Check email uniqueness ---
   if (body.email && (await User.findOne({ email: body.email, _id: { $ne: user._id } }))) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
   }
 
-  // Hash password if updated
+  // --- Hash password if provided ---
   if (body && body.password) {
     // eslint-disable-next-line no-param-reassign
     body.password = await bcrypt.hash(body.password, 10);
   }
 
-  // ✅ Use findOneAndUpdate instead of updateOne
-  const updatedUser = await User.findOneAndUpdate(
-    filter,
-    { $set: body },
-    {
-      new: true,
-      upsert: false, // don’t auto-create new docs here unless you really need it
-      ...options,
+  // --- Merge datingData instead of overwriting ---
+  if (body.datingData) {
+    const userFromDb = await User.findOne(filter);
+
+    if (userFromDb.datingData.length) {
+      const mergedDatingData = userFromDb.datingData.map((oldItem, index) => {
+        const newItem = body.datingData[index] || {};
+        return { ...oldItem, ...newItem }; // handle Mongoose subdocs
+      });
+
+      // If new items are added beyond the current array length
+      if (body.datingData.length > userFromDb.datingData.length) {
+        const extraItems = body.datingData.slice(userFromDb.datingData.length);
+        mergedDatingData.push(...extraItems);
+      }
+
+      // eslint-disable-next-line no-param-reassign
+      body.datingData = mergedDatingData;
     }
-  )
+  }
+
+  // --- Update user ---
+  await User.updateOne(filter, body, options)
     .populate('address')
     .populate('userEducation')
-    .populate('userPartner') // ⚠️ case fixed (not `UserPartner`)
+    .populate('UserPartner')
     .populate('userProfessional');
 
-  // Handle profile photo privacy change
+  // --- Handle profile photo privacy change ---
   if (profilePicUrl && typeof newPrivacyValue === 'boolean' && newPrivacyValue !== oldPrivacyValue) {
     if (newPrivacyValue === true) {
+      // Privacy enabled: Pre-generate blurred image (fire-and-forget, log errors)
       console.log(`User ${user._id} enabled profile photo privacy. Generating blurred image for ${profilePicUrl}...`);
       imageBlurService.blurImage(profilePicUrl).catch((err) => {
         console.error(`Error pre-generating blurred image for user ${user._id} (URL: ${profilePicUrl}):`, err);
       });
     } else {
+      // Privacy disabled: Delete existing blurred image (fire-and-forget, log errors)
       console.log(`User ${user._id} disabled profile photo privacy. Deleting blurred image for ${profilePicUrl}...`);
       imageBlurService.deleteBlurredImageForOriginal(profilePicUrl).catch((err) => {
         console.error(`Error deleting blurred image for user ${user._id} (URL: ${profilePicUrl}):`, err);
@@ -580,8 +596,9 @@ export async function updateUserForAuth(filter, body, options = {}, user) {
     }
   }
 
-  return updatedUser;
+  return getOne(filter);
 }
+
 export async function updateManyUser(filter, body, options = {}) {
   const user = await User.updateMany(filter, body, options);
   return user;
