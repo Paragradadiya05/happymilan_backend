@@ -553,15 +553,14 @@ export async function updateUserForAuth(filter, body, options = {}, user) {
 
   // --- Merge datingData instead of overwriting ---
   if (body.datingData) {
-    const userFromDb = await User.findOne(filter);
+    const userFromDb = await User.findOne(filter).lean(); // <-- returns plain objects
 
     if (userFromDb.datingData.length) {
       const mergedDatingData = userFromDb.datingData.map((oldItem, index) => {
         const newItem = body.datingData[index] || {};
-        return { ...oldItem, ...newItem }; // handle Mongoose subdocs
+        return { ...oldItem, ...newItem }; // no .toObject() needed
       });
 
-      // If new items are added beyond the current array length
       if (body.datingData.length > userFromDb.datingData.length) {
         const extraItems = body.datingData.slice(userFromDb.datingData.length);
         mergedDatingData.push(...extraItems);
