@@ -333,33 +333,6 @@ export const updateUserInfo = catchAsync(async (req, res) => {
   const filter = { _id: req.user._id };
   const { body } = req;
 
-  // if (body.profileHideAndDelete) {
-  //   if (body.profileHideAndDelete.isProfileHide && !body.profileHideAndDelete.timeForProfileHide) {
-  //     const sixMonthsLater = new Date();
-  //     body.profileHideAndDelete.timeForProfileHide = sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
-  //   } else if (body.profileHideAndDelete.isProfileHide && body.profileHideAndDelete.timeForProfileHide) {
-  //     if (body.profileHideAndDelete.timeForProfileHide === EnumForTimeDurationOfProfileHide.ONE_MONTH) {
-  //       const oneMonthsLater = new Date();
-  //       body.profileHideAndDelete.timeForProfileHide = oneMonthsLater.setMonth(oneMonthsLater.getMonth() + 1);
-  //     }
-  //     if (body.profileHideAndDelete.timeForProfileHide === EnumForTimeDurationOfProfileHide.THREE_MONTH) {
-  //       const threeMonthsLater = new Date();
-  //       body.profileHideAndDelete.timeForProfileHide = threeMonthsLater.setMonth(threeMonthsLater.getMonth() + 3);
-  //     }
-  //     if (body.profileHideAndDelete.timeForProfileHide === EnumForTimeDurationOfProfileHide.SIX_MONTH) {
-  //       const sixMonthsLater = new Date();
-  //       body.profileHideAndDelete.timeForProfileHide = sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
-  //     }
-  //     if (body.profileHideAndDelete.timeForProfileHide === EnumForTimeDurationOfProfileHide.ONE_WEEK) {
-  //       const oneWeekLater = new Date();
-  //       body.profileHideAndDelete.timeForProfileHide = oneWeekLater.setDate(oneWeekLater.getDate() + 7);
-  //     }
-  //     if (body.profileHideAndDelete.timeForProfileHide === EnumForTimeDurationOfProfileHide.TWO_WEEK) {
-  //       const twoWeekLater = new Date();
-  //       body.profileHideAndDelete.timeForProfileHide = twoWeekLater.setDate(twoWeekLater.getDate() + 14);
-  //     }
-  //   }
-  // }
   const userData = await userService.updateUserForAuth(
     filter,
     body,

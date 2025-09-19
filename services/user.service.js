@@ -535,36 +535,44 @@ export async function updateUser(filter, body, options = {}) {
 }
 
 export async function updateUserForAuth(filter, body, options = {}, user) {
-  // Use standard checks instead of optional chaining to avoid potential ESLint parsing issues
   const oldPrivacyValue = user.privacySettingCustom && user.privacySettingCustom.profilePhotoPrivacy;
   const newPrivacyValue = body.privacySettingCustom && body.privacySettingCustom.profilePhotoPrivacy;
-  const profilePicUrl = user.profilePic; // Get profile pic URL from state before update
+  const profilePicUrl = user.profilePic;
 
+  // Check for duplicate email
   if (body.email && (await User.findOne({ email: body.email, _id: { $ne: user._id } }))) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
   }
 
+  // Hash password if updated
   if (body && body.password) {
     // eslint-disable-next-line no-param-reassign
     body.password = await bcrypt.hash(body.password, 10);
   }
 
-  await User.updateOne(filter, body, options)
+  // ✅ Use findOneAndUpdate instead of updateOne
+  const updatedUser = await User.findOneAndUpdate(
+    filter,
+    { $set: body },
+    {
+      new: true,
+      upsert: false, // don’t auto-create new docs here unless you really need it
+      ...options,
+    }
+  )
     .populate('address')
     .populate('userEducation')
-    .populate('UserPartner')
+    .populate('userPartner') // ⚠️ case fixed (not `UserPartner`)
     .populate('userProfessional');
 
-  // --- Handle profile photo privacy change ---
+  // Handle profile photo privacy change
   if (profilePicUrl && typeof newPrivacyValue === 'boolean' && newPrivacyValue !== oldPrivacyValue) {
     if (newPrivacyValue === true) {
-      // Privacy enabled: Pre-generate blurred image (fire-and-forget, log errors)
       console.log(`User ${user._id} enabled profile photo privacy. Generating blurred image for ${profilePicUrl}...`);
       imageBlurService.blurImage(profilePicUrl).catch((err) => {
         console.error(`Error pre-generating blurred image for user ${user._id} (URL: ${profilePicUrl}):`, err);
       });
     } else {
-      // Privacy disabled: Delete existing blurred image (fire-and-forget, log errors)
       console.log(`User ${user._id} disabled profile photo privacy. Deleting blurred image for ${profilePicUrl}...`);
       imageBlurService.deleteBlurredImageForOriginal(profilePicUrl).catch((err) => {
         console.error(`Error deleting blurred image for user ${user._id} (URL: ${profilePicUrl}):`, err);
@@ -572,9 +580,8 @@ export async function updateUserForAuth(filter, body, options = {}, user) {
     }
   }
 
-  return getOne(filter);
+  return updatedUser;
 }
-
 export async function updateManyUser(filter, body, options = {}) {
   const user = await User.updateMany(filter, body, options);
   return user;
