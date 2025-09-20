@@ -479,20 +479,13 @@ export const getUserByGenderAndAgeAndMatchDating = catchAsync(async (req, res) =
 
   const userData = await userService.getDatingPartnerListByAgeAndMatch(filter, ageRange, options);
 
-  /**
-   * Image Privacy Feature:
-   * This endpoint applies the same privacy protection as other user listing APIs
-   * For users with profilePhotoPrivacy=true in their settings:
-   * 1. Dynamic blurring of profile images using Sharp library
-   * 2. Efficient caching of blurred images in S3 with deterministic keys
-   * 3. Three-tiered caching (memory → database → S3) for optimal performance
-   * 4. Automatic cleanup via daily cron job at 4 AM (cronjobs/imageBlurCleanup.job.js)
-   * 5. Promise.all for concurrent image processing to minimize response time
-   */
   if (userData[0] && userData[0].paginatedResults) {
     const processPromises = userData[0].paginatedResults.map(async (userItem) => {
       const privacy = userItem.privacySettingCustom || {};
-      const friendsStatus = userItem.friendsDetails.status;
+
+      // ✅ Always safe: handle missing friendsDetails gracefully
+      const friendsStatus =
+        userItem && userItem.friendsDetails && userItem.friendsDetails.status ? userItem.friendsDetails.status : null;
 
       const shouldBlurImage =
         privacy.profilePhotoPrivacy === true || (privacy.showPhotoToFriendsOnly === true && friendsStatus !== 'accepted');
@@ -620,10 +613,14 @@ export const searchUser = catchAsync(async (req, res) => {
   };
 
   const userData = await userService.getFilteredDatingEthnicityList(filter, options);
+
   if (userData[0] && userData[0].paginatedResults) {
     const processPromises = userData[0].paginatedResults.map(async (userItem) => {
       const privacy = userItem.privacySettingCustom || {};
-      const friendsStatus = userItem.friendsDetails.status;
+
+      // ✅ Safe check for friendsDetails
+      const friendsStatus =
+        userItem && userItem.friendsDetails && userItem.friendsDetails.status ? userItem.friendsDetails.status : null;
 
       const shouldBlurImage =
         privacy.profilePhotoPrivacy === true || (privacy.showPhotoToFriendsOnly === true && friendsStatus !== 'accepted');
@@ -663,6 +660,7 @@ export const searchUser = catchAsync(async (req, res) => {
 
     userData[0].paginatedResults = await Promise.all(processPromises);
   }
+
   return res.status(httpStatus.OK).send({ results: userData });
 });
 export const getprimeuser = catchAsync(async (req, res) => {
