@@ -375,16 +375,16 @@ export const sendVerifyOtp = catchAsync(async (req, res) => {
   await user.save();
 
   // Handle mobile-based OTP
-  if (user.mobileNumber) {
+  if (mobileNumber) {
     const userCountryCode = await countryCodeService.getCountryCodeById(countryCodeId);
-    if (!userCountryCode && mobileNumber) {
+    if (!userCountryCode) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Please provide countryCode while using registration with Mobile number.');
     }
 
     try {
       await resendOtpToMobile(`${userCountryCode.code}${user.mobileNumber}`, otp);
       console.log('OTP resent to mobile');
-      res.status(httpStatus.OK).send({
+      return res.status(httpStatus.OK).send({
         results: {
           success: true,
           message: 'OTP has been resent to your mobile number. Please verify.',
@@ -396,12 +396,12 @@ export const sendVerifyOtp = catchAsync(async (req, res) => {
         message: 'Error resending OTP to mobile',
       });
     }
-  } else if (user.email) {
+  } else if (email) {
     // Handle email-based OTP
     try {
       await emailService.sendOtpVerificationEmail(user, otp);
       console.log('OTP sent to email');
-      res.status(httpStatus.OK).send({
+      return res.status(httpStatus.OK).send({
         results: {
           success: true,
           message: 'OTP has been resent to your registered email. Please verify.',
@@ -413,8 +413,6 @@ export const sendVerifyOtp = catchAsync(async (req, res) => {
         message: 'Error sending OTP to email',
       });
     }
-  } else {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Either email or mobile number must be provided.');
   }
 });
 
