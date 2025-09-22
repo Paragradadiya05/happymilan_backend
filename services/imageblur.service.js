@@ -131,7 +131,7 @@ const checkIfBlurredImageExists = async (key) => {
  * @param {number} blurAmount - Blur intensity (1-100)
  * @returns {Promise<string>} - URL of the blurred image
  */
-export const blurImage = async (originalUrl, blurAmount = 25) => {
+export const blurImage = async (originalUrl, blurAmount = 35) => {
   // Check Redis cache first
   const redisKey = REDIS_CACHE_PREFIX + originalUrl;
   try {
