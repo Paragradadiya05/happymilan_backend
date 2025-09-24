@@ -66,9 +66,9 @@ export const getDatingUser = catchAsync(async (req, res) => {
   if (userData && userData.length > 0) {
     const userItem = userData[0];
     const privacy = userItem.privacySettingCustom || {};
-    const friendsStatus = userItem.friendsDetails.status;
+    const friendsArray = userItem.friendsDetails || [];
 
-    const isFriendAccepted = friendsStatus === 'accepted';
+    const isFriendAccepted = friendsArray.some((friend) => friend.status === 'accepted');
 
     const shouldBlurImage =
       (privacy.profilePhotoPrivacy === true && !isFriendAccepted) ||
