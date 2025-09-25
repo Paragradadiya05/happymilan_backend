@@ -3085,7 +3085,7 @@ export async function getFilteredDatingInterestList(filter, options = {}) {
           { friendsDetails: { $exists: false } },
           {
             'friendsDetails.status': {
-              $nin: [EnumStatusOfFriend.REQUESTED, EnumStatusOfFriend.ACCEPTED, EnumStatusOfFriend.BLOCKED],
+              $nin: [EnumStatusOfFriend.ACCEPTED, EnumStatusOfFriend.BLOCKED],
             },
           },
         ],
