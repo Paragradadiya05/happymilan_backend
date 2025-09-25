@@ -2505,7 +2505,7 @@ export async function getDatingPartnerListByAgeAndMatch(filter, ageRange, option
           { friendsDetails: { $exists: false } },
           {
             'friendsDetails.status': {
-              $nin: [EnumStatusOfFriend.REQUESTED, EnumStatusOfFriend.ACCEPTED, EnumStatusOfFriend.BLOCKED],
+              $nin: [EnumStatusOfFriend.ACCEPTED, EnumStatusOfFriend.BLOCKED],
             },
           },
         ],
