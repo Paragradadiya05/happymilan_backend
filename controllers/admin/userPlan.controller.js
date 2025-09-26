@@ -35,7 +35,7 @@ export const list = catchAsync(async (req, res) => {
 });
 
 export const downloadUserPlanReceipt = catchAsync(async (req, res) => {
-  const userId = req.user._id;
+  const { userId } = req.params;
 
   // Fetch user plan
   const userPlan = await userPlanService.getOne({ userId });

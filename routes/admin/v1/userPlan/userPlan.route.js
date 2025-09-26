@@ -16,7 +16,7 @@ router.get('/get-user-plan-list', auth(), UserPlanController.list);
 /**
  * get receipt
  * */
-router.get('/receipt', auth(), UserPlanController.downloadUserPlanReceipt);
+router.get('/receipt/:userId', auth(), UserPlanController.downloadUserPlanReceipt);
 router
   .route('/get-by-user-type/:appUsesType')
   /**
