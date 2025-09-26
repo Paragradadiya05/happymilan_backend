@@ -51,10 +51,22 @@ export const getCancelPlanList = catchAsync(async (req, res) => {
     limit: parseInt(req.query.limit, 10) || 10,
     sort: { createdAt: -1 },
     populate: [{ path: 'userPlanId' }, { path: 'planId' }],
+    lean: true, // gives plain JS objects instead of mongoose docs
   };
 
-  const cancelPlans = await cancelPlanService.getCancelPlanPaginete({}, options);
-  res.send(cancelPlans);
+  const result = await cancelPlanService.getCancelPlanPaginete({}, options);
+
+  res.send({
+    data: result.docs,
+    page: result.page,
+    limit: result.limit,
+    totalPages: result.totalPages,
+    totalDocs: result.totalDocs,
+    hasNextPage: result.hasNextPage,
+    hasPrevPage: result.hasPrevPage,
+    nextPage: result.nextPage,
+    prevPage: result.prevPage,
+  });
 });
 
 export const getCancelPlanByUser = catchAsync(async (req, res) => {
