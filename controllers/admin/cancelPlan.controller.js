@@ -57,15 +57,7 @@ export const getCancelPlanList = catchAsync(async (req, res) => {
   const result = await cancelPlanService.getCancelPlanPaginete({}, options);
 
   res.send({
-    data: result.docs,
-    page: result.page,
-    limit: result.limit,
-    totalPages: result.totalPages,
-    totalDocs: result.totalDocs,
-    hasNextPage: result.hasNextPage,
-    hasPrevPage: result.hasPrevPage,
-    nextPage: result.nextPage,
-    prevPage: result.prevPage,
+    data: result,
   });
 });
 
