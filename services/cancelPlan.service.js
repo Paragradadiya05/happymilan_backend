@@ -24,3 +24,8 @@ export async function getOneCancelPlan(query, options = {}) {
   const CancelPlan = await cancelPlan.findOne(query, options.projection, options).populate('userPlanId').populate('planId');
   return CancelPlan;
 }
+
+export async function getCancelPlanPaginete(filter, options = {}) {
+  const CancelPlans = await cancelPlan.paginate(filter, options);
+  return CancelPlans;
+}

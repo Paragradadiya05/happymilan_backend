@@ -46,7 +46,14 @@ export const deleteCancelPlan = catchAsync(async (req, res) => {
 });
 
 export const getCancelPlanList = catchAsync(async (req, res) => {
-  const cancelPlans = await cancelPlanService.getCancelPlanList({});
+  const options = {
+    page: parseInt(req.query.page, 10) || 1,
+    limit: parseInt(req.query.limit, 10) || 10,
+    sort: { createdAt: -1 },
+    populate: [{ path: 'userPlanId' }, { path: 'planId' }],
+  };
+
+  const cancelPlans = await cancelPlanService.getCancelPlanPaginete({}, options);
   res.send(cancelPlans);
 });
 
