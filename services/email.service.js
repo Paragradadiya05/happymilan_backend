@@ -1964,7 +1964,7 @@ export const sendKycApprovedEmail = async (user) => {
             <div id="content-div-width">
                 <div id="content-div" >
                 <div id="logo-div">
-            <img id="logo-img" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/hapmeetlogo/68da817300d1d0d47d48e8fa/logo.svg"/>
+            <img id="logo-img" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/hapmeetlogo/68da85a84e96f5d8bc5620bb/hapmeetlogo.png"/>
 </div>
 <div id="content">
     <h1 id="text-2">Dear ${firstName || 'User'}</h1>
@@ -2249,13 +2249,12 @@ export const sendKycRejectedEmail = async (user, reason) => {
             <div id="content-div-width">
                 <div id="content-div" >
                 <div id="logo-div">
-            <img id="logo-img" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/hapmeetlogo/68da817300d1d0d47d48e8fa/logo.svg"/>
+            <img id="logo-img" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/hapmeetlogo/68da85a84e96f5d8bc5620bb/hapmeetlogo.png"/>
 </div>
 <div id="content">
     <h1 id="text-2">Dear ${firstName || 'User'}</h1>
     <h1 id="text-2"><p>
         Reason: <strong>${reason || 'Not specified'}</strong></p></h1>
-    <h1 id="otp-text">Your account is now verified and fully active. </h1>
     <h1 id="text-2">Please re-upload a valid document via your dashboard.For help, contact support. </h1>
 </div>
 <div id="content">
