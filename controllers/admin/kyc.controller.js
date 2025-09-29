@@ -2,6 +2,7 @@ import httpStatus from 'http-status';
 import { KycService, userService } from 'services';
 import { catchAsync } from 'utils/catchAsync';
 import { pick } from '../../utils/pick';
+import { sendKycApprovedEmail, sendKycRejectedEmail } from '../../services/email.service';
 
 export const get = catchAsync(async (req, res) => {
   const { KycId } = req.params;
@@ -86,7 +87,12 @@ export const update = catchAsync(async (req, res) => {
   // ✅ Perform the update
   const options = { new: true };
   const updatedKyc = await KycService.updatekyc(filter, body, options);
-
+  const userData = await userService.getOne({ _id: updatedKyc.userId });
+  if (updatedKyc.verify === true) {
+    await sendKycApprovedEmail(userData);
+  } else if (updatedKyc.isDocRejected === true) {
+    await sendKycRejectedEmail(userData, updatedKyc.rejectReason);
+  }
   return res.status(httpStatus.OK).send({ results: updatedKyc });
 });
 

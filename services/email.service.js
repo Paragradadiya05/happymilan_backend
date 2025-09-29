@@ -1733,3 +1733,118 @@ export const sendPlanConfirmationEmail = async (user) => {
 
   await sendEmail({ to, subject, text, isHtml: true });
 };
+
+export const sendKycApprovedEmail = async (user) => {
+  const { email: to, firstName } = user;
+  console.log(`Sending KYC approved email to: ${to}`);
+  const subject = 'KYC Approved!';
+  const currentDate = new Date();
+  const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+  const formattedDate = currentDate.toLocaleDateString('en-US', options);
+
+  const text = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KYC Approved</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f0f4f9; margin: 0; padding: 0; }
+    .container { width: 100%; display: flex; justify-content: center; align-items: center; }
+    .content { background: #fff; border-radius: 12px; padding: 30px; max-width: 600px; margin: 40px auto; }
+    .header { display: flex; justify-content: space-between; align-items: center; }
+    .logo { width: 150px; height: auto; }
+    .date { font-size: 12px; color: #888; }
+    h1 { font-size: 20px; margin-top: 20px; color: #333; }
+    p { font-size: 14px; color: #555; line-height: 1.6; }
+    .footer { font-size: 10px; text-align: center; margin-top: 20px; color: #888; }
+    .highlight { color: #0F52BA; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="content">
+      <div class="header">
+        <img class="logo" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/users/65e991ad15835e46f0861b8b/65eff3406145b642700c32ba/logo.jpg" alt="logo"/>
+        <span class="date">${formattedDate}</span>
+      </div>
+      <h1>Hi ${firstName || 'User'},</h1>
+      <p>
+        We are pleased to inform you that your <span class="highlight">KYC verification has been approved.</span>
+      </p>
+      <p>
+        You can now enjoy full access to our services. Thank you for completing your verification.
+      </p>
+      <div class="footer">
+        © ${new Date().getFullYear()} HappyMilan - All rights reserved.
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+`;
+
+  await sendEmail({ to, subject, text, isHtml: true })
+    .then(() => logger.info('KYC approval email sent successfully'))
+    .catch((error) => logger.warn(`Unable to send KYC approval email: ${error}`));
+};
+
+export const sendKycRejectedEmail = async (user, reason) => {
+  const { email: to, firstName } = user;
+  console.log(`Sending KYC rejected email to: ${to}`);
+  const subject = 'KYC Rejected';
+  const currentDate = new Date();
+  const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+  const formattedDate = currentDate.toLocaleDateString('en-US', options);
+
+  const text = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KYC Rejected</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f0f4f9; margin: 0; padding: 0; }
+    .container { width: 100%; display: flex; justify-content: center; align-items: center; }
+    .content { background: #fff; border-radius: 12px; padding: 30px; max-width: 600px; margin: 40px auto; }
+    .header { display: flex; justify-content: space-between; align-items: center; }
+    .logo { width: 150px; height: auto; }
+    .date { font-size: 12px; color: #888; }
+    h1 { font-size: 20px; margin-top: 20px; color: #333; }
+    p { font-size: 14px; color: #555; line-height: 1.6; }
+    .footer { font-size: 10px; text-align: center; margin-top: 20px; color: #888; }
+    .highlight { color: #e63946; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="content">
+      <div class="header">
+        <img class="logo" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/users/65e991ad15835e46f0861b8b/65eff3406145b642700c32ba/logo.jpg" alt="logo"/>
+        <span class="date">${formattedDate}</span>
+      </div>
+      <h1>Hi ${firstName || 'User'},</h1>
+      <p>
+        Unfortunately, your <span class="highlight">KYC verification has been rejected.</span>
+      </p>
+      <p>
+        Reason: <strong>${reason || 'Not specified'}</strong>
+      </p>
+      <p>
+        Please re-upload valid documents and try again. If you need assistance, contact our support team.
+      </p>
+      <div class="footer">
+        © ${new Date().getFullYear()} HappyMilan - All rights reserved.
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+`;
+
+  await sendEmail({ to, subject, text, isHtml: true })
+    .then(() => logger.info('KYC rejection email sent successfully'))
+    .catch((error) => logger.warn(`Unable to send KYC rejection email: ${error}`));
+};
