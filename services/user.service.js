@@ -52,6 +52,7 @@ export async function getOnerole(query) {
 
   return user;
 }
+
 export async function getUserList(filter, options = {}) {
   // Step 1: Get role IDs to exclude
   const excludedRoles = await Role.find(
@@ -1649,10 +1650,26 @@ export async function getMatchUser(filter) {
                   input: [
                     { field: 'age', value: '$age', expected: '$userPartnerDetails.age' },
                     { field: 'height', value: '$height', expected: '$userPartnerDetails.height' },
-                    { field: 'income', value: '$userProfessional.currentSalary', expected: '$userPartnerDetails.income' },
-                    { field: 'currentCountry', value: '$address.currentCountry', expected: '$userPartnerDetails.country' },
-                    { field: 'currentState', value: '$address.state', expected: '$userPartnerDetails.state' },
-                    { field: 'currentCity', value: '$address.currentCity', expected: '$userPartnerDetails.city' },
+                    {
+                      field: 'income',
+                      value: '$userProfessional.currentSalary',
+                      expected: '$userPartnerDetails.income',
+                    },
+                    {
+                      field: 'currentCountry',
+                      value: '$address.currentCountry',
+                      expected: '$userPartnerDetails.country',
+                    },
+                    {
+                      field: 'currentState',
+                      value: '$address.state',
+                      expected: '$userPartnerDetails.state',
+                    },
+                    {
+                      field: 'currentCity',
+                      value: '$address.currentCity',
+                      expected: '$userPartnerDetails.city',
+                    },
                     {
                       field: 'diet',
                       value: {
@@ -2505,7 +2522,7 @@ export async function getDatingPartnerListByAgeAndMatch(filter, ageRange, option
           { friendsDetails: { $exists: false } },
           {
             'friendsDetails.status': {
-              $nin: [EnumStatusOfFriend.ACCEPTED, EnumStatusOfFriend.BLOCKED],
+              $nin: [EnumStatusOfFriend.REQUESTED, EnumStatusOfFriend.ACCEPTED, EnumStatusOfFriend.BLOCKED],
             },
           },
         ],
@@ -2920,6 +2937,7 @@ export async function getUserWithDatingData(filter) {
   const matchedUser = await User.aggregate(pipeline).exec();
   return matchedUser;
 }
+
 export async function getFilteredDatingInterestList(filter, options = {}) {
   const { interestedIn } = filter;
   const { limit = 10, page = 1 } = options;
@@ -3085,7 +3103,7 @@ export async function getFilteredDatingInterestList(filter, options = {}) {
           { friendsDetails: { $exists: false } },
           {
             'friendsDetails.status': {
-              $nin: [EnumStatusOfFriend.ACCEPTED, EnumStatusOfFriend.BLOCKED],
+              $nin: [EnumStatusOfFriend.REQUESTED, EnumStatusOfFriend.ACCEPTED, EnumStatusOfFriend.BLOCKED],
             },
           },
         ],
@@ -3454,6 +3472,7 @@ export async function getFilteredDatingEthnicityList(filter, options = {}) {
   const matchedUsers = await User.aggregate(pipeline).exec();
   return matchedUsers;
 }
+
 export async function getPrimeUserList(filter, options = {}) {
   const userGender = filter.gender;
   const { limit = 10, page = 1 } = options;
@@ -4229,6 +4248,7 @@ export async function getNewUserList(filter, options = {}) {
   const matchedUsers = await User.aggregate(pipeline).exec();
   return matchedUsers;
 }
+
 /**
  * Check for missing fields for a logged-in user
  * @param {ObjectId} userId - The logged-in user's ID
