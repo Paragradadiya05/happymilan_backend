@@ -21,6 +21,10 @@ router.post(
  * */
 router.get('/get-plan', auth(), planController.listPlan);
 /**
+ * get plan
+ * */
+router.get('/get-plan-dating', auth(), planController.listPlanDating);
+/**
  * get plan by id
  * */
 router.get('/get-plan/:planId', auth(['admin']), validate(planValidation.getPlanById), planController.getPlanById);

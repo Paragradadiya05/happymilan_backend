@@ -12,6 +12,7 @@ export const createPlan = {
     onlineSupport: Joi.string().valid(...Object.values(enumFields.EnumOfOnlineSupport)),
     discount: Joi.number().required(),
     price: Joi.number().required(),
+    isDating: Joi.boolean(),
   }),
 };
 

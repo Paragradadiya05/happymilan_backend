@@ -15,6 +15,12 @@ export const listPlan = catchAsync(async (req, res) => {
   return res.status(httpStatus.OK).send({ results: plan });
 });
 
+export const listPlanDating = catchAsync(async (req, res) => {
+  const filter = { isDating: true };
+  const options = {};
+  const plan = await planservice.getPlanList(filter, options);
+  return res.status(httpStatus.OK).send({ results: plan });
+});
 export const update = catchAsync(async (req, res) => {
   const { body } = req;
   body.updatedBy = req.admin;

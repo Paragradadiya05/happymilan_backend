@@ -43,6 +43,10 @@ const planSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isDating: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );
