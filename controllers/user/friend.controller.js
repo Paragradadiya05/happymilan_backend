@@ -3,7 +3,7 @@ import { friendService, imageBlurService } from 'services';
 import { catchAsync } from 'utils/catchAsync';
 import { EnumStatusOfFriend } from '../../models/enum.model';
 import { pick } from '../../utils/pick';
-import { Shortlist } from '../../models';
+import { Friend, Shortlist, User } from '../../models';
 
 export const getFriend = catchAsync(async (req, res) => {
   const { friendId } = req.params;
@@ -556,32 +556,54 @@ export const getBlockListv2 = catchAsync(async (req, res) => {
 export const getRFrdRequestsv2 = catchAsync(async (req, res) => {
   const userId = req.user._id;
   const { query } = req;
+
+  const page = parseInt(query.page, 10) || 1;
+  const limit = parseInt(query.limit, 10) || 10;
+  const skip = (page - 1) * limit;
+
   const sortingObj = pick(query, ['sort', 'order']);
-  const sortObj = {
-    [sortingObj.sort]: sortingObj.order,
-  };
-  const filter = {
+  const sortObj = sortingObj.sort ? { [sortingObj.sort]: sortingObj.order === 'desc' ? -1 : 1 } : { createdAt: -1 };
+
+  // Step 1: Get unique user IDs
+  const uniqueUserIds = await Friend.distinct('user', {
     friend: userId,
     status: EnumStatusOfFriend.REQUESTED,
-  };
-  const { appUsesType } = query;
-  const options = {
-    sort: sortObj,
-    ...pick(query, ['limit', 'page']),
-    lean: true,
-    populate: [
-      {
-        path: 'friend',
-        populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
-      },
-      {
-        path: 'user',
-        populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
-      },
-    ],
-  };
-  const user = await friendService.getFriendListWithPagination(filter, options, appUsesType);
-  return res.status(httpStatus.OK).send({ results: user });
+  });
+
+  const totalResults = uniqueUserIds.length;
+  const totalPages = Math.ceil(totalResults / limit);
+
+  // Step 2: Paginate IDs
+  const pagedIds = uniqueUserIds.slice(skip, skip + limit);
+
+  // Step 3: Fetch user details
+  const results = await User.find({ _id: { $in: pagedIds } })
+    .sort(sortObj)
+    .populate([{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }])
+    .lean();
+
+  // Step 4: Build pagination metadata
+  const pagingCounter = skip + 1;
+  const hasPrevPage = page > 1;
+  const hasNextPage = page < totalPages;
+  const prevPage = hasPrevPage ? page - 1 : null;
+  const nextPage = hasNextPage ? page + 1 : null;
+
+  return res.status(httpStatus.OK).send({
+    status: 'Success',
+    data: {
+      results,
+      totalResults,
+      limit,
+      totalPages,
+      page,
+      pagingCounter,
+      hasPrevPage,
+      hasNextPage,
+      prevPage,
+      nextPage,
+    },
+  });
 });
 
 export const BlockUser = catchAsync(async (req, res) => {
