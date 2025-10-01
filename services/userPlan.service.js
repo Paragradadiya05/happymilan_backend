@@ -11,7 +11,7 @@ export async function getOne(query, options = {}) {
     sort: { createdAt: -1 }, // Get the latest by createdAt
   })
     .populate('planId')
-    .populate('userId', 'name email');
+    .populate('userId', 'name email userUniqueId');
   return test;
 }
 

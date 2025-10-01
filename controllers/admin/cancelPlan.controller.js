@@ -50,7 +50,7 @@ export const getCancelPlanList = catchAsync(async (req, res) => {
     page: parseInt(req.query.page, 10) || 1,
     limit: parseInt(req.query.limit, 10) || 10,
     sort: { createdAt: -1 },
-    populate: [{ path: 'userPlanId' }, { path: 'planId' }],
+    populate: [{ path: 'userPlanId' }, { path: 'planId' }, { path: 'userId', select: 'name email userUniqueId' }],
     lean: true, // gives plain JS objects instead of mongoose docs
   };
 
