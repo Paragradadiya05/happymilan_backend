@@ -8,7 +8,7 @@ const router = express();
 /**
  * getByUserId
  * */
-router.get('/get-user-planbyId', auth(), UserPlanController.getUserPlanId);
+router.get('/get-user-planbyId/:planId', auth(), UserPlanController.getUserPlanId);
 /**
  * get list
  * */
