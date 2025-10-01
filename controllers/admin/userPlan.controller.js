@@ -5,9 +5,9 @@ import { catchAsync } from '../../utils/catchAsync';
 import { userPlanService } from '../../services';
 
 export const getUserPlanId = catchAsync(async (req, res) => {
-  const { planId } = req.params; // ✅ take userId from params
+  const { userplanId } = req.params; // ✅ take userId from params
 
-  const filter = { planId };
+  const filter = { _id: userplanId };
   const options = {};
   const userPlan = await userPlanService.getOne(filter, options);
 
