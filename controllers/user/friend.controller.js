@@ -564,23 +564,43 @@ export const getRFrdRequestsv2 = catchAsync(async (req, res) => {
   const sortingObj = pick(query, ['sort', 'order']);
   const sortObj = sortingObj.sort ? { [sortingObj.sort]: sortingObj.order === 'desc' ? -1 : 1 } : { createdAt: -1 };
 
-  // Step 1: Get unique user IDs
-  const uniqueUserIds = await Friend.distinct('user', {
-    friend: userId,
-    status: EnumStatusOfFriend.REQUESTED,
-  });
+  // Step 1: Aggregate unique Friend requests
+  const aggregation = await Friend.aggregate([
+    { $match: { friend: userId, status: EnumStatusOfFriend.REQUESTED } },
+    {
+      $sort: sortObj,
+    },
+    {
+      $group: {
+        _id: '$user', // unique sender
+        doc: { $first: '$$ROOT' }, // keep first Friend doc
+      },
+    },
+    { $replaceRoot: { newRoot: '$doc' } }, // use the Friend doc
+    { $skip: skip },
+    { $limit: limit },
+  ]);
 
-  const totalResults = uniqueUserIds.length;
-  const totalPages = Math.ceil(totalResults / limit);
+  // Step 2: Total count for pagination
+  const totalResults = await Friend.aggregate([
+    { $match: { friend: userId, status: EnumStatusOfFriend.REQUESTED } },
+    { $group: { _id: '$user' } },
+    { $count: 'count' },
+  ]);
+  const totalDocs = totalResults[0].count || 0;
+  const totalPages = Math.ceil(totalDocs / limit);
 
-  // Step 2: Paginate IDs
-  const pagedIds = uniqueUserIds.slice(skip, skip + limit);
-
-  // Step 3: Fetch user details
-  const results = await User.find({ _id: { $in: pagedIds } })
-    .sort(sortObj)
-    .populate([{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }])
-    .lean();
+  // Step 3: Populate friend and user
+  const results = await User.populate(aggregation, [
+    {
+      path: 'friend',
+      populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
+    },
+    {
+      path: 'user',
+      populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
+    },
+  ]);
 
   // Step 4: Build pagination metadata
   const pagingCounter = skip + 1;
@@ -593,7 +613,7 @@ export const getRFrdRequestsv2 = catchAsync(async (req, res) => {
     status: 'Success',
     data: {
       results,
-      totalResults,
+      totalResults: totalDocs,
       limit,
       totalPages,
       page,
