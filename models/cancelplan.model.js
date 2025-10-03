@@ -56,7 +56,6 @@ const cancelPlanSchema = new mongoose.Schema(
     adminRejectReason: {
       type: String,
       enum: Object.values(enumModel.EnumOfAdminRejectReason),
-      default: null,
     },
   },
   { timestamps: true }
