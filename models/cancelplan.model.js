@@ -53,6 +53,11 @@ const cancelPlanSchema = new mongoose.Schema(
       type: Boolean,
       default: false, // initially no request made
     },
+    adminRejectReason: {
+      type: String,
+      enum: Object.values(enumModel.EnumOfAdminRejectReason),
+      default: null,
+    },
   },
   { timestamps: true }
 );

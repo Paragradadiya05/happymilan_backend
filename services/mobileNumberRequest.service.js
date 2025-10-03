@@ -7,7 +7,7 @@ import { creditService } from './index';
 const MOBILE_REQUEST_COST = 1; // Fixed cost for mobile number request
 // eslint-disable-next-line import/prefer-default-export
 export const createMobileNumberRequest = async (requesterId, targetUserId) => {
-  const hasEnoughCredits = creditService.hasSufficientCredits(requesterId, MOBILE_REQUEST_COST);
+  const hasEnoughCredits = await creditService.hasSufficientCredits(requesterId, MOBILE_REQUEST_COST);
   if (!hasEnoughCredits) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,

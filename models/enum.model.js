@@ -458,6 +458,13 @@ const EnumOfDegree = {
   SERVICE_IES: 'IES',
   SERVICE_IFS: 'IF',
 };
+const EnumOfAdminRejectReason = {
+  PREMIUM_FEATURES_UTILIZED: 'Premium features already utilized',
+  OUTSIDE_REFUND_ELIGIBILITY: 'Request made outside refund eligibility period',
+  ONGOING_COMMUNICATION: 'Ongoing communication with other members under current plan',
+  CHARGEBACK_INITIATED: 'Chargeback/dispute already initiated with payment gateway',
+  PLAN_EXPIRED: 'Request submitted after plan validity expired',
+};
 module.exports = {
   EnumCodeTypeOfCode,
   EnumOfDegree,
@@ -503,4 +510,5 @@ module.exports = {
   EnumOfBlogType,
   EnumOfJobType,
   EnumOfHobby,
+  EnumOfAdminRejectReason,
 };

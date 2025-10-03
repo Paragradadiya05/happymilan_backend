@@ -21,9 +21,15 @@ export const getUserCreditBalance = async (userId) => {
  * @param {number} requiredAmount - Required credit amount
  * @returns {boolean} True if user has sufficient credits
  */
-export const hasSufficientCredits = async (userId, requiredAmount) => {
-  const balance = await getUserCreditBalance(userId);
-  return balance >= requiredAmount;
+export const hasSufficientCredits = async (userId, requiredCredits) => {
+  const credit = await Credit.findOne({ userId }).select('creditBalance');
+  if (!credit) {
+    throw new Error(`Credit record not found for user ${userId}`);
+  }
+
+  console.log(`User: ${userId}, Balance: ${credit.creditBalance}, Required: ${requiredCredits}`);
+
+  return credit.creditBalance >= requiredCredits;
 };
 
 /**

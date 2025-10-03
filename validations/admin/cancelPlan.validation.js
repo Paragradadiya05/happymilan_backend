@@ -35,6 +35,7 @@ export const updateCancelPlan = {
     effectiveCancellationDate: Joi.date(),
     status: Joi.string().valid('pending', 'approved', 'rejected'),
     hasRequested: Joi.boolean().default(false),
+    adminRejectReason: Joi.string().valid(...Object.values(enumFields.EnumOfAdminRejectReason)),
   }),
 };
 
