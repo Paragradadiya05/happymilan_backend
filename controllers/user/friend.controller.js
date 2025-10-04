@@ -564,19 +564,27 @@ export const getRFrdRequestsv2 = catchAsync(async (req, res) => {
   const sortingObj = pick(query, ['sort', 'order']);
   const sortObj = sortingObj.sort ? { [sortingObj.sort]: sortingObj.order === 'desc' ? -1 : 1 } : { createdAt: -1 };
 
-  // Step 1: Aggregate unique Friend requests
+  // Step 1: Aggregate unique Friend requests with stable sorting
   const aggregation = await Friend.aggregate([
     { $match: { friend: userId, status: EnumStatusOfFriend.REQUESTED } },
-    {
-      $sort: sortObj,
-    },
+
+    // Sort before grouping for deterministic order
+    { $sort: sortObj },
+
     {
       $group: {
         _id: '$user', // unique sender
-        doc: { $first: '$$ROOT' }, // keep first Friend doc
+        doc: { $first: '$$ROOT' }, // keep first Friend doc per user
       },
     },
-    { $replaceRoot: { newRoot: '$doc' } }, // use the Friend doc
+
+    // Replace with actual Friend doc
+    { $replaceRoot: { newRoot: '$doc' } },
+
+    // ✅ Sort again AFTER grouping to keep stable order across refresh
+    { $sort: sortObj },
+
+    // Apply pagination
     { $skip: skip },
     { $limit: limit },
   ]);
@@ -587,7 +595,7 @@ export const getRFrdRequestsv2 = catchAsync(async (req, res) => {
     { $group: { _id: '$user' } },
     { $count: 'count' },
   ]);
-  const totalDocs = totalResults[0].count || 0;
+  const totalDocs = totalResults.length > 0 ? totalResults[0].count : 0;
   const totalPages = Math.ceil(totalDocs / limit);
 
   // Step 3: Populate friend and user
