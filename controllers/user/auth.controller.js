@@ -8,6 +8,7 @@ import { resendOtpToMobile, sendOtpToMobile } from '../../services/mobileotp.ser
 import { Notification } from '../../models';
 import { sendNotification } from '../../services/notification.service';
 import { generateAndSendOtp } from '../../services/twoFactorAuth.service';
+import { checkUserPremiumStatus } from '../../services/friend.service';
 
 export const register = catchAsync(async (req, res) => {
   const { body } = req;
@@ -151,6 +152,9 @@ export const login = catchAsync(async (req, res) => {
   // First, authenticate the user with email/password or mobile/password
   const user = await authService.loginUserWithEmailOrMobileAndPassword(email, mobileNumber, countryCodeId, password);
 
+  const checkUserActivePlan = await checkUserPremiumStatus(user._id);
+  console.log('=====xx====>', checkUserActivePlan);
+
   // Check if 2FA is enabled for this user
   if (user.twoFactorAuth && user.twoFactorAuth.isEnabled) {
     // If 2FA is enabled but no code provided, return a response indicating 2FA is required
@@ -187,7 +191,7 @@ export const login = catchAsync(async (req, res) => {
   }
 
   // If 2FA is not enabled or code is valid, proceed with login
-  const tokens = await tokenService.generateAuthTokens(user);
+  const tokens = await tokenService.generateAuthTokens(user, checkUserActivePlan);
   if (deviceToken) {
     const updatedUser = await userService.addDeviceToken(user, req.body);
     res.status(httpStatus.OK).send({ results: { user: updatedUser, tokens } });

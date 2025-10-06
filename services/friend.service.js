@@ -1084,14 +1084,19 @@ export async function blockUser(body = {}, user) {
 
   return result;
 }
-export async function getFriendAcceptedMobile(filter, options = {}, userId) {
+export async function getFriendAcceptedMobile(filter, options = {}, userId, isSocket = false, checkUserActivePlan = false) {
   const page = options.page || 1;
   const limit = options.limit || 10;
   const skip = (page - 1) * limit;
 
-  await Friend.countDocuments(filter); // Optional: can be removed if not used
+  // await Friend.countDocuments(filter); // Optional: can be removed if not used
 
-  const isPremiumUser = await checkUserPremiumStatus(userId);
+  let isPremiumUser = false;
+  if (isSocket) {
+    isPremiumUser = checkUserActivePlan;
+  } else {
+    isPremiumUser = await checkUserPremiumStatus(userId);
+  }
 
   const friends = await Friend.find(filter, options.projection, { ...options, limit, skip })
     .populate({

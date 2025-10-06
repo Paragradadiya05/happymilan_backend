@@ -14,9 +14,10 @@ import { EnumTypeOfToken, EnumCodeTypeOfCode } from 'models/enum.model';
  * @param {string} [secret]
  * @returns {string}
  */
-export const generateToken = (userId, expires, storyId = null, secret = config.jwt.secret) => {
+export const generateToken = (userId, expires, checkUserActivePlan = false, storyId = null, secret = config.jwt.secret) => {
   const payload = {
     ...(storyId && { storyId }),
+    ...(checkUserActivePlan && { checkUserActivePlan }),
     sub: userId,
     iat: moment().unix(),
     exp: expires.unix(),
@@ -242,9 +243,9 @@ export const generateVerifyStoryConsentToken = async (userId, storyId) => {
  * @param {User} user
  * @returns {Promise<Object>}
  */
-export const generateAuthTokens = async (user) => {
+export const generateAuthTokens = async (user, checkUserActivePlan = false) => {
   const accessTokenExpires = moment().add(config.jwt.accessExpirationMinutes, 'minutes');
-  const accessToken = generateToken(user.id, accessTokenExpires);
+  const accessToken = generateToken(user.id, accessTokenExpires, checkUserActivePlan);
   const refreshTokenExpires = moment().add(config.jwt.refreshExpirationDays, 'days');
   const refreshToken = generateToken(user.id, refreshTokenExpires);
   await saveToken(refreshToken, user.id, refreshTokenExpires, EnumTypeOfToken.REFRESH);

@@ -5,7 +5,6 @@ import ApiError from '../utils/ApiError';
 import { uploadChatContent } from '../services/s3.service';
 import { EnumOfChatType, EnumStatusOfFriend } from '../models/enum.model';
 import { Like, Message, User } from '../models';
-import { MessageCountForUser } from '../services/message.service';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 const { ObjectId } = require('mongodb');
@@ -596,94 +595,145 @@ io.use(initSubscription).on('connection', function (socket) {
   socket.on('MessagesOfFriends', async (data) => {
     try {
       const userId = socket.user;
+      const { checkUserActivePlan } = socket;
       if (!userId) throw new Error('User not authenticated in socket');
 
       const options = {
         page: data.page || 1,
-        limit: data.limit || 100,
+        limit: data.limit || 20, // ✅ paginate friends (adjust as needed)
       };
 
+      // ✅ Get accepted friends
       const filter = {
         status: EnumStatusOfFriend.ACCEPTED,
         $or: [{ friend: userId }, { user: userId }],
       };
 
-      const friendsListResult = await friendService.getFriendAcceptedMobile(filter, options, userId);
+      const friendsListResult = await friendService.getFriendAcceptedMobile(
+        filter,
+        options,
+        userId,
+        true,
+        checkUserActivePlan
+      );
       const friendsList = (friendsListResult && friendsListResult.results) || [];
 
-      const unreadResults = await MessageCountForUser(userId, { limit: 1000, page: 1 });
-
-      const unreadMap = new Map();
-      if (
-        Array.isArray(unreadResults) &&
-        unreadResults.length > 0 &&
-        unreadResults[0] &&
-        Array.isArray(unreadResults[0].data)
-      ) {
-        unreadResults[0].data.forEach((item) => {
-          unreadMap.set(item._id.toString(), item.unreadMessageCount);
-        });
+      if (!friendsList.length) {
+        socket.emit('MessagesOfFriends', { success: true, data: [] });
+        return;
       }
 
-      let lastMessages = await Promise.all(
-        friendsList.map(async (friendDoc) => {
-          try {
-            const friendObj = friendDoc._doc || friendDoc;
-            const friendUser = friendObj.friend;
-            const mainUser = friendObj.user;
+      // ✅ Collect friend IDs
+      const friendIds = friendsList.map((friendDoc) => {
+        const friendObj = friendDoc._doc || friendDoc;
+        const friendUser = friendObj.friend;
+        const mainUser = friendObj.user;
 
-            if (!friendUser || !friendUser._id || !mainUser || !mainUser._id) {
-              return null;
-            }
+        return friendUser._id.toString() === userId.toString() ? mainUser._id.toString() : friendUser._id.toString();
+      });
 
-            const friendId =
-              friendUser._id.toString() === userId.toString() ? mainUser._id.toString() : friendUser._id.toString();
+      // Run both aggregations in parallel
+      const [unreadResults, lastMessagesAgg] = await Promise.all([
+        Message.aggregate([
+          {
+            $match: {
+              to: new ObjectId(userId),
+              isRead: false,
+              from: { $in: friendIds.map((id) => new ObjectId(id)) },
+            },
+          },
+          {
+            $group: {
+              _id: '$from',
+              unreadMessageCount: { $sum: 1 },
+            },
+          },
+        ]),
 
-            const rawFriend = friendUser._id.toString() === userId.toString() ? mainUser : friendUser;
-            const rawUser = friendUser._id.toString() === userId.toString() ? friendUser : mainUser;
-
-            if (!ObjectId.isValid(userId) || !ObjectId.isValid(friendId)) {
-              console.warn('Invalid ObjectId for user or friend');
-              return null;
-            }
-
-            const query = {
+        Message.aggregate([
+          {
+            $match: {
               $or: [
-                { from: new ObjectId(userId), to: new ObjectId(friendId) },
-                { from: new ObjectId(friendId), to: new ObjectId(userId) },
+                {
+                  from: new ObjectId(userId),
+                  to: { $in: friendIds.map((id) => new ObjectId(id)) },
+                },
+                {
+                  to: new ObjectId(userId),
+                  from: { $in: friendIds.map((id) => new ObjectId(id)) },
+                },
               ],
-              messageDeletedAll: { $ne: true }, // ✅ Exclude deleted-for-all messages
-            };
+              messageDeletedAll: { $ne: true },
+            },
+          },
+          { $sort: { sendAt: -1 } },
+          {
+            $group: {
+              _id: {
+                $cond: [{ $gt: ['$from', '$to'] }, { from: '$to', to: '$from' }, { from: '$from', to: '$to' }],
+              },
+              lastMessage: { $first: '$$ROOT' },
+            },
+          },
+          {
+            $project: {
+              'lastMessage.from': 1,
+              'lastMessage.to': 1,
+              'lastMessage.content': 1,
+              'lastMessage.type': 1,
+              'lastMessage.sendAt': 1,
+            },
+          },
+        ]),
+      ]);
 
-            const lastMessage = await Message.findOne(query)
-              .sort({ sendAt: -1 }) // Get latest message
-              .lean();
+      // Convert unread results into object
+      const unreadObj = unreadResults.reduce((acc, item) => {
+        acc[item._id.toString()] = item.unreadMessageCount;
+        return acc;
+      }, {});
 
-            const unreadCount = lastMessage ? unreadMap.get(friendId) || 0 : 0;
+      // ✅ Build final response
+      const lastMessages = friendsList
+        .map((friendDoc) => {
+          const friendObj = friendDoc._doc || friendDoc;
+          const friendUser = friendObj.friend;
+          const mainUser = friendObj.user;
 
-            const selectFields = ({ _id, name, firstName, lastName, profilePic, isUserActive }) => ({
-              _id,
-              name,
-              firstName,
-              lastName,
-              profilePic,
-              isUserActive,
-            });
-
-            return {
-              lastMessage: lastMessage || null,
-              unreadCount,
-              friendList: selectFields(rawFriend),
-              userList: selectFields(rawUser),
-            };
-          } catch (err) {
-            console.error('Error processing friend:', err);
+          if (!friendUser || !friendUser._id || !mainUser || !mainUser._id) {
             return null;
           }
-        })
-      );
 
-      lastMessages = lastMessages
+          const friendId =
+            friendUser._id.toString() === userId.toString() ? mainUser._id.toString() : friendUser._id.toString();
+
+          const rawFriend = friendUser._id.toString() === userId.toString() ? mainUser : friendUser;
+          const rawUser = friendUser._id.toString() === userId.toString() ? friendUser : mainUser;
+
+          const lastMessageEntry = lastMessagesAgg.find((m) => {
+            const { from, to } = m.lastMessage;
+            return (
+              (from.toString() === userId.toString() && to.toString() === friendId.toString()) ||
+              (to.toString() === userId.toString() && from.toString() === friendId.toString())
+            );
+          });
+
+          const selectFields = ({ _id, name, firstName, lastName, profilePic, isUserActive }) => ({
+            _id,
+            name,
+            firstName,
+            lastName,
+            profilePic,
+            isUserActive,
+          });
+
+          return {
+            lastMessage: lastMessageEntry ? lastMessageEntry.lastMessage : null,
+            unreadCount: unreadObj[friendId] || 0,
+            friendList: selectFields(rawFriend),
+            userList: selectFields(rawUser),
+          };
+        })
         .filter((item) => item)
         .sort((a, b) => {
           const dateA = new Date((a.lastMessage && a.lastMessage.sendAt) || 0);

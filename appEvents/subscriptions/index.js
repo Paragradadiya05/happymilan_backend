@@ -24,8 +24,12 @@ module.exports = {
       return userService.getUserById(decoded.sub).then((user) => {
         if (user) {
           // TODO: Add the user Session Init Code he if you have any condition on connection
+
+          const checkUserActivePlan = decoded.checkUserActivePlan ? decoded.checkUserActivePlan : false;
           // eslint-disable-next-line no-param-reassign
           socket.user = user._id;
+          // eslint-disable-next-line no-param-reassign
+          socket.checkUserActivePlan = checkUserActivePlan;
           // eslint-disable-next-line no-param-reassign
           socket.startedAt = new Date();
           socket.join(`${decoded.sub}`);
