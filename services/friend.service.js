@@ -1,10 +1,10 @@
 import ApiError from 'utils/ApiError';
 import httpStatus from 'http-status';
-import { Friend, Notification, User } from 'models';
+import { CreditHistory, Friend, Notification, User } from 'models';
 import mongoose from 'mongoose';
 import { EnumOfNotification, EnumOfUserPlan, EnumStatusOfFriend } from '../models/enum.model';
 import { sendNotification } from './notification.service';
-import { userPlanService } from './index';
+import { creditService, userPlanService } from './index';
 import { createDynamicProjectionForPrivacySetting, defaultFields, fields } from '../utils/common';
 
 export async function calculateMatchScore(friendId, userPartnerPreferences, userId, isPremiumUser = false) {
@@ -644,6 +644,21 @@ export async function createFriend(body = {}, user, appUsesType) {
       'user already friend or friend request is already sent or user may blocked you'
     );
   }
+  if (appUsesType === 'dating') {
+    const FRIEND_REQUEST_COST = 1; // e.g. 1 credit per request
+    const totalRequestsSent = await Friend.countDocuments({ user: userId });
+
+    // Only check/deduct after 4 free requests
+    if (totalRequestsSent >= 4) {
+      const hasEnoughCredits = await creditService.hasSufficientCredits(userId, FRIEND_REQUEST_COST);
+      if (!hasEnoughCredits) {
+        throw new ApiError(
+          httpStatus.BAD_REQUEST,
+          `Insufficient credits. You need ${FRIEND_REQUEST_COST} credit(s) to send a friend request.`
+        );
+      }
+    }
+  }
   return Friend.create({
     ...body,
     lastInitiatorUser: user,
@@ -711,6 +726,30 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
   const frdUserData = await User.findById(friendRequest.user); // sender of original request
   console.log('=== User in friend request ===', user);
   if (status === 'accepted') {
+    // ✅ Deduct credit only if appUsesType is 'dating'
+    if (appUsesType === 'dating') {
+      const FRIEND_ACCEPT_COST = 1; // Example: cost to accept request
+      try {
+        const DeductCredit = await creditService.deductCredits({
+          userId: friendRequest.user, // requester pays
+          amount: FRIEND_ACCEPT_COST,
+          reason: 'Friend Request Accepted',
+          notes: `Deducted ${FRIEND_ACCEPT_COST} credit(s) when friend request accepted.`,
+        });
+        await CreditHistory.create({
+          creditId: DeductCredit._id,
+          userId: friendRequest.user,
+          transactionType: 'debit',
+          amount: FRIEND_ACCEPT_COST,
+          reason: 'Friend Request Accepted',
+          balanceAfterTransaction: DeductCredit.balance,
+          notes: `Friend request accepted by ${user.name}`,
+        });
+      } catch (err) {
+        console.error('Credit deduction failed:', err);
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Insufficient credits to complete this action');
+      }
+    }
     await Notification.findOneAndUpdate(
       {
         userId: user._id,

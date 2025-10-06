@@ -11,9 +11,9 @@ import { userPlanService } from '../services';
  */
 const hasActivePlan = async (userId) => {
   try {
-    const activePlans = await userPlanService.getUserPlans({
+    const activePlans = await userPlanService.getUserPlanList({
       userId,
-      status: 'ACTIVE',
+      status: 'active',
     });
     return activePlans && activePlans.length > 0;
   } catch (error) {

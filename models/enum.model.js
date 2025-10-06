@@ -59,6 +59,7 @@ const EnumOfPlan = {
   GOLD: 'gold',
   PLATINUM: 'Platinum',
   SILVER: 'silver',
+  DATING: 'dating',
 };
 const EnumOfOnlineSupport = {
   YES: 'yes',
