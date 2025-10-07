@@ -730,7 +730,7 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
   if (friendRequest.status === status) {
     throw new ApiError(httpStatus.BAD_REQUEST, `Friend request is already ${status}`);
   }
-
+  console.log('=====xx====>', friendRequest.status);
   const frdUserData = await User.findById(friendRequest.user); // sender of original request
   if (
     [EnumStatusOfFriend.REJECTED, EnumStatusOfFriend.REMOVED].includes(status) &&
