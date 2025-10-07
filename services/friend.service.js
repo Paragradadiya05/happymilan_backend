@@ -732,7 +732,29 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
   }
 
   const frdUserData = await User.findById(friendRequest.user); // sender of original request
-  console.log('=== User in friend request ===', user);
+
+  let refunded = false;
+  let deducted = false;
+
+  // --- REQUESTED flow (deduct credits) ---
+  if (status === 'requested' && appUsesType === 'dating') {
+    const FRIEND_REQUEST_COST = 1;
+    try {
+      await creditService.deductCredits({
+        userId: user._id,
+        amount: FRIEND_REQUEST_COST,
+        reason: 'Friend Request Sent',
+        notes: `Deducted ${FRIEND_REQUEST_COST} credit(s) for sending a friend request.`,
+      });
+
+      deducted = true;
+    } catch (err) {
+      console.error('Credit deduction failed for friend request', err);
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Not enough credits to send friend request');
+    }
+  }
+
+  // --- ACCEPTED flow  ---
   if (status === 'accepted') {
     await Notification.findOneAndUpdate(
       {
@@ -787,6 +809,7 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
     }
   }
 
+  // --- REJECTED flow ---
   if (status === 'rejected') {
     const isReceiverRejecting = friendRequest.friend.toString() === user._id.toString();
     if (isReceiverRejecting) {
@@ -834,6 +857,8 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
         );
       }
     }
+
+    // Refund for REJECTED
     if (appUsesType === 'dating' && friendRequest.creditDeducted) {
       const FRIEND_REQUEST_COST = 1;
       try {
@@ -843,6 +868,7 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
           reason: `Friend Request ${status}`,
           notes: `Refunded ${FRIEND_REQUEST_COST} credit(s) as the friend request was ${status}.`,
         });
+        refunded = true;
       } catch (err) {
         console.error('Refund failed for rejected friend request', err);
         throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Refund failed for rejected request');
@@ -850,6 +876,7 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
     }
   }
 
+  // --- REMOVED flow ---
   if (status === 'removed') {
     await Notification.deleteOne({
       userId: friendRequest.friend,
@@ -857,6 +884,8 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
       title: 'Sent you a request',
       screen: 'Alerts',
     });
+
+    // Refund for REMOVED
     if (appUsesType === 'dating' && friendRequest.creditDeducted) {
       const FRIEND_REQUEST_COST = 1;
       try {
@@ -866,6 +895,7 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
           reason: `Friend Request ${status}`,
           notes: `Refunded ${FRIEND_REQUEST_COST} credit(s) as the friend request was ${status}.`,
         });
+        refunded = true;
       } catch (err) {
         console.error('Refund failed for removed friend request', err);
         throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Refund failed for removed request');
@@ -873,14 +903,18 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
     }
   }
 
-  return Friend.findByIdAndUpdate(
-    request,
-    {
-      $set: { status, lastInitiatorUser: user },
-      $push: { statusHistory: { status, initiatorUser: user } },
+  // --- Final DB update ---
+  const updateObj = {
+    $set: {
+      status,
+      lastInitiatorUser: user,
+      ...(refunded ? { creditDeducted: false } : {}),
+      ...(deducted ? { creditDeducted: true } : {}),
     },
-    { new: true }
-  );
+    $push: { statusHistory: { status, initiatorUser: user } },
+  };
+
+  return Friend.findByIdAndUpdate(request, updateObj, { new: true });
 }
 export async function getFriendv2(filter, options = {}, userId) {
   const page = options.page || 1;
