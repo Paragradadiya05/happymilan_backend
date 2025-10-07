@@ -657,7 +657,14 @@ export async function createFriend(body = {}, user, appUsesType) {
           `Insufficient credits. You need ${FRIEND_REQUEST_COST} credit(s) to send a friend request.`
         );
       }
-      await creditService.deductCredits(userId, FRIEND_REQUEST_COST);
+      await creditService.deductCredits({
+        userId,
+        amount: FRIEND_REQUEST_COST,
+        reason: 'Send Friend Request',
+        notes: `Deducted ${FRIEND_REQUEST_COST} credit(s) to send a friend request to user ${friend}.`,
+      });
+      // eslint-disable-next-line no-param-reassign
+      body.creditDeducted = true;
     }
   }
   return Friend.create({
