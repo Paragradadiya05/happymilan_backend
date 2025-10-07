@@ -43,7 +43,8 @@ const creditHistorySchema = new Schema(
         'Admin Adjustment',
         'Friend Request Accepted',
         'Sent Friend Request',
-        'Friend Request Rejected/Removed',
+        'Friend Request Rejected',
+        'Resend Friend Request',
       ],
     },
     planId: {
