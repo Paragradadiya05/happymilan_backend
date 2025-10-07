@@ -625,7 +625,7 @@ export async function createFriend(body = {}, user, appUsesType) {
     const FRIEND_REQUEST_COST = 1;
     const totalRequestsSent = await Friend.countDocuments({ user: userId });
 
-    if (totalRequestsSent >= 4) {
+    if (totalRequestsSent >= 2) {
       const hasEnoughCredits = await creditService.hasSufficientCredits(userId, FRIEND_REQUEST_COST);
       if (!hasEnoughCredits) {
         throw new ApiError(httpStatus.BAD_REQUEST, `Insufficient credits. Need ${FRIEND_REQUEST_COST} credit(s).`);
