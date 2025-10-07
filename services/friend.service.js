@@ -648,8 +648,8 @@ export async function createFriend(body = {}, user, appUsesType) {
     const FRIEND_REQUEST_COST = 1; // e.g. 1 credit per request
     const totalRequestsSent = await Friend.countDocuments({ user: userId });
 
-    // Only check/deduct after 4 free requests
-    if (totalRequestsSent >= 4) {
+    // Only check/deduct after 2 free requests
+    if (totalRequestsSent >= 2) {
       const hasEnoughCredits = await creditService.hasSufficientCredits(userId, FRIEND_REQUEST_COST);
       if (!hasEnoughCredits) {
         throw new ApiError(
