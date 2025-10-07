@@ -565,15 +565,17 @@ export async function createFriend(body = {}, user, appUsesType) {
   if (!getUser) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'friend is not exists');
   }
+
   // eslint-disable-next-line no-param-reassign
   body.status = EnumStatusOfFriend.REQUESTED;
+
   if (userId === friend) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'you cannot send friend request to yourself');
   }
+
   const getFrdUser = await User.findById(friend);
-  if (!getFrdUser) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'no such user exists');
-  }
+  if (!getFrdUser) throw new ApiError(httpStatus.BAD_REQUEST, 'no such user exists');
+
   let getExistingFriendOrNot = await Friend.findOne({
     $or: [
       { friend: body.friend, user: body.user },
@@ -581,9 +583,9 @@ export async function createFriend(body = {}, user, appUsesType) {
     ],
   });
 
+  // Re-send after rejected/removed
   if (
     getExistingFriendOrNot &&
-    getExistingFriendOrNot.status &&
     [EnumStatusOfFriend.REJECTED, EnumStatusOfFriend.REMOVED].includes(getExistingFriendOrNot.status)
   ) {
     getExistingFriendOrNot = await Friend.findOneAndUpdate(
@@ -600,71 +602,92 @@ export async function createFriend(body = {}, user, appUsesType) {
           user: body.user,
           lastInitiatorUser: user,
           date: Date.now(),
+          creditDeducted: false, // reset
         },
         $push: { statusHistory: { status: EnumStatusOfFriend.REQUESTED, initiatorUser: user, date: Date.now() } },
       },
       { new: true }
     );
-
-    const createNotificationForReceiver = await Notification.create({
-      userId: body.friend,
-      otherUserId: body.user,
-      body: EnumOfNotification.REQUEST_RECEIVED,
-      title: EnumOfNotification.REQUEST_RECEIVED,
-      reqId: getExistingFriendOrNot._id,
-      screen: 'Alerts',
-    });
-
-    if (getFrdUser.deviceTokens.length) {
-      await getFrdUser.deviceTokens.map(async (fcmToken) => {
-        await sendNotification(fcmToken.deviceToken, {
-          data: {
-            _id: createNotificationForReceiver._id.toString(),
-            userId: createNotificationForReceiver.userId.toString(),
-            otherUserId: createNotificationForReceiver.otherUserId.toString(),
-            body: `${user.name} ${EnumOfNotification.REQUEST_RECEIVED}`,
-            title: EnumOfNotification.REQUEST_RECEIVED,
-            screen: 'Alerts',
-          },
-        });
-      });
-    }
-    return getExistingFriendOrNot;
   }
-  if (getExistingFriendOrNot && !getExistingFriendOrNot.status === EnumStatusOfFriend.REQUESTED) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'user already friend');
-  } else if (
+
+  if (
     getExistingFriendOrNot &&
     [EnumStatusOfFriend.REQUESTED, EnumStatusOfFriend.ACCEPTED, EnumStatusOfFriend.BLOCKED].includes(
       getExistingFriendOrNot.status
     )
   ) {
-    throw new ApiError(
-      httpStatus.BAD_REQUEST,
-      'user already friend or friend request is already sent or user may blocked you'
-    );
+    throw new ApiError(httpStatus.BAD_REQUEST, 'user already friend or request already sent');
   }
+
+  // 💳 Deduct credit when sending (if appUsesType is dating)
+  let creditDeducted = false;
   if (appUsesType === 'dating') {
-    const FRIEND_REQUEST_COST = 1; // e.g. 1 credit per request
+    const FRIEND_REQUEST_COST = 1;
     const totalRequestsSent = await Friend.countDocuments({ user: userId });
 
-    // Only check/deduct after 4 free requests
     if (totalRequestsSent >= 4) {
       const hasEnoughCredits = await creditService.hasSufficientCredits(userId, FRIEND_REQUEST_COST);
       if (!hasEnoughCredits) {
-        throw new ApiError(
-          httpStatus.BAD_REQUEST,
-          `Insufficient credits. You need ${FRIEND_REQUEST_COST} credit(s) to send a friend request.`
-        );
+        throw new ApiError(httpStatus.BAD_REQUEST, `Insufficient credits. Need ${FRIEND_REQUEST_COST} credit(s).`);
       }
+
+      // Deduct credits
+      const deducted = await creditService.deductCredits({
+        userId,
+        amount: FRIEND_REQUEST_COST,
+        reason: 'Sent Friend Request',
+        notes: `Deducted ${FRIEND_REQUEST_COST} credit(s) when sending a friend request.`,
+      });
+
+      await CreditHistory.create({
+        creditId: deducted._id,
+        userId,
+        transactionType: 'debit',
+        amount: FRIEND_REQUEST_COST,
+        reason: 'Sent Friend Request',
+        balanceAfterTransaction: deducted.balance,
+        notes: `Sent friend request to ${getFrdUser.name}`,
+      });
+
+      creditDeducted = true;
     }
   }
-  return Friend.create({
+
+  const created = await Friend.create({
     ...body,
     lastInitiatorUser: user,
     date: Date.now(),
-    $push: { statusHistory: { status: EnumStatusOfFriend.REQUESTED, initiatorUser: user, date: Date.now() } },
+    creditDeducted, // 🔹 track whether credit deducted
+    statusHistory: [{ status: EnumStatusOfFriend.REQUESTED, initiatorUser: user, date: Date.now() }],
   });
+
+  // 🔔 Notification logic (same as before)
+  await Notification.create({
+    userId: body.friend,
+    otherUserId: body.user,
+    body: EnumOfNotification.REQUEST_RECEIVED,
+    title: EnumOfNotification.REQUEST_RECEIVED,
+    reqId: created._id,
+    screen: 'Alerts',
+  });
+
+  if (getFrdUser.deviceTokens.length) {
+    await Promise.all(
+      getFrdUser.deviceTokens.map(async (fcmToken) => {
+        await sendNotification(fcmToken.deviceToken, {
+          data: {
+            userId: body.friend,
+            otherUserId: body.user,
+            title: EnumOfNotification.REQUEST_RECEIVED,
+            body: `${user.name} ${EnumOfNotification.REQUEST_RECEIVED}`,
+            screen: 'Alerts',
+          },
+        });
+      })
+    );
+  }
+
+  return created;
 }
 
 export async function updateFriend(filter, body, options = {}) {
@@ -724,32 +747,31 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
   }
 
   const frdUserData = await User.findById(friendRequest.user); // sender of original request
+  if (
+    [EnumStatusOfFriend.REJECTED, EnumStatusOfFriend.REMOVED].includes(status) &&
+    appUsesType === 'dating' &&
+    friendRequest.creditDeducted
+  ) {
+    const FRIEND_REQUEST_COST = 1;
+    const refund = await creditService.addCredits({
+      userId: friendRequest.user,
+      amount: FRIEND_REQUEST_COST,
+      reason: 'Friend Request Rejected/Removed',
+      notes: `Refunded ${FRIEND_REQUEST_COST} credit(s) as the friend request was ${status}.`,
+    });
+
+    await CreditHistory.create({
+      creditId: refund._id,
+      userId: friendRequest.user,
+      transactionType: 'credit',
+      amount: FRIEND_REQUEST_COST,
+      reason: `Friend Request ${status}`,
+      balanceAfterTransaction: refund.balance,
+      notes: `Refunded credits as ${user.name} ${status} your friend request.`,
+    });
+  }
   console.log('=== User in friend request ===', user);
   if (status === 'accepted') {
-    // ✅ Deduct credit only if appUsesType is 'dating'
-    if (appUsesType === 'dating') {
-      const FRIEND_ACCEPT_COST = 1; // Example: cost to accept request
-      try {
-        const DeductCredit = await creditService.deductCredits({
-          userId: friendRequest.user, // requester pays
-          amount: FRIEND_ACCEPT_COST,
-          reason: 'Friend Request Accepted',
-          notes: `Deducted ${FRIEND_ACCEPT_COST} credit(s) when friend request accepted.`,
-        });
-        await CreditHistory.create({
-          creditId: DeductCredit._id,
-          userId: friendRequest.user,
-          transactionType: 'debit',
-          amount: FRIEND_ACCEPT_COST,
-          reason: 'Friend Request Accepted',
-          balanceAfterTransaction: DeductCredit.balance,
-          notes: `Friend request accepted by ${user.name}`,
-        });
-      } catch (err) {
-        console.error('Credit deduction failed:', err);
-        throw new ApiError(httpStatus.BAD_REQUEST, 'Insufficient credits to complete this action');
-      }
-    }
     await Notification.findOneAndUpdate(
       {
         userId: user._id,
