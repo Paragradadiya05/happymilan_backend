@@ -645,7 +645,7 @@ export async function createFriend(body = {}, user, appUsesType) {
         transactionType: 'debit',
         amount: FRIEND_REQUEST_COST,
         reason: 'Sent Friend Request',
-        balanceAfterTransaction: deducted.balance,
+        balanceAfterTransaction: 0,
         notes: `Sent friend request to ${getFrdUser.name}`,
       });
 
@@ -766,7 +766,7 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
       transactionType: 'credit',
       amount: FRIEND_REQUEST_COST,
       reason: `Friend Request ${status}`,
-      balanceAfterTransaction: refund.balance,
+      balanceAfterTransaction: 0,
       notes: `Refunded credits as ${user.name} ${status} your friend request.`,
     });
   }
