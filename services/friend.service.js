@@ -660,7 +660,7 @@ export async function createFriend(body = {}, user, appUsesType) {
       await creditService.deductCredits({
         userId,
         amount: FRIEND_REQUEST_COST,
-        reason: 'Send Friend Request',
+        reason: 'Sent Friend Request',
         notes: `Deducted ${FRIEND_REQUEST_COST} credit(s) to send a friend request to user ${friend}.`,
       });
       // eslint-disable-next-line no-param-reassign
