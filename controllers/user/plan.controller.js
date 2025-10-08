@@ -27,6 +27,9 @@ export const getPlanByName = catchAsync(async (req, res) => {
 export const listPlanDating = catchAsync(async (req, res) => {
   const filter = { isDating: true };
   const options = {};
+  const sortOrder = ['monthly', 'two-month', 'three-month'];
+
   const plan = await planservice.getPlanList(filter, options);
-  return res.status(httpStatus.OK).send({ results: plan });
+  const sortedPlans = plan.sort((a, b) => sortOrder.indexOf(a.planDuration) - sortOrder.indexOf(b.planDuration));
+  return res.status(httpStatus.OK).send({ status: 'Success', data: sortedPlans });
 });
