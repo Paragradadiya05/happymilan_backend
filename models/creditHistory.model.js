@@ -45,6 +45,7 @@ const creditHistorySchema = new Schema(
         'Sent Friend Request',
         'Friend Request Rejected',
         'Resend Friend Request',
+        'Friend Request removed',
       ],
     },
     planId: {

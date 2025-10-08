@@ -874,6 +874,19 @@ export async function respondFriendRequest(request, status, userId = {}, appUses
   }
 
   if (status === 'removed') {
+    if (appUsesType === 'dating') {
+      const REFUND_AMOUNT = 1; // same as FRIEND_REQUEST_COST
+      try {
+        await creditService.addCredits({
+          userId: friendRequest.user, // sender gets refund
+          amount: REFUND_AMOUNT,
+          reason: 'Friend Request removed',
+          notes: `Refunded ${REFUND_AMOUNT} credit(s) because ${user.name} rejected the request.`,
+        });
+      } catch (err) {
+        console.error('⚠️ Error refunding credits:', err.message);
+      }
+    }
     await Notification.deleteOne({
       userId: friendRequest.friend,
       otherUserId: friendRequest.user,
