@@ -135,7 +135,7 @@ export const getProfilevisitors = catchAsync(async (req, res) => {
     lean: true,
     populate: {
       path: 'viewerId',
-      select: 'firstName lastName name profilePic userProfilePic userProfessional address dateOfBirth datingData',
+      select: 'firstName lastName name profilePic userProfessional address dateOfBirth datingData',
       populate: [{ path: 'address' }, { path: 'userProfessional' }],
     },
   };
@@ -176,7 +176,7 @@ export const getProfilevisitors = catchAsync(async (req, res) => {
     if (isPremiumUser) {
       results.push({
         ...baseData,
-        userProfilePic: viewer.userProfilePic,
+        profilePic: viewer.profilePic,
         firstName: viewer.firstName,
         lastName: viewer.lastName,
         name: viewer.name,
