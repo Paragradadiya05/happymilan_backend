@@ -176,7 +176,7 @@ export const getProfilevisitors = catchAsync(async (req, res) => {
     if (isPremiumUser) {
       results.push({
         ...baseData,
-        profilePic: viewer.profilePic,
+        userProfilePic: viewer.userProfilePic,
         firstName: viewer.firstName,
         lastName: viewer.lastName,
         name: viewer.name,
@@ -185,16 +185,34 @@ export const getProfilevisitors = catchAsync(async (req, res) => {
           Array.isArray(viewer.datingData) && viewer.datingData.length > 0 ? viewer.datingData[0].Occupation : null,
       });
     } else {
-      let blurredProfilePic = viewer.profilePic;
-      try {
-        // eslint-disable-next-line no-await-in-loop
-        blurredProfilePic = await imageBlurService.blurImage(viewer.profilePic);
-        // eslint-disable-next-line no-empty
-      } catch (err) {}
+      const imageProcessingPromises = [];
+
+      // Blur profilePic
+      if (viewer.profilePic) {
+        imageProcessingPromises.push(
+          imageBlurService.blurImage(viewer.profilePic).then((blurredUrl) => {
+            viewer.profilePic = blurredUrl;
+          })
+        );
+      }
+
+      // Blur userProfilePic array
+      if (Array.isArray(viewer.userProfilePic)) {
+        const photoBlurPromises = viewer.userProfilePic.map((photo, index) =>
+          imageBlurService.blurImage(photo.url).then((blurredUrl) => {
+            viewer.userProfilePic[index] = {
+              ...photo,
+              url: blurredUrl,
+            };
+          })
+        );
+        imageProcessingPromises.push(...photoBlurPromises);
+      }
 
       results.push({
         ...baseData,
-        profilePic: blurredProfilePic,
+        profilePic: viewer.profilePic,
+        userProfilePic: viewer.userProfilePic,
       });
     }
   }
