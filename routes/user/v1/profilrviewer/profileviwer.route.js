@@ -33,10 +33,5 @@ router.get(
   validate(profileviewerValidation.GetProfileviwer),
   pofileviewerController.GetProfileviwerMobile
 );
-router.get(
-  '/get-profile-visitors/:userId',
-  auth(),
-  validate(profileviewerValidation.GetProfilevisitors),
-  pofileviewerController.getProfilevisitors
-);
+router.get('/get-profile-visitors', auth(), pofileviewerController.getProfilevisitors);
 module.exports = router;

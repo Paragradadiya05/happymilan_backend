@@ -2,6 +2,7 @@ import httpStatus from 'http-status';
 import { catchAsync } from '../../utils/catchAsync';
 import { imageBlurService, profileviewerservice } from '../../services';
 import { pick } from '../../utils/pick';
+import { checkUserPremiumStatus } from '../../services/friend.service';
 
 export const createProfileViwer = catchAsync(async (req, res) => {
   const { appUsesType } = req.query;
@@ -119,12 +120,90 @@ export const GetProfileviwerMobile = catchAsync(async (req, res) => {
 });
 
 export const getProfilevisitors = catchAsync(async (req, res) => {
-  const { userId } = req.params;
-  // const viewer = req.body.viewerId;
-  const filter = {
-    viewerId: userId,
+  const userId = req.user._id; // assuming you have auth middleware setting req.user
+
+  if (!userId) {
+    return res.status(httpStatus.UNAUTHORIZED).json({
+      status: 'Fail',
+      message: 'User not authenticated',
+    });
+  }
+
+  const filter = { user: userId };
+
+  const options = {
+    lean: true,
+    populate: {
+      path: 'viewerId',
+      select: 'firstName lastName name profilePic userProfessional address dateOfBirth datingData',
+      populate: [{ path: 'address' }, { path: 'userProfessional' }],
+    },
   };
-  const options = {};
-  const user = await profileviewerservice.getProfileVisitor(filter, options);
-  return res.status(httpStatus.OK).send({ results: user });
+
+  const userVisitors = await profileviewerservice.getProfileVisitor(filter, options);
+
+  let isPremiumUser = false;
+  try {
+    isPremiumUser = await checkUserPremiumStatus(userId);
+  } catch (err) {
+    console.log('⚠️ Error checking premium status:', err.message);
+  }
+
+  if (!userVisitors || userVisitors.length === 0) {
+    return res.status(httpStatus.OK).json({
+      status: 'Success',
+      message: 'No visitors found',
+      isPremiumUser,
+      count: 0,
+      data: [],
+    });
+  }
+
+  const results = [];
+  // eslint-disable-next-line no-continue,no-restricted-syntax
+  for (const visitor of userVisitors) {
+    const viewer = visitor.viewerId;
+    // eslint-disable-next-line no-continue
+    if (!viewer) continue;
+
+    const baseData = {
+      _id: visitor._id,
+      viewerId: viewer._id,
+      createdAt: visitor.createdAt,
+      lastViewTime: visitor.lastViewTime,
+    };
+
+    if (isPremiumUser) {
+      results.push({
+        ...baseData,
+        profilePic: viewer.profilePic,
+        firstName: viewer.firstName,
+        lastName: viewer.lastName,
+        name: viewer.name,
+        dateOfBirth: viewer.dateOfBirth,
+        Occupation:
+          Array.isArray(viewer.datingData) && viewer.datingData.length > 0 ? viewer.datingData[0].Occupation : null,
+      });
+    } else {
+      let blurredProfilePic = viewer.profilePic;
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        blurredProfilePic = await imageBlurService.blurImage(viewer.profilePic);
+        // eslint-disable-next-line no-empty
+      } catch (err) {}
+
+      results.push({
+        ...baseData,
+        profilePic: blurredProfilePic,
+      });
+    }
+  }
+
+  return res.status(httpStatus.OK).json({
+    status: 'Success',
+    userId,
+    isPremiumUser,
+    count: results.length,
+    data: results, // ✅ changed key to data
+  });
 });

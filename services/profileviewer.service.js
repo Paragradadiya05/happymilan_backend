@@ -1048,10 +1048,13 @@ export async function getProfileViewerforMobile(filter, options = {}) {
   return matchedUsers;
 }
 
-export async function getProfileVisitor(filter, options = {}) {
-  const user = await ProfileView.find(filter, options.projection, options).populate({
-    path: 'user',
-    match: { appUsesType: 'dating' },
-  });
-  return user;
-}
+export const getProfileVisitor = async (filter, options = {}) => {
+  const query = ProfileView.find(filter);
+
+  if (options.populate) query.populate(options.populate);
+  if (options.lean) query.lean();
+
+  const result = await query.sort({ createdAt: -1 });
+
+  return result;
+};
