@@ -134,7 +134,7 @@ export const getProfilevisitors = catchAsync(async (req, res) => {
   const options = {
     lean: true,
     populate: {
-      path: 'viewerId',
+      path: 'user',
       select: 'firstName lastName name profilePic userProfessional address dateOfBirth datingData',
       populate: [{ path: 'address' }, { path: 'userProfessional' }],
     },
