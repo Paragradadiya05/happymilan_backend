@@ -129,7 +129,7 @@ export const getProfilevisitors = catchAsync(async (req, res) => {
     });
   }
 
-  const filter = { user: userId };
+  const filter = { viewerId: userId };
 
   const options = {
     lean: true,
