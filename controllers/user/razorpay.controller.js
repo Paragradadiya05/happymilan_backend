@@ -56,17 +56,29 @@ const razorpayInstance = new razorpay({
 // eslint-disable-next-line import/prefer-default-export
 export const complete = catchAsync(async (req, res) => {
   if (!req.body.razorpay_payment_id || !req.query.paymentHistoryToken) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'razorpay_payment_id Not Available');
+    throw new ApiError(httpStatus.NOT_FOUND, 'razorpay_payment_id or paymentHistoryToken Not Available');
   }
-  // Fetch payment details from Razorpay using the payment ID
+
+  // Identify the client type from the query parameter
+  const clientType = req.query.client_type;
+
+  // Fetch payment details from Razorpay
   const paymentDocument = await razorpayInstance.payments.fetch(req.body.razorpay_payment_id);
   const paymentMethod = paymentDocument.method;
+
   // Check if payment status is captured
   if (paymentDocument.status === 'captured') {
-    // decrypt payment jwt token
-    const paymentHistoryToken = jwt.verify(req.query.paymentHistoryToken, 'PAYMENT'); // todo : make this from env
+    // LOGGING: Announce successful payment and identify client type
+    if (clientType === 'mobile') {
+      console.log(`✅ [MOBILE] Payment captured successfully. ID: ${paymentDocument.id}`);
+    } else {
+      console.log(`✅ [WEB] Payment captured successfully. ID: ${paymentDocument.id}`);
+    }
 
-    // todo:get plan here by populate
+    // Decrypt payment JWT token
+    const paymentHistoryToken = jwt.verify(req.query.paymentHistoryToken, 'PAYMENT'); // TODO: Use env variable for secret
+
+    // Update payment history
     const getPaymentHistory = await paymentHistoryService.updatePaymentHistory(
       { _id: paymentHistoryToken.data },
       {
@@ -78,12 +90,16 @@ export const complete = catchAsync(async (req, res) => {
         populate: [{ path: 'planId' }, { path: 'userId', select: 'email fullName' }],
       }
     );
+
     const populatedPlan = getPaymentHistory.planId;
     const user = getPaymentHistory.userId || req.user;
+
     if (!populatedPlan || !populatedPlan.planName) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Plan not found or planName missing');
     }
+
     const { startDate, endDate } = calculateDates(paymentHistoryToken.data.planDuration);
+
     // 1. Create Subscription
     await subscriptionservice.createSubscription({
       user: req.user._id,
@@ -92,32 +108,29 @@ export const complete = catchAsync(async (req, res) => {
       endDate,
       status: EnumOfStatus.ACTIVE,
     });
-    // todo :  make function for calculated date based on plan details.
 
+    // 2. Create User Plan
     await userPlanService.createUserPlan({
       userId: req.user._id,
-      planId: getPaymentHistory.planId, // todo : update id here planId
+      planId: getPaymentHistory.planId,
       startDate,
       endDate,
       paymentMethod,
       status: EnumOfUserPlan.ACTIVE,
     });
 
-    // Handle Credit System for Plan Purchase
+    // 3. Handle Credit System
     try {
       const userId = req.user._id;
       const planId = getPaymentHistory.planId._id;
-      const creditAmount = populatedPlan.allowNumberOfRequest || 0; // Static amount as requested
+      const creditAmount = populatedPlan.allowNumberOfRequest || 0;
 
-      // First, reset the user's credits to 0
       await creditService.resetCredits({
         userId,
         reason: 'Plan Purchase',
         planId,
         notes: 'Credit reset before new plan purchase',
       });
-
-      // Then add the new credit amount
       await creditService.addCredits({
         userId,
         amount: creditAmount,
@@ -125,13 +138,12 @@ export const complete = catchAsync(async (req, res) => {
         planId,
         notes: `Added ${creditAmount} credits for plan purchase: ${populatedPlan.planName}`,
       });
-
-      console.log(`✅ Credit system updated: User ${userId} received ${creditAmount} credits for plan purchase`);
+      console.log(`💳 Credit system updated: User ${userId} received ${creditAmount} credits.`);
     } catch (creditError) {
       console.error('❌ Failed to update credit system:', creditError);
-      // Don't throw error here as payment was successful, just log the credit system error
     }
 
+    // 4. Send Confirmation Email
     try {
       await emailService.sendPlanConfirmationEmail({
         email: user.email,
@@ -145,16 +157,34 @@ export const complete = catchAsync(async (req, res) => {
     } catch (error) {
       console.error('❌ Failed to send confirmation email:', error);
     }
-    // update user plan here
-    console.log('=====redirect====>', `${config.frontendUrl}${config.paymentPath}`);
-    res.redirect(`${config.frontendUrl}${config.paymentPath}`);
+
+    // 5. Final Conditional Redirect
+    if (clientType === 'mobile') {
+      // FOR MOBILE: Redirect to your app's deep link using your actual scheme.
+      const mobileSuccessUrl = 'hapmeet://payment/success';
+      console.log('REDIRECTING MOBILE to:', mobileSuccessUrl);
+      res.redirect(mobileSuccessUrl);
+    } else {
+      // FOR WEB: Redirect to your frontend URL from your .env file.
+      console.log('REDIRECTING WEB to:', config.FRONT_URL);
+      res.redirect(config.FRONT_URL);
+    }
   } else {
-    // todo : handle error here with help of fe side and also update payment
-    // Redirect to homepage if payment status is not captured
-    res.redirect('/'); // todo : throw error something went wrong
+    // Handle payments that are not 'captured' (e.g., 'failed')
+    // eslint-disable-next-line no-lonely-if
+    if (clientType === 'mobile') {
+      console.log(`❌ [MOBILE] Payment failed or not captured. Status: ${paymentDocument.status}`);
+      // FOR MOBILE FAILURE: Redirect to your app's failure screen.
+      const mobileFailureUrl = 'hapmeet://payment/failure';
+      console.log('REDIRECTING MOBILE to:', mobileFailureUrl);
+      res.redirect(mobileFailureUrl);
+    } else {
+      console.log(`❌ [WEB] Payment failed or not captured. Status: ${paymentDocument.status}`);
+      // Redirect to a dedicated failure page on your website
+      res.redirect(`${config.FRONT_URL}/payment-failed`); // It's better to use the full URL for failure too
+    }
   }
 });
-
 export const createOrder = catchAsync(async (req, res) => {
   const { planId } = req.body;
   const userId = req.user._id;
