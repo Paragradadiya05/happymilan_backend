@@ -162,7 +162,7 @@ export const getProfilevisitors = catchAsync(async (req, res) => {
   const results = [];
   // eslint-disable-next-line no-continue,no-restricted-syntax
   for (const visitor of userVisitors) {
-    const viewer = visitor.viewerId;
+    const viewer = visitor.user;
     // eslint-disable-next-line no-continue
     if (!viewer) continue;
 
