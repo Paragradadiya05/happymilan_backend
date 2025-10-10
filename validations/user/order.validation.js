@@ -12,7 +12,7 @@ export const orderComplete = {
   query: Joi.object().keys({
     paymentHistoryToken: Joi.string().required(),
     authToken: Joi.string().required(),
-    client_type: Joi.string().required().valid('mobile', 'web'),
+    client_type: Joi.string().valid('mobile', 'web'),
   }),
   body: Joi.object()
     .keys({
