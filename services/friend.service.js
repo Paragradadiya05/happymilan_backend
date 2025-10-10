@@ -1156,21 +1156,15 @@ export async function blockUser(body = {}, user) {
 
   return result;
 }
-export async function getFriendAcceptedMobile(filter, options = {}, userId, isSocket = false, checkUserActivePlan = false) {
+// In your friend.service.js file
+
+export async function getFriendAcceptedMobile(filter, options = {}, userId) {
   const page = options.page || 1;
   const limit = options.limit || 10;
   const skip = (page - 1) * limit;
 
-  // await Friend.countDocuments(filter); // Optional: can be removed if not used
-
-  let isPremiumUser = false;
-  if (isSocket) {
-    isPremiumUser = checkUserActivePlan;
-  } else {
-    isPremiumUser = await checkUserPremiumStatus(userId);
-  }
-
-  const friends = await Friend.find(filter, options.projection, { ...options, limit, skip })
+  // Step 1: Fetch ALL potential friends without pagination from the DB first
+  const allFriends = await Friend.find(filter)
     .populate({
       path: 'friend',
       populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
@@ -1179,51 +1173,44 @@ export async function getFriendAcceptedMobile(filter, options = {}, userId, isSo
       path: 'user',
       populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
     })
+    .lean() // Use .lean() for better performance as we are modifying the objects
     .exec();
 
+  // Step 2: Apply your complex filtering logic in-memory
   const friendsWithMatchData = await Promise.all(
-    friends.map(async (friendEntry) => {
+    allFriends.map(async (friendEntry) => {
       const { friend, user } = friendEntry;
 
-      // ✅ Step 1: Check if either profile is hidden or deleted safely
-      const friendProfile = Array.isArray(friend.profileHideAndDelete) ? friend.profileHideAndDelete : [];
-      const userProfile = Array.isArray(user.profileHideAndDelete) ? user.profileHideAndDelete : [];
-
-      const isFriendVisible = !friendProfile.some((p) => p.isProfileHide || p.isProfileDelete);
-      const isUserVisible = !userProfile.some((p) => p.isProfileHide || p.isProfileDelete);
+      // Safety checks for hidden/deleted profiles
+      const isFriendVisible = !friend.profileHideAndDelete.some((p) => p.isProfileHide || p.isProfileDelete);
+      const isUserVisible = !user.profileHideAndDelete.some((p) => p.isProfileHide || p.isProfileDelete);
 
       if (!isFriendVisible || !isUserVisible) {
-        return null; // ❌ Skip hidden/deleted profiles
+        return null;
       }
 
-      // ✅ Step 2: Privacy check
-      let friendList = friend;
-      let isFriendData = true;
+      // Determine which profile to check for privacy
+      const otherUser = friend._id.toString() === userId.toString() ? user : friend;
+      const isMyData = friend._id.toString() === userId.toString();
 
-      if (userId.toString() === friend._id.toString()) {
-        friendList = user;
-        isFriendData = false;
+      // Privacy check
+      const { privacySetting, privacySettingCustom = {} } = otherUser;
+      if (privacySetting === 'private' && !privacySettingCustom.privateProfile.includes(userId)) {
+        return null;
       }
 
-      const { privacySetting, privacySettingCustom = {} } = friendList;
+      // Attach match info (assuming isPremiumUser check is needed here)
+      const isPremiumUser = await checkUserPremiumStatus(userId); // You may want to check this once outside the loop
+      if (otherUser.userPartner) {
+        const matchInfo = await calculateMatchScore(otherUser._id, otherUser.userPartner, userId, isPremiumUser);
 
-      if (
-        privacySetting === 'private' &&
-        !(Array.isArray(privacySettingCustom.privateProfile) && privacySettingCustom.privateProfile.includes(userId))
-      ) {
-        return null; // ❌ Skip private profile if not allowed
-      }
-
-      // ✅ Step 3: Attach match info
-      if (friendList.userPartner) {
-        const matchInfo = await calculateMatchScore(friendList._id, friendList.userPartner, userId, isPremiumUser);
-
-        if (isFriendData) {
+        // Mutate the correct object (user or friend) with match info
+        if (isMyData) {
           // eslint-disable-next-line no-param-reassign
-          friendEntry.friend = matchInfo;
+          friendEntry.user = { ...user, ...matchInfo };
         } else {
           // eslint-disable-next-line no-param-reassign
-          friendEntry.user = matchInfo;
+          friendEntry.friend = { ...friend, ...matchInfo };
         }
 
         return {
@@ -1234,25 +1221,29 @@ export async function getFriendAcceptedMobile(filter, options = {}, userId, isSo
         };
       }
 
-      // Default if no match info available
+      // Default return if no userPartner
       return {
         ...friendEntry,
-        friend: {
-          ...friend,
-          matchPercentage: 0,
-          matchedCriteria: [],
-          userShortListDetails: [],
-        },
+        matchPercentage: 0,
+        matchedCriteria: [],
+        userShortListDetails: [],
       };
     })
   );
 
-  const filteredResults = friendsWithMatchData.filter(Boolean); // remove nulls
-  const totalPages = Math.ceil(filteredResults.length / limit);
+  // Remove all the nulls from the filtered results
+  const validResults = friendsWithMatchData.filter(Boolean);
+
+  // Step 3: Now, perform pagination on the VALID results array
+  const paginatedResults = validResults.slice(skip, skip + limit);
+
+  // Step 4: Calculate total pages correctly based on the full valid list
+  const totalDocs = validResults.length;
+  const totalPages = Math.ceil(totalDocs / limit);
 
   return {
-    results: filteredResults,
-    totalDocs: filteredResults.length,
+    results: paginatedResults, // Return only the slice for the current page
+    totalDocs,
     limit,
     page,
     totalPages,
