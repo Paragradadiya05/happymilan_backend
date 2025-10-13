@@ -56,29 +56,15 @@ const razorpayInstance = new razorpay({
 // eslint-disable-next-line import/prefer-default-export
 export const complete = catchAsync(async (req, res) => {
   if (!req.body.razorpay_payment_id || !req.query.paymentHistoryToken) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'razorpay_payment_id or paymentHistoryToken Not Available');
+    throw new ApiError(httpStatus.NOT_FOUND, 'razorpay_payment_id Not Available');
   }
 
-  // Identify the client type from the query parameter
-  const clientType = req.query.client_type;
-
-  // Fetch payment details from Razorpay
   const paymentDocument = await razorpayInstance.payments.fetch(req.body.razorpay_payment_id);
   const paymentMethod = paymentDocument.method;
 
-  // Check if payment status is captured
   if (paymentDocument.status === 'captured') {
-    // LOGGING: Announce successful payment and identify client type
-    if (clientType === 'mobile') {
-      console.log(`✅ [MOBILE] Payment captured successfully. ID: ${paymentDocument.id}`);
-    } else {
-      console.log(`✅ [WEB] Payment captured successfully. ID: ${paymentDocument.id}`);
-    }
+    const paymentHistoryToken = jwt.verify(req.query.paymentHistoryToken, 'PAYMENT');
 
-    // Decrypt payment JWT token
-    const paymentHistoryToken = jwt.verify(req.query.paymentHistoryToken, 'PAYMENT'); // TODO: Use env variable for secret
-
-    // Update payment history
     const getPaymentHistory = await paymentHistoryService.updatePaymentHistory(
       { _id: paymentHistoryToken.data },
       {
@@ -93,14 +79,9 @@ export const complete = catchAsync(async (req, res) => {
 
     const populatedPlan = getPaymentHistory.planId;
     const user = getPaymentHistory.userId || req.user;
-
-    if (!populatedPlan || !populatedPlan.planName) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Plan not found or planName missing');
-    }
-
     const { startDate, endDate } = calculateDates(paymentHistoryToken.data.planDuration);
 
-    // 1. Create Subscription
+    // Create subscription
     await subscriptionservice.createSubscription({
       user: req.user._id,
       selectedPlan: populatedPlan.planName,
@@ -109,7 +90,6 @@ export const complete = catchAsync(async (req, res) => {
       status: EnumOfStatus.ACTIVE,
     });
 
-    // 2. Create User Plan
     await userPlanService.createUserPlan({
       userId: req.user._id,
       planId: getPaymentHistory.planId,
@@ -119,18 +99,13 @@ export const complete = catchAsync(async (req, res) => {
       status: EnumOfUserPlan.ACTIVE,
     });
 
-    // 3. Handle Credit System
+    // Handle credits
     try {
       const userId = req.user._id;
       const planId = getPaymentHistory.planId._id;
       const creditAmount = populatedPlan.allowNumberOfRequest || 0;
 
-      await creditService.resetCredits({
-        userId,
-        reason: 'Plan Purchase',
-        planId,
-        notes: 'Credit reset before new plan purchase',
-      });
+      await creditService.resetCredits({ userId, reason: 'Plan Purchase', planId });
       await creditService.addCredits({
         userId,
         amount: creditAmount,
@@ -138,12 +113,11 @@ export const complete = catchAsync(async (req, res) => {
         planId,
         notes: `Added ${creditAmount} credits for plan purchase: ${populatedPlan.planName}`,
       });
-      console.log(`💳 Credit system updated: User ${userId} received ${creditAmount} credits.`);
-    } catch (creditError) {
-      console.error('❌ Failed to update credit system:', creditError);
+    } catch (e) {
+      console.error('Credit update failed:', e);
     }
 
-    // 4. Send Confirmation Email
+    // Send confirmation email
     try {
       await emailService.sendPlanConfirmationEmail({
         email: user.email,
@@ -153,38 +127,33 @@ export const complete = catchAsync(async (req, res) => {
         endDate,
         price: populatedPlan.totalPrice,
       });
-      console.log('📧 Plan confirmation email sent to:', user.email);
-    } catch (error) {
-      console.error('❌ Failed to send confirmation email:', error);
+    } catch (e) {
+      console.error('Email send failed:', e);
     }
 
-    // 5. Final Conditional Redirect
-    if (clientType === 'mobile') {
-      // FOR MOBILE: Redirect to your app's deep link using your actual scheme.
-      const mobileSuccessUrl = 'hapmeet://payment/success';
-      console.log('REDIRECTING MOBILE to:', mobileSuccessUrl);
-      res.redirect(mobileSuccessUrl);
-    } else {
-      // FOR WEB: Redirect to your frontend URL from your .env file.
-      console.log('REDIRECTING WEB to:', config.FRONT_URL);
-      res.redirect(config.FRONT_URL);
+    // ✅ Detect platform via query
+    const isMobile = req.query.type === 'mobile';
+
+    if (isMobile) {
+      // Mobile: send JSON response
+      return res.status(httpStatus.OK).json({
+        status: 'success',
+        message: 'Payment completed successfully',
+        redirectUrl: `${config.frontendUrl}${config.paymentPath}`,
+        plan: populatedPlan.planName,
+        startDate,
+        endDate,
+      });
     }
-  } else {
-    // Handle payments that are not 'captured' (e.g., 'failed')
-    // eslint-disable-next-line no-lonely-if
-    if (clientType === 'mobile') {
-      console.log(`❌ [MOBILE] Payment failed or not captured. Status: ${paymentDocument.status}`);
-      // FOR MOBILE FAILURE: Redirect to your app's failure screen.
-      const mobileFailureUrl = 'hapmeet://payment/failure';
-      console.log('REDIRECTING MOBILE to:', mobileFailureUrl);
-      res.redirect(mobileFailureUrl);
-    } else {
-      console.log(`❌ [WEB] Payment failed or not captured. Status: ${paymentDocument.status}`);
-      // Redirect to a dedicated failure page on your website
-      res.redirect(`${config.FRONT_URL}/payment-failed`); // It's better to use the full URL for failure too
-    }
+    // Web: redirect
+    return res.redirect(`${config.frontendUrl}${config.paymentPath}`);
   }
+  return res.status(httpStatus.BAD_REQUEST).json({
+    status: 'fail',
+    message: 'Payment not captured. Please try again.',
+  });
 });
+
 export const createOrder = catchAsync(async (req, res) => {
   const { planId } = req.body;
   const userId = req.user._id;
