@@ -682,6 +682,7 @@ io.use(initSubscription).on('connection', function (socket) {
               'lastMessage.content': 1,
               'lastMessage.type': 1,
               'lastMessage.sendAt': 1,
+              'lastMessage.message': 1,
             },
           },
         ]),
