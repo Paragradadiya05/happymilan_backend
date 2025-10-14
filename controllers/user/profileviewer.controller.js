@@ -141,7 +141,8 @@ export const getProfilevisitors = catchAsync(async (req, res) => {
     lean: true,
     populate: {
       path: 'user',
-      select: 'firstName lastName name profilePic userProfilePic userProfessional address dateOfBirth datingData',
+      select:
+        'firstName lastName name profilePic userProfilePic userProfessional address dateOfBirth datingData privacySettingCustom friendsDetails',
       populate: [{ path: 'address' }, { path: 'userProfessional' }],
     },
     sort: { createdAt: -1 },
@@ -187,11 +188,22 @@ export const getProfilevisitors = catchAsync(async (req, res) => {
       lastViewTime: visitor.lastViewTime,
     };
 
-    if (isPremiumUser) {
-      // Premium user: show clear images
+    // --- PRIVACY LOGIC START ---
+    const privacy = viewer.privacySettingCustom || {};
+    const friendsStatus = viewer.friendsDetails && viewer.friendsDetails.status ? viewer.friendsDetails.status : 'none';
+    const isFriendAccepted = friendsStatus === 'accepted';
+
+    const shouldBlurImage =
+      (privacy.profilePhotoPrivacy === true && !isFriendAccepted) ||
+      (privacy.showPhotoToFriendsOnly === true && !isFriendAccepted);
+    // --- PRIVACY LOGIC END ---
+
+    // ✅ If user is Premium, show all images clear
+    if (isPremiumUser && !shouldBlurImage) {
       results.push({
         ...baseData,
         profilePic: viewer.profilePic,
+        userProfilePic: viewer.userProfilePic,
         firstName: viewer.firstName,
         lastName: viewer.lastName,
         name: viewer.name,
@@ -200,7 +212,7 @@ export const getProfilevisitors = catchAsync(async (req, res) => {
           Array.isArray(viewer.datingData) && viewer.datingData.length > 0 ? viewer.datingData[0].Occupation : null,
       });
     } else {
-      // Non-premium user: blur images
+      // 🚨 Non-premium user OR privacy restrictions → apply blur
       const imageProcessingPromises = [];
 
       if (viewer.profilePic) {
@@ -231,6 +243,12 @@ export const getProfilevisitors = catchAsync(async (req, res) => {
         ...baseData,
         profilePic: viewer.profilePic,
         userProfilePic: viewer.userProfilePic,
+        firstName: viewer.firstName,
+        lastName: viewer.lastName,
+        name: viewer.name,
+        dateOfBirth: viewer.dateOfBirth,
+        Occupation:
+          Array.isArray(viewer.datingData) && viewer.datingData.length > 0 ? viewer.datingData[0].Occupation : null,
       });
     }
   }

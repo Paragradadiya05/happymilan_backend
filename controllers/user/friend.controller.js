@@ -564,27 +564,18 @@ export const getRFrdRequestsv2 = catchAsync(async (req, res) => {
   const sortingObj = pick(query, ['sort', 'order']);
   const sortObj = sortingObj.sort ? { [sortingObj.sort]: sortingObj.order === 'desc' ? -1 : 1 } : { createdAt: -1 };
 
-  // Step 1: Aggregate unique Friend requests with stable sorting
+  // Step 1: Aggregate unique Friend requests
   const aggregation = await Friend.aggregate([
     { $match: { friend: userId, status: EnumStatusOfFriend.REQUESTED } },
-
-    // Sort before grouping for deterministic order
     { $sort: sortObj },
-
     {
       $group: {
-        _id: '$user', // unique sender
-        doc: { $first: '$$ROOT' }, // keep first Friend doc per user
+        _id: '$user',
+        doc: { $first: '$$ROOT' },
       },
     },
-
-    // Replace with actual Friend doc
     { $replaceRoot: { newRoot: '$doc' } },
-
-    // ✅ Sort again AFTER grouping to keep stable order across refresh
     { $sort: sortObj },
-
-    // Apply pagination
     { $skip: skip },
     { $limit: limit },
   ]);
@@ -595,11 +586,12 @@ export const getRFrdRequestsv2 = catchAsync(async (req, res) => {
     { $group: { _id: '$user' } },
     { $count: 'count' },
   ]);
+
   const totalDocs = totalResults.length > 0 ? totalResults[0].count : 0;
   const totalPages = Math.ceil(totalDocs / limit);
 
-  // Step 3: Populate friend and user
-  const results = await User.populate(aggregation, [
+  // Step 3: Populate users
+  let results = await User.populate(aggregation, [
     {
       path: 'friend',
       populate: [{ path: 'address' }, { path: 'userEducation' }, { path: 'userPartner' }, { path: 'userProfessional' }],
@@ -610,13 +602,62 @@ export const getRFrdRequestsv2 = catchAsync(async (req, res) => {
     },
   ]);
 
-  // Step 4: Build pagination metadata
-  const pagingCounter = skip + 1;
-  const hasPrevPage = page > 1;
-  const hasNextPage = page < totalPages;
-  const prevPage = hasPrevPage ? page - 1 : null;
-  const nextPage = hasNextPage ? page + 1 : null;
+  // Step 4: Add Blur Logic (same as getRequests)
+  results = await Promise.all(
+    results.map(async (frdData) => {
+      const otherUser = frdData.user; // user who sent the request
 
+      // Remove empty shortlistData
+      if (!otherUser.shortlistData || otherUser.shortlistData.length === 0) {
+        delete otherUser.shortlistData;
+      }
+
+      // === Blur Logic ===
+      const privacy = otherUser.privacySettingCustom || {};
+      const isFriendAccepted = frdData.status === 'accepted';
+
+      const shouldBlurImage =
+        (privacy.profilePhotoPrivacy === true && !isFriendAccepted) ||
+        (privacy.showPhotoToFriendsOnly === true && !isFriendAccepted);
+
+      if (shouldBlurImage) {
+        const imageProcessingPromises = [];
+
+        // Blur main profilePic
+        if (otherUser.profilePic) {
+          imageProcessingPromises.push(
+            imageBlurService.blurImage(otherUser.profilePic).then((blurredUrl) => {
+              otherUser.profilePic = blurredUrl;
+            })
+          );
+        }
+
+        // Blur userProfilePic array
+        if (Array.isArray(otherUser.userProfilePic) && otherUser.userProfilePic.length > 0) {
+          const photoBlurPromises = otherUser.userProfilePic.map((photo, index) =>
+            imageBlurService.blurImage(photo.url).then((blurredUrl) => {
+              otherUser.userProfilePic[index] = {
+                ...photo,
+                url: blurredUrl,
+              };
+            })
+          );
+          imageProcessingPromises.push(...photoBlurPromises);
+        }
+
+        await Promise.all(imageProcessingPromises);
+      }
+
+      const { friend, user, ...restFrdData } = frdData;
+
+      return {
+        ...restFrdData,
+        user, // blurred or original
+      };
+    })
+  );
+
+  // Step 5: Return paginated response
   return res.status(httpStatus.OK).send({
     status: 'Success',
     data: {
@@ -625,11 +666,11 @@ export const getRFrdRequestsv2 = catchAsync(async (req, res) => {
       limit,
       totalPages,
       page,
-      pagingCounter,
-      hasPrevPage,
-      hasNextPage,
-      prevPage,
-      nextPage,
+      pagingCounter: skip + 1,
+      hasPrevPage: page > 1,
+      hasNextPage: page < totalPages,
+      prevPage: page > 1 ? page - 1 : null,
+      nextPage: page < totalPages ? page + 1 : null,
     },
   });
 });
