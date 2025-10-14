@@ -1048,13 +1048,18 @@ export async function getProfileViewerforMobile(filter, options = {}) {
   return matchedUsers;
 }
 
-export const getProfileVisitor = async (filter, options = {}) => {
+export const getProfileVisitorPaginated = async (filter, options = {}) => {
+  const { sort = {}, skip = 0, limit = 10, populate, lean } = options;
+
   const query = ProfileView.find(filter);
 
-  if (options.populate) query.populate(options.populate);
-  if (options.lean) query.lean();
+  if (populate) query.populate(populate);
+  if (lean) query.lean();
 
-  const result = await query.sort({ createdAt: -1 });
+  const [data, totalCount] = await Promise.all([
+    query.sort(sort).skip(skip).limit(limit),
+    ProfileView.countDocuments(filter),
+  ]);
 
-  return result;
+  return { data, totalCount };
 };

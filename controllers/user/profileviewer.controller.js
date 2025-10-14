@@ -119,8 +119,9 @@ export const GetProfileviwerMobile = catchAsync(async (req, res) => {
   return res.status(httpStatus.OK).send({ results: user });
 });
 
+// controller/profileViewer.controller.js
 export const getProfilevisitors = catchAsync(async (req, res) => {
-  const userId = req.user._id; // assuming you have auth middleware setting req.user
+  const userId = req.user._id;
 
   if (!userId) {
     return res.status(httpStatus.UNAUTHORIZED).json({
@@ -129,19 +130,28 @@ export const getProfilevisitors = catchAsync(async (req, res) => {
     });
   }
 
+  // Pagination setup
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || 10;
+  const skip = (page - 1) * limit;
+
   const filter = { viewerId: userId };
 
   const options = {
     lean: true,
     populate: {
       path: 'user',
-      select: 'firstName lastName name profilePic userProfessional address dateOfBirth datingData',
+      select: 'firstName lastName name profilePic userProfilePic userProfessional address dateOfBirth datingData',
       populate: [{ path: 'address' }, { path: 'userProfessional' }],
     },
+    sort: { createdAt: -1 },
+    skip,
+    limit,
   };
 
-  const userVisitors = await profileviewerservice.getProfileVisitor(filter, options);
+  const { data: userVisitors, totalCount } = await profileviewerservice.getProfileVisitorPaginated(filter, options);
 
+  // Check if user is premium
   let isPremiumUser = false;
   try {
     isPremiumUser = await checkUserPremiumStatus(userId);
@@ -155,12 +165,16 @@ export const getProfilevisitors = catchAsync(async (req, res) => {
       message: 'No visitors found',
       isPremiumUser,
       count: 0,
+      totalPages: 0,
+      currentPage: page,
       data: [],
     });
   }
 
   const results = [];
-  // eslint-disable-next-line no-continue,no-restricted-syntax
+
+  // Loop through each visitor
+  // eslint-disable-next-line no-restricted-syntax
   for (const visitor of userVisitors) {
     const viewer = visitor.user;
     // eslint-disable-next-line no-continue
@@ -174,6 +188,7 @@ export const getProfilevisitors = catchAsync(async (req, res) => {
     };
 
     if (isPremiumUser) {
+      // Premium user: show clear images
       results.push({
         ...baseData,
         profilePic: viewer.profilePic,
@@ -185,9 +200,9 @@ export const getProfilevisitors = catchAsync(async (req, res) => {
           Array.isArray(viewer.datingData) && viewer.datingData.length > 0 ? viewer.datingData[0].Occupation : null,
       });
     } else {
+      // Non-premium user: blur images
       const imageProcessingPromises = [];
 
-      // Blur profilePic
       if (viewer.profilePic) {
         imageProcessingPromises.push(
           imageBlurService.blurImage(viewer.profilePic).then((blurredUrl) => {
@@ -196,7 +211,6 @@ export const getProfilevisitors = catchAsync(async (req, res) => {
         );
       }
 
-      // Blur userProfilePic array
       if (Array.isArray(viewer.userProfilePic)) {
         const photoBlurPromises = viewer.userProfilePic.map((photo, index) =>
           imageBlurService.blurImage(photo.url).then((blurredUrl) => {
@@ -208,6 +222,10 @@ export const getProfilevisitors = catchAsync(async (req, res) => {
         );
         imageProcessingPromises.push(...photoBlurPromises);
       }
+
+      // Wait until all blur tasks finish
+      // eslint-disable-next-line no-await-in-loop
+      await Promise.all(imageProcessingPromises);
 
       results.push({
         ...baseData,
@@ -222,6 +240,9 @@ export const getProfilevisitors = catchAsync(async (req, res) => {
     userId,
     isPremiumUser,
     count: results.length,
-    data: results, // ✅ changed key to data
+    totalCount,
+    totalPages: Math.ceil(totalCount / limit),
+    currentPage: page,
+    data: results,
   });
 });
