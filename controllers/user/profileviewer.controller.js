@@ -1,8 +1,11 @@
 import httpStatus from 'http-status';
+import mongoose from 'mongoose';
 import { catchAsync } from '../../utils/catchAsync';
 import { imageBlurService, profileviewerservice } from '../../services';
 import { pick } from '../../utils/pick';
 import { checkUserPremiumStatus } from '../../services/friend.service';
+import { EnumStatusOfFriend } from '../../models/enum.model';
+import { ProfileView } from '../../models';
 
 export const createProfileViwer = catchAsync(async (req, res) => {
   const { appUsesType } = req.query;
@@ -135,24 +138,66 @@ export const getProfilevisitors = catchAsync(async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 10;
   const skip = (page - 1) * limit;
 
-  const filter = { viewerId: userId };
+  // 🔹 Aggregation to include user + friend data
+  const pipeline = [
+    { $match: { viewerId: mongoose.Types.ObjectId(userId) } },
 
-  const options = {
-    lean: true,
-    populate: {
-      path: 'user',
-      select:
-        'firstName lastName name profilePic userProfilePic userProfessional address dateOfBirth datingData privacySettingCustom friendsDetails',
-      populate: [{ path: 'address' }, { path: 'userProfessional' }],
+    // ✅ Join visitor (user who viewed profile)
+    {
+      $lookup: {
+        from: 'User',
+        localField: 'user',
+        foreignField: '_id',
+        as: 'user',
+      },
     },
-    sort: { createdAt: -1 },
-    skip,
-    limit,
-  };
+    { $unwind: '$user' },
 
-  const { data: userVisitors, totalCount } = await profileviewerservice.getProfileVisitorPaginated(filter, options);
+    // ✅ Join friend details
+    {
+      $lookup: {
+        from: 'Friend',
+        let: { viewerUserId: '$user._id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $or: [
+                  {
+                    $and: [{ $eq: ['$user', mongoose.Types.ObjectId(userId)] }, { $eq: ['$friend', '$$viewerUserId'] }],
+                  },
+                  {
+                    $and: [{ $eq: ['$user', '$$viewerUserId'] }, { $eq: ['$friend', mongoose.Types.ObjectId(userId)] }],
+                  },
+                ],
+              },
+            },
+          },
+          { $project: { status: 1, _id: 0 } }, // only return status
+        ],
+        as: 'friendsDetails',
+      },
+    },
+    {
+      $unwind: {
+        path: '$friendsDetails',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $match: {
+        $or: [{ 'friendsDetails.status': { $ne: EnumStatusOfFriend.BLOCKED } }, { friendsDetails: { $exists: false } }],
+      },
+    },
+    { $sort: { createdAt: -1 } },
+    { $skip: skip },
+    { $limit: limit },
+  ];
 
-  // Check if user is premium
+  const userVisitors = await ProfileView.aggregate(pipeline);
+  const totalCount = await ProfileView.countDocuments({ viewerId: userId });
+
+  // ✅ Check if logged-in user is premium
   let isPremiumUser = false;
   try {
     isPremiumUser = await checkUserPremiumStatus(userId);
@@ -160,7 +205,7 @@ export const getProfilevisitors = catchAsync(async (req, res) => {
     console.log('⚠️ Error checking premium status:', err.message);
   }
 
-  if (!userVisitors || userVisitors.length === 0) {
+  if (!userVisitors.length) {
     return res.status(httpStatus.OK).json({
       status: 'Success',
       message: 'No visitors found',
@@ -174,23 +219,24 @@ export const getProfilevisitors = catchAsync(async (req, res) => {
 
   const results = [];
 
-  // Loop through each visitor
+  // ✅ Loop each visitor
   // eslint-disable-next-line no-restricted-syntax
   for (const visitor of userVisitors) {
     const viewer = visitor.user;
     // eslint-disable-next-line no-continue
     if (!viewer) continue;
-
+    const friendsStatus =
+      visitor && visitor.friendsDetails && visitor.friendsDetails.status ? visitor.friendsDetails.status : 'none';
     const baseData = {
       _id: visitor._id,
       viewerId: viewer._id,
       createdAt: visitor.createdAt,
       lastViewTime: visitor.lastViewTime,
+      friendsDetails: { status: friendsStatus }, // ✅ include in response
     };
 
     // --- PRIVACY LOGIC START ---
     const privacy = viewer.privacySettingCustom || {};
-    const friendsStatus = viewer.friendsDetails && viewer.friendsDetails.status ? viewer.friendsDetails.status : 'none';
     const isFriendAccepted = friendsStatus === 'accepted';
 
     const shouldBlurImage =
@@ -198,7 +244,12 @@ export const getProfilevisitors = catchAsync(async (req, res) => {
       (privacy.showPhotoToFriendsOnly === true && !isFriendAccepted);
     // --- PRIVACY LOGIC END ---
 
-    // ✅ If user is Premium, show all images clear
+    const filteredPrivacy = {
+      showPhotoToFriendsOnly:
+        privacy && typeof privacy.showPhotoToFriendsOnly === 'boolean' ? privacy.showPhotoToFriendsOnly : false,
+      profilePhotoPrivacy: privacy && typeof privacy.profilePhotoPrivacy === 'boolean' ? privacy.profilePhotoPrivacy : false,
+    };
+
     if (isPremiumUser && !shouldBlurImage) {
       results.push({
         ...baseData,
@@ -208,11 +259,12 @@ export const getProfilevisitors = catchAsync(async (req, res) => {
         lastName: viewer.lastName,
         name: viewer.name,
         dateOfBirth: viewer.dateOfBirth,
+        privacySetting: viewer.privacySetting,
         Occupation:
           Array.isArray(viewer.datingData) && viewer.datingData.length > 0 ? viewer.datingData[0].Occupation : null,
+        privacySettingCustom: filteredPrivacy,
       });
     } else {
-      // 🚨 Non-premium user OR privacy restrictions → apply blur
       const imageProcessingPromises = [];
 
       if (viewer.profilePic) {
@@ -226,16 +278,12 @@ export const getProfilevisitors = catchAsync(async (req, res) => {
       if (Array.isArray(viewer.userProfilePic)) {
         const photoBlurPromises = viewer.userProfilePic.map((photo, index) =>
           imageBlurService.blurImage(photo.url).then((blurredUrl) => {
-            viewer.userProfilePic[index] = {
-              ...photo,
-              url: blurredUrl,
-            };
+            viewer.userProfilePic[index] = { ...photo, url: blurredUrl };
           })
         );
         imageProcessingPromises.push(...photoBlurPromises);
       }
 
-      // Wait until all blur tasks finish
       // eslint-disable-next-line no-await-in-loop
       await Promise.all(imageProcessingPromises);
 
@@ -247,8 +295,10 @@ export const getProfilevisitors = catchAsync(async (req, res) => {
         lastName: viewer.lastName,
         name: viewer.name,
         dateOfBirth: viewer.dateOfBirth,
+        privacySetting: viewer.privacySetting,
         Occupation:
           Array.isArray(viewer.datingData) && viewer.datingData.length > 0 ? viewer.datingData[0].Occupation : null,
+        privacySettingCustom: filteredPrivacy,
       });
     }
   }
