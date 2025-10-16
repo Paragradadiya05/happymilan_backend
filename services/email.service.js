@@ -1968,7 +1968,7 @@ export const sendKycApprovedEmail = async (user) => {
 </div>
 <div id="content">
     <h1 id="text-2">Dear ${firstName || 'User'}</h1>
-    <h1 id="text-2">Were happy to inform you that your KYC verification has been successfully approved.</h1>
+    <h1 id="text-2">We are happy to inform you that your KYC verification has been successfully approved.</h1>
     <h1 id="otp-text">Your account is now verified and fully active. </h1>
     <h1 id="text-2">If you have any questions, feel free to reach out to our support team. </h1>
 </div>
@@ -2819,7 +2819,7 @@ export const sendCancelPlanRejectedEmail = async (user, cancelPlan) => {
 </div>
 <div id="content">
     <h1 id="text-2">Dear ${firstName || 'User'}</h1>
-     <h1 id="text-2">We regret to inform you thot your plon concellation request hos been rejected. </h1>
+     <h1 id="text-2">We regret to inform you that your plan cancellation request has been rejected. </h1>
     <h1 id="text-2"><p>
         Reason: <strong>${cancelPlan.adminRejectReason || 'Not specified by admin'}</strong></p></h1>
      <h1 id="text-2">Please provide valid informotion or supporting proof to proceed with the concellation.  </h1>
