@@ -11,11 +11,10 @@ export const create = catchAsync(async (req, res) => {
   const userId = req.user._id;
   body.createdBy = req.user;
   body.updatedBy = req.user;
-  const options = {};
 
   const { partnerUserId } = body;
 
-  const partnerUser = await User.findOne({ _id: partnerUserId });
+  const partnerUser = await User.findById(partnerUserId);
   if (!partnerUser) {
     throw new Error('Partner user not found');
   }
@@ -25,12 +24,17 @@ export const create = catchAsync(async (req, res) => {
       userId,
       ...body,
     },
-    req.user,
-    options
+    req.user
   );
+
+  if (!story || !story._id) {
+    throw new Error('Story creation failed');
+  }
+
   const consentToken = await tokenService.generateVerifyStoryConsentToken(userId, story._id);
   await sendEmailForStoryConsentTaken(partnerUser, consentToken);
-  console.log('Email sent for consent taken');
+
+  console.log('✅ Email sent for consent taken');
   return res.status(httpStatus.CREATED).send({ results: story });
 });
 
