@@ -173,11 +173,11 @@ export const createOrder = catchAsync(async (req, res) => {
 
   // based on request, we need to calculate amount and currency from plan
   // const orderAmount = (getPlan.price - (getPlan.price * getPlan.discount) / 100) * 100;
-  const orderAmount = 100; // todo : update this after done testing
+  const orderAmount = Math.round(getPlan.totalPrice * 100);
 
   // create payment order in our database
   const createPaymentOrder = await paymentHistoryService.createPaymentHistory({
-    userId, // todo : update userd id based in auth token currently it is static
+    userId,
     amount: orderAmount, // order amount in rupee * 100 ( paisa )
     paymentMethod: 'razerpay', // update after data coming from razor pay
     stauts: 'created-our-side',
