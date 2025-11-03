@@ -3,6 +3,20 @@ import mongoosePaginateV2 from 'mongoose-paginate-v2';
 import enumModel from './enum.model';
 import { toJSON } from './plugins';
 
+// ✅ Utility Function
+// eslint-disable-next-line import/prefer-default-export
+export const getDiscountedPrice = (price, discount) => {
+  if (!price || !discount) return price;
+
+  const discountedAmount = (price * discount) / 100;
+  const exactPrice = price - discountedAmount;
+
+  // ✅ Round to the nearest 9 (e.g., 199, 299, 999)
+  const rounded = Math.round(exactPrice / 10) * 10 - 1;
+
+  return rounded;
+};
+
 const planSchema = new mongoose.Schema(
   {
     planName: {
@@ -50,16 +64,20 @@ const planSchema = new mongoose.Schema(
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );
+
+// ✅ Pre-save hook
 planSchema.pre('save', function (next) {
   if (this.discount > 0) {
     this.discountAmount = (this.price * this.discount) / 100;
-    this.totalPrice = this.price - this.discountAmount;
+    this.totalPrice = getDiscountedPrice(this.price, this.discount);
   } else {
     this.discountAmount = 0;
     this.totalPrice = this.price;
   }
   next();
 });
+
+// ✅ Pre-update hook
 planSchema.pre(['findOneAndUpdate', 'updateOne', 'updateMany'], function (next) {
   let update = this.getUpdate();
 
@@ -68,12 +86,12 @@ planSchema.pre(['findOneAndUpdate', 'updateOne', 'updateMany'], function (next) 
     update = { ...update, ...update.$set };
   }
 
-  const price = update.price || 0; // default to 0 if not provided
-  const discount = update.discount || 0;
+  const { price } = update;
+  const { discount } = update;
 
-  if (update.price !== undefined || update.discount !== undefined) {
+  if (price !== undefined || discount !== undefined) {
     const discountAmount = discount > 0 ? (price * discount) / 100 : 0;
-    const totalPrice = price - discountAmount;
+    const totalPrice = discount > 0 ? getDiscountedPrice(price, discount) : price;
 
     this.set({
       discountAmount,
@@ -86,5 +104,7 @@ planSchema.pre(['findOneAndUpdate', 'updateOne', 'updateMany'], function (next) 
 
 planSchema.plugin(toJSON);
 planSchema.plugin(mongoosePaginateV2);
-const planModel = mongoose.models.plan || mongoose.model('Plan', planSchema, 'Plan');
+
+const planModel = mongoose.models.Plan || mongoose.model('Plan', planSchema, 'Plan');
+
 module.exports = planModel;
