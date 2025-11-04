@@ -607,7 +607,7 @@ export const sendOtpVerificationEmail = async (user, otp) => {
 </div>
 <div id="content">
     <div id="div-center">
-    <h1 id="text-3" > Welcome to HappyMilan your hub for finding a life partner, exploring dating opportunities, and making new friends. Join us to connect with a vibrant community and discover meaningful relationships.</h1>
+    <h1 id="text-3" > Welcome to Hapmeet your hub for finding a life partner, exploring dating opportunities, and making new friends. Join us to connect with a vibrant community and discover meaningful relationships.</h1>
     </div>
     <div id="content">
         <div id="div-center">
@@ -991,7 +991,7 @@ export const sendCongratulationEmail = async (user) => {
                </div>
             <div id="content">
                 <p id="text-1">Hi ${name},</p>
-                <p id="text-1">Welcome to HappyMilan! We're excited to have you with us. Congrats on registering your account!</p>
+                <p id="text-1">Welcome to Hapmeet! We're excited to have you with us. Congrats on registering your account!</p>
                 <p id="text-1">To get started, log in to your account using the following credentials:</p>
                 <p id="text-4">Email: ${to} <br> Password: ******</p>
                 <div id="mar-top">
@@ -1006,7 +1006,7 @@ export const sendCongratulationEmail = async (user) => {
                 <div>
                     <img id="demo" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/Img/6722219c16359520d1b37280/plan.jpg" alt="Feature Image"/>
                 </div> 
-                <p id="text-2">Welcome to HappyMilan, your hub for finding a life partner, exploring dating opportunities, and making new friends. Join us to connect with a vibrant community and discover meaningful relationships.</p>
+                <p id="text-2">Welcome to Hapmeet, your hub for finding a life partner, exploring dating opportunities, and making new friends. Join us to connect with a vibrant community and discover meaningful relationships.</p>
             </div>
             <div id="content">
         <div id="div-center">
@@ -1611,7 +1611,7 @@ export const DeleteUserEmail = async (user) => {
 </div>
 <div id="content">
     <h1 id="text-1">Dear ${name},</h1>
-    <h1 id="text-1">Your account on HappyMilan has been successfully deleted, including: </h1>
+    <h1 id="text-1">Your account on Hapmeet has been successfully deleted, including: </h1>
         
 
                    <li id="text-1"> Profile information</li> 
@@ -1622,17 +1622,17 @@ export const DeleteUserEmail = async (user) => {
        <p id="text-1">Your data has been permanently removed in line with our privacy policy. We’d be happy to welcome you back anytime. If you have questions, contact us at </p>
        <h1 id="text-3"> contact@happymilan.com. </h1>
 
-         <h1 id="text-1">Thank you for being part of HappyMilan. </h1>
+         <h1 id="text-1">Thank you for being part of Hapmeet. </h1>
 
        <h1 id="text-1">Best regards,</h1>
-        <h1 id="text-1">HappyMilan Team </h1>
+        <h1 id="text-1">Hapmeet Team </h1>
   
  
 </div>
 </div>
 <div id="content">
     <div id="div-center">
-        <h1 id="text-4">Welcome to HappyMilan your hub for finding a life partner, exploring dating opportunities, and making new friends. Join us to connect with a vibrant community and discover meaningful relationships.</h1>
+        <h1 id="text-4">Welcome to Hapmeet your hub for finding a life partner, exploring dating opportunities, and making new friends. Join us to connect with a vibrant community and discover meaningful relationships.</h1>
     </div>
     <div id="content">
         <div id="div-center">
