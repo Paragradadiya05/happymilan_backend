@@ -24,7 +24,7 @@ mongoose.connect(config.mongoose.url, config.mongoose.options).then(() => {
   socketAPI.io.adapter(redisAdapter({ host: config.redis.host, port: config.redis.port }));
   socketAPI.io.attach(server, {
     cors: {
-      origin: ['http://localhost:3000', 'https://happymilan.tech', 'https://happymilanweb.web.app'], // todo : add this array to env file
+      origin: ['http://localhost:3000', 'https://happymilan.tech', 'https://happymilanweb.web.app', 'https://hapmeet.com'], // todo : add this array to env file
       methods: ['GET', 'POST'],
       'Access-Control-Allow-Credentials': true,
     },
