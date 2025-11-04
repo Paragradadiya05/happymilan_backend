@@ -43,7 +43,13 @@ export const downloadUserPlanReceipt = catchAsync(async (req, res) => {
   if (!userPlan) {
     return res.status(httpStatus.NOT_FOUND).send({ message: 'User plan not found' });
   }
-
+  const formatDate = (date) => {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
   // HTML Template
   const htmlContent = `
   <!DOCTYPE html>
@@ -83,8 +89,8 @@ export const downloadUserPlanReceipt = catchAsync(async (req, res) => {
       <p><strong>Email:</strong> ${userPlan.userId.email || 'N/A'}</p>
       <p><strong>Payment Method:</strong> ${userPlan.paymentMethod}</p>
       <p><strong>Status:</strong> ${userPlan.status}</p>
-      <p><strong>Start Date:</strong> ${new Date(userPlan.startDate).toLocaleDateString()}</p>
-      <p><strong>End Date:</strong> ${new Date(userPlan.endDate).toLocaleDateString()}</p>
+      <p><strong>Start Date:</strong> ${formatDate(userPlan.startDate)}</p>
+      <p><strong>End Date:</strong> ${formatDate(userPlan.endDate)}</p>
     </div>
 
     <table class="table">
