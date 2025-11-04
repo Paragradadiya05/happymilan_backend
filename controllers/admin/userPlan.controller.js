@@ -72,7 +72,7 @@ export const downloadUserPlanReceipt = catchAsync(async (req, res) => {
   </head>
   <body>
     <div class="header">
-      <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/firstimage/68b0391cda00ca9f25bafa5c/logo.jpg" alt="logo"/>
+      <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/hapmeetlogo/68da85a84e96f5d8bc5620bb/hapmeetlogo.png" alt="logo"/>
       <h1>Plan Receipt</h1>
       <p>Thank you for your subscription</p>
     </div>

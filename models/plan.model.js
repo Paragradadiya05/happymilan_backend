@@ -13,7 +13,7 @@ export const getDiscountedPrice = (price, discount) => {
 
   // ✅ Round to the nearest 9 (e.g., 199, 299, 999)
   const rounded = Math.round(exactPrice / 10) * 10 - 1;
-  console.log('=====rounded====>', rounded);
+
   return rounded;
 };
 

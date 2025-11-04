@@ -219,7 +219,7 @@ export const sendResetPasswordEmail = async (to, token) => {
 
  <div id="parrent">
  <div id="logo">
-   <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/users/65e991ad15835e46f0861b8b/65eff3406145b642700c32ba/logo.jpg" alt="logo"/>
+   <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/hapmeetlogo/68da85a84e96f5d8bc5620bb/hapmeetlogo.png" alt="logo"/>
  </div>
  <div id="content">
  <div>
@@ -595,7 +595,7 @@ export const sendOtpVerificationEmail = async (user, otp) => {
             <div id="content-div-width">
                 <div id="content-div" >
                 <div id="logo-div">
-            <img id="logo-img" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/users/65e991ad15835e46f0861b8b/65eff3406145b642700c32ba/logo.jpg"/>
+            <img id="logo-img" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/hapmeetlogo/68da85a84e96f5d8bc5620bb/hapmeetlogo.png"/>
 <h1 id="text-1" >${formattedDate}</h1>
 </div>
 <div id="content">
@@ -986,7 +986,7 @@ export const sendCongratulationEmail = async (user) => {
         <div id="perrent">
         <div id="logo-div">
             
-                <img id="logo-img" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/users/65e991ad15835e46f0861b8b/65eff3406145b642700c32ba/logo.jpg" alt="Logo"/>
+                <img id="logo-img" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/hapmeetlogo/68da85a84e96f5d8bc5620bb/hapmeetlogo.png" alt="Logo"/>
                <p id="date">${formattedDate}</p>
                </div>
             <div id="content">
@@ -1311,7 +1311,7 @@ export const sendResetEmailOtp = async (to, otp, emailOrMobileTag) => {
 
  <div id="parrent">
  <div id="logo">
-   <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/users/65e991ad15835e46f0861b8b/65eff3406145b642700c32ba/logo.jpg" alt="logo"/>
+   <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/hapmeetlogo/68da85a84e96f5d8bc5620bb/hapmeetlogo.png" alt="logo"/>
  </div>
  <div id="content">
  <div>
@@ -1606,7 +1606,7 @@ export const DeleteUserEmail = async (user) => {
             <div id="content-div-width">
                 <div id="content-div" >
                 <div id="logo-div">
-            <img id="logo-img" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/users/65e991ad15835e46f0861b8b/65eff3406145b642700c32ba/logo.jpg"/>
+            <img id="logo-img" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/hapmeetlogo/68da85a84e96f5d8bc5620bb/hapmeetlogo.png"/>
 <h1 id="text-1" >${formattedDate}</h1>
 </div>
 <div id="content">
