@@ -1874,7 +1874,7 @@ export async function getDatingPartnerList(filter, options = {}) {
   const userPartnerPreferences = await Datingpartner.findOne({ userId: filter.userId });
 
   // Log the preferences for debugging
-  console.log('User Dating Partner Preferences:', JSON.stringify(userPartnerPreferences));
+  // console.log('User Dating Partner Preferences:', JSON.stringify(userPartnerPreferences));
 
   // If no preferences are found, throw an error
   if (!userPartnerPreferences) {

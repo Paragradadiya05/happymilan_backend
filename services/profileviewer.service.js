@@ -10,7 +10,6 @@ export async function createprofileviewer(body = {}, user, appUsesType) {
   const { viewerId } = body;
 
   const viewer = await User.findOne({ _id: viewerId, appUsesType });
-  console.log('=====xx====>', viewer);
   if (!viewer) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'No such user exists');
   }

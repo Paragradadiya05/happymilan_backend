@@ -180,12 +180,10 @@ const EnumOfCountry = {
   SINGAPORE: 'singapore',
   FRANCE: 'france',
   UNITED_KINGDOM: 'united-kingdom',
-  AFGHANISTAN: 'afghanistan',
   CHINA: 'china',
   MYANMAR: 'myanmar',
   NEPAL: 'nepal',
   SRI_LANKA: 'sri-lanka',
-  PAKISTAN: 'pakistan',
 };
 
 const EnumOfCreative = {

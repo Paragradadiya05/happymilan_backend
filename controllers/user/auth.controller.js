@@ -153,7 +153,7 @@ export const login = catchAsync(async (req, res) => {
   const user = await authService.loginUserWithEmailOrMobileAndPassword(email, mobileNumber, countryCodeId, password);
 
   const checkUserActivePlan = await checkUserPremiumStatus(user._id);
-  console.log('=====xx====>', checkUserActivePlan);
+  // console.log('=====xx====>', checkUserActivePlan);
 
   // Check if 2FA is enabled for this user
   if (user.twoFactorAuth && user.twoFactorAuth.isEnabled) {
