@@ -10,7 +10,7 @@ export const sendOtpToMobile = async (mobileNumber, otp) => {
   const msg91AuthKey = config.mobileOtp.msg91_auth; // Your MSG91 auth key
   const msg91TemplateId = config.mobileOtp.msg91_template; // Your MSG91 template ID
 
-  console.log('=== var mobileNumber ===>', mobileNumber);
+  // console.log('=== var mobileNumber ===>', mobileNumber);
   const url = `https://control.msg91.com/api/v5/otp?template_id=${msg91TemplateId}&mobile=${mobileNumber}&authkey=${msg91AuthKey}&realTimeResponse=1`;
 
   const data = {

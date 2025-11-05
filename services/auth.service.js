@@ -398,7 +398,7 @@ export const updateEmailAndMobile = async ({ email, mobileNumber, user }) => {
 };
 
 export const verifyOtpForUpdatePasswordEnaEmail = async ({ email, mobileNumber, user }) => {
-  console.log('=== var mobileNumber ===>', mobileNumber);
+  // console.log('=== var mobileNumber ===>', mobileNumber);
 
   // Handle email update
   if (email && email.currentEmail === user.email) {
