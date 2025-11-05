@@ -415,7 +415,7 @@ export const sendOtpVerificationEmail = async (user, otp) => {
         }
         #logo-img{
            width: 150px;
-           height: 37px;
+           height: 30px;
         }
         
         #content{
@@ -456,7 +456,7 @@ export const sendOtpVerificationEmail = async (user, otp) => {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-left: 25%;
+            margin-left: 30%;
             
         }
         #socialmedia-1{
@@ -490,9 +490,25 @@ export const sendOtpVerificationEmail = async (user, otp) => {
         }
 
         @media screen and (max-width: 1280px) {
+         #main{
+            display: flex; 
+            width: 100%; 
+            place-items: center; 
+            justify-content: center;
+        }
+        #parrent{
+            display: flex; 
+            width: 80%; 
+            justify-content: center; 
+            background-color: rgb(240,244,249); 
+            margin-top: 5.5%;
+            margin-bottom: 5.5%;
+            padding-top: 30px; 
+            padding-bottom: 30px;
+        }
             #logo-img{
            width: 130px;
-           height: 35px;
+           height: 32px;
         }
         #text-1{
             font-size: 10px; 
@@ -537,9 +553,25 @@ export const sendOtpVerificationEmail = async (user, otp) => {
             
         } 
         @media screen and (max-width: 1024px) {
+         #main{
+            display: flex; 
+            width: 100%; 
+            place-items: center; 
+            justify-content: center;
+        }
+        #parrent{
+            display: flex; 
+            width: 80%; 
+            justify-content: center; 
+            background-color: rgb(240,244,249); 
+            margin-top: 5.5%;
+            margin-bottom: 5.5%;
+            padding-top: 30px; 
+            padding-bottom: 30px;
+        }
             #logo-img{
            width: 100px;
-           height: 25px;
+           height: 22px;
         }
         #text-1{
             font-size: 8px; 
@@ -613,16 +645,13 @@ export const sendOtpVerificationEmail = async (user, otp) => {
         <div id="div-center">
         <div id="socialmedia-div" >
            <div>
-           <img id="socialmedia-1" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/yticone/671777d63e6cb9ad5f202b0d/yt.jpg" alt="youtube"/>
+           <img id="socialmedia-1" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/yticone/671777d63e6cb9ad5f202b0d/yt.jpg" alt="https://www.youtube.com/@hapmeet"/>
            </div>
            <div>
-            <img id="socialmedia-2" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/fbicone/671776dc3e6cb9ad5f202b01/fb.jpg" alt="fb"/>
+            <img id="socialmedia-2" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/fbicone/671776dc3e6cb9ad5f202b01/fb.jpg" alt="https://www.facebook.com/profile.php?id=100094066146720"/>
            </div>
            <div>
-            <img id="socialmedia-3" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/instagramicone/671777513e6cb9ad5f202b05/insta.jpg" alt="insta"/>
-           </div>
-           <div>
-            <img id="socialmedia-4" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/twittericone/6717779d3e6cb9ad5f202b09/Twitter.jpg" alt="twitter"/>
+            <img id="socialmedia-3" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/instagramicone/671777513e6cb9ad5f202b05/insta.jpg" alt="https://www.instagram.com/hapmeet/"/>
            </div>
         </div>
         </div>
@@ -705,7 +734,7 @@ export const sendCongratulationEmail = async (user) => {
       }
         #logo-img {
             width: 150px;
-            height: auto;
+            height: 30px;
            
             
         }
@@ -738,7 +767,7 @@ export const sendCongratulationEmail = async (user) => {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-left: 35%;
+            margin-left: 40%;
             margin-top: 30px;
             margin-bottom: 10px;
         }
@@ -870,7 +899,7 @@ export const sendCongratulationEmail = async (user) => {
         @media screen and (max-width: 1280px) {
             #logo-img{
            width: 130px;
-           height: 35px;
+           height: 30px;
         }
         #date {
             font-size: 10px;
@@ -888,11 +917,11 @@ export const sendCongratulationEmail = async (user) => {
         }
        
         #socialmedia-div{
-            width: 35%;
+            width:35%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-left: 35%;
+            margin-left: 30%;
             margin-top: 30px;
             margin-bottom: 10px;
         }
@@ -923,7 +952,7 @@ export const sendCongratulationEmail = async (user) => {
         @media screen and (max-width: 1024px) {
             #logo-img{
            width: 100px;
-           height: 25px;
+           height: 22px;
         }
         #date {
             font-size: 8px;
@@ -954,7 +983,7 @@ export const sendCongratulationEmail = async (user) => {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-left: 30%;
+            margin-left: 20%;
             margin-top: 25px;
             margin-bottom: 10px;
         }
@@ -995,7 +1024,7 @@ export const sendCongratulationEmail = async (user) => {
                 <p id="text-1">To get started, log in to your account using the following credentials:</p>
                 <p id="text-4">Email: ${to} <br> Password: ******</p>
                 <div id="mar-top">
-                    <img id="demo" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/Img/672221cd16359520d1b37284/search.jpg" alt="Feature Image"/>
+                    <img id="demo" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/search/690b307a65f69949c94ef230/search.jpg" alt="Feature Image"/>
                 </div>  
                 <div>
                     <img id="demo" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/Img/672221fb16359520d1b372ae/secure.jpg" alt="Feature Image"/>
@@ -1004,24 +1033,24 @@ export const sendCongratulationEmail = async (user) => {
                     <img id="demo" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/Img/6722215c16359520d1b3727c/chat.jpg" alt="Feature Image"/>
                 </div> 
                 <div>
-                    <img id="demo" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/Img/6722219c16359520d1b37280/plan.jpg" alt="Feature Image"/>
+                    <img id="demo" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/plan/690b36d065f69949c94ef24d/plan.jpg" alt="Feature Image"/>
                 </div> 
                 <p id="text-2">Welcome to Hapmeet, your hub for finding a life partner, exploring dating opportunities, and making new friends. Join us to connect with a vibrant community and discover meaningful relationships.</p>
             </div>
             <div id="content">
         <div id="div-center">
-        <div id="socialmedia-div" >
+       <div id="socialmedia-div" >
            <div>
-           <img id="socialmedia-1" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/yticone/671777d63e6cb9ad5f202b0d/yt.jpg" alt="youtube"/>
+           <img id="socialmedia-1" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/yticone/671777d63e6cb9ad5f202b0d/yt.jpg" alt="https://www.youtube.com/@hapmeet"/>
            </div>
            <div>
-            <img id="socialmedia-2" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/fbicone/671776dc3e6cb9ad5f202b01/fb.jpg" alt="fb"/>
+            <img id="socialmedia-2" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/fbicone/671776dc3e6cb9ad5f202b01/fb.jpg" alt="https://www.facebook.com/profile.php?id=100094066146720"/>
            </div>
            <div>
-            <img id="socialmedia-3" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/instagramicone/671777513e6cb9ad5f202b05/insta.jpg" alt="insta"/>
+            <img id="socialmedia-3" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/instagramicone/671777513e6cb9ad5f202b05/insta.jpg" alt="https://www.instagram.com/hapmeet/"/>
            </div>
            <div>
-            <img id="socialmedia-4" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/twittericone/6717779d3e6cb9ad5f202b09/Twitter.jpg" alt="twitter"/>
+<!--            <img id="socialmedia-4" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/twittericone/6717779d3e6cb9ad5f202b09/Twitter.jpg" alt="twitter"/>-->
            </div>
         </div>
      
@@ -1400,7 +1429,7 @@ export const DeleteUserEmail = async (user) => {
         }
         #logo-img{
            width: 150px;
-           height: 37px;
+           height: 35px;
         }
         
         #content{
@@ -1485,7 +1514,7 @@ export const DeleteUserEmail = async (user) => {
         @media screen and (max-width: 1280px) {
             #logo-img{
            width: 130px;
-           height: 35px;
+           height: 30px;
         }
         #text-1{
             font-size: 10px; 
@@ -1541,7 +1570,7 @@ export const DeleteUserEmail = async (user) => {
         @media screen and (max-width: 1024px) {
             #logo-img{
            width: 100px;
-           height: 25px;
+           height: 22px;
         }
         #text-1{
             font-size: 8px; 
@@ -1620,7 +1649,7 @@ export const DeleteUserEmail = async (user) => {
       
 
        <p id="text-1">Your data has been permanently removed in line with our privacy policy. We’d be happy to welcome you back anytime. If you have questions, contact us at </p>
-       <h1 id="text-3"> contact@happymilan.com. </h1>
+       <h1 id="text-3"> contact@hapmeet.com. </h1>
 
          <h1 id="text-1">Thank you for being part of Hapmeet. </h1>
 
@@ -1636,18 +1665,18 @@ export const DeleteUserEmail = async (user) => {
     </div>
     <div id="content">
         <div id="div-center">
-        <div id="socialmedia-div" >
+      <div id="socialmedia-div" >
            <div>
-           <img id="socialmedia-1" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/yticone/671777d63e6cb9ad5f202b0d/yt.jpg" alt="youtube"/>
+           <img id="socialmedia-1" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/yticone/671777d63e6cb9ad5f202b0d/yt.jpg" alt="https://www.youtube.com/@hapmeet"/>
            </div>
            <div>
-            <img id="socialmedia-2" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/fbicone/671776dc3e6cb9ad5f202b01/fb.jpg" alt="fb"/>
+            <img id="socialmedia-2" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/fbicone/671776dc3e6cb9ad5f202b01/fb.jpg" alt="https://www.facebook.com/profile.php?id=100094066146720"/>
            </div>
            <div>
-            <img id="socialmedia-3" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/instagramicone/671777513e6cb9ad5f202b05/insta.jpg" alt="insta"/>
+            <img id="socialmedia-3" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/instagramicone/671777513e6cb9ad5f202b05/insta.jpg" alt="https://www.instagram.com/hapmeet/"/>
            </div>
            <div>
-            <img id="socialmedia-4" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/twittericone/6717779d3e6cb9ad5f202b09/Twitter.jpg" alt="twitter"/>
+<!--            <img id="socialmedia-4" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/twittericone/6717779d3e6cb9ad5f202b09/Twitter.jpg" alt="twitter"/>-->
            </div>
         </div>
         </div>
@@ -1719,7 +1748,7 @@ export const sendPlanConfirmationEmail = async (user) => {
 
       <div>We're thrilled to have you on board. Your premium access is now active and you can enjoy all the exclusive features we offer.</div><br>
 
-      <div>If you have any questions or need support, feel free to contact us at support@example.com</div><br>
+      <div>If you have any questions or need support, feel free to contact us at contact@hapmeet.com</div><br>
 
       <div>Thanks again for choosing us!</div><br><br>
 
@@ -1784,7 +1813,7 @@ export const sendKycApprovedEmail = async (user) => {
         }
         #logo-img{
            width: 150px;
-           height: 37px;
+           height: 30px;
         }
         
         #content{
@@ -1861,7 +1890,7 @@ export const sendKycApprovedEmail = async (user) => {
         @media screen and (max-width: 1280px) {
             #logo-img{
            width: 130px;
-           height: 35px;
+           height: 30px;
         }
         #text-1{
             font-size: 10px; 
@@ -1908,7 +1937,7 @@ export const sendKycApprovedEmail = async (user) => {
         @media screen and (max-width: 1024px) {
             #logo-img{
            width: 100px;
-           height: 25px;
+           height: 22px;
         }
         #text-1{
             font-size: 8px; 
@@ -1983,18 +2012,18 @@ export const sendKycApprovedEmail = async (user) => {
     </div>
     <div id="content">
         <div id="div-center">
-        <div id="socialmedia-div" >
+      <div id="socialmedia-div" >
            <div>
-           <img id="socialmedia-1" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/yticone/671777d63e6cb9ad5f202b0d/yt.jpg" alt="youtube"/>
+           <img id="socialmedia-1" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/yticone/671777d63e6cb9ad5f202b0d/yt.jpg" alt="https://www.youtube.com/@hapmeet"/>
            </div>
            <div>
-            <img id="socialmedia-2" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/fbicone/671776dc3e6cb9ad5f202b01/fb.jpg" alt="fb"/>
+            <img id="socialmedia-2" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/fbicone/671776dc3e6cb9ad5f202b01/fb.jpg" alt="https://www.facebook.com/profile.php?id=100094066146720"/>
            </div>
            <div>
-            <img id="socialmedia-3" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/instagramicone/671777513e6cb9ad5f202b05/insta.jpg" alt="insta"/>
+            <img id="socialmedia-3" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/instagramicone/671777513e6cb9ad5f202b05/insta.jpg" alt="https://www.instagram.com/hapmeet/"/>
            </div>
            <div>
-            <img id="socialmedia-4" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/twittericone/6717779d3e6cb9ad5f202b09/Twitter.jpg" alt="twitter"/>
+<!--            <img id="socialmedia-4" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/twittericone/6717779d3e6cb9ad5f202b09/Twitter.jpg" alt="twitter"/>-->
            </div>
         </div>
         </div>
@@ -2069,7 +2098,7 @@ export const sendKycRejectedEmail = async (user, reason) => {
         }
         #logo-img{
            width: 150px;
-           height: 37px;
+           height: 30px;
         }
         
         #content{
@@ -2146,7 +2175,7 @@ export const sendKycRejectedEmail = async (user, reason) => {
         @media screen and (max-width: 1280px) {
             #logo-img{
            width: 130px;
-           height: 35px;
+           height: 30px;
         }
         #text-1{
             font-size: 10px; 
@@ -2193,7 +2222,7 @@ export const sendKycRejectedEmail = async (user, reason) => {
         @media screen and (max-width: 1024px) {
             #logo-img{
            width: 100px;
-           height: 25px;
+           height: 22px;
         }
         #text-1{
             font-size: 8px; 
@@ -2269,18 +2298,18 @@ export const sendKycRejectedEmail = async (user, reason) => {
     </div>
     <div id="content">
         <div id="div-center">
-        <div id="socialmedia-div" >
+       <div id="socialmedia-div" >
            <div>
-           <img id="socialmedia-1" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/yticone/671777d63e6cb9ad5f202b0d/yt.jpg" alt="youtube"/>
+           <img id="socialmedia-1" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/yticone/671777d63e6cb9ad5f202b0d/yt.jpg" alt="https://www.youtube.com/@hapmeet"/>
            </div>
            <div>
-            <img id="socialmedia-2" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/fbicone/671776dc3e6cb9ad5f202b01/fb.jpg" alt="fb"/>
+            <img id="socialmedia-2" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/fbicone/671776dc3e6cb9ad5f202b01/fb.jpg" alt="https://www.facebook.com/profile.php?id=100094066146720"/>
            </div>
            <div>
-            <img id="socialmedia-3" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/instagramicone/671777513e6cb9ad5f202b05/insta.jpg" alt="insta"/>
+            <img id="socialmedia-3" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/instagramicone/671777513e6cb9ad5f202b05/insta.jpg" alt="https://www.instagram.com/hapmeet/"/>
            </div>
            <div>
-            <img id="socialmedia-4" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/twittericone/6717779d3e6cb9ad5f202b09/Twitter.jpg" alt="twitter"/>
+<!--            <img id="socialmedia-4" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/twittericone/6717779d3e6cb9ad5f202b09/Twitter.jpg" alt="twitter"/>-->
            </div>
         </div>
         </div>
@@ -2352,7 +2381,7 @@ export const sendCancelPlanApprovedEmail = async (user) => {
         }
         #logo-img{
            width: 150px;
-           height: 37px;
+           height: 30px;
         }
         
         #content{
@@ -2429,7 +2458,7 @@ export const sendCancelPlanApprovedEmail = async (user) => {
         @media screen and (max-width: 1280px) {
             #logo-img{
            width: 130px;
-           height: 35px;
+           height: 30px;
         }
         #text-1{
             font-size: 10px; 
@@ -2476,7 +2505,7 @@ export const sendCancelPlanApprovedEmail = async (user) => {
         @media screen and (max-width: 1024px) {
             #logo-img{
            width: 100px;
-           height: 25px;
+           height: 22px;
         }
         #text-1{
             font-size: 8px; 
@@ -2554,16 +2583,16 @@ you can access your account until the end of your current billing cycle.</h1>
         <div id="div-center">
         <div id="socialmedia-div" >
            <div>
-           <img id="socialmedia-1" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/yticone/671777d63e6cb9ad5f202b0d/yt.jpg" alt="youtube"/>
+           <img id="socialmedia-1" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/yticone/671777d63e6cb9ad5f202b0d/yt.jpg" alt="https://www.youtube.com/@hapmeet"/>
            </div>
            <div>
-            <img id="socialmedia-2" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/fbicone/671776dc3e6cb9ad5f202b01/fb.jpg" alt="fb"/>
+            <img id="socialmedia-2" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/fbicone/671776dc3e6cb9ad5f202b01/fb.jpg" alt="https://www.facebook.com/profile.php?id=100094066146720"/>
            </div>
            <div>
-            <img id="socialmedia-3" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/instagramicone/671777513e6cb9ad5f202b05/insta.jpg" alt="insta"/>
+            <img id="socialmedia-3" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/instagramicone/671777513e6cb9ad5f202b05/insta.jpg" alt="https://www.instagram.com/hapmeet/"/>
            </div>
            <div>
-            <img id="socialmedia-4" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/twittericone/6717779d3e6cb9ad5f202b09/Twitter.jpg" alt="twitter"/>
+<!--            <img id="socialmedia-4" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/twittericone/6717779d3e6cb9ad5f202b09/Twitter.jpg" alt="twitter"/>-->
            </div>
         </div>
         </div>
@@ -2635,7 +2664,7 @@ export const sendCancelPlanRejectedEmail = async (user, cancelPlan) => {
         }
         #logo-img{
            width: 150px;
-           height: 37px;
+           height: 30px;
         }
         
         #content{
@@ -2712,7 +2741,7 @@ export const sendCancelPlanRejectedEmail = async (user, cancelPlan) => {
         @media screen and (max-width: 1280px) {
             #logo-img{
            width: 130px;
-           height: 35px;
+           height: 30px;
         }
         #text-1{
             font-size: 10px; 
@@ -2759,7 +2788,7 @@ export const sendCancelPlanRejectedEmail = async (user, cancelPlan) => {
         @media screen and (max-width: 1024px) {
             #logo-img{
            width: 100px;
-           height: 25px;
+           height: 22px;
         }
         #text-1{
             font-size: 8px; 
@@ -2837,16 +2866,16 @@ export const sendCancelPlanRejectedEmail = async (user, cancelPlan) => {
         <div id="div-center">
         <div id="socialmedia-div" >
            <div>
-           <img id="socialmedia-1" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/yticone/671777d63e6cb9ad5f202b0d/yt.jpg" alt="youtube"/>
+           <img id="socialmedia-1" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/yticone/671777d63e6cb9ad5f202b0d/yt.jpg" alt="https://www.youtube.com/@hapmeet"/>
            </div>
            <div>
-            <img id="socialmedia-2" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/fbicone/671776dc3e6cb9ad5f202b01/fb.jpg" alt="fb"/>
+            <img id="socialmedia-2" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/fbicone/671776dc3e6cb9ad5f202b01/fb.jpg" alt="https://www.facebook.com/profile.php?id=100094066146720"/>
            </div>
            <div>
-            <img id="socialmedia-3" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/instagramicone/671777513e6cb9ad5f202b05/insta.jpg" alt="insta"/>
+            <img id="socialmedia-3" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/instagramicone/671777513e6cb9ad5f202b05/insta.jpg" alt="https://www.instagram.com/hapmeet/"/>
            </div>
            <div>
-            <img id="socialmedia-4" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/twittericone/6717779d3e6cb9ad5f202b09/Twitter.jpg" alt="twitter"/>
+<!--            <img id="socialmedia-4" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/twittericone/6717779d3e6cb9ad5f202b09/Twitter.jpg" alt="twitter"/>-->
            </div>
         </div>
         </div>
