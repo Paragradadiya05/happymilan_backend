@@ -14,6 +14,9 @@ const BlogSchema = new mongoose.Schema(
     images: {
       type: [mongoose.Mixed],
     },
+    thumbnail: {
+      type: mongoose.Mixed, // you can use String if you only store the URL
+    },
     status: {
       type: Boolean,
       default: false,
