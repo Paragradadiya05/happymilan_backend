@@ -114,3 +114,23 @@ export async function getUserPlanListByAppUsesType(appUsesType, options = {}) {
     totalResults,
   };
 }
+
+export async function getTotalRevenueByAppUsesType(appUsesType) {
+  // Step 1: Filter users by appUsesType (if not 'all')
+  const userFilter = appUsesType && appUsesType !== 'all' ? { appUsesType } : {};
+  const matchingUserIds = await User.find(userFilter, '_id').lean();
+  const userIds = matchingUserIds.map((user) => user._id);
+
+  // Step 2: Find all active user plans for those users and populate planId
+  const userPlans = await UserPlan.find({ userId: { $in: userIds }, status: 'active' })
+    .populate('planId', 'totalPrice')
+    .lean();
+
+  // Step 3: Calculate total revenue
+  const totalRevenueGenerated = userPlans.reduce((sum, plan) => {
+    const price = plan.planId.totalPrice || 0;
+    return sum + price;
+  }, 0);
+
+  return totalRevenueGenerated;
+}

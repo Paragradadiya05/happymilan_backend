@@ -7,6 +7,7 @@ import {
   userProfessionalDetailService,
   userService,
   creditService,
+  userPlanService,
 } from 'services';
 import { catchAsync } from 'utils/catchAsync';
 import mongoose from 'mongoose';
@@ -159,7 +160,7 @@ export const dashboard = catchAsync(async (req, res) => {
   const { totalUsers, activeUsers, lastWeekRegisteredUsers, onlineUsers, totalMaleUsers, totalFemaleUsers } =
     await userService.getUserCounts(appUsesType);
 
-  const totalRevenueGenerated = 100000;
+  const totalRevenueGenerated = await userPlanService.getTotalRevenueByAppUsesType(appUsesType);
   const totalDonationCollection = 10000;
   const goldPlan = 1200;
   const silverPlan = 2300;
