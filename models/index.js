@@ -41,3 +41,4 @@ module.exports.Credit = require('./credit.model');
 module.exports.CreditHistory = require('./creditHistory.model');
 module.exports.MobileNumberRequest = require('./mobileNumberRequest.model');
 module.exports.cancelPlan = require('./cancelplan.model');
+module.exports.emailMarketing = require('./emailMarketing.model');

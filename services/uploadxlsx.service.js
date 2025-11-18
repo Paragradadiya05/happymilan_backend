@@ -1,4 +1,7 @@
 import { User, Role } from 'models';
+import EmailMarketing from '../models/emailMarketing.model';
+import { sendEmail } from './email.service';
+import { mailTemplateService } from './mailTemplate.service';
 // Ensure Role model is correctly imported
 const xlsx = require('xlsx');
 
@@ -75,4 +78,47 @@ export async function uploadData(file) {
 export async function getuploaddata(filter, options = {}) {
   const user = await User.find(filter, options.projection, options);
   return user;
+}
+
+export async function sendFromXlsx(file, subject, template) {
+  const workbook = xlsx.read(file.data, { type: 'buffer' });
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  const jsonData = xlsx.utils.sheet_to_json(sheet);
+
+  if (!jsonData.length) {
+    throw new Error('XLSX file has no data');
+  }
+
+  // map contacts
+  const contacts = jsonData.map((row) => ({
+    name: row.name || row.fullName || '',
+    email: row.email,
+  }));
+
+  // Save activity
+  const marketingEntry = await EmailMarketing.create({
+    subject,
+    template,
+    contacts,
+  });
+
+  // Send emails
+  // eslint-disable-next-line no-restricted-syntax
+  for (const user of contacts) {
+    const html = mailTemplateService.getTemplate(template, user.name);
+
+    // eslint-disable-next-line no-await-in-loop
+    await sendEmail({
+      to: user.email,
+      subject,
+      text: html,
+      isHtml: true,
+    });
+  }
+
+  await EmailMarketing.findByIdAndUpdate(marketingEntry._id, {
+    status: 'Completed',
+  });
+
+  return contacts;
 }
