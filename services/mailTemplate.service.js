@@ -39,14 +39,15 @@ export const mailTemplateService = {
 <!-- WRAPPER -->
 <table width="100%" bgcolor="#f0f4f9" cellspacing="0" cellpadding="0">
   <tr>
-    <td align="center">
+    <!-- ADDED TOP & BOTTOM SPACE -->
+    <td align="center" style="padding:40px 0;">
 
       <!-- CONTAINER -->
       <table width="600" bgcolor="#ffffff" cellspacing="0" cellpadding="0" style="border-radius:10px; box-shadow:0 4px 8px rgba(0,0,0,0.1);">
 
         <!-- LOGO -->
         <tr>
-          <td align="left" style="padding:20px;">
+          <td align="left" style="padding:40px 20px 25px 25px;">
             <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/hapmeetlogo/68da85a84e96f5d8bc5620bb/hapmeetlogo.png"
                  width="150" height="30" alt="Hapmeet Logo"/>
           </td>
@@ -63,19 +64,20 @@ export const mailTemplateService = {
               connect, meet, and build meaningful relationships with people nearby.
             </p><br/>
 
-            <!-- YOUCAN IMAGE (LEFT ALIGNED NOW) -->
+            <!-- YOUCAN IMAGE -->
             <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/youcan/69200a3daeef612118a7b86a/youcan.png"
-                 width="210" height="23" alt="You Can">
+                 alt="You Can">
 
             <!-- FEATURE IMAGES -->
-            <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/findmatch/692006505559fe2c4313affc/findmatch.png" width="100%" style="margin-top:20px;">
-            <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/MoistSecured/69200cc05559fe2c4313b005/MoistSecured.png" width="100%" style="margin-top:20px;">
-            <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/chatprivacy/692006085559fe2c4313aff9/chatprivacy.png" width="100%" style="margin-top:20px;">
-            <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/shop/69200d005559fe2c4313b008/shop.png" width="100%" style="margin-top:20px;">
+            <a href="https://www.hapmeet.com/" target="_blank" style="display:block;"> <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/findmatch/692006505559fe2c4313affc/findmatch.png" width="100%" style="margin-top:20px;"></a>
+            <a href="https://www.hapmeet.com/" target="_blank" style="display:block;"> <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/MoistSecured/69200cc05559fe2c4313b005/MoistSecured.png" width="100%" style="margin-top:20px;"></a>
+            <a href="https://www.hapmeet.com/" target="_blank" style="display:block;"> <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/chatprivacy/692006085559fe2c4313aff9/chatprivacy.png" width="100%" style="margin-top:20px;"></a>
+            <a href="https://www.hapmeet.com/" target="_blank" style="display:block;"> <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/shop/69200d005559fe2c4313b008/shop.png" width="100%" style="margin-top:20px;"></a>
+
             <a href="https://www.hapmeet.com/" target="_blank" style="display:block;">
-  <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/signup/692006f55559fe2c4313b002/signup.png"
-       width="100%" style="margin-top:20px;" alt="Signup">
-</a>
+              <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/signup/692006f55559fe2c4313b002/signup.png"
+                  width="100%" style="margin-top:20px;" alt="Signup">
+            </a>
 
             <br><br>
             <p style="text-align:center;">
@@ -88,7 +90,7 @@ export const mailTemplateService = {
 
         <tr><td style="height:25px;"></td></tr>
 
-        <!-- SOCIAL MEDIA ICONS (SMALL SIZE 20PX + CENTERED) -->
+        <!-- SOCIAL ICONS -->
         <tr>
           <td align="center">
             <table role="presentation" cellspacing="0" cellpadding="0">
@@ -97,21 +99,21 @@ export const mailTemplateService = {
                 <td style="padding:0 8px;">
                   <a href="https://www.youtube.com/@hapmeet" target="_blank">
                     <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/yticone/671777d63e6cb9ad5f202b0d/yt.jpg"
-                         width="22" height="20" alt="YouTube">
+                         alt="YouTube">
                   </a>
                 </td>
 
                 <td style="padding:0 8px;">
                   <a href="https://www.facebook.com/profile.php?id=100094066146720" target="_blank">
                     <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/fbicone/671776dc3e6cb9ad5f202b01/fb.jpg"
-                         width="18" height="17" alt="Facebook">
+                          alt="Facebook">
                   </a>
                 </td>
 
                 <td style="padding:0 8px;">
                   <a href="https://www.instagram.com/hapmeet/" target="_blank">
                     <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/instagramicone/671777513e6cb9ad5f202b05/insta.jpg"
-                         width="20" height="20" alt="Instagram">
+                         alt="Instagram">
                   </a>
                 </td>
 
@@ -145,6 +147,7 @@ export const mailTemplateService = {
 
 </body>
 </html>
+
 
 
 `;
