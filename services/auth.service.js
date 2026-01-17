@@ -450,6 +450,12 @@ export const loginUserWithEmailOrMobileAndPassword = async (email, mobileNumber,
     throw new ApiError(httpStatus.BAD_REQUEST, 'Incorrect email or password');
   }
   if (Array.isArray(user.profileHideAndDelete) && user.profileHideAndDelete.some((item) => item.isProfileDelete === true)) {
+    console.log('❌ Login blocked: Account deleted', {
+      userId: user._id,
+      email: user.email,
+      profileHideAndDelete: user.profileHideAndDelete,
+    });
+
     throw new ApiError(httpStatus.BAD_REQUEST, 'Your account has been deleted.');
   }
   const isValid = await bcrypt.compare(password, user.password);
