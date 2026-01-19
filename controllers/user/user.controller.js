@@ -899,3 +899,15 @@ export const getCreditByUserId = catchAsync(async (req, res) => {
     credit,
   });
 });
+
+export const deleteUserAccount = catchAsync(async (req, res) => {
+  const userId = req.user._id;
+  const { deleteReason } = req.body;
+
+  await userService.deleteUserPermanently(userId, deleteReason);
+
+  res.status(httpStatus.OK).send({
+    status: true,
+    message: 'Your account has been deleted permanently',
+  });
+});

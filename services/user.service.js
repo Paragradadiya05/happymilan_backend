@@ -1,7 +1,7 @@
 import ApiError from 'utils/ApiError';
 import httpStatus from 'http-status';
 // eslint-disable-next-line no-unused-vars
-import { Partner, User, Datingpartner, Like, Friend, Role } from 'models';
+import { Partner, User, Datingpartner, Like, Friend, Role, DeletedUser } from 'models';
 import _ from 'lodash';
 import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
@@ -4431,3 +4431,25 @@ export async function removeSelectedUsers(userId) {
   const deletedusers = await User.deleteMany({ _id: { $in: userId } });
   return deletedusers;
 }
+
+export const deleteUserPermanently = async (userId, deleteReason) => {
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+  }
+
+  // 1️⃣ Save deleted user history
+  await DeletedUser.create({
+    originalUserId: user._id,
+    email: user.email,
+    mobileNumber: user.mobileNumber,
+    countryCode: user.countryCode,
+    deleteReason,
+    deletedBy: 'user',
+    userSnapshot: user.toObject(),
+  });
+
+  // 2️⃣ Permanently delete user
+  await User.findByIdAndDelete(userId);
+};

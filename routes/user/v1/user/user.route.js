@@ -119,5 +119,6 @@ router
    * getUserByUserUniqueId
    * */
   .get(auth(), validate(userValidation.getCredit), userController.getCreditByUserId);
+router.delete('/delete-account', auth(), validate(userValidation.deleteUser), userController.deleteUserAccount);
 
 export default router;

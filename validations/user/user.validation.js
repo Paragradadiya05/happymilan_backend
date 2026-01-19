@@ -78,10 +78,6 @@ export const deleteUserById = {
   }),
 };
 
-export const deleteUser = {
-  params: Joi.object().keys({}),
-};
-
 export const getUser = {
   body: Joi.object().keys({}).unknown(true),
 };
@@ -211,5 +207,11 @@ export const updateUserPrivacy = {
 export const getCredit = {
   params: Joi.object().keys({
     userId: Joi.string().required(),
+  }),
+};
+
+export const deleteUser = {
+  body: Joi.object().keys({
+    deleteReason: Joi.string().required(),
   }),
 };
