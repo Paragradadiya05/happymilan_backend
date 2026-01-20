@@ -1,4 +1,6 @@
 import mongoose from 'mongoose';
+import mongoosePaginateV2 from 'mongoose-paginate-v2';
+import { toJSON } from './plugins';
 
 const deletedUserSchema = new mongoose.Schema(
   {
@@ -6,9 +8,17 @@ const deletedUserSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
     },
 
-    email: String,
-    mobileNumber: String,
-    countryCode: String,
+    email: {
+      type: String,
+    },
+
+    mobileNumber: {
+      type: String,
+    },
+
+    countryCode: {
+      type: String,
+    },
 
     deleteReason: {
       type: String,
@@ -30,9 +40,16 @@ const deletedUserSchema = new mongoose.Schema(
       type: Object,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: { createdAt: true, updatedAt: true },
+  }
 );
 
-const DeletedUser = mongoose.model('DeletedUser', deletedUserSchema);
+// same plugins like other models
+deletedUserSchema.plugin(toJSON);
+deletedUserSchema.plugin(mongoosePaginateV2);
 
-export default DeletedUser;
+// IMPORTANT — same pattern
+const DeletedUser = mongoose.models.DeletedUser || mongoose.model('DeletedUser', deletedUserSchema, 'DeletedUser');
+
+module.exports = DeletedUser;
