@@ -186,10 +186,10 @@ export const socialLogin = async (user) => {
   if (!user) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid SingIn');
   }
-  // ✅ DELETE CHECK (IMPORTANT)
-  if (Array.isArray(user.profileHideAndDelete) && user.profileHideAndDelete.some((item) => item.isProfileDelete === true)) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Your account has been deleted.');
-  }
+  // // ✅ DELETE CHECK (IMPORTANT)
+  // if (Array.isArray(user.profileHideAndDelete) && user.profileHideAndDelete.some((item) => item.isProfileDelete === true)) {
+  //   throw new ApiError(httpStatus.BAD_REQUEST, 'Your account has been deleted.');
+  // }
   if (!user.userUniqueId) {
     // eslint-disable-next-line no-param-reassign
     user.userUniqueId = generateRandomId();
@@ -452,9 +452,9 @@ export const loginUserWithEmailOrMobileAndPassword = async (email, mobileNumber,
   if (!user) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Incorrect email or password');
   }
-  if (Array.isArray(user.profileHideAndDelete) && user.profileHideAndDelete.some((item) => item.isProfileDelete === true)) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Your account has been deleted.');
-  }
+  // if (Array.isArray(user.profileHideAndDelete) && user.profileHideAndDelete.some((item) => item.isProfileDelete === true)) {
+  //   throw new ApiError(httpStatus.BAD_REQUEST, 'Your account has been deleted.');
+  // }
   const isValid = await bcrypt.compare(password, user.password);
 
   if (!isValid) {
