@@ -366,18 +366,15 @@ export const paginateappUsesType = catchAsync(async (req, res) => {
   const { query, params } = req;
 
   const sortingObj = pick(query, ['sort', 'order']);
-  const sortObj = {
-    [sortingObj.sort]: sortingObj.order,
-  };
 
-  // Default filter
+  // ✅ Default latest first
+  const sortObj = sortingObj.sort ? { [sortingObj.sort]: sortingObj.order === 'asc' ? 1 : -1 } : { createdAt: -1 };
+
   const filter = {};
 
-  // Handle appUsesType from params
   if (params.appUsesType && params.appUsesType !== 'all') {
-    filter.appUsesType = params.appUsesType; // marriage OR dating
+    filter.appUsesType = params.appUsesType;
   }
-  // if "all", don't add filter → return both types
 
   const options = {
     sort: sortObj,

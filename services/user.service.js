@@ -4420,11 +4420,14 @@ export async function getUserListWithappUsesType(filter, options = {}) {
   const excludedRoleIds = excludedRoles.map((r) => r._id);
   // eslint-disable-next-line no-param-reassign
   filter.role = { $nin: excludedRoleIds };
+
+  const sort = options.sort || { createdAt: -1 }; // ✅ fallback
+
   if (!options.page && !options.limit) {
-    // No pagination → return all users
-    return User.find(filter).sort(options.sort || {});
+    return User.find(filter).sort(sort);
   }
-  return User.paginate(filter, options);
+
+  return User.paginate(filter, { ...options, sort });
 }
 
 export async function removeSelectedUsers(userId) {
