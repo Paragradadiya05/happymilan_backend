@@ -482,6 +482,10 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isVisited: {
+      type: Boolean,
+      default: false, // Default: Photos follow general privacy rules
+    },
     /**
      * created By
      * */
@@ -523,10 +527,6 @@ const UserSchema = new mongoose.Schema(
         default: false, // Default: Photos follow general privacy rules
       },
       professional: {
-        type: Boolean,
-        default: false, // Default: Photos follow general privacy rules
-      },
-      isVisited: {
         type: Boolean,
         default: false, // Default: Photos follow general privacy rules
       },
