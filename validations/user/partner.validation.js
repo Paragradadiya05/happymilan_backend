@@ -14,16 +14,14 @@ export const createPartnerpre = {
       min: Joi.number().required(),
       max: Joi.number().required(),
     }),
-    country: Joi.array()
-      .items(Joi.string().valid(...Object.values(enumModel.EnumOfCountry)))
-      .required(),
+    country: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfCountry))),
     state: Joi.array()
       .items(Joi.string().valid(...Object.values(enumModel.EnumOfState)))
       .required(),
     city: Joi.array().items(Joi.string()).required(),
     income: Joi.object({
-      min: Joi.number().required(),
-      max: Joi.number().required(),
+      min: Joi.number(),
+      max: Joi.number(),
     }),
     hobbies: Joi.array().items(Joi.string()).required(),
     diet: Joi.array()
