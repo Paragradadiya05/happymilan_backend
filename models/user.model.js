@@ -486,6 +486,10 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: false, // Default: Photos follow general privacy rules
     },
+    isUserprofileCompletedForReq: {
+      type: Boolean,
+      default: false,
+    },
     /**
      * created By
      * */
