@@ -155,6 +155,49 @@ const datingData = new mongoose.Schema(
   { timestamps: { createdAt: true, updatedAt: true } }
 );
 
+const vendorData = new mongoose.Schema(
+  {
+    businessName: {
+      type: String,
+    },
+    businessDescription: {
+      type: String,
+    },
+    servicesProvided: {
+      type: [String],
+    },
+    businessLogo: {
+      type: String,
+    },
+    businessImages: [
+      {
+        url: {
+          type: String,
+        },
+        name: {
+          type: String,
+        },
+      },
+    ],
+    website: {
+      type: String,
+    },
+    instagram: {
+      type: String,
+    },
+    facebook: {
+      type: String,
+    },
+    youtube: {
+      type: String,
+    },
+    whatsapp: {
+      type: String,
+    },
+  },
+  { timestamps: { createdAt: true, updatedAt: true } }
+);
+
 // const profileSetting = new mongoose.Schema(
 //   {
 //     publicProfile: {
@@ -473,6 +516,7 @@ const UserSchema = new mongoose.Schema(
     userProfileVideo: [UserVideoSchema],
     profileHideAndDelete: [ProfileHideAndDelete],
     datingData: [datingData],
+    vendorData: [vendorData],
     platform: {
       type: String,
       enum: Object.values(enumModel.EnumOfPlatformType),

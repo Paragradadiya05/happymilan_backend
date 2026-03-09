@@ -32,6 +32,12 @@ const AddressSchema = new mongoose.Schema(
       type: String,
       enum: Object.values(enumModel.EnumOfState),
     },
+    area: {
+      type: String,
+    },
+    pinCode: {
+      type: String,
+    },
     /**
      * created By
      * */
