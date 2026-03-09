@@ -505,28 +505,26 @@ export async function getUserListWithPagination(filter, options = {}) {
 }
 
 export async function createUser(body) {
-  const existingUser = await User.findOne({
-    $or: [{ email: body.email }, { mobileNumber: body.mobileNumber }],
-  });
+  const existingEmail = await User.findOne({ email: body.email });
+  const existingMobile = await User.findOne({ mobileNumber: body.mobileNumber });
 
-  if (existingUser) {
-    if (existingUser.emailVerified) {
-      if (existingUser.email === body.email) {
-        throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
-      }
+  // Email check
+  if (existingEmail && existingEmail.emailVerified) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
+  }
 
-      if (existingUser.mobileNumber === body.mobileNumber) {
-        throw new ApiError(httpStatus.BAD_REQUEST, 'Mobile number already taken');
-      }
-    }
+  // Mobile check
+  if (existingMobile && existingMobile.emailVerified) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Mobile number already taken');
+  }
 
-    return existingUser;
+  if (existingEmail && !existingEmail.emailVerified) {
+    return existingEmail;
   }
 
   const user = await User.create(body);
   return user;
 }
-
 export async function updateUser(filter, body, options = {}) {
   const userData = await getOne(filter, {});
   if (!userData) {
