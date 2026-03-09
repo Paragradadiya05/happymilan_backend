@@ -68,9 +68,17 @@ export async function getUserListWithPagination(filter, options = {}) {
 }
 
 export async function createUser(body) {
-  if (await User.isEmailTaken(body.email)) {
+  const existingUser = await User.findOne({ email: body.email });
+
+  if (existingUser && existingUser.emailVerified) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
   }
+
+  if (existingUser && !existingUser.emailVerified) {
+    // resend OTP instead of creating new user
+    return existingUser;
+  }
+
   const user = await User.create(body);
   return user;
 }

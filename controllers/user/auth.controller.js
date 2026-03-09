@@ -80,7 +80,6 @@ export const register = catchAsync(async (req, res) => {
     userId: user._id,
     body: EnumOfNotification.OTP_SEND,
   });
-  console.log('=====xx====>', createNotificationForOtp);
   // send notification
   // check if usr hase deice token or not
   console.log('===== Otp deviceTokens ====>', user);
@@ -190,7 +189,6 @@ export const verifyOtp = catchAsync(async (req, res) => {
       userId: user._id,
       body: EnumOfNotification.CONGRATULATION,
     });
-    console.log('=====xx====>', createNotificationForCongratulation);
     // send notification
     // check if usr hase deice token or not
     console.log('===== Congratulations deviceTokens ====>', user);
