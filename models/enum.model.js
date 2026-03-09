@@ -23,6 +23,7 @@ const EnumTypeOfToken = {
 const EnumAppUsesTypeOfUsers = {
   MARRIAGE: 'marriage',
   DATING: 'dating',
+  VENDOR: 'vendor',
 };
 const EnumGenderOfUsers = {
   MALE: 'male',
