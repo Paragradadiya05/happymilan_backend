@@ -506,20 +506,21 @@ export async function getUserListWithPagination(filter, options = {}) {
 
 export async function createUser(body) {
   const existingEmail = await User.findOne({ email: body.email });
-  const existingMobile = await User.findOne({ mobileNumber: body.mobileNumber });
 
-  // Email check
   if (existingEmail && existingEmail.emailVerified) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
   }
 
-  // Mobile check
-  if (existingMobile && existingMobile.emailVerified) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Mobile number already taken');
-  }
-
   if (existingEmail && !existingEmail.emailVerified) {
     return existingEmail;
+  }
+
+  if (body.mobileNumber) {
+    const existingMobile = await User.findOne({ mobileNumber: body.mobileNumber });
+
+    if (existingMobile && existingMobile.emailVerified) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Mobile number already taken');
+    }
   }
 
   const user = await User.create(body);
@@ -530,10 +531,10 @@ export async function updateUser(filter, body, options = {}) {
   if (!userData) {
     throw new ApiError(httpStatus.NOT_FOUND, 'user not found');
   }
-  if (body.email && (await User.isEmailTaken(body.email, userData.id))) {
+  if (body.email && (await User.emailVerified(body.email, userData.id))) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
   }
-  if (body.mobileNumber && (await User.isMobileNumberTaken(body.mobileNumber))) {
+  if (body.mobileNumber && (await User.emailVerified(body.mobileNumber))) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Mobile number already taken');
   }
   const user = await User.findOneAndUpdate(filter, body, options);
