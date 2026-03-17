@@ -20,6 +20,18 @@ router
    * getUser
    * */
   .get(validate(userValidation.getUser), userController.list);
+/**
+ * getVendorUserList
+ * */
+router.get('/vendors', userController.getVendorUserList);
+/**
+ * getVendorByBusinessType
+ * */
+router.get(
+  '/vendors/:businessType',
+  validate(userValidation.getVendorByBusinessType),
+  userController.getVendorByBusinessType
+);
 router
   .route('/update-user')
   /**

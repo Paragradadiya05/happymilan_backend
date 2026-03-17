@@ -4468,3 +4468,61 @@ export const deleteUserPermanently = async (userId, deleteReason) => {
   // 2️⃣ Permanently delete user
   await User.findByIdAndDelete(userId);
 };
+
+export async function getvendorUserList(filter, options = {}) {
+  const { page = 1, limit = 10, sort = { createdAt: -1 }, search } = options;
+
+  // 🔹 Exclude admin roles
+  const excludedRoles = await Role.find(
+    { role: { $in: ['project-owner', 'super-admin', 'admin', 'co-admin'] } },
+    '_id'
+  ).lean();
+
+  const excludedRoleIds = excludedRoles.map((r) => r._id);
+
+  // eslint-disable-next-line no-param-reassign
+  filter['profileHideAndDelete.isProfileHide'] = { $ne: true };
+  // eslint-disable-next-line no-param-reassign
+  filter.role = { $nin: excludedRoleIds };
+
+  // 🔥 SEARCH (City + Area FIXED)
+  if (search) {
+    const regex = { $regex: search, $options: 'i' };
+    // eslint-disable-next-line no-param-reassign
+    filter.$or = [
+      { name: regex },
+      { email: regex },
+      { 'vendorData.businessName': regex },
+      { 'address.currentCity': regex }, // ✅ FIXED
+      { 'address.area': regex }, // ✅ FIXED
+    ];
+  }
+
+  const projection = {
+    mobileNumber: 0,
+    homeMobileNumber: 0,
+  };
+
+  // 🔹 Query with pagination
+  const users = await User.find(filter, projection)
+    .populate('address')
+    .populate('userEducation')
+    .populate('userPartner')
+    .populate('userProfessional')
+    .populate('role', 'role')
+    .populate('userPartnerPrefForDating')
+    .sort(sort)
+    .skip((page - 1) * limit)
+    .limit(limit);
+
+  // 🔹 Count total
+  const totalResults = await User.countDocuments(filter);
+
+  return {
+    results: users,
+    page,
+    limit,
+    totalResults,
+    totalPages: Math.ceil(totalResults / limit),
+  };
+}

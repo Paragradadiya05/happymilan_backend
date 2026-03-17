@@ -911,3 +911,40 @@ export const deleteUserAccount = catchAsync(async (req, res) => {
     message: 'Your account has been deleted permanently',
   });
 });
+
+export const getVendorUserList = catchAsync(async (req, res) => {
+  const filter = {
+    appUsesType: 'vendor',
+  };
+  const options = {};
+  const user = await userService.getvendorUserList(filter, options);
+  return res.status(httpStatus.OK).send({ results: user });
+});
+
+export const getVendorByBusinessType = catchAsync(async (req, res) => {
+  const { businessType, service, search, page, limit } = req.query;
+
+  const filter = {
+    appUsesType: 'vendor',
+  };
+
+  // 🔹 BusinessType + Service filter
+  if (businessType) {
+    filter.vendorData = {
+      $elemMatch: {
+        businessType,
+        ...(service && { servicesProvided: service }),
+      },
+    };
+  }
+
+  const options = {
+    page: Number(page) || 1,
+    limit: Number(limit) || 10,
+    search,
+  };
+
+  const result = await userService.getvendorUserList(filter, options);
+
+  return res.status(httpStatus.OK).send(result);
+});

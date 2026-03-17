@@ -9,8 +9,10 @@ export const createAddress = {
     currentCountry: Joi.string(),
     originResidenceAddress: Joi.string(),
     originCity: Joi.string(),
+    area: Joi.string(),
     originCountry: Joi.string(),
     currentState: Joi.string(),
+    pinCode: Joi.string(),
   }),
 };
 

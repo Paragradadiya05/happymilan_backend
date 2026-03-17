@@ -163,8 +163,16 @@ const vendorData = new mongoose.Schema(
     businessDescription: {
       type: String,
     },
+    businessType: {
+      type: String,
+      enum: Object.values(enumModel.EnumOfbusinessType),
+    },
     servicesProvided: {
       type: [String],
+      enum: Object.values(enumModel.EnumOfServicesProvided),
+    },
+    subServices: {
+      type: String,
     },
     businessLogo: {
       type: String,

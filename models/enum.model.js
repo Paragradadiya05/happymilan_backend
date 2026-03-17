@@ -464,6 +464,77 @@ const EnumOfAdminRejectReason = {
   CHARGEBACK_INITIATED: 'Chargeback/dispute already initiated with payment gateway',
   PLAN_EXPIRED: 'Request submitted after plan validity expired',
 };
+const EnumOfbusinessType = {
+  WEDDING_PLANNER: 'wedding-planner',
+  WEDDING_STUDIO: 'wedding-studio',
+  DECORATIONS: 'decorations',
+  CATERERS: 'caterers',
+  JEWELLERY_SHOP: 'jewellery-shop',
+  BEAUTY: 'beauty',
+  MEETING_POINTS: 'meeting-points',
+  DATING_VENUES: 'dating-venues',
+  YOGA_CENTER: 'yoga-center',
+  FITNESS_CENTER: 'fitness-center',
+};
+
+const EnumOfServicesProvided = {
+  FULL_WEDDING_PLANNING: 'full-wedding-planning',
+  PARTIAL_PLANNING: 'partial-planning',
+  DESTINATION_WEDDING: 'destination-wedding',
+  BUDGET_PLANNING: 'budget-planning',
+  VENDOR_MANAGEMENT: 'vendor-management',
+
+  PRE_WEDDING_SHOOT: 'pre-wedding-shoot',
+  WEDDING_PHOTOGRAPHY: 'wedding-photography',
+  WEDDING_VIDEOGRAPHY: 'wedding-videography',
+  CINEMATIC_VIDEO: 'cinematic-video',
+  ALBUM_DESIGN: 'album-design',
+
+  STAGE_DECORATION: 'stage-decoration',
+  FLORAL_DECORATION: 'floral-decoration',
+  THEME_DECORATION: 'theme-decoration',
+  MANDAP_DECORATION: 'mandap-decoration',
+  LIGHTING_SETUP: 'lighting-setup',
+
+  VEG_CATERING: 'veg-catering',
+  NON_VEG_CATERING: 'non-veg-catering',
+  BUFFET_SERVICE: 'buffet-service',
+  LIVE_COUNTER: 'live-counter',
+  DESSERT_SERVICE: 'dessert-service',
+
+  BRIDAL_JEWELLERY: 'bridal-jewellery',
+  CUSTOM_JEWELLERY: 'custom-jewellery',
+  GOLD_JEWELLERY: 'gold-jewellery',
+  DIAMOND_JEWELLERY: 'diamond-jewellery',
+  JEWELLERY_RENTAL: 'jewellery-rental',
+
+  BRIDAL_MAKEUP: 'bridal-makeup',
+  PARTY_MAKEUP: 'party-makeup',
+  HAIR_STYLING: 'hair-styling',
+  SKINCARE: 'skincare',
+  MEHNDI_DESIGN: 'mehndi-design',
+
+  PRIVATE_CABIN: 'private-cabin',
+  OPEN_SEATING: 'open-seating',
+  ROMANTIC_SETUP: 'romantic-setup',
+  GROUP_SEATING: 'group-seating',
+
+  CANDLE_LIGHT_DINNER: 'candle-light-dinner',
+  ROOFTOP_DINING: 'rooftop-dining',
+  CAFE_DATE: 'cafe-date',
+  LUXURY_DATE: 'luxury-date',
+
+  GROUP_YOGA: 'group-yoga',
+  PERSONAL_YOGA: 'personal-yoga',
+  MEDITATION: 'meditation',
+  PRENATAL_YOGA: 'prenatal-yoga',
+
+  GYM_TRAINING: 'gym-training',
+  PERSONAL_TRAINING: 'personal-training',
+  WEIGHT_LOSS: 'weight-loss',
+  ZUMBA: 'zumba',
+  CROSSFIT: 'crossfit',
+};
 module.exports = {
   EnumCodeTypeOfCode,
   EnumOfDegree,
@@ -510,4 +581,6 @@ module.exports = {
   EnumOfJobType,
   EnumOfHobby,
   EnumOfAdminRejectReason,
+  EnumOfbusinessType,
+  EnumOfServicesProvided,
 };
