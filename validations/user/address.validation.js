@@ -23,8 +23,10 @@ export const updateAddress = {
     currentCountry: Joi.string(),
     originResidenceAddress: Joi.string(),
     originCity: Joi.string(),
+    area: Joi.string(),
     originCountry: Joi.string(),
     currentState: Joi.string(),
+    pinCode: Joi.string(),
   }),
   params: Joi.object().keys({
     addressId: Joi.objectId().required(),
