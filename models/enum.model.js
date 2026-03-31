@@ -25,6 +25,7 @@ const EnumAppUsesTypeOfUsers = {
   MARRIAGE: 'marriage',
   DATING: 'dating',
   SOCIAL: 'social',
+  VENDOR: 'vendor',
   ALL: 'all',
 };
 const EnumGenderOfUsers = {

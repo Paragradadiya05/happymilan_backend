@@ -36,4 +36,10 @@ router.get(
   validate(shortlistValidation.GetShortlistByUser),
   shortlistController.getShortlistMobile
 );
+router.get(
+  '/get-short-list-vendor/:userId',
+  auth(),
+  validate(shortlistValidation.getVendorShortlistValidation),
+  shortlistController.getVendorShortlistByUser
+);
 module.exports = router;

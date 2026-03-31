@@ -191,3 +191,23 @@ export const getShortlistMobile = catchAsync(async (req, res) => {
 
   return res.status(httpStatus.OK).send({ results: escalate });
 });
+
+export const getVendorShortlistByUser = catchAsync(async (req, res) => {
+  const { userId } = req.params;
+  const { page = 1, limit = 10 } = req.query;
+
+  const filter = { userId };
+
+  const options = {
+    page: parseInt(page, 10),
+    limit: parseInt(limit, 10),
+    sort: { createdAt: -1 },
+  };
+
+  const result = await shortlistervice.getVendorShortlist(filter, options);
+
+  return res.status(httpStatus.OK).send({
+    status: 'Success',
+    ...result, // ✅ IMPORTANT
+  });
+});

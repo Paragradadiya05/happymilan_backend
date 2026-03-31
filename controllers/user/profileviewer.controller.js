@@ -314,3 +314,31 @@ export const getProfilevisitors = catchAsync(async (req, res) => {
     data: results,
   });
 });
+
+export const getVendorProfileViewer = catchAsync(async (req, res) => {
+  const { userId } = req.params;
+  const { page = 1, limit = 10 } = req.query;
+
+  const loggedInUserId = req.user._id; // ✅ REQUIRED AUTH
+
+  const filter = {
+    user: userId,
+  };
+
+  const options = {
+    page: parseInt(page, 10),
+    limit: parseInt(limit, 10),
+  };
+
+  const result = await profileviewerservice.getVendorProfileViewer(
+    filter,
+    options,
+    loggedInUserId // 🔥 PASS THIS
+  );
+
+  return res.status(httpStatus.OK).send({
+    status: 'Success',
+    data: result.results,
+    pagination: result.pagination,
+  });
+});

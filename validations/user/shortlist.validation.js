@@ -20,3 +20,13 @@ export const deleteShortlistByUser = {
     id: Joi.objectId().required(),
   }),
 };
+
+export const getVendorShortlistValidation = {
+  params: Joi.object().keys({
+    userId: Joi.objectId().required(),
+  }),
+  query: Joi.object().keys({
+    page: Joi.number().default(1),
+    limit: Joi.number().default(10),
+  }),
+};

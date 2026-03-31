@@ -1062,3 +1062,123 @@ export const getProfileVisitorPaginated = async (filter, options = {}) => {
 
   return { data, totalCount };
 };
+
+export async function getVendorProfileViewer(filter, options = {}, loggedInUserId) {
+  const { page = 1, limit = 10 } = options;
+
+  const skip = (page - 1) * limit;
+
+  const pipeline = [
+    {
+      $match: {
+        user: new mongoose.Types.ObjectId(filter.user),
+      },
+    },
+
+    {
+      $lookup: {
+        from: 'User',
+        localField: 'viewerId',
+        foreignField: '_id',
+        as: 'viewerId',
+      },
+    },
+    { $unwind: '$viewerId' },
+
+    {
+      $match: {
+        'viewerId.appUsesType': 'vendor',
+      },
+    },
+
+    // 🔥 ADD HERE 👇
+    {
+      $lookup: {
+        from: 'shortlists',
+        let: { viewerUserId: '$viewerId._id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ['$shortlistId', '$$viewerUserId'] },
+                  {
+                    $eq: ['$userId', new mongoose.Types.ObjectId(loggedInUserId)],
+                  },
+                ],
+              },
+            },
+          },
+        ],
+        as: 'shortlistData',
+      },
+    },
+    {
+      $addFields: {
+        isShortlisted: {
+          $cond: [{ $gt: [{ $size: '$shortlistData' }, 0] }, true, false],
+        },
+      },
+    },
+
+    {
+      $lookup: {
+        from: 'Address',
+        localField: 'viewerId.address',
+        foreignField: '_id',
+        as: 'viewerId.address',
+      },
+    },
+
+    {
+      $lookup: {
+        from: 'UserProfessionalDetail',
+        localField: 'viewerId.userProfessional',
+        foreignField: '_id',
+        as: 'viewerId.userProfessional',
+      },
+    },
+
+    {
+      $project: {
+        _id: 1,
+        user: 1,
+        lastViewTime: 1,
+        recentViews: 1,
+        isShortlisted: 1, // 🔥 ADD THIS
+
+        viewerId: {
+          _id: 1,
+          name: 1,
+          email: 1,
+          mobileNumber: 1,
+          profilePic: 1,
+          appUsesType: 1,
+          address: { $arrayElemAt: ['$viewerId.address', 0] },
+          userProfessional: { $arrayElemAt: ['$viewerId.userProfessional', 0] },
+          vendorData: '$viewerId.vendorData',
+        },
+      },
+    },
+
+    { $sort: { lastViewTime: -1 } },
+  ];
+
+  // 👉 Total count
+  const totalResult = await ProfileView.aggregate([...pipeline, { $count: 'total' }]);
+
+  const totalDocs = totalResult.length > 0 ? totalResult[0].total : 0;
+
+  // 👉 Paginated data
+  const docs = await ProfileView.aggregate([...pipeline, { $skip: skip }, { $limit: limit }]);
+
+  return {
+    results: docs,
+    pagination: {
+      totalDocs,
+      limit,
+      page,
+      totalPages: Math.ceil(totalDocs / limit),
+    },
+  };
+}

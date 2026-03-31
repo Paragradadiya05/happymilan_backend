@@ -913,12 +913,26 @@ export const deleteUserAccount = catchAsync(async (req, res) => {
 });
 
 export const getVendorUserList = catchAsync(async (req, res) => {
+  const { page = 1, limit = 10 } = req.query;
+
   const filter = {
     appUsesType: 'vendor',
   };
-  const options = {};
-  const user = await userService.getvendorUserList(filter, options);
-  return res.status(httpStatus.OK).send({ results: user });
+
+  const options = {
+    page: parseInt(page, 10),
+    limit: parseInt(limit, 10),
+  };
+
+  const userId = req.user ? req.user._id : null;
+
+  const result = await userService.getvendorUserList(filter, options, userId);
+
+  return res.status(httpStatus.OK).send({
+    status: 'Success',
+    data: result.results,
+    pagination: result.pagination,
+  });
 });
 
 export const getVendorByBusinessType = catchAsync(async (req, res) => {

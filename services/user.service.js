@@ -4469,9 +4469,14 @@ export const deleteUserPermanently = async (userId, deleteReason) => {
   await User.findByIdAndDelete(userId);
 };
 
-export async function getvendorUserList(filter, options = {}) {
-  const { page = 1, limit = 10, sort = { createdAt: -1 }, search } = options;
+export async function getvendorUserList(filter, options = {}, loggedInUserId = null) {
+  const { page = 1, limit = 10, search } = options;
 
+  const skip = (page - 1) * limit;
+  if (loggedInUserId) {
+    // eslint-disable-next-line no-param-reassign
+    filter._id = { $ne: new mongoose.Types.ObjectId(loggedInUserId) };
+  }
   // 🔹 Exclude admin roles
   const excludedRoles = await Role.find(
     { role: { $in: ['project-owner', 'super-admin', 'admin', 'co-admin'] } },
@@ -4485,44 +4490,117 @@ export async function getvendorUserList(filter, options = {}) {
   // eslint-disable-next-line no-param-reassign
   filter.role = { $nin: excludedRoleIds };
 
-  // 🔥 SEARCH (City + Area FIXED)
+  // 🔍 SEARCH
   if (search) {
     const regex = { $regex: search, $options: 'i' };
     // eslint-disable-next-line no-param-reassign
-    filter.$or = [
-      { name: regex },
-      { email: regex },
-      { 'vendorData.businessName': regex },
-      { 'address.currentCity': regex }, // ✅ FIXED
-      { 'address.area': regex }, // ✅ FIXED
-    ];
+    filter.$or = [{ name: regex }, { email: regex }, { 'vendorData.businessName': regex }];
   }
 
-  const projection = {
-    mobileNumber: 0,
-    homeMobileNumber: 0,
-  };
+  // 🔥 AGGREGATION START
+  const pipeline = [
+    { $match: filter },
 
-  // 🔹 Query with pagination
-  const users = await User.find(filter, projection)
-    .populate('address')
-    .populate('userEducation')
-    .populate('userPartner')
-    .populate('userProfessional')
-    .populate('role', 'role')
-    .populate('userPartnerPrefForDating')
-    .sort(sort)
-    .skip((page - 1) * limit)
-    .limit(limit);
+    // 🔗 Address
+    {
+      $lookup: {
+        from: 'Address',
+        localField: 'address',
+        foreignField: '_id',
+        as: 'address',
+      },
+    },
+    { $unwind: { path: '$address', preserveNullAndEmptyArrays: true } },
 
-  // 🔹 Count total
-  const totalResults = await User.countDocuments(filter);
+    // 🔍 SEARCH on address
+    ...(search
+      ? [
+          {
+            $match: {
+              $or: [
+                { 'address.currentCity': { $regex: search, $options: 'i' } },
+                { 'address.area': { $regex: search, $options: 'i' } },
+              ],
+            },
+          },
+        ]
+      : []),
+
+    // 🔥 SORT latest first
+    { $sort: { createdAt: -1 } },
+
+    // 🔥 SHORTLIST JOIN (if logged in)
+    ...(loggedInUserId
+      ? [
+          {
+            $lookup: {
+              from: 'shortlists',
+              let: { vendorId: '$_id' },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: {
+                      $and: [
+                        { $eq: ['$shortlistId', '$$vendorId'] },
+                        { $eq: ['$userId', new mongoose.Types.ObjectId(loggedInUserId)] },
+                      ],
+                    },
+                  },
+                },
+              ],
+              as: 'shortlistData',
+            },
+          },
+          {
+            $addFields: {
+              isShortlisted: {
+                $cond: [{ $gt: [{ $size: '$shortlistData' }, 0] }, true, false],
+              },
+            },
+          },
+        ]
+      : [
+          {
+            $addFields: {
+              isShortlisted: false,
+            },
+          },
+        ]),
+
+    // 🔥 CLEAN RESPONSE
+    {
+      $project: {
+        name: 1,
+        email: 1,
+        profilePic: 1,
+        vendorData: 1,
+        address: 1,
+        isShortlisted: 1,
+        createdAt: 1,
+      },
+    },
+
+    // 🔥 PAGINATION
+    {
+      $facet: {
+        data: [{ $skip: skip }, { $limit: limit }],
+        totalCount: [{ $count: 'total' }],
+      },
+    },
+  ];
+
+  const result = await User.aggregate(pipeline);
+
+  const docs = result[0].data;
+  const totalDocs = result[0].totalCount.length ? result[0].totalCount[0].total : 0;
 
   return {
-    results: users,
-    page,
-    limit,
-    totalResults,
-    totalPages: Math.ceil(totalResults / limit),
+    results: docs,
+    pagination: {
+      totalDocs,
+      limit,
+      page,
+      totalPages: Math.ceil(totalDocs / limit),
+    },
   };
 }

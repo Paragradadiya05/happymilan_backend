@@ -3,6 +3,7 @@ import { userController } from 'controllers/user';
 import { userValidation } from 'validations/user';
 import validate from 'middlewares/validate';
 import auth from 'middlewares/auth';
+import optionalAuth from '../../../../middlewares/optionalAuth';
 
 const router = express.Router();
 router
@@ -23,7 +24,7 @@ router
 /**
  * getVendorUserList
  * */
-router.get('/vendors', userController.getVendorUserList);
+router.get('/vendors', optionalAuth, userController.getVendorUserList);
 /**
  * getVendorByBusinessType
  * */

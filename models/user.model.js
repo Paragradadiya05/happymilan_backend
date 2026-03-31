@@ -154,7 +154,15 @@ const datingData = new mongoose.Schema(
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );
-
+const SocialSchema = new mongoose.Schema({
+  platform: {
+    type: String,
+    enum: ['instagram', 'facebook', 'youtube', 'whatsapp', 'website'],
+  },
+  url: {
+    type: String,
+  },
+});
 const vendorData = new mongoose.Schema(
   {
     businessName: {
@@ -187,21 +195,7 @@ const vendorData = new mongoose.Schema(
         },
       },
     ],
-    website: {
-      type: String,
-    },
-    instagram: {
-      type: String,
-    },
-    facebook: {
-      type: String,
-    },
-    youtube: {
-      type: String,
-    },
-    whatsapp: {
-      type: String,
-    },
+    social: [SocialSchema],
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );

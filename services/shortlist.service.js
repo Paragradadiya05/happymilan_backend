@@ -980,3 +980,22 @@ export async function getshortListforMobile(filter, options = {}) {
   );
   return matchedUsers;
 }
+
+export async function getVendorShortlist(filter, options = {}) {
+  const result = await Shortlist.paginate(filter, {
+    ...options,
+    populate: {
+      path: 'shortlistId',
+      match: { appUsesType: 'vendor' },
+      select: 'vendorData',
+    },
+    lean: true,
+  });
+
+  const docs = result.docs || [];
+
+  return {
+    ...result,
+    docs: docs.filter((item) => item.shortlistId !== null),
+  };
+}
