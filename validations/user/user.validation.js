@@ -2,7 +2,6 @@ import Joi from 'joi';
 // eslint-disable-next-line import/no-duplicates
 import enumFields from 'models/enum.model';
 // eslint-disable-next-line import/no-duplicates
-import enumModel from '../../models/enum.model';
 
 Joi.objectId = require('joi-objectid')(Joi);
 
@@ -220,15 +219,11 @@ export const deleteUser = {
 };
 
 export const getVendorByBusinessType = {
-  body: Joi.object().keys({}),
   query: Joi.object()
     .keys({
-      businessType: Joi.string().valid(...Object.values(enumModel.EnumOfbusinessType)),
-
-      service: Joi.string().valid(...Object.values(enumModel.EnumOfServicesProvided)),
-
+      businessType: Joi.string().optional(),
+      service: Joi.string().optional(),
       search: Joi.string().allow('', null),
-
       page: Joi.number().default(1),
       limit: Joi.number().default(10).max(100),
     })

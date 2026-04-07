@@ -936,29 +936,27 @@ export const getVendorUserList = catchAsync(async (req, res) => {
 });
 
 export const getVendorByBusinessType = catchAsync(async (req, res) => {
-  const { businessType, service, search, page, limit } = req.query;
+  const { businessType, service, search, page, limit, city, area } = req.query;
+
+  const options = {
+    page,
+    limit,
+    search,
+    businessType,
+    service,
+    city,
+    area,
+  };
 
   const filter = {
     appUsesType: 'vendor',
   };
 
-  // 🔹 BusinessType + Service filter
-  if (businessType) {
-    filter.vendorData = {
-      $elemMatch: {
-        businessType,
-        ...(service && { servicesProvided: service }),
-      },
-    };
-  }
+  const result = await userService.getvendorUserListSearch(filter, options, req.user._id || null);
 
-  const options = {
-    page: Number(page) || 1,
-    limit: Number(limit) || 10,
-    search,
-  };
-
-  const result = await userService.getvendorUserList(filter, options);
-
-  return res.status(httpStatus.OK).send(result);
+  return res.status(httpStatus.OK).send({
+    status: 'Success',
+    data: result.results,
+    pagination: result.pagination,
+  });
 });

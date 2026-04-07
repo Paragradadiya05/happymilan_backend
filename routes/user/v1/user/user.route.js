@@ -29,7 +29,8 @@ router.get('/vendors', optionalAuth, userController.getVendorUserList);
  * getVendorByBusinessType
  * */
 router.get(
-  '/vendors/:businessType',
+  '/vendors-search',
+  optionalAuth, // optional login support
   validate(userValidation.getVendorByBusinessType),
   userController.getVendorByBusinessType
 );

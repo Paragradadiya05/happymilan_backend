@@ -4573,6 +4573,7 @@ export async function getvendorUserList(filter, options = {}, loggedInUserId = n
         name: 1,
         email: 1,
         profilePic: 1,
+        userProfilePic: 1,
         vendorData: 1,
         address: 1,
         isShortlisted: 1,
@@ -4581,6 +4582,163 @@ export async function getvendorUserList(filter, options = {}, loggedInUserId = n
     },
 
     // 🔥 PAGINATION
+    {
+      $facet: {
+        data: [{ $skip: skip }, { $limit: limit }],
+        totalCount: [{ $count: 'total' }],
+      },
+    },
+  ];
+
+  const result = await User.aggregate(pipeline);
+
+  const docs = result[0].data;
+  const totalDocs = result[0].totalCount.length ? result[0].totalCount[0].total : 0;
+
+  return {
+    results: docs,
+    pagination: {
+      totalDocs,
+      limit,
+      page,
+      totalPages: Math.ceil(totalDocs / limit),
+    },
+  };
+}
+
+export async function getvendorUserListSearch(filter, options = {}, loggedInUserId = null) {
+  const { page = 1, limit = 10, search, businessType, service, city, area } = options;
+
+  const skip = (page - 1) * limit;
+
+  if (loggedInUserId) {
+    // eslint-disable-next-line no-param-reassign
+    filter._id = { $ne: new mongoose.Types.ObjectId(loggedInUserId) };
+  }
+
+  const excludedRoles = await Role.find(
+    { role: { $in: ['project-owner', 'super-admin', 'admin', 'co-admin'] } },
+    '_id'
+  ).lean();
+
+  const excludedRoleIds = excludedRoles.map((r) => r._id);
+  // eslint-disable-next-line no-param-reassign
+  filter['profileHideAndDelete.isProfileHide'] = { $ne: true };
+  // eslint-disable-next-line no-param-reassign
+  filter.role = { $nin: excludedRoleIds };
+
+  if (search) {
+    const regex = { $regex: search, $options: 'i' };
+    // eslint-disable-next-line no-param-reassign
+    filter.$or = [{ name: regex }, { email: regex }, { 'vendorData.businessName': regex }];
+  }
+
+  const normalizedBusinessType = businessType ? businessType.replace(/_/g, '-') : null;
+
+  const pipeline = [
+    { $match: filter },
+
+    // 🔥 unwind vendorData
+    { $unwind: '$vendorData' },
+
+    // 🔥 STRICT FILTER
+    {
+      $match: {
+        ...(normalizedBusinessType && {
+          $or: [
+            { 'vendorData.businessType': normalizedBusinessType },
+            {
+              'vendorData.businessType': normalizedBusinessType.replace(/-/g, '_'),
+            },
+          ],
+        }),
+
+        ...(service && {
+          'vendorData.servicesProvided': service,
+        }),
+
+        ...(normalizedBusinessType && {
+          'vendorData.businessType': { $exists: true, $ne: null },
+        }),
+      },
+    },
+
+    // 🔗 ADDRESS JOIN
+    {
+      $lookup: {
+        from: 'Address',
+        localField: 'address',
+        foreignField: '_id',
+        as: 'address',
+      },
+    },
+    { $unwind: { path: '$address', preserveNullAndEmptyArrays: true } },
+
+    // 🔥 CITY / AREA FILTER (NEW)
+    {
+      $match: {
+        ...(city && {
+          'address.currentCity': { $regex: city, $options: 'i' },
+        }),
+        ...(area && {
+          'address.area': { $regex: area, $options: 'i' },
+        }),
+      },
+    },
+
+    { $sort: { createdAt: -1 } },
+    // 🔥 SHORTLIST JOIN (if logged in)
+    ...(loggedInUserId
+      ? [
+          {
+            $lookup: {
+              from: 'shortlists',
+              let: { vendorId: '$_id' },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: {
+                      $and: [
+                        { $eq: ['$shortlistId', '$$vendorId'] },
+                        { $eq: ['$userId', new mongoose.Types.ObjectId(loggedInUserId)] },
+                      ],
+                    },
+                  },
+                },
+              ],
+              as: 'shortlistData',
+            },
+          },
+          {
+            $addFields: {
+              isShortlisted: {
+                $cond: [{ $gt: [{ $size: '$shortlistData' }, 0] }, true, false],
+              },
+            },
+          },
+        ]
+      : [
+          {
+            $addFields: {
+              isShortlisted: false,
+            },
+          },
+        ]),
+    // 🔁 GROUP BACK
+    {
+      $group: {
+        _id: '$_id',
+        name: { $first: '$name' },
+        email: { $first: '$email' },
+        profilePic: { $first: '$profilePic' },
+        userProfilePic: { $first: '$userProfilePic' },
+        address: { $first: '$address' },
+        createdAt: { $first: '$createdAt' },
+        vendorData: { $push: '$vendorData' },
+        isShortlisted: { $first: '$isShortlisted' },
+      },
+    },
+
     {
       $facet: {
         data: [{ $skip: skip }, { $limit: limit }],
