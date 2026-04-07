@@ -947,12 +947,12 @@ export const getVendorByBusinessType = catchAsync(async (req, res) => {
     city,
     area,
   };
-
+  const userId = req.user ? req.user._id : null;
   const filter = {
     appUsesType: 'vendor',
   };
 
-  const result = await userService.getvendorUserListSearch(filter, options, req.user._id || null);
+  const result = await userService.getvendorUserListSearch(filter, options, userId);
 
   return res.status(httpStatus.OK).send({
     status: 'Success',
