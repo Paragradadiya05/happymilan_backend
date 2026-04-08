@@ -27,7 +27,18 @@ export async function getUserById(id, options = {}) {
     .populate('userProfessional')
     .populate('userPartnerPrefForDating')
     .exec();
-  return user;
+
+  if (!user) return user;
+
+  // convert to object
+  const userObj = user.toObject();
+
+  // 🔥 remove profilePic from userProfilePic array
+  if (userObj.userProfilePic && userObj.profilePic) {
+    userObj.userProfilePic = userObj.userProfilePic.filter((img) => img.url !== userObj.profilePic);
+  }
+
+  return userObj;
 }
 
 // todo:check populate in database
