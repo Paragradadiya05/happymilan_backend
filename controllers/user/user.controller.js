@@ -960,3 +960,13 @@ export const getVendorByBusinessType = catchAsync(async (req, res) => {
     pagination: result.pagination,
   });
 });
+
+export const getUser = catchAsync(async (req, res) => {
+  const { userId } = req.params;
+  const filter = {
+    _id: userId,
+  };
+  const options = {};
+  const user = await userService.getOne(filter, options);
+  return res.status(httpStatus.OK).send({ results: user });
+});

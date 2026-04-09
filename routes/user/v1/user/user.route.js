@@ -128,6 +128,12 @@ router
    * */
   .get(auth(), validate(userValidation.get), userController.getUnique);
 router
+  .route('/get-vendor/:userId')
+  /**
+   * getUserById
+   * */
+  .get(validate(userValidation.getUserById), userController.getUser);
+router
   .route('/get-credit/:userId')
   /**
    * getUserByUserUniqueId
