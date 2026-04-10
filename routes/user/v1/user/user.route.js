@@ -34,6 +34,7 @@ router.get(
   validate(userValidation.getVendorByBusinessType),
   userController.getVendorByBusinessType
 );
+router.get('/vendors-areas', optionalAuth, validate(userValidation.getVendorByBusinessType), userController.getVendorAreas);
 router
   .route('/update-user')
   /**

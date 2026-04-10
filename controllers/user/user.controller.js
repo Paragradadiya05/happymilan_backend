@@ -970,3 +970,27 @@ export const getUser = catchAsync(async (req, res) => {
   const user = await userService.getOne(filter, options);
   return res.status(httpStatus.OK).send({ results: user });
 });
+
+export const getVendorAreas = catchAsync(async (req, res) => {
+  const { businessType, service, search, city } = req.query;
+
+  const options = {
+    businessType,
+    service,
+    search,
+    city,
+  };
+
+  const userId = req.user ? req.user._id : null;
+
+  const filter = {
+    appUsesType: 'vendor',
+  };
+
+  const result = await userService.getVendorAreasList(filter, options, userId);
+
+  return res.status(httpStatus.OK).send({
+    status: 'Success',
+    data: result,
+  });
+});

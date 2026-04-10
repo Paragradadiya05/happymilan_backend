@@ -4762,3 +4762,104 @@ export async function getvendorUserListSearch(filter, options = {}, loggedInUser
     },
   };
 }
+
+export async function getVendorAreasList(filter, options = {}, loggedInUserId = null) {
+  const { search, businessType, service, city } = options;
+
+  if (loggedInUserId) {
+    // eslint-disable-next-line no-param-reassign
+    filter._id = { $ne: new mongoose.Types.ObjectId(loggedInUserId) };
+  }
+
+  const excludedRoles = await Role.find(
+    { role: { $in: ['project-owner', 'super-admin', 'admin', 'co-admin'] } },
+    '_id'
+  ).lean();
+
+  const excludedRoleIds = excludedRoles.map((r) => r._id);
+
+  // eslint-disable-next-line no-param-reassign
+  filter['profileHideAndDelete.isProfileHide'] = { $ne: true };
+  // eslint-disable-next-line no-param-reassign
+  filter.role = { $nin: excludedRoleIds };
+
+  if (search) {
+    const regex = { $regex: search, $options: 'i' };
+    // eslint-disable-next-line no-param-reassign
+    filter.$or = [{ name: regex }, { email: regex }, { 'vendorData.businessName': regex }];
+  }
+
+  const normalizedBusinessType = businessType ? businessType.replace(/_/g, '-') : null;
+
+  const pipeline = [
+    { $match: filter },
+
+    { $unwind: '$vendorData' },
+
+    {
+      $match: {
+        ...(normalizedBusinessType && {
+          $or: [
+            { 'vendorData.businessType': normalizedBusinessType },
+            { 'vendorData.businessType': normalizedBusinessType.replace(/-/g, '_') },
+          ],
+        }),
+
+        ...(service && {
+          'vendorData.servicesProvided': service,
+        }),
+      },
+    },
+
+    // 🔗 ADDRESS JOIN
+    {
+      $lookup: {
+        from: 'Address',
+        localField: 'address',
+        foreignField: '_id',
+        as: 'address',
+      },
+    },
+    { $unwind: { path: '$address', preserveNullAndEmptyArrays: true } },
+
+    // 🔥 CITY FILTER
+    {
+      $match: {
+        ...(city && {
+          'address.currentCity': { $regex: city, $options: 'i' },
+        }),
+      },
+    },
+
+    // ✅ ONLY AREA FIELD
+    {
+      $group: {
+        _id: '$address.area',
+      },
+    },
+
+    // ❌ remove null / empty
+    {
+      $match: {
+        _id: { $nin: [null, ''] },
+      },
+    },
+
+    // 🔄 rename field
+    {
+      $project: {
+        _id: 0,
+        area: '$_id',
+      },
+    },
+
+    // 🔽 sort areas
+    {
+      $sort: { area: 1 },
+    },
+  ];
+
+  const result = await User.aggregate(pipeline);
+
+  return result; // only area list
+}
