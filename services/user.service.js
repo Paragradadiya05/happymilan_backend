@@ -4635,30 +4635,34 @@ export async function getvendorUserListSearch(filter, options = {}, loggedInUser
 
   const normalizedBusinessType = businessType ? businessType.replace(/_/g, '-') : null;
 
+  // 🔥 Convert city & area to arrays
+  let cityArray = [];
+  if (city) {
+    cityArray = Array.isArray(city) ? city : city.split(',').map((c) => c.trim());
+  }
+
+  let areaArray = [];
+  if (area) {
+    areaArray = Array.isArray(area) ? area : area.split(',').map((a) => a.trim());
+  }
+
   const pipeline = [
     { $match: filter },
 
     // 🔥 unwind vendorData
     { $unwind: '$vendorData' },
 
-    // 🔥 STRICT FILTER
+    // 🔥 BUSINESS TYPE + SERVICE FILTER
     {
       $match: {
         ...(normalizedBusinessType && {
           $or: [
             { 'vendorData.businessType': normalizedBusinessType },
-            {
-              'vendorData.businessType': normalizedBusinessType.replace(/-/g, '_'),
-            },
+            { 'vendorData.businessType': normalizedBusinessType.replace(/-/g, '_') },
           ],
         }),
-
         ...(service && {
           'vendorData.servicesProvided': service,
-        }),
-
-        ...(normalizedBusinessType && {
-          'vendorData.businessType': { $exists: true, $ne: null },
         }),
       },
     },
@@ -4674,20 +4678,39 @@ export async function getvendorUserListSearch(filter, options = {}, loggedInUser
     },
     { $unwind: { path: '$address', preserveNullAndEmptyArrays: true } },
 
-    // 🔥 CITY / AREA FILTER (NEW)
-    {
-      $match: {
-        ...(city && {
-          'address.currentCity': { $regex: city, $options: 'i' },
-        }),
-        ...(area && {
-          'address.area': { $regex: area, $options: 'i' },
-        }),
-      },
-    },
+    // 🔥 CITY + AREA FILTER (MULTI SUPPORT)
+    ...(cityArray.length || areaArray.length
+      ? [
+          {
+            $match: {
+              $and: [
+                ...(cityArray.length
+                  ? [
+                      {
+                        $or: cityArray.map((c) => ({
+                          'address.currentCity': { $regex: c, $options: 'i' },
+                        })),
+                      },
+                    ]
+                  : []),
+                ...(areaArray.length
+                  ? [
+                      {
+                        $or: areaArray.map((a) => ({
+                          'address.area': { $regex: a, $options: 'i' },
+                        })),
+                      },
+                    ]
+                  : []),
+              ],
+            },
+          },
+        ]
+      : []),
 
     { $sort: { createdAt: -1 } },
-    // 🔥 SHORTLIST JOIN (if logged in)
+
+    // 🔥 SHORTLIST JOIN
     ...(loggedInUserId
       ? [
           {
@@ -4711,9 +4734,7 @@ export async function getvendorUserListSearch(filter, options = {}, loggedInUser
           },
           {
             $addFields: {
-              isShortlisted: {
-                $cond: [{ $gt: [{ $size: '$shortlistData' }, 0] }, true, false],
-              },
+              isShortlisted: { $gt: [{ $size: '$shortlistData' }, 0] },
             },
           },
         ]
@@ -4724,6 +4745,7 @@ export async function getvendorUserListSearch(filter, options = {}, loggedInUser
             },
           },
         ]),
+
     // 🔁 GROUP BACK
     {
       $group: {
@@ -4739,6 +4761,7 @@ export async function getvendorUserListSearch(filter, options = {}, loggedInUser
       },
     },
 
+    // 🔥 PAGINATION
     {
       $facet: {
         data: [{ $skip: skip }, { $limit: limit }],
