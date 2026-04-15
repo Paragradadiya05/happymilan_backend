@@ -4577,6 +4577,7 @@ export async function getvendorUserList(filter, options = {}, loggedInUserId = n
         vendorData: 1,
         address: 1,
         isShortlisted: 1,
+        shortlistData: 1,
         createdAt: 1,
       },
     },
@@ -4758,6 +4759,7 @@ export async function getvendorUserListSearch(filter, options = {}, loggedInUser
         createdAt: { $first: '$createdAt' },
         vendorData: { $push: '$vendorData' },
         isShortlisted: { $first: '$isShortlisted' },
+        shortlistData: { $first: '$shortlistData' },
       },
     },
 
