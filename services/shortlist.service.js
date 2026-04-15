@@ -987,15 +987,46 @@ export async function getVendorShortlist(filter, options = {}) {
     populate: {
       path: 'shortlistId',
       match: { appUsesType: 'vendor' },
-      select: 'vendorData',
+      select: `
+        _id
+        name
+        email
+        phone
+        address
+        profilePic
+        userProfilePic
+        vendorData
+      `,
+      populate: [
+        {
+          path: 'address', // 🔹 populate address if it's ObjectId
+        },
+      ],
     },
     lean: true,
   });
 
-  const docs = result.docs || [];
+  const docs = (result.docs || [])
+    .filter((item) => item.shortlistId !== null)
+    .map((item) => {
+      const user = item.shortlistId;
+
+      return {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        address: user.address,
+        profilePic: user.profilePic,
+        profilePicArr: user.profilePicArr || [],
+        vendorData: user.vendorData || {},
+        shortlisted: true,
+        shortlistId: item._id, // shortlist document id
+      };
+    });
 
   return {
     ...result,
-    docs: docs.filter((item) => item.shortlistId !== null),
+    docs,
   };
 }
