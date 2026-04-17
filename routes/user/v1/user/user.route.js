@@ -133,7 +133,7 @@ router
   /**
    * getUserById
    * */
-  .get(validate(userValidation.getUserById), userController.getUser);
+  .get(optionalAuth, validate(userValidation.getUserById), userController.getVendor);
 router
   .route('/get-credit/:userId')
   /**

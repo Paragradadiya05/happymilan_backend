@@ -994,3 +994,16 @@ export const getVendorAreas = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
+export const getVendor = catchAsync(async (req, res) => {
+  const { userId } = req.params;
+
+  const loggedInUserId = req.user ? req.user._id : null;
+
+  const result = await userService.getVendorWithShortlist(userId, loggedInUserId);
+
+  return res.status(httpStatus.OK).send({
+    status: 'Success',
+    data: result.user,
+  });
+});

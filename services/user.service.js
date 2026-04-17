@@ -4888,3 +4888,94 @@ export async function getVendorAreasList(filter, options = {}, loggedInUserId = 
 
   return result; // only area list
 }
+
+export async function getVendorWithShortlist(userId, loggedInUserId = null) {
+  const objectUserId = new mongoose.Types.ObjectId(userId);
+
+  const pipeline = [
+    {
+      $match: {
+        _id: objectUserId,
+        'profileHideAndDelete.isProfileHide': { $ne: true },
+      },
+    },
+
+    // 🔗 ADDRESS
+    {
+      $lookup: {
+        from: 'Address',
+        localField: 'address',
+        foreignField: '_id',
+        as: 'address',
+      },
+    },
+    { $unwind: { path: '$address', preserveNullAndEmptyArrays: true } },
+
+    // 🔥 SHORTLIST FIX (FINAL)
+    ...(loggedInUserId
+      ? [
+          {
+            $lookup: {
+              from: 'shortlists',
+              let: { vendorId: '$_id' },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: {
+                      $and: [
+                        {
+                          $eq: [{ $toString: '$shortlistId' }, { $toString: '$$vendorId' }],
+                        },
+                        {
+                          $eq: [{ $toString: '$userId' }, loggedInUserId.toString()],
+                        },
+                      ],
+                    },
+                  },
+                },
+              ],
+              as: 'shortlistData',
+            },
+          },
+          {
+            $addFields: {
+              isShortlisted: {
+                $gt: [{ $size: '$shortlistData' }, 0],
+              },
+            },
+          },
+        ]
+      : [
+          {
+            $addFields: {
+              isShortlisted: false,
+              shortlistData: [],
+            },
+          },
+        ]),
+
+    {
+      $project: {
+        name: 1,
+        email: 1,
+        profilePic: 1,
+        userProfilePic: 1,
+        vendorData: 1,
+        address: 1,
+        isShortlisted: 1,
+        shortlistData: 1,
+        createdAt: 1,
+      },
+    },
+  ];
+
+  const result = await User.aggregate(pipeline);
+
+  if (!result.length) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Vendor not found');
+  }
+
+  return {
+    user: result[0],
+  };
+}
