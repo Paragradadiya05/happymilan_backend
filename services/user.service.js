@@ -4299,6 +4299,7 @@ export async function checkMissingFields(userId) {
     address: [],
     education: [],
     professional: [],
+    profilePic: [],
   };
 
   // Check for missing fields in each category
@@ -4342,7 +4343,12 @@ export async function checkMissingFields(userId) {
   } else {
     missingFields.professional = ['Professional details are missing'];
   }
+  const hasProfilePic =
+    (user.userProfilePic && user.userProfilePic.length > 0) || (user.profilePic && user.profilePic !== '');
 
+  if (!hasProfilePic) {
+    missingFields.profilePic = ['profilePic'];
+  }
   return missingFields;
 }
 
@@ -4377,6 +4383,7 @@ export async function checkMissingFieldsMobile(userId) {
     locationDetails: [], // renamed 'address' to 'locationDetails'
     educationDetails: [], // renamed 'education' to 'educationDetails'
     professional: [],
+    profilePic: [],
   };
 
   // Check for missing fields in each category
@@ -4419,7 +4426,12 @@ export async function checkMissingFieldsMobile(userId) {
   } else {
     missingFields.professional = ['Professional details are missing'];
   }
+  const hasProfilePic =
+    (user.userProfilePic && user.userProfilePic.length > 0) || (user.profilePic && user.profilePic !== '');
 
+  if (!hasProfilePic) {
+    missingFields.profilePic = ['profilePic'];
+  }
   return missingFields;
 }
 
