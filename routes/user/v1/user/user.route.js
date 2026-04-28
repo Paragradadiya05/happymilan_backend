@@ -76,6 +76,14 @@ router
  * */
 router.route('/getUserByGender').get(auth(), validate(userValidation.getUserByGender), userController.getUserByGender);
 /**
+ * getNearByUser
+ * */
+router.route('/getNearByUser').get(auth(), validate(userValidation.getUserByGender), userController.getNearByUser);
+/**
+ * getmatchUser
+ * */
+router.route('/getMatchUser').get(auth(), validate(userValidation.getUserByGender), userController.getmatchUser);
+/**
  * getPrimeUserList
  * */
 router.route('/getUserPrimeUser').get(auth(), validate(userValidation.getprimeuser), userController.getprimeuser);

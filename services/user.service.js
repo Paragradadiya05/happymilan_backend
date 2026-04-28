@@ -1,7 +1,7 @@
 import ApiError from 'utils/ApiError';
 import httpStatus from 'http-status';
 // eslint-disable-next-line no-unused-vars
-import { Partner, User, Datingpartner, Like, Friend, Role, DeletedUser } from 'models';
+import { Partner, User, Datingpartner, Like, Friend, Role, DeletedUser, Address } from 'models';
 import _ from 'lodash';
 import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
@@ -5034,4 +5034,1394 @@ export async function getSameCityVendorList(userId) {
   const filteredVendors = vendors.filter((v) => v.address);
 
   return filteredVendors;
+}
+
+export async function getNearbyUser(filter, options = {}) {
+  const userGender = filter.gender;
+  const page = parseInt(options.page, 10) || 1;
+  const limit = parseInt(options.limit, 10) || 10;
+
+  let oppositeGender;
+  if (userGender === EnumGenderOfUsers.MALE) {
+    oppositeGender = EnumGenderOfUsers.FEMALE;
+  } else if (userGender === EnumGenderOfUsers.FEMALE) {
+    oppositeGender = EnumGenderOfUsers.MALE;
+  } else {
+    throw new Error('Invalid gender for logged-in user');
+  }
+  const currentUserAddress = await Address.findOne({ userId: filter.userId });
+
+  if (!currentUserAddress || !currentUserAddress.currentCity) {
+    throw new Error('Current user city not found');
+  }
+
+  const { currentCity } = currentUserAddress;
+  const userPartnerPreferences = await Partner.findOne({ userId: filter.userId });
+
+  if (!userPartnerPreferences) {
+    throw new Error('User Partner Preferences not found. Please add Partner Preference first');
+  }
+
+  const skip = (page - 1) * limit;
+  const currentDate = new Date();
+  const getUserPlanDetails = await userPlanService.getOne(
+    {
+      userId: filter.userId,
+      startDate: { $lte: currentDate },
+      endDate: { $gte: currentDate },
+    },
+    {}
+  );
+  let isPremiumUser = false;
+  if (getUserPlanDetails && getUserPlanDetails.status) isPremiumUser = getUserPlanDetails.status === EnumOfUserPlan.ACTIVE;
+
+  // Define fields and their privacy conditions
+  const fields = [
+    // user profile photo
+    { name: 'profilePic' },
+    { name: 'userProfilePic' },
+    { name: 'userProfileVideo' },
+    // general details
+    { name: 'firstName' },
+    { name: 'lastName' },
+    { name: 'dateOfBirth' },
+    { name: 'birthTime' },
+    { name: 'religion' },
+    { name: 'caste' },
+    { name: 'height' },
+    { name: 'weight' },
+    { name: 'displayName' },
+    { name: 'name' },
+    { name: 'randomId' },
+    { name: 'maritalStatus' },
+    { name: 'address' },
+    { name: 'gender' },
+
+    // contact details this will be hidden for all
+    // { name: 'email', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
+    // { name: 'mobileNumber', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
+
+    // education details
+    { name: 'userEducation' },
+
+    // Professional Details
+    { name: 'userProfessional' },
+    { name: 'hobbies' },
+    { name: 'userPartnerDetails' },
+    { name: 'userUniqueId' },
+    { name: 'privacySetting' },
+    { name: 'motherTongue' },
+    { name: 'isUserActive' },
+    { name: 'age' },
+    { name: 'maritalStatus' },
+    { name: 'writeBoutYourSelf' },
+    { name: 'profilePhotoPrivacy' },
+    { name: 'privacySettingCustom' },
+    { name: 'zodiac' },
+    { name: 'gothra' },
+    { name: 'manglikStatus' },
+    { name: 'language' },
+  ];
+
+  // Define additional fields for `privacySetting: 'default'`
+  const defaultFields = {
+    age: '$age',
+    height: '$height',
+    address: {
+      _id: { $getField: { field: '_id', input: '$address' } },
+      currentResidenceAddress: { $getField: { field: 'currentResidenceAddress', input: '$address' } },
+      currentCity: { $getField: { field: 'currentCity', input: '$address' } },
+      state: { $getField: { field: 'state', input: '$address' } },
+      currentCountry: { $getField: { field: 'currentCountry', input: '$address' } },
+      createdAt: { $getField: { field: 'createdAt', input: '$address' } },
+      updatedAt: { $getField: { field: 'updatedAt', input: '$address' } },
+    },
+    appUsesType: '$appUsesType',
+    emailVerified: '$emailVerified',
+    maritalStatus: '$maritalStatus',
+    gender: '$gender',
+    // dateOfBirth: '$dateOfBirth',
+    // birthTime: '$birthTime',
+    // religion: '$religion',
+    // caste: '$caste',
+    hobbies: '$hobbies',
+    interest: '$interest',
+    // homeMobileNumber: '$homeMobileNumber',
+    // creatingProfileFor: '$creatingProfileFor',
+    writeBoutYourSelf: '$writeBoutYourSelf',
+    community: '$community',
+    motherTongue: '$motherTongue',
+    weight: '$weight',
+
+    // userEducation: {
+    //   _id: { $getField: { field: '_id', input: '$userEducation' } },
+    //   degree: { $getField: { field: 'degree', input: '$userEducation' } },
+    //   collage: { $getField: { field: 'collage', input: '$userEducation' } },
+    //   city: { $getField: { field: 'city', input: '$userEducation' } },
+    //   state: { $getField: { field: 'state', input: '$userEducation' } },
+    //   country: { $getField: { field: 'country', input: '$userEducation' } },
+    // },
+    // userProfessional: {
+    //   _id: { $getField: { field: '_id', input: '$userProfessional' } },
+    //   jobTitle: { $getField: { field: 'jobTitle', input: '$userProfessional' } },
+    //   jobType: { $getField: { field: 'jobType', input: '$userProfessional' } },
+    //   companyName: { $getField: { field: 'companyName', input: '$userProfessional' } },
+    //   currentSalary: { $getField: { field: 'currentSalary', input: '$userProfessional' } },
+    //   workCity: { $getField: { field: 'workCity', input: '$userProfessional' } },
+    //   workCountry: { $getField: { field: 'workCountry', input: '$userProfessional' } },
+    // },
+    userUniqueId: '$userUniqueId',
+    privacySetting: '$privacySetting',
+    privacySettingCustom: '$privacySettingCustom',
+    profilePhotoPrivacy: '$profilePhotoPrivacy',
+    showPhotoToFriendsOnly: '$showPhotoToFriendsOnly',
+  };
+
+  const pipeline = [
+    {
+      $match: {
+        _id: { $ne: mongoose.Types.ObjectId(filter.userId) }, // Exclude the current user
+        platform: { $eq: EnumOfPlatformType.HAPPY_MILAN },
+        gender: oppositeGender,
+        appUsesType: EnumAppUsesTypeOfUsers.MARRIAGE,
+        profileHideAndDelete: {
+          $not: {
+            $elemMatch: {
+              $or: [{ isProfileHide: true }, { isProfileDelete: true }],
+            },
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: 'Subscription', // Ensure this matches the subscription collection name
+        let: { userId: '$_id' }, // Reference the current user's ID
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $eq: ['$user', '$$userId'], // Match the user ID
+              },
+            },
+          },
+        ],
+        as: 'subscriptionDetails',
+      },
+    },
+    {
+      $unwind: {
+        path: '$subscriptionDetails',
+        preserveNullAndEmptyArrays: true, // Include users even if they don't have any subscriptions
+      },
+    },
+    {
+      $lookup: {
+        from: 'likes', // // The collection name for Like model
+        let: {
+          currentUserIdForLike: '$_id', // Reference to current document's userId
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $eq: ['$user', filter.userId] }, { $eq: ['$likedUserId', '$$currentUserIdForLike'] }],
+              },
+            },
+          },
+        ],
+        as: 'userLikeDetails',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userLikeDetails',
+        preserveNullAndEmptyArrays: true, // Include users with no matching friends
+      },
+    },
+    {
+      $lookup: {
+        from: 'shortlists', // // The collection name for Like model
+        let: {
+          currentUserIdForShortList: '$_id', // Reference to current document's userId
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $eq: ['$userId', filter.userId] }, { $eq: ['$shortlistId', '$$currentUserIdForShortList'] }],
+              },
+            },
+          },
+        ],
+        as: 'userShortListDetails',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userShortListDetails',
+        preserveNullAndEmptyArrays: true, // Include users with no matching friends
+      },
+    },
+    {
+      $lookup: {
+        from: 'Friend', // The collection name for Friend model
+        let: {
+          currentUserId: '$_id', // Reference to current document's userId
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $or: [
+                  {
+                    $and: [{ $eq: ['$user', filter.userId] }, { $eq: ['$friend', '$$currentUserId'] }],
+                  },
+                  {
+                    $and: [{ $eq: ['$user', '$$currentUserId'] }, { $eq: ['$friend', filter.userId] }],
+                  },
+                ],
+              },
+            },
+          },
+        ],
+        as: 'friendsDetails',
+      },
+    },
+    {
+      $unwind: {
+        path: '$friendsDetails',
+        preserveNullAndEmptyArrays: true, // Include users with no matching friends
+      },
+    },
+    {
+      $match: {
+        $or: [
+          { friendsDetails: { $exists: false } }, // Include users without any friend details
+          // Case 2: Exclude blocked and accepted statuses
+          {
+            $and: [
+              { 'friendsDetails.status': { $nin: [EnumStatusOfFriend.BLOCKED, EnumStatusOfFriend.ACCEPTED] } },
+              {
+                $or: [
+                  // Keep REQUESTED status unless the user made the request
+                  { $expr: { $ne: ['$friendsDetails.friend', filter.userId] } },
+                  { 'friendsDetails.status': { $ne: EnumStatusOfFriend.REQUESTED } },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      $addFields: {
+        age: {
+          $cond: {
+            if: { $and: [{ $ne: ['$dateOfBirth', null] }, { $ne: ['$dateOfBirth', ''] }] },
+            then: {
+              $floor: {
+                $divide: [
+                  { $subtract: [new Date(), '$dateOfBirth'] },
+                  31556952000, // Average milliseconds in a year considering leap years
+                ],
+              },
+            },
+            else: null, // Handle cases where dateOfBirth is missing or invalid
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: 'Address',
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'address',
+      },
+    },
+    {
+      $unwind: {
+        path: '$address', // Deconstructs the 'address' array field
+        preserveNullAndEmptyArrays: true, // If you want to exclude documents with no address
+      },
+    },
+    {
+      $match: {
+        'address.currentCity': {
+          $regex: new RegExp(`^${currentCity}$`, 'i'),
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: 'UserEducation',
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'userEducation',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userEducation',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
+        from: 'UserProfessionalDetail',
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'userProfessional',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userProfessional', // Deconstructs the 'address' array field
+        preserveNullAndEmptyArrays: true, // If you want to exclude documents with no address
+      },
+    },
+    {
+      $unwind: {
+        path: '$address', // Deconstructs the 'address' array field
+        preserveNullAndEmptyArrays: true, // If you want to exclude documents with no address
+      },
+    },
+    {
+      $lookup: {
+        from: 'UserPartner',
+        localField: '_id', // User's `_id` field
+        foreignField: 'userId', // Match with `userId` in `UserPartner`
+        as: 'userPartnerDetails',
+      },
+    },
+    {
+      $addFields: {
+        matchData: {
+          $let: {
+            vars: {
+              matchedFields: {
+                $map: {
+                  input: [
+                    {
+                      field: 'age',
+                      value: '$age',
+                      expected: {
+                        min: {
+                          $ifNull: [{ $arrayElemAt: ['$userPartnerDetails.age.min', 0] }, '$userPartnerDetails.age.min'],
+                        },
+                        max: {
+                          $ifNull: [{ $arrayElemAt: ['$userPartnerDetails.age.max', 0] }, '$userPartnerDetails.age.max'],
+                        },
+                      },
+                    },
+                    {
+                      field: 'height',
+                      value: '$height',
+                      expected: {
+                        min: {
+                          $ifNull: [
+                            { $arrayElemAt: ['$userPartnerDetails.height.min', 0] },
+                            '$userPartnerDetails.height.min',
+                          ],
+                        },
+                        max: {
+                          $ifNull: [
+                            { $arrayElemAt: ['$userPartnerDetails.height.max', 0] },
+                            '$userPartnerDetails.height.max',
+                          ],
+                        },
+                      },
+                    },
+                    {
+                      field: 'income',
+                      value: '$userProfessional.currentSalary',
+                      expected: {
+                        min: {
+                          $ifNull: [
+                            { $arrayElemAt: ['$userPartnerDetails.income.min', 0] },
+                            '$userPartnerDetails.income.min',
+                          ],
+                        },
+                        max: {
+                          $ifNull: [
+                            { $arrayElemAt: ['$userPartnerDetails.income.max', 0] },
+                            '$userPartnerDetails.income.max',
+                          ],
+                        },
+                      },
+                    },
+                    {
+                      field: 'currentCountry',
+                      value: '$address.currentCountry',
+                      expected: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$userPartnerDetails.country' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.country', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$userPartnerDetails.country', 0] },
+                          { $ifNull: ['$userPartnerDetails.country', []] },
+                        ],
+                      },
+                    },
+                    {
+                      field: 'currentState',
+                      value: '$address.state',
+                      expected: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$userPartnerDetails.state' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.state', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$userPartnerDetails.state', 0] },
+                          { $ifNull: ['$userPartnerDetails.state', []] },
+                        ],
+                      },
+                    },
+                    {
+                      field: 'currentCity',
+                      value: '$address.currentCity',
+                      expected: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$userPartnerDetails.city' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.city', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$userPartnerDetails.city', 0] },
+                          { $ifNull: ['$userPartnerDetails.city', []] },
+                        ],
+                      },
+                    },
+                    {
+                      field: 'diet',
+                      value: {
+                        $cond: [
+                          {
+                            $and: [{ $isArray: '$diet' }, { $eq: [{ $type: { $arrayElemAt: ['$diet', 0] } }, 'array'] }],
+                          },
+                          { $arrayElemAt: ['$diet', 0] }, // unwrap [["reading","cooking"]] → ["reading","cooking"]
+                          { $ifNull: ['$diet', []] },
+                        ],
+                      },
+                      expected: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$userPartnerDetails.diet' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.diet', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$userPartnerDetails.diet', 0] },
+                          { $ifNull: ['$userPartnerDetails.diet', []] },
+                        ],
+                      },
+                    },
+
+                    {
+                      field: 'hobbies',
+                      value: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$hobbies' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$hobbies', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$hobbies', 0] }, // unwrap [["reading","cooking"]] → ["reading","cooking"]
+                          { $ifNull: ['$hobbies', []] },
+                        ],
+                      },
+                      expected: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$userPartnerDetails.hobbies' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.hobbies', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$userPartnerDetails.hobbies', 0] },
+                          { $ifNull: ['$userPartnerDetails.hobbies', []] },
+                        ],
+                      },
+                    },
+                  ],
+                  as: 'item',
+                  in: {
+                    field: '$$item.field',
+                    value: '$$item.value',
+                    expected: '$$item.expected',
+                    isMatched: {
+                      $switch: {
+                        branches: [
+                          {
+                            case: { $eq: ['$$item.field', 'age'] },
+                            then: {
+                              $and: [
+                                { $gte: ['$$item.value', '$$item.expected.min'] },
+                                { $lte: ['$$item.value', '$$item.expected.max'] },
+                              ],
+                            },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'height'] },
+                            then: {
+                              $and: [
+                                { $gte: ['$$item.value', '$$item.expected.min'] },
+                                { $lte: ['$$item.value', '$$item.expected.max'] },
+                              ],
+                            },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'income'] },
+                            then: {
+                              $and: [
+                                { $gte: ['$$item.value', '$$item.expected.min'] },
+                                { $lte: ['$$item.value', '$$item.expected.max'] },
+                              ],
+                            },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'currentCountry'] },
+                            then: { $in: ['$$item.value', '$$item.expected'] },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'currentState'] },
+                            then: { $in: ['$$item.value', '$$item.expected'] },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'currentCity'] },
+                            then: { $in: ['$$item.value', '$$item.expected'] },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'diet'] },
+                            then: {
+                              $gt: [{ $size: { $setIntersection: ['$$item.value', '$$item.expected'] } }, 0],
+                            },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'hobbies'] },
+                            then: {
+                              $gt: [{ $size: { $setIntersection: ['$$item.value', '$$item.expected'] } }, 0],
+                            },
+                          },
+                        ],
+                        default: false,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            in: {
+              matchedCriteria: {
+                $size: {
+                  $filter: {
+                    input: '$$matchedFields',
+                    as: 'm',
+                    cond: { $eq: ['$$m.isMatched', true] },
+                  },
+                },
+              },
+              matchPercentage: {
+                $multiply: [
+                  {
+                    $divide: [
+                      {
+                        $size: {
+                          $filter: {
+                            input: '$$matchedFields',
+                            as: 'm',
+                            cond: { $eq: ['$$m.isMatched', true] },
+                          },
+                        },
+                      },
+                      8,
+                    ],
+                  },
+                  100,
+                ],
+              },
+            },
+          },
+        },
+      },
+    },
+    {
+      $addFields: {
+        matchPercentage: '$matchData.matchPercentage',
+      },
+    },
+    {
+      $sort: { matchPercentage: -1 },
+    },
+
+    // Group by _id to remove duplicates
+    {
+      $group: {
+        _id: '$_id',
+        doc: { $first: '$$ROOT' },
+      },
+    },
+    {
+      $replaceRoot: {
+        newRoot: '$doc',
+      },
+    },
+
+    {
+      $project: createDynamicProjectionForPrivacySetting(fields, defaultFields, isPremiumUser),
+    },
+    { $sort: { matchPercentage: -1 } }, // Sort by match percentage in descending order
+    // { $skip: (page - 1) * limit }, // Skip documents for pagination
+    // { $skip: skip },
+    // { $limit: limit }, // Limit the number of documents for pagination
+    // {
+    //   $facet: {
+    //     paginatedResults: [{ $skip: skip }, { $limit: limit }],
+    //     totalCount: [{ $count: 'count' }],
+    //   },
+    // },
+    // {
+    //   $addFields: {
+    //     totalDocs: { $arrayElemAt: ['$totalCount.count', 0] },
+    //     totalPages: {
+    //       $ceil: {
+    //         $divide: [{ $arrayElemAt: ['$totalCount.count', 0] }, limit],
+    //       },
+    //     },
+    //     currentPage: page,
+    //   },
+    // },
+
+    // Facet stage: Use facet to divide the pipeline into two outputs
+    {
+      $facet: {
+        // Facet for paginated results
+        paginatedResults: [{ $skip: skip }, { $limit: limit }],
+        // Facet for counting total documents
+        totalCount: [{ $count: 'count' }],
+      },
+    },
+    // Unwind totalCount array to get the actual count value
+    {
+      $unwind: {
+        path: '$totalCount',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    // Add pagination details
+    {
+      $addFields: {
+        totalDocs: { $ifNull: ['$totalCount.count', 0] },
+        totalPages: {
+          $ceil: {
+            $divide: ['$totalCount.count', limit],
+          },
+        },
+        currentPage: page,
+      },
+    },
+  ];
+  console.log('userPartnerPreferences:', JSON.stringify(userPartnerPreferences));
+
+  const matchedUsers = await User.aggregate(pipeline).exec();
+  return matchedUsers;
+}
+
+export async function getGenderListV2WithMatchFilter(filter, options = {}) {
+  const userGender = filter.gender;
+  const page = parseInt(options.page, 10) || 1;
+  const limit = parseInt(options.limit, 10) || 10;
+
+  let oppositeGender;
+  if (userGender === EnumGenderOfUsers.MALE) {
+    oppositeGender = EnumGenderOfUsers.FEMALE;
+  } else if (userGender === EnumGenderOfUsers.FEMALE) {
+    oppositeGender = EnumGenderOfUsers.MALE;
+  } else {
+    throw new Error('Invalid gender for logged-in user');
+  }
+
+  const userPartnerPreferences = await Partner.findOne({ userId: filter.userId });
+
+  if (!userPartnerPreferences) {
+    throw new Error('User Partner Preferences not found. Please add Partner Preference first');
+  }
+
+  const skip = (page - 1) * limit;
+  const currentDate = new Date();
+  const getUserPlanDetails = await userPlanService.getOne(
+    {
+      userId: filter.userId,
+      startDate: { $lte: currentDate },
+      endDate: { $gte: currentDate },
+    },
+    {}
+  );
+  let isPremiumUser = false;
+  if (getUserPlanDetails && getUserPlanDetails.status) isPremiumUser = getUserPlanDetails.status === EnumOfUserPlan.ACTIVE;
+
+  // Define fields and their privacy conditions
+  const fields = [
+    // user profile photo
+    { name: 'profilePic' },
+    { name: 'userProfilePic' },
+    { name: 'userProfileVideo' },
+    // general details
+    { name: 'firstName' },
+    { name: 'lastName' },
+    { name: 'dateOfBirth' },
+    { name: 'birthTime' },
+    { name: 'religion' },
+    { name: 'caste' },
+    { name: 'height' },
+    { name: 'weight' },
+    { name: 'displayName' },
+    { name: 'name' },
+    { name: 'randomId' },
+    { name: 'maritalStatus' },
+    { name: 'address' },
+    { name: 'gender' },
+
+    // contact details this will be hidden for all
+    // { name: 'email', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
+    // { name: 'mobileNumber', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
+
+    // education details
+    { name: 'userEducation' },
+
+    // Professional Details
+    { name: 'userProfessional' },
+    { name: 'hobbies' },
+    { name: 'userPartnerDetails' },
+    { name: 'userUniqueId' },
+    { name: 'privacySetting' },
+    { name: 'motherTongue' },
+    { name: 'isUserActive' },
+    { name: 'age' },
+    { name: 'maritalStatus' },
+    { name: 'writeBoutYourSelf' },
+    { name: 'profilePhotoPrivacy' },
+    { name: 'privacySettingCustom' },
+    { name: 'zodiac' },
+    { name: 'gothra' },
+    { name: 'manglikStatus' },
+    { name: 'language' },
+  ];
+
+  // Define additional fields for `privacySetting: 'default'`
+  const defaultFields = {
+    age: '$age',
+    height: '$height',
+    address: {
+      _id: { $getField: { field: '_id', input: '$address' } },
+      currentResidenceAddress: { $getField: { field: 'currentResidenceAddress', input: '$address' } },
+      currentCity: { $getField: { field: 'currentCity', input: '$address' } },
+      state: { $getField: { field: 'state', input: '$address' } },
+      currentCountry: { $getField: { field: 'currentCountry', input: '$address' } },
+      createdAt: { $getField: { field: 'createdAt', input: '$address' } },
+      updatedAt: { $getField: { field: 'updatedAt', input: '$address' } },
+    },
+    appUsesType: '$appUsesType',
+    emailVerified: '$emailVerified',
+    maritalStatus: '$maritalStatus',
+    gender: '$gender',
+    // dateOfBirth: '$dateOfBirth',
+    // birthTime: '$birthTime',
+    // religion: '$religion',
+    // caste: '$caste',
+    hobbies: '$hobbies',
+    interest: '$interest',
+    // homeMobileNumber: '$homeMobileNumber',
+    // creatingProfileFor: '$creatingProfileFor',
+    writeBoutYourSelf: '$writeBoutYourSelf',
+    community: '$community',
+    motherTongue: '$motherTongue',
+    weight: '$weight',
+
+    // userEducation: {
+    //   _id: { $getField: { field: '_id', input: '$userEducation' } },
+    //   degree: { $getField: { field: 'degree', input: '$userEducation' } },
+    //   collage: { $getField: { field: 'collage', input: '$userEducation' } },
+    //   city: { $getField: { field: 'city', input: '$userEducation' } },
+    //   state: { $getField: { field: 'state', input: '$userEducation' } },
+    //   country: { $getField: { field: 'country', input: '$userEducation' } },
+    // },
+    // userProfessional: {
+    //   _id: { $getField: { field: '_id', input: '$userProfessional' } },
+    //   jobTitle: { $getField: { field: 'jobTitle', input: '$userProfessional' } },
+    //   jobType: { $getField: { field: 'jobType', input: '$userProfessional' } },
+    //   companyName: { $getField: { field: 'companyName', input: '$userProfessional' } },
+    //   currentSalary: { $getField: { field: 'currentSalary', input: '$userProfessional' } },
+    //   workCity: { $getField: { field: 'workCity', input: '$userProfessional' } },
+    //   workCountry: { $getField: { field: 'workCountry', input: '$userProfessional' } },
+    // },
+    userUniqueId: '$userUniqueId',
+    privacySetting: '$privacySetting',
+    privacySettingCustom: '$privacySettingCustom',
+    profilePhotoPrivacy: '$profilePhotoPrivacy',
+    showPhotoToFriendsOnly: '$showPhotoToFriendsOnly',
+  };
+
+  const pipeline = [
+    {
+      $match: {
+        _id: { $ne: mongoose.Types.ObjectId(filter.userId) }, // Exclude the current user
+        platform: { $eq: EnumOfPlatformType.HAPPY_MILAN },
+        gender: oppositeGender,
+        appUsesType: EnumAppUsesTypeOfUsers.MARRIAGE,
+        profileHideAndDelete: {
+          $not: {
+            $elemMatch: {
+              $or: [{ isProfileHide: true }, { isProfileDelete: true }],
+            },
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: 'Subscription', // Ensure this matches the subscription collection name
+        let: { userId: '$_id' }, // Reference the current user's ID
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $eq: ['$user', '$$userId'], // Match the user ID
+              },
+            },
+          },
+        ],
+        as: 'subscriptionDetails',
+      },
+    },
+    {
+      $unwind: {
+        path: '$subscriptionDetails',
+        preserveNullAndEmptyArrays: true, // Include users even if they don't have any subscriptions
+      },
+    },
+    {
+      $lookup: {
+        from: 'likes', // // The collection name for Like model
+        let: {
+          currentUserIdForLike: '$_id', // Reference to current document's userId
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $eq: ['$user', filter.userId] }, { $eq: ['$likedUserId', '$$currentUserIdForLike'] }],
+              },
+            },
+          },
+        ],
+        as: 'userLikeDetails',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userLikeDetails',
+        preserveNullAndEmptyArrays: true, // Include users with no matching friends
+      },
+    },
+    {
+      $lookup: {
+        from: 'shortlists', // // The collection name for Like model
+        let: {
+          currentUserIdForShortList: '$_id', // Reference to current document's userId
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $eq: ['$userId', filter.userId] }, { $eq: ['$shortlistId', '$$currentUserIdForShortList'] }],
+              },
+            },
+          },
+        ],
+        as: 'userShortListDetails',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userShortListDetails',
+        preserveNullAndEmptyArrays: true, // Include users with no matching friends
+      },
+    },
+    {
+      $lookup: {
+        from: 'Friend', // The collection name for Friend model
+        let: {
+          currentUserId: '$_id', // Reference to current document's userId
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $or: [
+                  {
+                    $and: [{ $eq: ['$user', filter.userId] }, { $eq: ['$friend', '$$currentUserId'] }],
+                  },
+                  {
+                    $and: [{ $eq: ['$user', '$$currentUserId'] }, { $eq: ['$friend', filter.userId] }],
+                  },
+                ],
+              },
+            },
+          },
+        ],
+        as: 'friendsDetails',
+      },
+    },
+    {
+      $unwind: {
+        path: '$friendsDetails',
+        preserveNullAndEmptyArrays: true, // Include users with no matching friends
+      },
+    },
+    {
+      $match: {
+        $or: [
+          { friendsDetails: { $exists: false } }, // Include users without any friend details
+          // Case 2: Exclude blocked and accepted statuses
+          {
+            $and: [
+              { 'friendsDetails.status': { $nin: [EnumStatusOfFriend.BLOCKED, EnumStatusOfFriend.ACCEPTED] } },
+              {
+                $or: [
+                  // Keep REQUESTED status unless the user made the request
+                  { $expr: { $ne: ['$friendsDetails.friend', filter.userId] } },
+                  { 'friendsDetails.status': { $ne: EnumStatusOfFriend.REQUESTED } },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      $addFields: {
+        age: {
+          $cond: {
+            if: { $and: [{ $ne: ['$dateOfBirth', null] }, { $ne: ['$dateOfBirth', ''] }] },
+            then: {
+              $floor: {
+                $divide: [
+                  { $subtract: [new Date(), '$dateOfBirth'] },
+                  31556952000, // Average milliseconds in a year considering leap years
+                ],
+              },
+            },
+            else: null, // Handle cases where dateOfBirth is missing or invalid
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: 'Address',
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'address',
+      },
+    },
+    {
+      $unwind: {
+        path: '$address', // Deconstructs the 'address' array field
+        preserveNullAndEmptyArrays: true, // If you want to exclude documents with no address
+      },
+    },
+    {
+      $lookup: {
+        from: 'UserEducation',
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'userEducation',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userEducation',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
+        from: 'UserProfessionalDetail',
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'userProfessional',
+      },
+    },
+    {
+      $unwind: {
+        path: '$userProfessional', // Deconstructs the 'address' array field
+        preserveNullAndEmptyArrays: true, // If you want to exclude documents with no address
+      },
+    },
+    {
+      $unwind: {
+        path: '$address', // Deconstructs the 'address' array field
+        preserveNullAndEmptyArrays: true, // If you want to exclude documents with no address
+      },
+    },
+    {
+      $lookup: {
+        from: 'UserPartner',
+        localField: '_id', // User's `_id` field
+        foreignField: 'userId', // Match with `userId` in `UserPartner`
+        as: 'userPartnerDetails',
+      },
+    },
+    {
+      $addFields: {
+        matchData: {
+          $let: {
+            vars: {
+              matchedFields: {
+                $map: {
+                  input: [
+                    {
+                      field: 'age',
+                      value: '$age',
+                      expected: {
+                        min: {
+                          $ifNull: [{ $arrayElemAt: ['$userPartnerDetails.age.min', 0] }, '$userPartnerDetails.age.min'],
+                        },
+                        max: {
+                          $ifNull: [{ $arrayElemAt: ['$userPartnerDetails.age.max', 0] }, '$userPartnerDetails.age.max'],
+                        },
+                      },
+                    },
+                    {
+                      field: 'height',
+                      value: '$height',
+                      expected: {
+                        min: {
+                          $ifNull: [
+                            { $arrayElemAt: ['$userPartnerDetails.height.min', 0] },
+                            '$userPartnerDetails.height.min',
+                          ],
+                        },
+                        max: {
+                          $ifNull: [
+                            { $arrayElemAt: ['$userPartnerDetails.height.max', 0] },
+                            '$userPartnerDetails.height.max',
+                          ],
+                        },
+                      },
+                    },
+                    {
+                      field: 'income',
+                      value: '$userProfessional.currentSalary',
+                      expected: {
+                        min: {
+                          $ifNull: [
+                            { $arrayElemAt: ['$userPartnerDetails.income.min', 0] },
+                            '$userPartnerDetails.income.min',
+                          ],
+                        },
+                        max: {
+                          $ifNull: [
+                            { $arrayElemAt: ['$userPartnerDetails.income.max', 0] },
+                            '$userPartnerDetails.income.max',
+                          ],
+                        },
+                      },
+                    },
+                    {
+                      field: 'currentCountry',
+                      value: '$address.currentCountry',
+                      expected: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$userPartnerDetails.country' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.country', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$userPartnerDetails.country', 0] },
+                          { $ifNull: ['$userPartnerDetails.country', []] },
+                        ],
+                      },
+                    },
+                    {
+                      field: 'currentState',
+                      value: '$address.state',
+                      expected: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$userPartnerDetails.state' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.state', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$userPartnerDetails.state', 0] },
+                          { $ifNull: ['$userPartnerDetails.state', []] },
+                        ],
+                      },
+                    },
+                    {
+                      field: 'currentCity',
+                      value: '$address.currentCity',
+                      expected: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$userPartnerDetails.city' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.city', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$userPartnerDetails.city', 0] },
+                          { $ifNull: ['$userPartnerDetails.city', []] },
+                        ],
+                      },
+                    },
+                    {
+                      field: 'diet',
+                      value: {
+                        $cond: [
+                          {
+                            $and: [{ $isArray: '$diet' }, { $eq: [{ $type: { $arrayElemAt: ['$diet', 0] } }, 'array'] }],
+                          },
+                          { $arrayElemAt: ['$diet', 0] }, // unwrap [["reading","cooking"]] → ["reading","cooking"]
+                          { $ifNull: ['$diet', []] },
+                        ],
+                      },
+                      expected: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$userPartnerDetails.diet' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.diet', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$userPartnerDetails.diet', 0] },
+                          { $ifNull: ['$userPartnerDetails.diet', []] },
+                        ],
+                      },
+                    },
+
+                    {
+                      field: 'hobbies',
+                      value: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$hobbies' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$hobbies', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$hobbies', 0] }, // unwrap [["reading","cooking"]] → ["reading","cooking"]
+                          { $ifNull: ['$hobbies', []] },
+                        ],
+                      },
+                      expected: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$userPartnerDetails.hobbies' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.hobbies', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$userPartnerDetails.hobbies', 0] },
+                          { $ifNull: ['$userPartnerDetails.hobbies', []] },
+                        ],
+                      },
+                    },
+                  ],
+                  as: 'item',
+                  in: {
+                    field: '$$item.field',
+                    value: '$$item.value',
+                    expected: '$$item.expected',
+                    isMatched: {
+                      $switch: {
+                        branches: [
+                          {
+                            case: { $eq: ['$$item.field', 'age'] },
+                            then: {
+                              $and: [
+                                { $gte: ['$$item.value', '$$item.expected.min'] },
+                                { $lte: ['$$item.value', '$$item.expected.max'] },
+                              ],
+                            },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'height'] },
+                            then: {
+                              $and: [
+                                { $gte: ['$$item.value', '$$item.expected.min'] },
+                                { $lte: ['$$item.value', '$$item.expected.max'] },
+                              ],
+                            },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'income'] },
+                            then: {
+                              $and: [
+                                { $gte: ['$$item.value', '$$item.expected.min'] },
+                                { $lte: ['$$item.value', '$$item.expected.max'] },
+                              ],
+                            },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'currentCountry'] },
+                            then: { $in: ['$$item.value', '$$item.expected'] },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'currentState'] },
+                            then: { $in: ['$$item.value', '$$item.expected'] },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'currentCity'] },
+                            then: { $in: ['$$item.value', '$$item.expected'] },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'diet'] },
+                            then: {
+                              $gt: [{ $size: { $setIntersection: ['$$item.value', '$$item.expected'] } }, 0],
+                            },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'hobbies'] },
+                            then: {
+                              $gt: [{ $size: { $setIntersection: ['$$item.value', '$$item.expected'] } }, 0],
+                            },
+                          },
+                        ],
+                        default: false,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            in: {
+              matchedCriteria: {
+                $size: {
+                  $filter: {
+                    input: '$$matchedFields',
+                    as: 'm',
+                    cond: { $eq: ['$$m.isMatched', true] },
+                  },
+                },
+              },
+              matchPercentage: {
+                $multiply: [
+                  {
+                    $divide: [
+                      {
+                        $size: {
+                          $filter: {
+                            input: '$$matchedFields',
+                            as: 'm',
+                            cond: { $eq: ['$$m.isMatched', true] },
+                          },
+                        },
+                      },
+                      8,
+                    ],
+                  },
+                  100,
+                ],
+              },
+            },
+          },
+        },
+      },
+    },
+    {
+      $addFields: {
+        matchPercentage: '$matchData.matchPercentage',
+      },
+    },
+    {
+      $match: {
+        matchPercentage: { $gte: 50 },
+      },
+    },
+    {
+      $sort: { matchPercentage: -1 },
+    },
+
+    // Group by _id to remove duplicates
+    {
+      $group: {
+        _id: '$_id',
+        doc: { $first: '$$ROOT' },
+      },
+    },
+    {
+      $replaceRoot: {
+        newRoot: '$doc',
+      },
+    },
+
+    {
+      $project: createDynamicProjectionForPrivacySetting(fields, defaultFields, isPremiumUser),
+    },
+    { $sort: { matchPercentage: -1 } }, // Sort by match percentage in descending order
+    // { $skip: (page - 1) * limit }, // Skip documents for pagination
+    // { $skip: skip },
+    // { $limit: limit }, // Limit the number of documents for pagination
+    // {
+    //   $facet: {
+    //     paginatedResults: [{ $skip: skip }, { $limit: limit }],
+    //     totalCount: [{ $count: 'count' }],
+    //   },
+    // },
+    // {
+    //   $addFields: {
+    //     totalDocs: { $arrayElemAt: ['$totalCount.count', 0] },
+    //     totalPages: {
+    //       $ceil: {
+    //         $divide: [{ $arrayElemAt: ['$totalCount.count', 0] }, limit],
+    //       },
+    //     },
+    //     currentPage: page,
+    //   },
+    // },
+
+    // Facet stage: Use facet to divide the pipeline into two outputs
+    {
+      $facet: {
+        // Facet for paginated results
+        paginatedResults: [{ $skip: skip }, { $limit: limit }],
+        // Facet for counting total documents
+        totalCount: [{ $count: 'count' }],
+      },
+    },
+    // Unwind totalCount array to get the actual count value
+    {
+      $unwind: {
+        path: '$totalCount',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    // Add pagination details
+    {
+      $addFields: {
+        totalDocs: { $ifNull: ['$totalCount.count', 0] },
+        totalPages: {
+          $ceil: {
+            $divide: ['$totalCount.count', limit],
+          },
+        },
+        currentPage: page,
+      },
+    },
+  ];
+  console.log('userPartnerPreferences:', JSON.stringify(userPartnerPreferences));
+
+  const matchedUsers = await User.aggregate(pipeline).exec();
+  return matchedUsers;
 }

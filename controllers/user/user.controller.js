@@ -1018,3 +1018,147 @@ export const getNearbyVendors = catchAsync(async (req, res) => {
     results: vendors,
   });
 });
+
+export const getNearByUser = catchAsync(async (req, res) => {
+  const { user } = req;
+  const { query } = req;
+
+  // Extract sort and order, and set defaults
+  const sortField = query.sort || 'createdAt';
+  const sortOrder = query.order === 'desc' ? -1 : 1;
+
+  // Stable sort object using _id as a tiebreaker
+  const sortObj = {
+    [sortField]: sortOrder,
+    _id: sortOrder, // Ensures uniqueness in sort order
+  };
+
+  const filter = {
+    gender: user.gender,
+    userId: user._id,
+  };
+
+  const options = {
+    sort: sortObj,
+    ...pick(query, ['limit', 'page']),
+  };
+  const userData = await userService.getNearbyUser(filter, options);
+
+  if (userData[0] && userData[0].paginatedResults) {
+    const processPromises = userData[0].paginatedResults.map(async (userItem) => {
+      const privacy = userItem.privacySettingCustom || {};
+      const friendsStatus = userItem.friendsDetails.status;
+
+      const shouldBlurImage =
+        privacy.profilePhotoPrivacy === true || (privacy.showPhotoToFriendsOnly === true && friendsStatus !== 'accepted');
+
+      if (shouldBlurImage) {
+        const imageProcessingPromises = [];
+
+        // Blur main profilePic
+        if (userItem.profilePic) {
+          imageProcessingPromises.push(
+            imageBlurService.blurImage(userItem.profilePic).then((blurredUrl) => {
+              // eslint-disable-next-line no-param-reassign
+              userItem.profilePic = blurredUrl;
+            })
+          );
+        }
+
+        // Blur all userProfilePic photos
+        if (Array.isArray(userItem.userProfilePic) && userItem.userProfilePic.length > 0) {
+          const photoBlurPromises = userItem.userProfilePic.map((photo, index) =>
+            imageBlurService.blurImage(photo.url).then((blurredUrl) => {
+              // eslint-disable-next-line no-param-reassign
+              userItem.userProfilePic[index] = {
+                ...photo,
+                url: blurredUrl,
+              };
+            })
+          );
+          imageProcessingPromises.push(...photoBlurPromises);
+        }
+
+        await Promise.all(imageProcessingPromises);
+      }
+
+      return userItem;
+    });
+
+    userData[0].paginatedResults = await Promise.all(processPromises);
+  }
+
+  return res.status(httpStatus.OK).send({ results: userData });
+});
+
+export const getmatchUser = catchAsync(async (req, res) => {
+  const { user } = req;
+  const { query } = req;
+
+  // Extract sort and order, and set defaults
+  const sortField = query.sort || 'createdAt';
+  const sortOrder = query.order === 'desc' ? -1 : 1;
+
+  // Stable sort object using _id as a tiebreaker
+  const sortObj = {
+    [sortField]: sortOrder,
+    _id: sortOrder, // Ensures uniqueness in sort order
+  };
+
+  const filter = {
+    gender: user.gender,
+    userId: user._id,
+  };
+
+  const options = {
+    sort: sortObj,
+    ...pick(query, ['limit', 'page']),
+  };
+  const userData = await userService.getGenderListV2WithMatchFilter(filter, options);
+
+  if (userData[0] && userData[0].paginatedResults) {
+    const processPromises = userData[0].paginatedResults.map(async (userItem) => {
+      const privacy = userItem.privacySettingCustom || {};
+      const friendsStatus = userItem.friendsDetails.status;
+
+      const shouldBlurImage =
+        privacy.profilePhotoPrivacy === true || (privacy.showPhotoToFriendsOnly === true && friendsStatus !== 'accepted');
+
+      if (shouldBlurImage) {
+        const imageProcessingPromises = [];
+
+        // Blur main profilePic
+        if (userItem.profilePic) {
+          imageProcessingPromises.push(
+            imageBlurService.blurImage(userItem.profilePic).then((blurredUrl) => {
+              // eslint-disable-next-line no-param-reassign
+              userItem.profilePic = blurredUrl;
+            })
+          );
+        }
+
+        // Blur all userProfilePic photos
+        if (Array.isArray(userItem.userProfilePic) && userItem.userProfilePic.length > 0) {
+          const photoBlurPromises = userItem.userProfilePic.map((photo, index) =>
+            imageBlurService.blurImage(photo.url).then((blurredUrl) => {
+              // eslint-disable-next-line no-param-reassign
+              userItem.userProfilePic[index] = {
+                ...photo,
+                url: blurredUrl,
+              };
+            })
+          );
+          imageProcessingPromises.push(...photoBlurPromises);
+        }
+
+        await Promise.all(imageProcessingPromises);
+      }
+
+      return userItem;
+    });
+
+    userData[0].paginatedResults = await Promise.all(processPromises);
+  }
+
+  return res.status(httpStatus.OK).send({ results: userData });
+});
