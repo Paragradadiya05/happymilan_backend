@@ -1007,3 +1007,14 @@ export const getVendor = catchAsync(async (req, res) => {
     data: result.user,
   });
 });
+
+export const getNearbyVendors = catchAsync(async (req, res) => {
+  const userId = req.user._id;
+
+  const vendors = await userService.getSameCityVendorList(userId);
+
+  return res.status(httpStatus.OK).send({
+    success: true,
+    results: vendors,
+  });
+});

@@ -22,6 +22,10 @@ router
    * */
   .get(validate(userValidation.getUser), userController.list);
 /**
+ * getNearbyVendors
+ * */
+router.get('/get-nearby-vendors', auth(), userController.getNearbyVendors);
+/**
  * getVendorUserList
  * */
 router.get('/vendors', optionalAuth, userController.getVendorUserList);

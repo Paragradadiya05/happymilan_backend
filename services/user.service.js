@@ -4991,3 +4991,47 @@ export async function getVendorWithShortlist(userId, loggedInUserId = null) {
     user: result[0],
   };
 }
+
+export async function getSameCityVendorList(userId) {
+  // 1. Get logged-in user with address
+  const loginUser = await User.findById(userId).populate('address').lean();
+
+  if (!loginUser || !loginUser.address) {
+    throw new Error('User address not found');
+  }
+
+  const { currentCity } = loginUser.address;
+
+  // 2. Normalize city (avoid regex crash if null/undefined)
+  const cityRegex = currentCity ? new RegExp(`^${currentCity}$`, 'i') : null;
+
+  // 3. Get excluded roles
+  const excludedRoles = await Role.find(
+    { role: { $in: ['project-owner', 'super-admin', 'admin', 'co-admin'] } },
+    '_id'
+  ).lean();
+
+  const excludedRoleIds = excludedRoles.map((r) => r._id);
+
+  // 4. Find same city vendors
+  const vendors = await User.find({
+    appUsesType: 'vendor',
+    role: { $nin: excludedRoleIds },
+    'profileHideAndDelete.isProfileHide': { $ne: true },
+  })
+    .populate({
+      path: 'address',
+      match: cityRegex
+        ? { currentCity: { $regex: cityRegex } } // ✅ case-insensitive match
+        : {},
+    })
+    .populate('userProfessional')
+    .populate('userEducation')
+    .populate('role', 'role')
+    .lean();
+
+  // 5. Filter only matched address
+  const filteredVendors = vendors.filter((v) => v.address);
+
+  return filteredVendors;
+}
