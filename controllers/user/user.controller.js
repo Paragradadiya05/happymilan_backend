@@ -1,5 +1,5 @@
 import httpStatus from 'http-status';
-import { emailService, friendService, userService, imageBlurService, creditService } from 'services';
+import { emailService, friendService, userService, imageBlurService, creditService, vendorService } from 'services';
 import { catchAsync } from 'utils/catchAsync';
 import { pick } from '../../utils/pick';
 import { EnumStatusOfFriend } from '../../models/enum.model';
@@ -759,7 +759,8 @@ export const getnewuser = catchAsync(async (req, res) => {
 
 export const checkMissingFields = catchAsync(async (req, res) => {
   try {
-    const userId = req.user._id; // Ensure req.user is populated by middleware
+    const userId = req.user._id;
+
     if (!userId) {
       return res.status(httpStatus.BAD_REQUEST).send({
         success: false,
@@ -767,13 +768,12 @@ export const checkMissingFields = catchAsync(async (req, res) => {
       });
     }
 
-    const filter = { _id: userId }; // Filter to find the specific user
-    const options = {}; // Exclude sensitive fields like password
+    // Call service
+    const result = await userService.checkMissingFields(userId);
 
-    // Call the service function to check for missing fields
-    const missingFields = await userService.checkMissingFields(filter, options);
+    const { missingFields, completionPercentage, totalFields, completedFields, missingCount } = result;
 
-    // Define redirect URLs for each category
+    // Redirect map
     const redirects = {
       createProfile: '/longterm/register/profileselect',
       generalDetails: '/longterm/register/general',
@@ -782,19 +782,19 @@ export const checkMissingFields = catchAsync(async (req, res) => {
       address: '/longterm/register/address',
       education: '/longterm/register/education',
       professional: '/longterm/register/professional',
+      profilePic: '/longterm/register/profile-pic',
     };
 
-    // Map the missing fields to the desired format
-    const formattedMissingFields = Object.entries(missingFields || {}) // Ensure missingFields is an object
+    // Format output
+    const formattedMissingFields = Object.entries(missingFields || {})
       // eslint-disable-next-line no-unused-vars
-      .filter(([_, fields]) => Array.isArray(fields) && fields.length > 0) // Ignore empty categories
+      .filter(([_, fields]) => Array.isArray(fields) && fields.length > 0)
       .map(([category, fields]) => ({
         category,
         redirect: redirects[category],
         fields,
       }));
 
-    // Ensure the output matches the desired structure
     const output =
       formattedMissingFields.length > 0
         ? formattedMissingFields
@@ -806,14 +806,18 @@ export const checkMissingFields = catchAsync(async (req, res) => {
             },
           ];
 
-    // Return response with appropriate message and formatted data
     return res.status(httpStatus.OK).send({
       success: true,
       data: output,
+      profileCompletion: completionPercentage,
+      stats: {
+        totalFields,
+        completedFields,
+        missingFields: missingCount,
+      },
       message: formattedMissingFields.length > 0 ? 'Some fields are missing' : 'All required fields are filled',
     });
   } catch (error) {
-    // Handle unexpected errors
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).send({
       success: false,
       message: 'An error occurred while checking for missing fields',
@@ -824,7 +828,8 @@ export const checkMissingFields = catchAsync(async (req, res) => {
 
 export const checkMissingFieldsMobile = catchAsync(async (req, res) => {
   try {
-    const userId = req.user._id; // Ensure req.user is populated by middleware
+    const userId = req.user._id;
+
     if (!userId) {
       return res.status(httpStatus.BAD_REQUEST).send({
         success: false,
@@ -832,21 +837,19 @@ export const checkMissingFieldsMobile = catchAsync(async (req, res) => {
       });
     }
 
-    const filter = { _id: userId }; // Filter to find the specific user
-    const options = {}; // Exclude sensitive fields like password
+    // ✅ Correct call
+    const result = await userService.checkMissingFieldsMobile(userId);
 
-    // Call the service function to check for missing fields
-    const missingFields = await userService.checkMissingFieldsMobile(filter, options);
-    // Map the missing fields to the desired format
-    const formattedMissingFields = Object.entries(missingFields || {}) // Ensure missingFields is an object
+    const { missingFields, completionPercentage, totalFields, completedFields, missingCount } = result;
+
+    const formattedMissingFields = Object.entries(missingFields || {})
       // eslint-disable-next-line no-unused-vars
-      .filter(([_, fields]) => Array.isArray(fields) && fields.length > 0) // Ignore empty categories
+      .filter(([_, fields]) => Array.isArray(fields) && fields.length > 0)
       .map(([category, fields]) => ({
         category,
         fields,
       }));
 
-    // Ensure the output matches the desired structure
     const output =
       formattedMissingFields.length > 0
         ? formattedMissingFields
@@ -857,14 +860,18 @@ export const checkMissingFieldsMobile = catchAsync(async (req, res) => {
             },
           ];
 
-    // Return response with appropriate message and formatted data
     return res.status(httpStatus.OK).send({
       success: true,
       data: output,
+      profileCompletion: completionPercentage,
+      stats: {
+        totalFields,
+        completedFields,
+        missingFields: missingCount,
+      },
       message: formattedMissingFields.length > 0 ? 'Some fields are missing' : 'All required fields are filled',
     });
   } catch (error) {
-    // Handle unexpected errors
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).send({
       success: false,
       message: 'An error occurred while checking for missing fields',
@@ -926,7 +933,7 @@ export const getVendorUserList = catchAsync(async (req, res) => {
 
   const userId = req.user ? req.user._id : null;
 
-  const result = await userService.getvendorUserList(filter, options, userId);
+  const result = await vendorService.getvendorUserList(filter, options, userId);
 
   return res.status(httpStatus.OK).send({
     status: 'Success',
@@ -952,7 +959,7 @@ export const getVendorByBusinessType = catchAsync(async (req, res) => {
     appUsesType: 'vendor',
   };
 
-  const result = await userService.getvendorUserListSearch(filter, options, userId);
+  const result = await vendorService.getvendorUserListSearch(filter, options, userId);
 
   return res.status(httpStatus.OK).send({
     status: 'Success',
@@ -987,7 +994,7 @@ export const getVendorAreas = catchAsync(async (req, res) => {
     appUsesType: 'vendor',
   };
 
-  const result = await userService.getVendorAreasList(filter, options, userId);
+  const result = await vendorService.getVendorAreasList(filter, options, userId);
 
   return res.status(httpStatus.OK).send({
     status: 'Success',
@@ -1000,7 +1007,7 @@ export const getVendor = catchAsync(async (req, res) => {
 
   const loggedInUserId = req.user ? req.user._id : null;
 
-  const result = await userService.getVendorWithShortlist(userId, loggedInUserId);
+  const result = await vendorService.getVendorWithShortlist(userId, loggedInUserId);
 
   return res.status(httpStatus.OK).send({
     status: 'Success',
@@ -1011,7 +1018,7 @@ export const getVendor = catchAsync(async (req, res) => {
 export const getNearbyVendors = catchAsync(async (req, res) => {
   const userId = req.user._id;
 
-  const vendors = await userService.getSameCityVendorList(userId);
+  const vendors = await vendorService.getSameCityVendorList(userId);
 
   return res.status(httpStatus.OK).send({
     success: true,
