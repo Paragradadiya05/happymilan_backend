@@ -87,6 +87,7 @@ export async function getshortListWithPagination(filter, options = {}) {
     },
     {
       $match: {
+        'user.appUsesType': 'marriage',
         $or: [
           { 'user.profileHideAndDelete': { $exists: false } },
           {
@@ -482,6 +483,7 @@ export async function getshortListforMobile(filter, options = {}) {
         // 1. Ensure the looked-up user actually exists
         'user._id': { $exists: true },
 
+        'user.appUsesType': 'marriage',
         // 2. Filter out users that are hidden or deleted in a simpler way
         'user.profileHideAndDelete': {
           $not: {
