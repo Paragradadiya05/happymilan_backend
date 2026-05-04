@@ -4343,8 +4343,9 @@ export async function checkMissingFields(userId) {
   } else {
     missingFields.professional = ['Professional details are missing'];
   }
-  const hasProfilePic =
-    (user.userProfilePic && user.userProfilePic.length > 0) || (user.profilePic && user.profilePic !== '');
+  const validProfilePics = (user.userProfilePic || []).filter((pic) => !pic.isDeleted && !pic.deletedAt);
+
+  const hasProfilePic = validProfilePics.length > 0 || (user.profilePic && user.profilePic !== '');
 
   if (!hasProfilePic) {
     missingFields.profilePic = ['profilePic'];
@@ -4447,8 +4448,9 @@ export async function checkMissingFieldsMobile(userId) {
   }
 
   // Profile Pic
-  const hasProfilePic =
-    (user.userProfilePic && user.userProfilePic.length > 0) || (user.profilePic && user.profilePic !== '');
+  const validProfilePics = (user.userProfilePic || []).filter((pic) => !pic.isDeleted && !pic.deletedAt);
+
+  const hasProfilePic = validProfilePics.length > 0 || (user.profilePic && user.profilePic !== '');
 
   if (!hasProfilePic) {
     missingFields.profilePic = ['profilePic'];
