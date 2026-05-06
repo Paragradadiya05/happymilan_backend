@@ -334,104 +334,16 @@ export const userInfo = catchAsync(async (req, res) => {
  * @type {(function(*, *, *): void)|*}
  */
 export const updateUserInfo = catchAsync(async (req, res) => {
-  const { user } = req;
-  const { email, mobileNumber, countryCodeId, ...otherFields } = req.body;
+  const filter = { _id: req.user._id };
+  const { body } = req;
 
-  /* ---------------- UPDATE NORMAL FIELDS ---------------- */
-  if (Object.keys(otherFields).length) {
-    await userService.updateUserForAuth({ _id: user._id }, otherFields, { new: true }, user);
-  }
-
-  /* ---------------- EMAIL UPDATE ---------------- */
-  if (email && email !== user.email) {
-    // Check email already exists
-    const existingEmail = await userService.getOne({
-      email,
-      _id: { $ne: user._id },
-    });
-
-    if (existingEmail) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
-    }
-
-    // Generate OTP
-    const otp = generateOtp();
-
-    // Save OTP
-    user.codes.push({
-      code: String(otp),
-      codeType: EnumCodeTypeOfCode.EMAIL,
-      expirationDate: new Date(Date.now() + 10 * 60 * 1000), // 10 min
-      used: false,
-    });
-
-    // Save pending email
-    user.pendingEmail = email;
-
-    await user.save();
-
-    // Send OTP Email
-    await emailService.sendOtpVerificationEmail({ email }, otp);
-
-    return res.status(httpStatus.OK).send({
-      message: 'OTP sent to email. Please verify.',
-      verifyType: 'email',
-    });
-  }
-
-  /* ---------------- MOBILE UPDATE ---------------- */
-  if (mobileNumber && mobileNumber !== user.mobileNumber) {
-    if (!countryCodeId) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'countryCodeId is required');
-    }
-
-    // Check mobile already exists
-    const existingMobile = await userService.getOne({
-      mobileNumber,
-      _id: { $ne: user._id },
-    });
-
-    if (existingMobile) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Mobile number already taken');
-    }
-
-    // Get country code
-    const country = await countryCodeService.getCountryCodeById(countryCodeId);
-
-    if (!country) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Valid countryCodeId required');
-    }
-
-    // Generate OTP
-    const otp = generateOtp();
-
-    // Save OTP
-    user.codes.push({
-      code: String(otp),
-      codeType: EnumCodeTypeOfCode.MOBILE,
-      expirationDate: new Date(Date.now() + 10 * 60 * 1000), // 10 min
-      used: false,
-    });
-
-    // Save pending mobile
-    user.pendingMobileNumber = mobileNumber;
-    user.pendingCountryCode = country.code;
-
-    await user.save();
-
-    // Send OTP
-    await sendOtpToMobile(`${country.code}${mobileNumber}`, otp);
-
-    return res.status(httpStatus.OK).send({
-      message: 'OTP sent to mobile number. Please verify.',
-      verifyType: 'mobile',
-    });
-  }
-
-  /* ---------------- FINAL RESPONSE ---------------- */
-  return res.status(httpStatus.OK).send({
-    message: 'Profile updated successfully',
-  });
+  const userData = await userService.updateUserForAuth(
+    filter,
+    body,
+    { returnNewDocument: true, new: true, upsert: true },
+    req.user
+  );
+  res.status(httpStatus.OK).send({ userData });
 });
 
 export const sendVerifyOtp = catchAsync(async (req, res) => {
