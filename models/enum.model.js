@@ -466,16 +466,18 @@ const EnumOfAdminRejectReason = {
   PLAN_EXPIRED: 'Request submitted after plan validity expired',
 };
 const EnumOfbusinessType = {
-  PHOTO_STUDIO: 'photo-studio',
-  CATERING: 'catering',
   WEDDING_PLANNER: 'wedding-planner',
-  DECORATION: 'decoration',
+  WEDDING_STUDIO: 'wedding-studio',
+  DECORATORS: 'decorators',
+  CATERERS: 'caterers',
   JEWELLERY_SHOPS: 'jewellery-shops',
-  BEAUTY_SALON: 'beauty-salon',
+  COSMETICS: 'cosmetics',
   MEETING_POINTS: 'meeting-points',
-  BEAUTY_MAKEUP: 'beauty-make-up',
-  FITNESS_CENTERS: 'fitness-centers',
+  DATING_VENUES: 'dating-venues',
+  MAKEUP_ARTIST: 'makeup-artist',
+  SALON: 'salon',
   YOGA_CENTERS: 'yoga-centers',
+  FITNESS_CENTERS: 'fitness-centers',
 };
 
 const EnumOfServicesProvided = {
