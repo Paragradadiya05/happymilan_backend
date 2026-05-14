@@ -520,12 +520,13 @@ export async function createUser(body) {
 
   // Check mobile
   if (body.mobileNumber) {
-    const existingMobileUser = await User.findOne({
-      mobileNumber: body.mobileNumber,
-    });
+    const existingMobileUser = await User.findOne({ mobileNumber: body.mobileNumber });
 
-    // User already exists
-    if (existingMobileUser) {
+    if (existingMobileUser && existingMobileUser.emailVerified) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Mobile number already taken');
+    }
+
+    if (existingMobileUser && !existingMobileUser.emailVerified) {
       return existingMobileUser;
     }
   }
