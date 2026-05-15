@@ -984,9 +984,11 @@ export async function getshortListforMobile(filter, options = {}) {
 }
 
 export async function getVendorShortlist(filter, options = {}) {
-  const result = await Shortlist.paginate(filter, {
-    ...options,
-    populate: {
+  const page = parseInt(options.page, 10) || 1;
+  const limit = parseInt(options.limit, 10) || 10;
+
+  const result = await Shortlist.find(filter)
+    .populate({
       path: 'shortlistId',
       match: { appUsesType: 'vendor' },
       select: `
@@ -1001,34 +1003,34 @@ export async function getVendorShortlist(filter, options = {}) {
       `,
       populate: [
         {
-          path: 'address', // 🔹 populate address if it's ObjectId
+          path: 'address',
         },
       ],
-    },
-    lean: true,
-  });
+    })
+    .sort({ createdAt: -1 })
+    .lean();
 
-  const docs = (result.docs || [])
-    .filter((item) => item.shortlistId !== null)
-    .map((item) => {
-      const user = item.shortlistId;
+  // remove null populated records
+  const filteredData = result.filter((item) => item.shortlistId !== null);
 
-      return {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        address: user.address,
-        profilePic: user.profilePic,
-        profilePicArr: user.profilePicArr || [],
-        vendorData: user.vendorData || {},
-        shortlisted: true,
-        shortlistId: item._id, // shortlist document id
-      };
-    });
+  // pagination
+  const totalDocs = filteredData.length;
+
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+
+  const paginatedData = filteredData.slice(startIndex, endIndex);
 
   return {
-    ...result,
-    docs,
+    data: paginatedData, // ✅ keep original populated response
+    totalDocs,
+    limit,
+    totalPages: Math.ceil(totalDocs / limit),
+    page,
+    pagingCounter: startIndex + 1,
+    hasPrevPage: page > 1,
+    hasNextPage: endIndex < totalDocs,
+    prevPage: page > 1 ? page - 1 : null,
+    nextPage: endIndex < totalDocs ? page + 1 : null,
   };
 }
