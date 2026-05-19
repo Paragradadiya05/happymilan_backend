@@ -28,13 +28,16 @@ export const getSignedUrl = (key) => {
   return s3.getSignedUrl('getObject', signedURL);
 };
 
-export const getSignedUrlPutObject = async (key, contentType) => {
+export const getSignedUrlPutObject = async (key, contentType, isPublic) => {
   const signedURL = {
     Bucket: config.aws.bucket,
     ContentType: contentType,
     Key: key,
     Expires: 3600,
   };
+  if (isPublic) {
+    signedURL.ACL = 'public-read';
+  }
   return s3.getSignedUrlPromise('putObject', signedURL);
 };
 
