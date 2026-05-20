@@ -272,19 +272,6 @@ export async function getvendorUserListSearch(filter, options = {}, loggedInUser
               isShortlisted: { $gt: [{ $size: '$shortlistData' }, 0] },
             },
           },
-          {
-            $addFields: {
-              profilePic: {
-                $filter: {
-                  input: '$profilePic',
-                  as: 'img',
-                  cond: {
-                    $eq: ['$$img.isDeleted', false],
-                  },
-                },
-              },
-            },
-          },
         ]
       : [
           {
@@ -293,6 +280,41 @@ export async function getvendorUserListSearch(filter, options = {}, loggedInUser
             },
           },
         ]),
+    {
+      $addFields: {
+        profilePic: {
+          $cond: {
+            if: { $isArray: '$profilePic' },
+            then: {
+              $filter: {
+                input: '$profilePic',
+                as: 'img',
+                cond: {
+                  $eq: ['$$img.isDeleted', false],
+                },
+              },
+            },
+            else: [],
+          },
+        },
+
+        userProfilePic: {
+          $cond: {
+            if: { $isArray: '$userProfilePic' },
+            then: {
+              $filter: {
+                input: '$userProfilePic',
+                as: 'img',
+                cond: {
+                  $eq: ['$$img.isDeleted', false],
+                },
+              },
+            },
+            else: [],
+          },
+        },
+      },
+    },
     // 🔁 GROUP BACK
     {
       $group: {
