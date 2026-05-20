@@ -138,7 +138,7 @@ export async function sendMailToAllUsers(subject, template) {
   }
 
   const contacts = users.map((user) => ({
-    name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'User',
+    name: [user.firstName, user.lastName].filter(Boolean).join(' ').trim() || 'User',
     email: user.email,
   }));
 

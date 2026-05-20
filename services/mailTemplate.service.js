@@ -165,259 +165,264 @@ export const mailTemplateService = {
         `;
       case 'reUploadImagesTemplate':
         return `
-<!DOCTYPE html>
-<html lang="en">
+        <!DOCTYPE html>
+        <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hapmeet Email</title>
 
-<title>Hapmeet Email</title>
+  <style>
+    body{
+      margin:0;
+      padding:0;
+      background:#f5f5f5;
+      font-family: Arial, Helvetica, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
 
-<style>
+    table{
+      border-spacing:0;
+    }
 
-body{
-    margin:0;
-    padding:0;
-    background:#f5f5f5;
-    font-family: Arial, Helvetica, sans-serif;
-}
+    img{
+      border:0;
+      display:block;
+    }
 
-table{
-    border-spacing:0;
-}
+    p{
+      margin:0;
+      padding:0;
+    }
 
-img{
-    border:0;
-    display:block;
-}
+    .main{
+      width:100%;
+      background:#f5f5f5;
+      padding:40px 12px;
+    }
 
-.main{
-    width:100%;
-    background:#f5f5f5;
-    padding:40px 12px;
-}
+    .container{
+      max-width:1200px;
+      margin:0 auto;
+      background:#EEF2F7;
+      border-radius:10px;
+      padding:55px 20px 40px;
+    }
 
-.container{
-    max-width:1200px;
-    margin:0 auto;
-    background:#EEF2F7;
-    border-radius:10px;
-    padding:55px 20px 40px;
-}
+    .card{
+      max-width:720px;
+      margin:0 auto;
+      background:#ffffff;
+      border-radius:22px;
+      padding:45px 42px;
+      box-sizing:border-box;
+    }
 
-.card{
-    max-width:720px;
-    margin:0 auto;
-    background:#ffffff;
-    border-radius:22px;
-    padding:45px 42px;
-}
+    .logo{
+      width:160px;
+    }
 
-.logo{
-    width:160px;
-}
+    .content{
+      padding-top:34px;
+    }
 
-.content{
-    padding-top:34px;
-}
+    .text{
+      font-size:16px;
+      line-height:1.6; /* FIXED EXTRA SPACE */
+      color:#202020;
+      font-weight:400;
+      margin:0;
+      padding:0;
+    }
 
-.text{
-    font-size:16px;
-    line-height:38px;
-    color:#202020;
-    font-weight:400;
-    margin:0;
-}
+    .bold{
+      font-weight:500;
+    }
 
-.bold{
-    font-weight:500;
-}
+    .space{
+      margin-top:18px;
+    }
 
-.footer-text{
-    max-width:760px;
-    margin:28px auto 0;
-    text-align:center;
-    color:#2d2d2d;
-    font-size:12px;
-    line-height:22px;
-    font-weight:400;
-}
+    .footer-text{
+      max-width:760px;
+      margin:28px auto 0;
+      text-align:center;
+      color:#2d2d2d;
+      font-size:12px;
+      line-height:22px;
+      font-weight:400;
+    }
 
-.social{
-    text-align:center;
-    padding-top:28px;
-}
+    .social{
+      text-align:center;
+      padding-top:28px;
+    }
 
-.social img{
-    display:inline-block;
-    vertical-align:middle;
-    margin:0 18px;
-}
+    .social a{
+      text-decoration:none;
+      display:inline-block;
+    }
 
-.line{
-    max-width:720px;
-    margin:28px auto 0;
-    border-top:1px solid #d8d8d8;
-}
+    .social img{
+      display:inline-block;
+      vertical-align:middle;
+      margin:0 18px;
+    }
 
-.unsubscribe{
-    text-align:center;
-    padding-top:26px;
-    color:#555;
-    font-size:12px;
-    line-height:20px;
-}
+    .line{
+      max-width:720px;
+      margin:28px auto 0;
+      border-top:1px solid #d8d8d8;
+    }
 
-.unsubscribe span{
-    color:#3B82F6;
-}
+    .unsubscribe{
+      text-align:center;
+      padding-top:26px;
+      color:#555;
+      font-size:12px;
+      line-height:20px;
+    }
 
-/* MOBILE */
+    .unsubscribe span{
+      color:#3B82F6;
+    }
 
-@media only screen and (max-width:600px){
+    /* MOBILE */
+    @media only screen and (max-width:600px){
 
-.main{
-    padding:0 !important;
-}
+      .main{
+        padding:0 !important;
+      }
 
-.container{
-    padding:24px 12px 28px !important;
-    border-radius:0 !important;
-}
+      .container{
+        padding:24px 12px 28px !important;
+        border-radius:0 !important;
+      }
 
-.card{
-    padding:28px 22px !important;
-    border-radius:18px !important;
-}
+      .card{
+        padding:28px 22px !important;
+        border-radius:18px !important;
+      }
 
-.logo{
-    width:140px !important;
-}
+      .logo{
+        width:140px !important;
+      }
 
-.text{
-    font-size:15px !important;
-    line-height:31px !important;
-}
+      .text{
+        font-size:15px !important;
+        line-height:1.6 !important;
+      }
 
-.footer-text{
-    font-size:13px !important;
-    line-height:24px !important;
-    padding-left:10px;
-    padding-right:10px;
-}
+      .footer-text{
+        font-size:13px !important;
+        line-height:24px !important;
+        padding-left:10px;
+        padding-right:10px;
+      }
 
-.social img{
-    margin:0 12px !important;
-}
-
-}
-
-</style>
+      .social img{
+        margin:0 12px !important;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="main">
+  <div class="main">
 
-<div class="container">
+    <div class="container">
 
-<div class="card">
+      <div class="card">
 
-<img
-class="logo"
-src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/hapmeet_logo/6a0d40c2e3bb1a7796d70239/hapmeet.jpg"
-alt="Hapmeet"
-/>
+        <img
+          class="logo"
+          src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/hapmeet_logo/6a0d40c2e3bb1a7796d70239/hapmeet.jpg"
+          alt="Hapmeet"
+        />
 
-<div class="content">
+        <div class="content">
 
-<p class="text">
-Dear Hapmeet User,
-</p>
+          <p class="text">
+             Dear ${name || 'User'},
+          </p>
 
-<p class="text" style="margin-top:18px;">
-Thank you for registering with Hapmeet.
-</p>
+          <p class="text space">
+            Thank you for registering with Hapmeet.
+          </p>
 
-<p
-class="text bold"
-style="margin-top:18px;"
->
-Due to a temporary server issue, some images were not saved correctly.
-Please re-upload your images at your convenience.
-We sincerely apologize for the inconvenience.
-</p>
+          <p class="text bold space">
+            Due to a temporary server issue, some images were not saved correctly.
+            Please re-upload your images at your convenience. We sincerely apologize
+            for the inconvenience.
+          </p>
 
-<p
-class="text"
-style="margin-top:18px;"
->
-Thank you for your understanding and continued support.
-We are committed to serving you better every day.
-</p>
+          <p class="text space">
+            Thank you for your understanding and continued support.
+            We are committed to serving you better every day.
+          </p>
 
-<p
-class="text"
-style="margin-top:28px;"
->
-Best regards,<br/>
-Hapmeet Support Team
-</p>
+          <p class="text" style="margin-top:28px;">
+            Best regards,<br>
+            Hapmeet Support Team
+          </p>
 
-</div>
+        </div>
+      </div>
 
-</div>
+      <div class="footer-text">
+        Welcome to Hapmeet your hub for finding a life partner,
+        exploring dating opportunities, and making new friends.
+        Join us to connect with a vibrant community and discover
+        meaningful relationships.
+      </div>
 
-<div class="footer-text">
+      <div class="social">
 
-Welcome to Hapmeet your hub for finding a life partner,
-exploring dating opportunities, and making new friends.
-Join us to connect with a vibrant community and discover meaningful relationships.
+        <a href="https://www.youtube.com/@hapmeet">
+          <img
+            src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/youtube_icon/6a0d418ee3bb1a7796d7023c/youtube_icon.jpg"
+            width="30"
+            alt="Youtube"
+          />
+        </a>
 
-</div>
+        <a href="https://www.facebook.com/profile.php?id=100094066146720">
+          <img
+            src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/facebook_icon/6a0d41dbe3bb1a7796d70287/facebook_icon.jpg"
+            width="12"
+            alt="Facebook"
+          />
+        </a>
 
-<div class="social">
+        <a href="https://www.instagram.com/hapmeet/">
+          <img
+            src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/instagram_icon/6a0d421ee3bb1a7796d70331/instagram_icon.jpg"
+            width="22"
+            alt="Instagram"
+          />
+        </a>
 
-<a href="https://www.youtube.com/@hapmeet">
-<img
-src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/youtube_icon/6a0d418ee3bb1a7796d7023c/youtube_icon.jpg"
-width="30"
-/>
-</a>
+        <a href="#">
+          <img
+            src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/Twitter_icon/6a0d468ee3bb1a7796d705a9/Twitter_icon.jpg"
+            width="24"
+            alt="Twitter"
+          />
+        </a>
 
-<a href="https://www.facebook.com/profile.php?id=100094066146720">
-<img
-src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/facebook_icon/6a0d41dbe3bb1a7796d70287/facebook_icon.jpg"
-width="12"
-/>
-</a>
+      </div>
 
-<a href="https://www.instagram.com/hapmeet/">
-<img
-src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/instagram_icon/6a0d421ee3bb1a7796d70331/instagram_icon.jpg"
-width="22"
-/>
-</a>
+      <div class="line"></div>
 
-<img
-src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/Twitter_icon/6a0d468ee3bb1a7796d705a9/Twitter_icon.jpg"
-width="24"
-/>
+      <div class="unsubscribe">
+        If you prefer not to receive these emails in the future,
+        please <span>unsubscribe</span> here.
+      </div>
 
-</div>
+    </div>
 
-<div class="line"></div>
-
-<div class="unsubscribe">
-
-If you prefer not to receive these emails in the future,
-please <span>unsubscribe</span> here.
-
-</div>
-
-</div>
-
-</div>
+  </div>
 
 </body>
 </html>
