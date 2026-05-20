@@ -282,22 +282,6 @@ export async function getvendorUserListSearch(filter, options = {}, loggedInUser
         ]),
     {
       $addFields: {
-        profilePic: {
-          $cond: {
-            if: { $isArray: '$profilePic' },
-            then: {
-              $filter: {
-                input: '$profilePic',
-                as: 'img',
-                cond: {
-                  $eq: ['$$img.isDeleted', false],
-                },
-              },
-            },
-            else: [],
-          },
-        },
-
         userProfilePic: {
           $cond: {
             if: { $isArray: '$userProfilePic' },
@@ -521,7 +505,25 @@ export async function getVendorWithShortlist(userId, loggedInUserId = null) {
             },
           },
         ]),
-
+    {
+      $addFields: {
+        userProfilePic: {
+          $cond: {
+            if: { $isArray: '$userProfilePic' },
+            then: {
+              $filter: {
+                input: '$userProfilePic',
+                as: 'img',
+                cond: {
+                  $eq: ['$$img.isDeleted', false],
+                },
+              },
+            },
+            else: [],
+          },
+        },
+      },
+    },
     {
       $project: {
         name: 1,
