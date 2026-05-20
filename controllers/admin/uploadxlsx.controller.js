@@ -37,3 +37,15 @@ export const sendFromXlsx = catchAsync(async (req, res) => {
     results: result,
   });
 });
+
+export const sendMailToAllUsers = catchAsync(async (req, res) => {
+  const { subject, template } = req.body;
+
+  const result = await xlsxservice.sendMailToAllUsers(subject, template);
+
+  return res.status(httpStatus.OK).send({
+    success: true,
+    message: 'Emails sent successfully!',
+    results: result,
+  });
+});

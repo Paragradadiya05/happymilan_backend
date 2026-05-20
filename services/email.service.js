@@ -219,7 +219,7 @@ export const sendResetPasswordEmail = async (to, token) => {
 
  <div id="parrent">
  <div id="logo">
-   <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/hapmeetlogo/68da85a84e96f5d8bc5620bb/hapmeetlogo.png" alt="logo"/>
+   <img src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/hapmeet_logo/6a0d40c2e3bb1a7796d70239/hapmeet.jpg" alt="logo"/>
  </div>
  <div id="content">
  <div>
@@ -627,7 +627,7 @@ export const sendOtpVerificationEmail = async (user, otp) => {
             <div id="content-div-width">
                 <div id="content-div" >
                 <div id="logo-div">
-            <img id="logo-img" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/hapmeetlogo/68da85a84e96f5d8bc5620bb/hapmeetlogo.png"/>
+            <img id="logo-img" src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/hapmeet_logo/6a0d40c2e3bb1a7796d70239/hapmeet.jpg"/>
 <h1 id="text-1" >${formattedDate}</h1>
 </div>
 <div id="content">
@@ -648,7 +648,7 @@ export const sendOtpVerificationEmail = async (user, otp) => {
            <a href="https://www.youtube.com/@hapmeet" target="_blank" rel="noopener noreferrer">
              <img
                id="socialmedia-1"
-               src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/yticone/671777d63e6cb9ad5f202b0d/yt.jpg"
+               src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/youtube_icon/6a0d418ee3bb1a7796d7023c/youtube_icon.jpg"
                alt="YouTube - Hapmeet"
              />
            </a>
@@ -658,7 +658,7 @@ export const sendOtpVerificationEmail = async (user, otp) => {
            <a href="https://www.facebook.com/profile.php?id=100094066146720" target="_blank" rel="noopener noreferrer">
              <img
                id="socialmedia-2"
-               src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/fbicone/671776dc3e6cb9ad5f202b01/fb.jpg"
+               src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/facebook_icon/6a0d41dbe3bb1a7796d70287/facebook_icon.jpg"
                alt="Facebook - Hapmeet"
              />
            </a>
@@ -668,7 +668,7 @@ export const sendOtpVerificationEmail = async (user, otp) => {
            <a href="https://www.instagram.com/hapmeet/" target="_blank" rel="noopener noreferrer">
              <img
                id="socialmedia-3"
-               src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/instagramicone/671777513e6cb9ad5f202b05/insta.jpg"
+               src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/instagram_icon/6a0d421ee3bb1a7796d70331/instagram_icon.jpg"
                alt="Instagram - Hapmeet"
              />
            </a>
@@ -1035,7 +1035,7 @@ export const sendCongratulationEmail = async (user) => {
         <div id="perrent">
         <div id="logo-div">
             
-                <img id="logo-img" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/hapmeetlogo/68da85a84e96f5d8bc5620bb/hapmeetlogo.png" alt="Logo"/>
+                <img id="logo-img" src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/hapmeet_logo/6a0d40c2e3bb1a7796d70239/hapmeet.jpg" alt="Logo"/>
                <p id="date">${formattedDate}</p>
                </div>
             <div id="content">
@@ -1064,7 +1064,7 @@ export const sendCongratulationEmail = async (user) => {
             <a href="https://www.youtube.com/@hapmeet" target="_blank" rel="noopener noreferrer">
               <img
                 id="socialmedia-1"
-                src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/yticone/671777d63e6cb9ad5f202b0d/yt.jpg"
+                src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/youtube_icon/6a0d418ee3bb1a7796d7023c/youtube_icon.jpg"
                 alt="YouTube - Hapmeet"
               />
             </a>
@@ -1074,7 +1074,7 @@ export const sendCongratulationEmail = async (user) => {
             <a href="https://www.facebook.com/profile.php?id=100094066146720" target="_blank" rel="noopener noreferrer">
               <img
                 id="socialmedia-2"
-                src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/fbicone/671776dc3e6cb9ad5f202b01/fb.jpg"
+                src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/facebook_icon/6a0d41dbe3bb1a7796d70287/facebook_icon.jpg"
                 alt="Facebook - Hapmeet"
               />
             </a>
@@ -1084,13 +1084,13 @@ export const sendCongratulationEmail = async (user) => {
             <a href="https://www.instagram.com/hapmeet/" target="_blank" rel="noopener noreferrer">
               <img
                 id="socialmedia-3"
-                src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/instagramicone/671777513e6cb9ad5f202b05/insta.jpg"
+                src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/instagram_icon/6a0d421ee3bb1a7796d70331/instagram_icon.jpg"
                 alt="Instagram - Hapmeet"
               />
             </a>
            /div>
            <div>
-<!--            <img id="socialmedia-4" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/twittericone/6717779d3e6cb9ad5f202b09/Twitter.jpg" alt="twitter"/>-->
+<!--            <img id="socialmedia-4" src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/Twitter_icon/6a0d468ee3bb1a7796d705a9/Twitter_icon.jpg" alt="twitter"/>-->
            </div>
         </div>
      
@@ -1380,7 +1380,7 @@ export const sendResetEmailOtp = async (to, otp, emailOrMobileTag) => {
 
  <div id="parrent">
  <div id="logo">
-   <img src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/hapmeetlogo/68da85a84e96f5d8bc5620bb/hapmeetlogo.png" alt="logo"/>
+   <img src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/hapmeet_logo/6a0d40c2e3bb1a7796d70239/hapmeet.jpg" alt="logo"/>
  </div>
  <div id="content">
  <div>
@@ -1675,7 +1675,7 @@ export const DeleteUserEmail = async (user) => {
             <div id="content-div-width">
                 <div id="content-div" >
                 <div id="logo-div">
-            <img id="logo-img" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/hapmeetlogo/68da85a84e96f5d8bc5620bb/hapmeetlogo.png"/>
+            <img id="logo-img" src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/hapmeet_logo/6a0d40c2e3bb1a7796d70239/hapmeet.jpg"/>
 <h1 id="text-1" >${formattedDate}</h1>
 </div>
 <div id="content">
@@ -1710,7 +1710,7 @@ export const DeleteUserEmail = async (user) => {
              <a href="https://www.youtube.com/@hapmeet" target="_blank" rel="noopener noreferrer">
                <img
                  id="socialmedia-1"
-                 src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/yticone/671777d63e6cb9ad5f202b0d/yt.jpg"
+                 src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/youtube_icon/6a0d418ee3bb1a7796d7023c/youtube_icon.jpg"
                  alt="YouTube - Hapmeet"
                />
              </a>
@@ -1720,7 +1720,7 @@ export const DeleteUserEmail = async (user) => {
              <a href="https://www.facebook.com/profile.php?id=100094066146720" target="_blank" rel="noopener noreferrer">
                <img
                  id="socialmedia-2"
-                 src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/fbicone/671776dc3e6cb9ad5f202b01/fb.jpg"
+                 src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/facebook_icon/6a0d41dbe3bb1a7796d70287/facebook_icon.jpg"
                  alt="Facebook - Hapmeet"
                />
              </a>
@@ -1730,7 +1730,7 @@ export const DeleteUserEmail = async (user) => {
              <a href="https://www.instagram.com/hapmeet/" target="_blank" rel="noopener noreferrer">
                <img
                  id="socialmedia-3"
-                 src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/instagramicone/671777513e6cb9ad5f202b05/insta.jpg"
+                 src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/instagram_icon/6a0d421ee3bb1a7796d70331/instagram_icon.jpg"
                  alt="Instagram - Hapmeet"
                />
              </a>
@@ -2048,7 +2048,7 @@ export const sendKycApprovedEmail = async (user) => {
             <div id="content-div-width">
                 <div id="content-div" >
                 <div id="logo-div">
-            <img id="logo-img" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/hapmeetlogo/68da85a84e96f5d8bc5620bb/hapmeetlogo.png"/>
+            <img id="logo-img" src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/hapmeet_logo/6a0d40c2e3bb1a7796d70239/hapmeet.jpg"/>
 </div>
 <div id="content">
     <h1 id="text-2">Dear ${firstName || 'User'}</h1>
@@ -2072,7 +2072,7 @@ export const sendKycApprovedEmail = async (user) => {
                 <a href="https://www.youtube.com/@hapmeet" target="_blank" rel="noopener noreferrer">
                   <img
                     id="socialmedia-1"
-                    src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/yticone/671777d63e6cb9ad5f202b0d/yt.jpg"
+                    src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/youtube_icon/6a0d418ee3bb1a7796d7023c/youtube_icon.jpg"
                     alt="YouTube - Hapmeet"
                   />
                 </a>
@@ -2082,7 +2082,7 @@ export const sendKycApprovedEmail = async (user) => {
                 <a href="https://www.facebook.com/profile.php?id=100094066146720" target="_blank" rel="noopener noreferrer">
                   <img
                     id="socialmedia-2"
-                    src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/fbicone/671776dc3e6cb9ad5f202b01/fb.jpg"
+                    src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/facebook_icon/6a0d41dbe3bb1a7796d70287/facebook_icon.jpg"
                     alt="Facebook - Hapmeet"
                   />
                 </a>
@@ -2092,13 +2092,13 @@ export const sendKycApprovedEmail = async (user) => {
                 <a href="https://www.instagram.com/hapmeet/" target="_blank" rel="noopener noreferrer">
                   <img
                     id="socialmedia-3"
-                    src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/instagramicone/671777513e6cb9ad5f202b05/insta.jpg"
+                    src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/instagram_icon/6a0d421ee3bb1a7796d70331/instagram_icon.jpg"
                     alt="Instagram - Hapmeet"
                   />
                 </a>
               </div>
            <div>
-<!--            <img id="socialmedia-4" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/twittericone/6717779d3e6cb9ad5f202b09/Twitter.jpg" alt="twitter"/>-->
+<!--            <img id="socialmedia-4" src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/Twitter_icon/6a0d468ee3bb1a7796d705a9/Twitter_icon.jpg" alt="twitter"/>-->
            </div>
         </div>
         </div>
@@ -2353,7 +2353,7 @@ export const sendKycRejectedEmail = async (user, reason) => {
             <div id="content-div-width">
                 <div id="content-div" >
                 <div id="logo-div">
-            <img id="logo-img" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/hapmeetlogo/68da85a84e96f5d8bc5620bb/hapmeetlogo.png"/>
+            <img id="logo-img" src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/hapmeet_logo/6a0d40c2e3bb1a7796d70239/hapmeet.jpg"/>
 </div>
 <div id="content">
     <h1 id="text-2">Dear ${firstName || 'User'}</h1>
@@ -2378,7 +2378,7 @@ export const sendKycRejectedEmail = async (user, reason) => {
                   <a href="https://www.youtube.com/@hapmeet" target="_blank" rel="noopener noreferrer">
                     <img
                       id="socialmedia-1"
-                      src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/yticone/671777d63e6cb9ad5f202b0d/yt.jpg"
+                      src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/youtube_icon/6a0d418ee3bb1a7796d7023c/youtube_icon.jpg"
                       alt="YouTube - Hapmeet"
                     />
                   </a>
@@ -2388,7 +2388,7 @@ export const sendKycRejectedEmail = async (user, reason) => {
                   <a href="https://www.facebook.com/profile.php?id=100094066146720" target="_blank" rel="noopener noreferrer">
                     <img
                       id="socialmedia-2"
-                      src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/fbicone/671776dc3e6cb9ad5f202b01/fb.jpg"
+                      src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/facebook_icon/6a0d41dbe3bb1a7796d70287/facebook_icon.jpg"
                       alt="Facebook - Hapmeet"
                     />
                   </a>
@@ -2398,13 +2398,13 @@ export const sendKycRejectedEmail = async (user, reason) => {
                   <a href="https://www.instagram.com/hapmeet/" target="_blank" rel="noopener noreferrer">
                     <img
                       id="socialmedia-3"
-                      src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/instagramicone/671777513e6cb9ad5f202b05/insta.jpg"
+                      src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/instagram_icon/6a0d421ee3bb1a7796d70331/instagram_icon.jpg"
                       alt="Instagram - Hapmeet"
                     />
                   </a>
                 </div>
            <div>
-<!--            <img id="socialmedia-4" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/twittericone/6717779d3e6cb9ad5f202b09/Twitter.jpg" alt="twitter"/>-->
+<!--            <img id="socialmedia-4" src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/Twitter_icon/6a0d468ee3bb1a7796d705a9/Twitter_icon.jpg" alt="twitter"/>-->
            </div>
         </div>
         </div>
@@ -2656,7 +2656,7 @@ export const sendCancelPlanApprovedEmail = async (user) => {
             <div id="content-div-width">
                 <div id="content-div" >
                 <div id="logo-div">
-            <img id="logo-img" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/hapmeetlogo/68da85a84e96f5d8bc5620bb/hapmeetlogo.png"/>
+            <img id="logo-img" src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/hapmeet_logo/6a0d40c2e3bb1a7796d70239/hapmeet.jpg"/>
 </div>
 <div id="content">
     <h1 id="text-2">Dear ${firstName || 'User'}</h1>
@@ -2678,16 +2678,16 @@ you can access your account until the end of your current billing cycle.</h1>
         <div id="div-center">
         <div id="socialmedia-div" >
            <div>
-           <img id="socialmedia-1" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/yticone/671777d63e6cb9ad5f202b0d/yt.jpg" alt="https://www.youtube.com/@hapmeet"/>
+           <img id="socialmedia-1" src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/youtube_icon/6a0d418ee3bb1a7796d7023c/youtube_icon.jpg" alt="https://www.youtube.com/@hapmeet"/>
            </div>
            <div>
-            <img id="socialmedia-2" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/fbicone/671776dc3e6cb9ad5f202b01/fb.jpg" alt="https://www.facebook.com/profile.php?id=100094066146720"/>
+            <img id="socialmedia-2" src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/facebook_icon/6a0d41dbe3bb1a7796d70287/facebook_icon.jpg" alt="https://www.facebook.com/profile.php?id=100094066146720"/>
            </div>
            <div>
-            <img id="socialmedia-3" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/instagramicone/671777513e6cb9ad5f202b05/insta.jpg" alt="https://www.instagram.com/hapmeet/"/>
+            <img id="socialmedia-3" src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/instagram_icon/6a0d421ee3bb1a7796d70331/instagram_icon.jpg" alt="https://www.instagram.com/hapmeet/"/>
            </div>
            <div>
-<!--            <img id="socialmedia-4" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/twittericone/6717779d3e6cb9ad5f202b09/Twitter.jpg" alt="twitter"/>-->
+<!--            <img id="socialmedia-4" src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/Twitter_icon/6a0d468ee3bb1a7796d705a9/Twitter_icon.jpg" alt="twitter"/>-->
            </div>
         </div>
         </div>
@@ -2939,7 +2939,7 @@ export const sendCancelPlanRejectedEmail = async (user, cancelPlan) => {
             <div id="content-div-width">
                 <div id="content-div" >
                 <div id="logo-div">
-            <img id="logo-img" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/hapmeetlogo/68da85a84e96f5d8bc5620bb/hapmeetlogo.png"/>
+            <img id="logo-img" src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/hapmeet_logo/6a0d40c2e3bb1a7796d70239/hapmeet.jpg"/>
 </div>
 <div id="content">
     <h1 id="text-2">Dear ${firstName || 'User'}</h1>
@@ -2964,7 +2964,7 @@ export const sendCancelPlanRejectedEmail = async (user, cancelPlan) => {
                  <a href="https://www.youtube.com/@hapmeet" target="_blank" rel="noopener noreferrer">
                    <img
                      id="socialmedia-1"
-                     src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/yticone/671777d63e6cb9ad5f202b0d/yt.jpg"
+                     src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/youtube_icon/6a0d418ee3bb1a7796d7023c/youtube_icon.jpg"
                      alt="YouTube - Hapmeet"
                    />
                  </a>
@@ -2974,7 +2974,7 @@ export const sendCancelPlanRejectedEmail = async (user, cancelPlan) => {
                  <a href="https://www.facebook.com/profile.php?id=100094066146720" target="_blank" rel="noopener noreferrer">
                    <img
                      id="socialmedia-2"
-                     src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/fbicone/671776dc3e6cb9ad5f202b01/fb.jpg"
+                     src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/facebook_icon/6a0d41dbe3bb1a7796d70287/facebook_icon.jpg"
                      alt="Facebook - Hapmeet"
                    />
                  </a>
@@ -2984,13 +2984,13 @@ export const sendCancelPlanRejectedEmail = async (user, cancelPlan) => {
                  <a href="https://www.instagram.com/hapmeet/" target="_blank" rel="noopener noreferrer">
                    <img
                      id="socialmedia-3"
-                     src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/instagramicone/671777513e6cb9ad5f202b05/insta.jpg"
+                     src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/instagram_icon/6a0d421ee3bb1a7796d70331/instagram_icon.jpg"
                      alt="Instagram - Hapmeet"
                    />
                  </a>
                </div>
            <div>
-<!--            <img id="socialmedia-4" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/twittericone/6717779d3e6cb9ad5f202b09/Twitter.jpg" alt="twitter"/>-->
+<!--            <img id="socialmedia-4" src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/Twitter_icon/6a0d468ee3bb1a7796d705a9/Twitter_icon.jpg" alt="twitter"/>-->
            </div>
         </div>
         </div>

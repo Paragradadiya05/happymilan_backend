@@ -122,3 +122,116 @@ export async function sendFromXlsx(file, subject, template) {
 
   return contacts;
 }
+
+export async function sendMailToAllUsers(subject, template) {
+  const users = await User.find({
+    email: {
+      $exists: true,
+      $nin: ['', null],
+      $regex: /@gmail\.com$/i,
+    },
+  })
+    .select('firstName lastName email')
+    .lean();
+  if (!users.length) {
+    throw new Error('No users found');
+  }
+
+  const contacts = users.map((user) => ({
+    name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'User',
+    email: user.email,
+  }));
+
+  const marketingEntry = await EmailMarketing.create({
+    subject,
+    template,
+    contacts,
+    status: 'Pending',
+  });
+
+  const successEmails = [];
+  const failedEmails = [];
+
+  // =========================
+  // SEND SETTINGS
+  // =========================
+
+  const DELAY = 3000; // 3 seconds
+  const MAX_RETRIES = 3;
+
+  // =========================
+  // HELPER FUNCTION
+  // =========================
+
+  const wait = (ms) =>
+    new Promise((resolve) => {
+      setTimeout(resolve, ms);
+    });
+
+  // =========================
+  // SEND EMAILS
+  // =========================
+
+  // eslint-disable-next-line no-restricted-syntax
+  for (const user of contacts) {
+    let sent = false;
+    let retryCount = 0;
+
+    while (!sent && retryCount < MAX_RETRIES) {
+      try {
+        const html = mailTemplateService.getTemplate(template, user.name);
+
+        // eslint-disable-next-line no-await-in-loop
+        await sendEmail({
+          to: user.email,
+          subject,
+          text: html,
+          isHtml: true,
+        });
+
+        console.log(`✅ Email Sent: ${user.email}`);
+
+        successEmails.push(user.email);
+
+        sent = true;
+      } catch (error) {
+        retryCount += 1;
+
+        console.log(`❌ Retry ${retryCount} Failed: ${user.email}`);
+
+        // WAIT BEFORE RETRY
+        // eslint-disable-next-line no-await-in-loop
+        await wait(5000);
+
+        if (retryCount === MAX_RETRIES) {
+          failedEmails.push({
+            email: user.email,
+            error: error instanceof Error ? error.message : 'Unknown Error',
+          });
+        }
+      }
+    }
+
+    // =========================
+    // DELAY BETWEEN EMAILS
+    // =========================
+
+    // eslint-disable-next-line no-await-in-loop
+    await wait(DELAY);
+  }
+
+  // =========================
+  // UPDATE STATUS
+  // =========================
+
+  await EmailMarketing.findByIdAndUpdate(marketingEntry._id, {
+    status: 'Completed',
+  });
+
+  return {
+    totalUsers: contacts.length,
+    successCount: successEmails.length,
+    failedCount: failedEmails.length,
+    failedEmails,
+  };
+}

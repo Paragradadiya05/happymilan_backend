@@ -280,7 +280,19 @@ export async function getvendorUserListSearch(filter, options = {}, loggedInUser
             },
           },
         ]),
-
+    {
+      $addFields: {
+        profilePic: {
+          $filter: {
+            input: '$profilePic',
+            as: 'img',
+            cond: {
+              $eq: ['$$img.isDeleted', false],
+            },
+          },
+        },
+      },
+    },
     // 🔁 GROUP BACK
     {
       $group: {
