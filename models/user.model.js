@@ -490,6 +490,10 @@ const UserSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'UserDatingPartner',
     },
+    isWeb: {
+      type: Boolean,
+      default: false,
+    },
     userEducation: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'UserEducation',
@@ -579,10 +583,6 @@ const UserSchema = new mongoose.Schema(
       professional: {
         type: Boolean,
         default: false, // Default: Photos follow general privacy rules
-      },
-      isWeb: {
-        type: Boolean,
-        default: false,
       },
       type: mongoose.Schema.Types.Mixed, // Allows storing any object
       default: () => ({
