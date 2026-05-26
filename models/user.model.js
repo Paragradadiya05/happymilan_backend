@@ -580,6 +580,10 @@ const UserSchema = new mongoose.Schema(
         type: Boolean,
         default: false, // Default: Photos follow general privacy rules
       },
+      isWeb: {
+        type: Boolean,
+        default: false,
+      },
       type: mongoose.Schema.Types.Mixed, // Allows storing any object
       default: () => ({
         publicProfile: [
