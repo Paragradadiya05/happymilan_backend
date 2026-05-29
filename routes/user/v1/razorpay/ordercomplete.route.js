@@ -9,6 +9,6 @@ const router = express();
 // todo : add validation for query
 router.post('/is-order-complete', auth(), validate(orderValidation.orderComplete), completeController.complete);
 
-router.post('/order', auth('user'), validate(orderValidation.createOrder), completeController.createOrder);
+router.post('/order', auth(), validate(orderValidation.createOrder), completeController.createOrder);
 
 module.exports = router;
