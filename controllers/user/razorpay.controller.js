@@ -173,8 +173,8 @@ export const createOrder = catchAsync(async (req, res) => {
 
   // based on request, we need to calculate amount and currency from plan
   // const orderAmount = (getPlan.price - (getPlan.price * getPlan.discount) / 100) * 100;
-  const orderAmount = Math.round(getPlan.totalPrice * 100);
-  // const orderAmount = 100;
+  // const orderAmount = Math.round(getPlan.totalPrice * 100);
+  const orderAmount = 100;
   // create payment order in our database
   const createPaymentOrder = await paymentHistoryService.createPaymentHistory({
     userId,
