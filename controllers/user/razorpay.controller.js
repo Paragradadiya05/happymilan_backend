@@ -155,81 +155,62 @@ export const complete = catchAsync(async (req, res) => {
 });
 
 export const createOrder = catchAsync(async (req, res) => {
-  try {
-    console.log('========== CREATE ORDER START ==========');
+  const { planId } = req.body;
+  const userId = req.user._id;
 
-    console.log('req.user =>', req.user);
-    console.log('req.body =>', req.body);
+  // take userid from auh middleware
+  // we get plan id in order section for create order
+  const getPlan = await planservice.getPlan({
+    _id: planId,
+  });
 
-    const { planId } = req.body;
-    const userId = req.user && req.user._id;
-
-    console.log('userId =>', userId);
-    console.log('planId =>', planId);
-
-    const getPlan = await planservice.getPlan({
-      _id: planId,
-    });
-
-    console.log('getPlan =>', getPlan);
-
-    if (!getPlan) {
-      console.log('PLAN NOT FOUND');
-      throw new ApiError(httpStatus.NOT_FOUND, 'No such Plan Available');
-    }
-
-    const orderAmount = 100;
-    console.log('orderAmount =>', orderAmount);
-
-    const createPaymentOrder = await paymentHistoryService.createPaymentHistory({
-      userId,
-      amount: orderAmount,
-      paymentMethod: 'razerpay',
-      stauts: 'created-our-side',
-      planId: getPlan._id,
-    });
-
-    console.log('createPaymentOrder =>', createPaymentOrder);
-
-    const options = {
-      amount: orderAmount,
-      currency: 'INR',
-      receipt: createPaymentOrder._id,
-    };
-
-    console.log('Razorpay Options =>', options);
-
-    const razorPayOrder = await razorpayInstance.orders.create(options);
-
-    console.log('razorPayOrder =>', razorPayOrder);
-
-    await paymentHistoryService.updatePaymentHistory(
-      {
-        _id: createPaymentOrder._id,
-      },
-      {
-        razorpayLatestResponse: razorPayOrder,
-        $push: {
-          razorpayResponses: razorPayOrder,
-        },
-      }
-    );
-
-    console.log('Payment History Updated');
-
-    const paymentHistoryToken = jwt.sign({ data: createPaymentOrder._id }, 'PAYMENT');
-
-    console.log('Token Generated');
-    console.log('========== CREATE ORDER SUCCESS ==========');
-
-    return res.status(httpStatus.OK).send({ ...razorPayOrder, paymentHistoryToken });
-  } catch (error) {
-    console.log('========== CREATE ORDER ERROR ==========');
-    console.log(error);
-    console.log('Message =>', error.message);
-    console.log('Status =>', error.statusCode);
-    console.log('========================================');
-
-    throw error;
+  // todo : also validate that from witch platform this plan belongs
+  //  to that platform ( business portal dynamic plan or plan that made by happymilan metrompny site)
+  // verify plan details based on plan id
+  if (!getPlan) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'No such Plan Available');
   }
+
+  // based on request, we need to calculate amount and currency from plan
+  // const orderAmount = (getPlan.price - (getPlan.price * getPlan.discount) / 100) * 100;
+  // const orderAmount = Math.round(getPlan.totalPrice * 100);
+  const orderAmount = 100;
+  // create payment order in our database
+  const createPaymentOrder = await paymentHistoryService.createPaymentHistory({
+    userId,
+    amount: orderAmount, // order amount in rupee * 100 ( paisa )
+    paymentMethod: 'razerpay', // update after data coming from razor pay
+    stauts: 'created-our-side',
+    planId: getPlan._id,
+  });
+
+  // Set options for creating the order
+  const options = {
+    // plan prise - discount prise => will get price that will be taken from a user account
+    amount: orderAmount,
+    currency: 'INR', // the currency will be dynamic if user wants to change
+    receipt: createPaymentOrder._id,
+    // todo : check all other options and if some needed in that then we need to integrate it.
+  };
+
+  // razor pay create order
+  const razorPayOrder = await razorpayInstance.orders.create(options);
+
+  // update order response in out db
+  await paymentHistoryService.updatePaymentHistory(
+    {
+      _id: createPaymentOrder._id,
+    },
+    {
+      razorpayLatestResponse: razorPayOrder,
+      $push: {
+        razorpayResponses: razorPayOrder,
+      },
+    }
+  );
+
+  const paymentHistoryToken = jwt.sign({ data: createPaymentOrder._id }, 'PAYMENT');
+
+  return res.status(httpStatus.OK).send({ ...razorPayOrder, paymentHistoryToken });
+  // return res.status(httpStatus.OK).send({ results: 'ok' });
 });
