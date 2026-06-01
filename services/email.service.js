@@ -1040,23 +1040,28 @@ export const sendCongratulationEmail = async (user) => {
                </div>
             <div id="content">
                 <p id="text-1">Hi ${name},</p>
-                <p id="text-1">Welcome to Hapmeet! We're excited to have you with us. Congrats on registering your account!</p>
-                <p id="text-1">To get started, log in to your account using the following credentials:</p>
-                <p id="text-4">Email: ${to} <br> Password: ******</p>
+                <p id="text-1">we're thrilled to invite you to Hapmeet, a new-age social platform designed to help you </p>
+                <p>connect meet and build meaningful relotionships with people nearby. </p>
+                <p id="text-4">On Hapmeet, youcan:</p>
                 <div id="mar-top">
-                    <img id="demo" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/search/690b307a65f69949c94ef230/search.jpg" alt="Feature Image"/>
+                    <img id="demo" src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/find%20Your%20match/6a1d20cbcc443f3c6ae0ebe7/find%20match.jpg" alt="Feature Image"/>
                 </div>  
                 <div>
-                    <img id="demo" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/Img/672221fb16359520d1b372ae/secure.jpg" alt="Feature Image"/>
+                    <img id="demo" src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/secure/6a1d2126cc443f3c6ae0ebea/secure.jpg" alt="Feature Image"/>
                 </div>  
                 <div>
-                    <img id="demo" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/Img/6722215c16359520d1b3727c/chat.jpg" alt="Feature Image"/>
+                    <img id="demo" src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/chat/6a1d215ecc443f3c6ae0ebed/chat.jpg" alt="Feature Image"/>
                 </div> 
                 <div>
-                    <img id="demo" src="https://happymilan-user-images.s3.ap-south-1.amazonaws.com/name/plan/690b36d065f69949c94ef24d/plan.jpg" alt="Feature Image"/>
+                    <img id="demo" src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/vendors/6a1d2195cc443f3c6ae0ebf0/vendors.jpg" alt="Feature Image"/>
+                </div> 
+                 <a href="https://www.hapmeet.com/" target="_blank" rel="noopener noreferrer">
+                <div>
+                    <img id="demo" src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/createprofile/6a1d21f4cc443f3c6ae0ebf3/create%20profile.jpg" alt="Feature Image"/>
                 </div> 
                 <p id="text-2">Welcome to Hapmeet, your hub for finding a life partner, exploring dating opportunities, and making new friends. Join us to connect with a vibrant community and discover meaningful relationships.</p>
             </div>
+             </a>
             <div id="content">
         <div id="div-center">
        <div id="socialmedia-div" >
@@ -1068,9 +1073,9 @@ export const sendCongratulationEmail = async (user) => {
                 alt="YouTube - Hapmeet"
               />
             </a>
-           /div>
+           </div>
 
-           div>
+            <div>
             <a href="https://www.facebook.com/profile.php?id=100094066146720" target="_blank" rel="noopener noreferrer">
               <img
                 id="socialmedia-2"
@@ -1078,9 +1083,9 @@ export const sendCongratulationEmail = async (user) => {
                 alt="Facebook - Hapmeet"
               />
             </a>
-           /div>
+           </div>
 
-           div>
+           <div>
             <a href="https://www.instagram.com/hapmeet/" target="_blank" rel="noopener noreferrer">
               <img
                 id="socialmedia-3"
@@ -1088,7 +1093,7 @@ export const sendCongratulationEmail = async (user) => {
                 alt="Instagram - Hapmeet"
               />
             </a>
-           /div>
+           </div>
            <div>
 <!--            <img id="socialmedia-4" src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/Twitter_icon/6a0d468ee3bb1a7796d705a9/Twitter_icon.jpg" alt="twitter"/>-->
            </div>
