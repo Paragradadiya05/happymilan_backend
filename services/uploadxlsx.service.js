@@ -227,6 +227,22 @@ export async function sendMailToAllUsers(subject, template) {
   await EmailMarketing.findByIdAndUpdate(marketingEntry._id, {
     status: 'Completed',
   });
+  console.log('==============================');
+  console.log('EMAIL CAMPAIGN COMPLETED');
+  console.log('==============================');
+  console.log(`Total Users   : ${contacts.length}`);
+  console.log(`Success Count : ${successEmails.length}`);
+  console.log(`Failed Count  : ${failedEmails.length}`);
+
+  if (failedEmails.length) {
+    console.log('Failed Emails:');
+
+    failedEmails.forEach((item) => {
+      console.log(`${item.email} - ${item.error}`);
+    });
+  }
+
+  console.log('==============================');
 
   return {
     totalUsers: contacts.length,

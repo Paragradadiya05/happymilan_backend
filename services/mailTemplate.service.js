@@ -427,6 +427,245 @@ export const mailTemplateService = {
 </body>
 </html>
 `;
+      case 'Discover Nearby Event Vendors on Hapmeet':
+        return `
+        <!DOCTYPE html>
+        <html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hapmeet Email</title>
+
+  <style>
+    body{
+      margin:0;
+      padding:0;
+      background:#f5f5f5;
+      font-family: Arial, Helvetica, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    table{
+      border-spacing:0;
+    }
+
+    img{
+      border:0;
+      display:block;
+    }
+
+    p{
+      margin:0;
+      padding:0;
+    }
+
+    .main{
+      width:100%;
+      background:#f5f5f5;
+      padding:40px 12px;
+    }
+
+    .container{
+      max-width:1200px;
+      margin:0 auto;
+      background:#EEF2F7;
+      border-radius:10px;
+      padding:55px 20px 40px;
+      grid-place-items:center;
+    }
+
+    .card{
+      max-width:720px;
+      margin:0 auto;
+      background:#ffffff;
+      border-radius:22px;
+      padding:45px 42px;
+      box-sizing:border-box;
+    }
+
+    .logo{
+      width:160px;
+    }
+
+    .content{
+      padding-top:34px;
+    }
+
+    .text{
+      font-size:16px;
+      line-height:1.6; /* FIXED EXTRA SPACE */
+      color:#202020;
+      font-weight:400;
+      margin:0;
+      padding:0;
+    }
+
+    .bold{
+      font-weight:500;
+    }
+
+    .space{
+      margin-top:18px;
+    }
+
+    .footer-text{
+      max-width:760px;
+      margin:28px auto 0;
+      text-align:center;
+      color:#2d2d2d;
+      font-size:12px;
+      line-height:22px;
+      font-weight:400;
+    }
+
+    .social{
+      text-align:center;
+      padding-top:28px;
+    }
+
+    .social a{
+      text-decoration:none;
+      display:inline-block;
+    }
+
+    .social img{
+      display:inline-block;
+      vertical-align:middle;
+      margin:0 18px;
+    }
+
+    .line{
+      max-width:720px;
+      margin:28px auto 0;
+      border-top:1px solid #d8d8d8;
+    }
+
+    .unsubscribe{
+      text-align:center;
+      padding-top:26px;
+      color:#555;
+      font-size:12px;
+      line-height:20px;
+    }
+
+    .unsubscribe span{
+      color:#3B82F6;
+    }
+
+    /* MOBILE */
+    @media only screen and (max-width:600px){
+
+      .main{
+        padding:0 !important;
+      }
+
+      .container{
+        padding:24px 12px 28px !important;
+        border-radius:0 !important;
+      }
+
+      .card{
+        padding:28px 22px !important;
+        border-radius:18px !important;
+      }
+
+      .logo{
+        width:140px !important;
+      }
+
+      .text{
+        font-size:15px !important;
+        line-height:1.6 !important;
+      }
+
+      .footer-text{
+        font-size:13px !important;
+        line-height:24px !important;
+        padding-left:10px;
+        padding-right:10px;
+      }
+
+      .social img{
+        margin:0 12px !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="main">
+
+   <div class="content">
+    <div style="text-align:center;">
+        <img
+            id="demo"
+            src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/KycDoc/vendors/6a1d71da84ce4fc290416f39/vendors.jpg"
+            alt="Feature Image"
+            style="
+                display:inline-block;
+                max-width:100%;
+                height:auto;
+                margin:0 auto;
+            "
+        />
+    </div>
+</div>
+      <div class="footer-text">
+        Welcome to Hapmeet your hub for finding a life partner,
+        exploring dating opportunities, and making new friends.
+        Join us to connect with a vibrant community and discover
+        meaningful relationships.
+      </div>
+      <div class="social">
+        <a href="https://www.youtube.com/@hapmeet">
+          <img
+            src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/youtube_icon/6a0d418ee3bb1a7796d7023c/youtube_icon.jpg"
+            width="30"
+            alt="Youtube"
+          />
+        </a>
+
+        <a href="https://www.facebook.com/profile.php?id=100094066146720">
+          <img
+            src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/facebook_icon/6a0d41dbe3bb1a7796d70287/facebook_icon.jpg"
+            width="12"
+            alt="Facebook"
+          />
+        </a>
+
+        <a href="https://www.instagram.com/hapmeet/">
+          <img
+            src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/instagram_icon/6a0d421ee3bb1a7796d70331/instagram_icon.jpg"
+            width="22"
+            alt="Instagram"
+          />
+        </a>
+
+        <a href="#">
+          <img
+            src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/Twitter_icon/6a0d468ee3bb1a7796d705a9/Twitter_icon.jpg"
+            width="24"
+            alt="Twitter"
+          />
+        </a>
+
+      </div>
+
+      <div class="line"></div>
+
+      <div class="unsubscribe">
+        If you prefer not to receive these emails in the future,
+        please <span>unsubscribe</span> here.
+      </div>
+
+    </div>
+
+  </div>
+
+</body>
+</html>
+`;
       default:
         return `<p>Hello ${name}</p>`;
     }
