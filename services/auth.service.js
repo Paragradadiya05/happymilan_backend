@@ -435,7 +435,7 @@ export const verifyOtpForUpdatePasswordEnaEmail = async ({ email, mobileNumber, 
  */
 export const loginUserWithEmailOrMobileAndPassword = async (email, mobileNumber, countryCodeId, password) => {
   let user;
-  const populateFields = ['address', 'userProfessional', 'userEducation', 'userPartner'];
+  const populateFields = ['address', 'userProfessional', 'userEducation', 'userPartner', 'userPartnerPrefForDating'];
   if (email) {
     // Login with email
     user = await User.findOne({ email }).populate(populateFields);
