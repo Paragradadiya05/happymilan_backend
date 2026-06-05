@@ -7,13 +7,13 @@ import { creditService } from './index';
 const MOBILE_REQUEST_COST = 1; // Fixed cost for mobile number request
 // eslint-disable-next-line import/prefer-default-export
 export const createMobileNumberRequest = async (requesterId, targetUserId) => {
-  // const hasEnoughCredits = await creditService.hasSufficientCredits(requesterId, MOBILE_REQUEST_COST);
-  // if (!hasEnoughCredits) {
-  //   throw new ApiError(
-  //     httpStatus.BAD_REQUEST,
-  //     `Insufficient credits. You need ${MOBILE_REQUEST_COST} credits to request a mobile number.`
-  //   );
-  // }
+  const hasEnoughCredits = await creditService.hasSufficientCredits(requesterId, MOBILE_REQUEST_COST);
+  if (!hasEnoughCredits) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      `Insufficient credits. You need ${MOBILE_REQUEST_COST} credits to request a mobile number.`
+    );
+  }
   // Check if there's already a pending request
   const existingRequest = await MobileNumberRequest.findOne({
     requesterId,
