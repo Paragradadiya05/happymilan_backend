@@ -89,38 +89,88 @@ export async function sendFromXlsx(file, subject, template) {
     throw new Error('XLSX file has no data');
   }
 
-  // map contacts
-  const contacts = jsonData.map((row) => ({
-    name: row.name || row.fullName || '',
-    email: row.email,
-  }));
+  const contacts = jsonData
+    .filter((row) => row.email)
+    .map((row) => ({
+      name: row.name || row.fullName || '',
+      email: row.email,
+    }));
 
-  // Save activity
   const marketingEntry = await EmailMarketing.create({
     subject,
     template,
     contacts,
+    status: 'Processing',
+    totalContacts: contacts.length,
+    sentCount: 0,
+    failedCount: 0,
   });
 
-  // Send emails
+  let sentCount = 0;
+  let failedCount = 0;
+  const failedEmails = [];
+
   // eslint-disable-next-line no-restricted-syntax
   for (const user of contacts) {
-    const html = mailTemplateService.getTemplate(template, user.name);
+    try {
+      const html = mailTemplateService.getTemplate(template, user.name);
 
+      // eslint-disable-next-line no-await-in-loop
+      await sendEmail({
+        to: user.email,
+        subject,
+        text: html,
+        isHtml: true,
+      });
+
+      // eslint-disable-next-line no-plusplus
+      sentCount++;
+      // eslint-disable-next-line no-plusplus,no-await-in-loop
+      await EmailMarketing.findByIdAndUpdate(marketingEntry._id, {
+        sentCount,
+      });
+
+      console.log(`✓ Sent ${sentCount}/${contacts.length} => ${user.email}`);
+    } catch (error) {
+      // eslint-disable-next-line no-plusplus
+      failedCount++;
+
+      failedEmails.push({
+        email: user.email,
+        error: error.message,
+      });
+
+      // eslint-disable-next-line no-await-in-loop
+      await EmailMarketing.findByIdAndUpdate(marketingEntry._id, {
+        failedCount,
+      });
+
+      console.error(`✗ Failed ${user.email}`, error.message);
+    }
+
+    // Optional delay to avoid SMTP rate limits
     // eslint-disable-next-line no-await-in-loop
-    await sendEmail({
-      to: user.email,
-      subject,
-      text: html,
-      isHtml: true,
-    });
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 
   await EmailMarketing.findByIdAndUpdate(marketingEntry._id, {
     status: 'Completed',
+    sentCount,
+    failedCount,
+    failedEmails,
+    completedAt: new Date(),
   });
 
-  return contacts;
+  console.log('Campaign completed');
+  console.log('Total:', contacts.length);
+  console.log('Sent:', sentCount);
+  console.log('Failed:', failedCount);
+
+  return {
+    total: contacts.length,
+    sentCount,
+    failedCount,
+  };
 }
 
 export async function sendMailToAllUsers(subject, template) {

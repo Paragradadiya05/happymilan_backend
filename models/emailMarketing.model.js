@@ -15,9 +15,28 @@ const emailMarketingSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ['Pending', 'Completed'],
+      enum: ['Pending', 'Processing', 'Completed', 'Failed'],
       default: 'Pending',
     },
+    sentCount: {
+      type: Number,
+      default: 0,
+    },
+    failedCount: {
+      type: Number,
+      default: 0,
+    },
+    totalContacts: {
+      type: Number,
+      default: 0,
+    },
+    failedEmails: [
+      {
+        email: String,
+        error: String,
+      },
+    ],
+    completedAt: Date,
   },
   { timestamps: true }
 );

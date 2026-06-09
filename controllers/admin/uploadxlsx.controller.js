@@ -26,15 +26,20 @@ export const sendFromXlsx = catchAsync(async (req, res) => {
   const { subject, template } = req.body;
 
   if (!req.files || !req.files.uploaded_file) {
-    return res.status(400).send('No XLSX file uploaded');
+    return res.status(400).send({
+      success: false,
+      message: 'No XLSX file uploaded',
+    });
   }
 
-  const result = await xlsxservice.sendFromXlsx(req.files.uploaded_file, subject, template);
+  // Start processing in background
+  xlsxservice.sendFromXlsx(req.files.uploaded_file, subject, template).catch((err) => {
+    console.error('Email campaign failed:', err);
+  });
 
   return res.status(httpStatus.OK).send({
     success: true,
-    message: 'Emails sent successfully!',
-    results: result,
+    message: 'Email campaign started successfully',
   });
 });
 
