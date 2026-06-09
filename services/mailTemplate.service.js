@@ -619,9 +619,11 @@ Hapmeet.com
 </tr>
 
 <!-- PURPLE SECTION -->
+<a href="https://www.hapmeet.com/" target="_blank" rel="noopener noreferrer">
  <div id="mar-top">
                 <img id="demo" src="https://hapmeet-user-images-712789089772-ap-south-1-an.s3.ap-south-1.amazonaws.com/name/vendor/6a27f7088794edc5e56ff3bc/vendor-2.jpg" alt="Feature Image"/>
- </div>   
+ </div>  
+ </a>
 <!-- FOOTER -->
 <tr>
 <td align="center" style="padding:30px 20px;">
