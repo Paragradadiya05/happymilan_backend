@@ -560,7 +560,7 @@ export const mailTemplateService = {
 <tr>
 <td align="center">
 
-<table width="800" cellpadding="0" cellspacing="0" border="0" style="max-width:800px;width:100%;">
+<table width="800" cellpadding="0" cellspacing="0" border="0" style="max-width:700px;width:100%;">
 
 <!-- WHITE CARD -->
 <tr>
