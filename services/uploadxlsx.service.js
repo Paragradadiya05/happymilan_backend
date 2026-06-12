@@ -301,3 +301,20 @@ export async function sendMailToAllUsers(subject, template) {
     failedEmails,
   };
 }
+
+export const getAllCampaigns = async (page = 1, limit = 10) => {
+  const skip = (page - 1) * limit;
+
+  const [campaigns, totalResults] = await Promise.all([
+    EmailMarketing.find().sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+    EmailMarketing.countDocuments(),
+  ]);
+
+  return {
+    results: campaigns,
+    page,
+    limit,
+    totalPages: Math.ceil(totalResults / limit),
+    totalResults,
+  };
+};

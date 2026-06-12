@@ -11,6 +11,8 @@ router.post('/xlsx', auth(['admin']), upload.single('uploaded_file'), xlxsContro
 
 router.post('/send-mail-xlsx', xlxsController.sendFromXlsx);
 
+router.get('/email-campaigns', xlxsController.getAllCampaigns);
+
 router.post('/send-mail-all-users', xlxsController.sendMailToAllUsers);
 
 module.exports = router;
