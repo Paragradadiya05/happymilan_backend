@@ -1,7 +1,9 @@
 import { User, Role } from 'models';
+import httpStatus from 'http-status';
 import EmailMarketing from '../models/emailMarketing.model';
 import { sendEmail } from './email.service';
 import { mailTemplateService } from './mailTemplate.service';
+import ApiError from '../utils/ApiError';
 // Ensure Role model is correctly imported
 const xlsx = require('xlsx');
 
@@ -317,4 +319,19 @@ export const getAllCampaigns = async (page = 1, limit = 10) => {
     totalPages: Math.ceil(totalResults / limit),
     totalResults,
   };
+};
+
+export const getCampaignById = async (campaignId) => {
+  const campaign = await EmailMarketing.findById(campaignId).lean();
+
+  if (!campaign) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Campaign not found');
+  }
+
+  campaign.progress =
+    campaign.totalContacts > 0
+      ? Math.round(((campaign.sentCount + campaign.failedCount) / campaign.totalContacts) * 100)
+      : 0;
+
+  return campaign;
 };

@@ -67,3 +67,13 @@ export const getAllCampaigns = catchAsync(async (req, res) => {
     ...result,
   });
 });
+
+export const getCampaignById = catchAsync(async (req, res) => {
+  const campaign = await xlsxservice.getCampaignById(req.params.id);
+
+  res.status(httpStatus.OK).send({
+    success: true,
+    message: 'Campaign fetched successfully',
+    data: campaign,
+  });
+});

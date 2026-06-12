@@ -13,6 +13,8 @@ router.post('/send-mail-xlsx', xlxsController.sendFromXlsx);
 
 router.get('/email-campaigns', xlxsController.getAllCampaigns);
 
+router.get('/email-campaigns/:id', xlxsController.getCampaignById);
+
 router.post('/send-mail-all-users', xlxsController.sendMailToAllUsers);
 
 module.exports = router;
