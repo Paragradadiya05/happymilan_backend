@@ -231,12 +231,14 @@ export const fields = [
   { name: 'profilePhotoPrivacy' },
   { name: 'privacySettingCustom' },
   { name: 'isPremiumUser' },
+  { name: 'userPartnerPreCompleted' },
 ];
 
 // eslint-disable-next-line no-shadow
 export const createDynamicProjectionForPrivacySetting = (fields, defaultFields) => {
   const projection = {
     _id: 1,
+    userPartnerPreCompleted: 1,
     matchPercentage: '$matchData.matchPercentage',
     matchedCriteria: '$matchData.matchedCriteria',
     matchedFields: '$matchData.matchedFields',
@@ -332,6 +334,7 @@ export const createDynamicProjectionForPrivacySetting = (fields, defaultFields) 
 export const createDynamicProjectionForPrivacySettingForDating = (fields, defaultFields) => {
   const projection = {
     _id: 1,
+    userPartnerPreCompleted: 1,
     matchPercentage: '$matchData.matchPercentage',
     matchedCriteria: '$matchData.matchedCriteria',
     matchedFields: '$matchData.matchedFields',

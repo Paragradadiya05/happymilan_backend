@@ -757,7 +757,7 @@ export async function getGenderListV2(filter, options = {}) {
     community: '$community',
     motherTongue: '$motherTongue',
     weight: '$weight',
-
+    userPartnerPreCompleted: '$userPartnerPreCompleted',
     // userEducation: {
     //   _id: { $getField: { field: '_id', input: '$userEducation' } },
     //   degree: { $getField: { field: 'degree', input: '$userEducation' } },
@@ -789,6 +789,7 @@ export async function getGenderListV2(filter, options = {}) {
         platform: { $eq: EnumOfPlatformType.HAPPY_MILAN },
         gender: oppositeGender,
         appUsesType: EnumAppUsesTypeOfUsers.MARRIAGE,
+        userPartnerPreCompleted: { $ne: false },
         profileHideAndDelete: {
           $not: {
             $elemMatch: {
@@ -4684,6 +4685,7 @@ export async function getNearbyUser(filter, options = {}) {
         platform: { $eq: EnumOfPlatformType.HAPPY_MILAN },
         gender: oppositeGender,
         appUsesType: EnumAppUsesTypeOfUsers.MARRIAGE,
+        userPartnerPreCompleted: { $ne: false },
         profileHideAndDelete: {
           $not: {
             $elemMatch: {
@@ -5377,6 +5379,7 @@ export async function getGenderListV2WithMatchFilter(filter, options = {}) {
         platform: { $eq: EnumOfPlatformType.HAPPY_MILAN },
         gender: oppositeGender,
         appUsesType: EnumAppUsesTypeOfUsers.MARRIAGE,
+        userPartnerPreCompleted: { $ne: false },
         profileHideAndDelete: {
           $not: {
             $elemMatch: {

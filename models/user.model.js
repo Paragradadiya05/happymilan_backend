@@ -622,6 +622,7 @@ const UserSchema = new mongoose.Schema(
           'gothra',
           'zodiac',
           'email',
+          'userPartnerPreCompleted',
         ],
         privateProfile: [
           'firstName',
@@ -643,6 +644,7 @@ const UserSchema = new mongoose.Schema(
           'gender',
           'privacySettingCustom',
           'email',
+          'userPartnerPreCompleted',
         ],
         premiumProfile: [
           'firstName',
@@ -666,6 +668,7 @@ const UserSchema = new mongoose.Schema(
           'gender',
           'privacySettingCustom',
           'email',
+          'userPartnerPreCompleted',
         ],
       }),
     },
