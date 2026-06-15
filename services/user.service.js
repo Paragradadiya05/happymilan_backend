@@ -701,7 +701,7 @@ export async function getGenderListV2(filter, options = {}) {
     { name: 'maritalStatus' },
     { name: 'address' },
     { name: 'gender' },
-
+    { name: 'userPartnerPreCompleted' },
     // contact details this will be hidden for all
     // { name: 'email', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
     // { name: 'mobileNumber', conditions: ['default', EnumOfPrivacySetting.PUBLIC_PROFILE] },
