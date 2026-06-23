@@ -228,6 +228,14 @@ const EnumOfReasonForProfileDelete = {
   DID_NOT_GET_EXPECTED_RESPONSES: 'did-not-get-expected-responses',
   TOO_COSTLY_OR_NOT_VALUABLE: 'too-costly-or-not-valuable',
   OTHER: 'other',
+  NO_LONGER_USING_HAPPYMEET: 'no-longer-using-happymeet',
+  BUSINESS_CLOSED_OR_INACTIVE: 'business-closed-or-inactive',
+  NOT_GETTING_ENOUGH_LEADS_OR_BOOKINGS: 'not-getting-enough-leads-or-bookings',
+  DUPLICATE_ACCOUNT: 'duplicate-account',
+  SERVICE_NO_LONGER_RELEVANT: 'service-no-longer-relevant',
+  FACING_PLATFORM_OR_LISTING_ISSUES: 'facing-platform-or-listing-issues',
+  BUSINESS_REBRANDING_OR_STRATEGY_CHANGE: 'business-rebranding-or-strategy-change',
+  NO_TIME_TO_MANAGE_PROFILE: 'no-time-to-manage-profile',
 };
 
 const EnumOfImageTypes = {
