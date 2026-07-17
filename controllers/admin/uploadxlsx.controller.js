@@ -77,3 +77,19 @@ export const getCampaignById = catchAsync(async (req, res) => {
     data: campaign,
   });
 });
+
+export const uploadVendors = catchAsync(async (req, res) => {
+  if (!req.files || !req.files.uploaded_file) {
+    return res.status(400).send({
+      success: false,
+      message: 'No file uploaded',
+    });
+  }
+
+  const result = await xlsxservice.uploadVendors(req.files.uploaded_file);
+  return res.status(httpStatus.OK).send({
+    success: true,
+    message: 'Vendors imported successfully',
+    results: result,
+  });
+});

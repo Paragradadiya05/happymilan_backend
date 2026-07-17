@@ -9,6 +9,7 @@ const EnumRoleOfUser = {
   PROJECT_OWNER: 'project-owner',
   SUPER_ADMIN: 'super-admin',
   CO_ADMIN: 'co-admin',
+  VENDOR: 'vendor',
 };
 const EnumPlatformOfDeviceToken = {
   ANDROID: 'android',
@@ -486,12 +487,21 @@ const EnumOfbusinessType = {
   SALON: 'salon',
   YOGA_CENTERS: 'yoga-centers',
   FITNESS_CENTERS: 'fitness-centers',
+  BAKERY: 'bakery',
 };
 
 const EnumOfServicesProvided = {
   WEDDING_PHOTOGRAPHY: 'wedding-photography',
   PRE_WEDDING_PHOTOGRAPHY: 'pre-wedding-photography',
   ENGAGEMENT_PHOTOGRAPHY: 'engagement-photography',
+  CAKES: 'cakes',
+  BREADS: 'breads',
+  CATERING: 'catering',
+  PASTRIES: 'pastries',
+  DETAILING: 'detailing',
+  INTERIOR_CLEANING: 'interior-cleaning',
+  INTERIOR_WASH: 'interior-wash',
+  POLISHING: 'polishing',
   MATERNITY_PHOTOGRAPHY: 'maternity-photography',
   NEWBORN_OR_BABY_PHOTOGRAPHY: 'newborn-or-baby-photography',
   KIDS_PHOTOGRAPHY: 'kids-photography',

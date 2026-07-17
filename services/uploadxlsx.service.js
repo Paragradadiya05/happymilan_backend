@@ -1,9 +1,20 @@
-import { User, Role } from 'models';
+import { User, Role, Address } from 'models';
 import httpStatus from 'http-status';
+import config from 'config/config';
+import AWS from 'aws-sdk';
+import axios from 'axios';
 import EmailMarketing from '../models/emailMarketing.model';
 import { sendEmail } from './email.service';
 import { mailTemplateService } from './mailTemplate.service';
 import ApiError from '../utils/ApiError';
+
+AWS.config = new AWS.Config({
+  accessKeyId: config.aws.accessKeyId,
+  secretAccessKey: config.aws.secretAccessKey,
+  region: config.aws.bucketRegion,
+});
+const s3 = new AWS.S3({ apiVersion: '2006-03-01', signatureVersion: 'v4' });
+
 // Ensure Role model is correctly imported
 const xlsx = require('xlsx');
 
@@ -334,4 +345,259 @@ export const getCampaignById = async (campaignId) => {
       : 0;
 
   return campaign;
+};
+
+const processVendorImagesInBackground = async (tasks) => {
+  // eslint-disable-next-line no-restricted-syntax
+  for (const task of tasks) {
+    const { userId, email, profilePic, imageUrls, image1Url, image2Url, image3Url, image4Url, image5Url } = task;
+
+    const errors = [];
+    let profilePicUrl = '';
+    const userProfilePicArray = [];
+
+    // Collect all image URLs to process
+    const urlsToDownload = [];
+    if (profilePic && profilePic.trim().startsWith('http')) {
+      urlsToDownload.push({ type: 'profile', url: profilePic.trim() });
+    }
+    if (imageUrls && imageUrls.trim()) {
+      imageUrls.split(',').forEach((u) => {
+        if (u.trim().startsWith('http')) {
+          urlsToDownload.push({ type: 'gallery', url: u.trim() });
+        }
+      });
+    }
+    if (image1Url && image1Url.trim().startsWith('http')) {
+      urlsToDownload.push({ type: 'gallery', url: image1Url.trim() });
+    }
+    if (image2Url && image2Url.trim().startsWith('http')) {
+      urlsToDownload.push({ type: 'gallery', url: image2Url.trim() });
+    }
+    if (image3Url && image3Url.trim().startsWith('http')) {
+      urlsToDownload.push({ type: 'gallery', url: image3Url.trim() });
+    }
+    if (image4Url && image4Url.trim().startsWith('http')) {
+      urlsToDownload.push({ type: 'gallery', url: image4Url.trim() });
+    }
+    if (image5Url && image5Url.trim().startsWith('http')) {
+      urlsToDownload.push({ type: 'gallery', url: image5Url.trim() });
+    }
+
+    // Process each image sequentially
+    // eslint-disable-next-line no-plusplus
+    for (let i = 0; i < urlsToDownload.length; i++) {
+      const item = urlsToDownload[i];
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        const imageResponse = await axios.get(item.url, { responseType: 'arraybuffer', timeout: 15000 });
+        const buffer = Buffer.from(imageResponse.data, 'binary');
+        const contentType = imageResponse.headers['content-type'] || 'image/jpeg';
+        let extension = contentType.split('/')[1] || 'jpg';
+        if (extension === 'jpeg') extension = 'jpg';
+        const key = `users/vendors/${Date.now()}_${email.replace(/[@.]/g, '_')}_${i}.${extension}`;
+
+        // eslint-disable-next-line no-await-in-loop
+        const uploadResult = await s3
+          .upload({
+            Bucket: config.aws.bucket,
+            Key: key,
+            Body: buffer,
+            ContentType: contentType,
+            ACL: 'public-read',
+          })
+          .promise();
+
+        if (item.type === 'profile') {
+          profilePicUrl = uploadResult.Location;
+          userProfilePicArray.push({ url: uploadResult.Location, name: key });
+        } else {
+          userProfilePicArray.push({ url: uploadResult.Location, name: key });
+        }
+      } catch (err) {
+        const errorMsg = `Failed to process image (${item.url}): ${err.message}`;
+        console.error(errorMsg);
+        errors.push(errorMsg);
+      }
+    }
+
+    // Update the User document with S3 URLs and any encountered errors
+    try {
+      const updatePayload = {};
+      if (profilePicUrl) {
+        updatePayload.profilePic = profilePicUrl;
+      }
+      if (userProfilePicArray.length > 0) {
+        updatePayload.$addToSet = {
+          userProfilePic: { $each: userProfilePicArray },
+        };
+      }
+      if (errors.length > 0) {
+        updatePayload.importErrors = errors;
+      }
+
+      if (Object.keys(updatePayload).length > 0) {
+        // eslint-disable-next-line no-await-in-loop
+        await User.findByIdAndUpdate(userId, updatePayload);
+        console.log(`Successfully completed background image processing for: ${email}`);
+      }
+    } catch (dbErr) {
+      console.error(`Failed to update user ${email} in background:`, dbErr.message);
+    }
+  }
+};
+
+export const uploadVendors = async (file) => {
+  const workbook = xlsx.read(file.data, { type: 'buffer' });
+  const sheetNames = workbook.SheetNames;
+  if (sheetNames.length === 0) {
+    throw new Error('Sheet has no data');
+  }
+  const jsonData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetNames[0]]);
+  if (jsonData.length === 0) {
+    throw new Error('Sheet has no data');
+  }
+
+  // 1. Get or Create the vendor role
+  let vendorRole = await Role.findOne({ role: 'vendor' });
+  if (!vendorRole) {
+    vendorRole = await Role.create({
+      role: 'vendor',
+      dashboard: { view: true, add: true, update: true, delete: true },
+      plans: { view: true, add: true, update: true, delete: true },
+      emailMarketing: { view: true, add: true, update: true, delete: true },
+      paymentAndReceipts: { view: true, add: true, update: true, delete: true },
+      User: { view: true, add: true, update: true, delete: true },
+      blogs: { view: true, add: true, update: true, delete: true },
+      roles: { view: true, add: true, update: true, delete: true },
+      successStories: { view: true, add: true, update: true, delete: true },
+    });
+  }
+
+  const createdUsers = [];
+  const backgroundTasks = [];
+
+  // 2. Loop through each row of the sheet to create accounts immediately
+  // eslint-disable-next-line no-restricted-syntax
+  for (const row of jsonData) {
+    const {
+      email,
+      password,
+      mobileNumber,
+      firstName,
+      lastName,
+      businessName,
+      businessDescription,
+      businessType,
+      servicesProvided,
+      subServices,
+      currentResidenceAddress,
+      area,
+      currentCity,
+      currentState,
+      currentCountry,
+      profilePic,
+      imageUrls,
+      image1Url,
+      image2Url,
+      image3Url,
+      image4Url,
+      image5Url,
+    } = row;
+
+    if (!email || email.trim() === '') {
+      throw new Error('Email is required for all rows');
+    }
+    if (!password || password.trim() === '') {
+      throw new Error(`Password is required for user with email ${email}`);
+    }
+
+    // Check duplicate email
+    // eslint-disable-next-line no-await-in-loop
+    const emailExists = await User.findOne({ email });
+    if (emailExists) {
+      console.log(`User already exists with email: ${email}`);
+      // eslint-disable-next-line no-continue
+      continue;
+    }
+
+    // Clean and normalize enum values to prevent validation failures
+    const cleanedBusinessType = businessType
+      ? businessType
+          .toLowerCase()
+          .trim()
+          .replace(/[\s_]+/g, '-')
+      : '';
+    const cleanedServicesProvided = servicesProvided
+      ? servicesProvided.split(',').map((s) =>
+          s
+            .toLowerCase()
+            .trim()
+            .replace(/[\s_]+/g, '-')
+        )
+      : [];
+
+    // Create the User with vendorData
+    // eslint-disable-next-line no-await-in-loop
+    const newUser = await User.create({
+      email,
+      password, // Mongoose pre-save hook will automatically hash this once on save
+      mobileNumber: mobileNumber || undefined,
+      firstName: firstName || businessName, // Default to businessName if firstName is not provided
+      lastName: lastName || '',
+      role: vendorRole._id,
+      isUserActive: true,
+      emailVerified: true,
+      appUsesType: 'vendor',
+      vendorData: [
+        {
+          businessName: businessName || firstName,
+          businessDescription: businessDescription || '',
+          businessType: cleanedBusinessType,
+          servicesProvided: cleanedServicesProvided,
+          subServices: subServices || '',
+        },
+      ],
+    });
+
+    // Create the associated Address
+    // eslint-disable-next-line no-await-in-loop
+    const newAddress = await Address.create({
+      userId: newUser._id,
+      currentResidenceAddress: currentResidenceAddress || '',
+      area: area || '',
+      currentCity: currentCity || '',
+      currentState: currentState || '',
+      currentCountry: currentCountry || 'India', // default
+    });
+
+    // Link the address document back to the user
+    newUser.address = newAddress._id;
+    // eslint-disable-next-line no-await-in-loop
+    await newUser.save();
+
+    // Push task parameters for background execution
+    backgroundTasks.push({
+      userId: newUser._id,
+      email: newUser.email,
+      profilePic,
+      imageUrls,
+      image1Url,
+      image2Url,
+      image3Url,
+      image4Url,
+      image5Url,
+    });
+
+    createdUsers.push(newUser);
+  }
+
+  // Trigger background image download & S3 upload without blocking the HTTP response
+  if (backgroundTasks.length > 0) {
+    processVendorImagesInBackground(backgroundTasks).catch((err) => {
+      console.error('Background processing error:', err);
+    });
+  }
+
+  return createdUsers;
 };

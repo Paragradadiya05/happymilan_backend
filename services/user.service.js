@@ -514,6 +514,8 @@ export async function createUser(body) {
     }
 
     if (existingEmailUser && !existingEmailUser.emailVerified) {
+      Object.assign(existingEmailUser, body);
+      await existingEmailUser.save();
       return existingEmailUser;
     }
   }
@@ -527,6 +529,8 @@ export async function createUser(body) {
     }
 
     if (existingMobileUser && !existingMobileUser.emailVerified) {
+      Object.assign(existingMobileUser, body);
+      await existingMobileUser.save();
       return existingMobileUser;
     }
   }

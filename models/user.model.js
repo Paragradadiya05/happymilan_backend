@@ -676,6 +676,10 @@ const UserSchema = new mongoose.Schema(
       type: TwoFactorAuthSchema,
       default: () => ({}),
     },
+    importErrors: {
+      type: [String],
+      default: [],
+    },
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );

@@ -9,6 +9,8 @@ const upload = multer();
 
 router.post('/xlsx', auth(['admin']), upload.single('uploaded_file'), xlxsController.uploadxlsx);
 
+router.post('/upload-vendors', auth(['admin']), xlxsController.uploadVendors);
+
 router.post('/send-mail-xlsx', xlxsController.sendFromXlsx);
 
 router.get('/email-campaigns', xlxsController.getAllCampaigns);
