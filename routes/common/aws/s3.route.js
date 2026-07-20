@@ -1,6 +1,5 @@
 import express from 'express';
 import auth from 'middlewares/auth';
-import optionalAuth from 'middlewares/optionalAuth';
 import validate from 'middlewares/validate';
 import { s3Controller } from 'controllers/common';
 import { s3Validation } from 'validations/common';
@@ -23,6 +22,6 @@ router.post('/apply-internship', validate(s3Validation.ApplyInternship), s3Contr
 
 router.post('/csr-initiative', validate(s3Validation.csrInitiative), s3Controller.csrInitiative);
 
-router.post('/uploadclaimdoc', optionalAuth, validate(s3Validation.UploadClaimDoc), s3Controller.UploadClaimDoc);
+router.post('/uploadclaimdoc', validate(s3Validation.UploadClaimDoc), s3Controller.UploadClaimDoc);
 
 module.exports = router;
