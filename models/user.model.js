@@ -196,6 +196,18 @@ const vendorData = new mongoose.Schema(
       },
     ],
     social: [SocialSchema],
+    claimed: {
+      type: Boolean,
+      default: false,
+    },
+    requested: {
+      type: Boolean,
+      default: false,
+    },
+    claimedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );

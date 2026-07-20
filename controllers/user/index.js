@@ -36,3 +36,4 @@ module.exports.twoFactorAuthController = require('./twoFactorAuth.controller');
 module.exports.SubscriptionController = require('./subscription.controller');
 module.exports.mobileNumberRequestController = require('./mobileNumberRequest.controller');
 module.exports.CancelPlanRequestController = require('./cancelPlan.controller');
+module.exports.claimRequestController = require('./claimRequest.controller');

@@ -71,3 +71,4 @@ module.exports.twoFactorAuthAValidation = require('./twoFactorAuth.validation');
 module.exports.mobileNumberRequestValidation = require('./mobileNumberRequest.validation');
 
 module.exports.CancelPlanValidation = require('./cancelPlan.validation');
+module.exports.claimRequestValidation = require('./claimRequest.validation');

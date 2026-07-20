@@ -48,3 +48,4 @@ module.exports.creditService = require('./credit.service');
 module.exports.mobileNumberRequestService = require('./mobileNumberRequest.service');
 module.exports.cancelPlanService = require('./cancelPlan.service');
 module.exports.vendorService = require('./vendor.service');
+module.exports.claimRequestService = require('./claimRequest.service');

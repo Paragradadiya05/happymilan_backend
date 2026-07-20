@@ -75,3 +75,11 @@ export const csrInitiative = {
     agreeToBeContacted: Joi.boolean().required(),
   }),
 };
+
+export const UploadClaimDoc = {
+  body: Joi.object().keys({
+    name: Joi.string().required(),
+    key: Joi.string().required(),
+    contentType: Joi.string(),
+  }),
+};

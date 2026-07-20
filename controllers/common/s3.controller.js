@@ -128,3 +128,9 @@ export const csrInitiative = catchAsync(async (req, res) => {
   const s3PutObject = await sendMail(emailSendBody);
   return res.status(httpStatus.OK).send({ results: s3PutObject });
 });
+
+export const UploadClaimDoc = catchAsync(async (req, res) => {
+  const { body, user } = req;
+  const s3PutObject = await s3Service.validateExtensionForPutObjectForClaimDoc(body, user);
+  return res.status(httpStatus.OK).send({ results: s3PutObject });
+});

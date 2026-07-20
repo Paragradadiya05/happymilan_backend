@@ -13,6 +13,7 @@ import KycRoute from './v1/kyc/kyc.route';
 import spamRoute from './v1/spamUser/spam.route';
 import cancelRequestRoute from './v1/cancelPlan/cancelPlan.route';
 import userPlanRoute from './v1/userPlan/userPlan.route';
+import claimRequestRoute from './v1/claimRequest/claimRequest.route';
 
 const router = express.Router();
 router.use('/user', userRoutes);
@@ -29,5 +30,6 @@ router.use('/kyc', KycRoute);
 router.use('/spam', spamRoute);
 router.use('/cancel-plan-request', cancelRequestRoute);
 router.use('/user-plan', userPlanRoute);
+router.use('/claim-request', claimRequestRoute);
 
 module.exports = router;

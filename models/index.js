@@ -43,3 +43,4 @@ module.exports.MobileNumberRequest = require('./mobileNumberRequest.model');
 module.exports.cancelPlan = require('./cancelplan.model');
 module.exports.emailMarketing = require('./emailMarketing.model');
 module.exports.DeletedUser = require('./deletedUser.model');
+module.exports.ClaimRequest = require('./claimRequest.model');
