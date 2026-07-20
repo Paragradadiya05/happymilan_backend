@@ -12,6 +12,7 @@ export const createClaim = {
     email: Joi.string().email().required(),
     role: Joi.string().required(),
     documentProof: Joi.string().required(),
+    documentProofName: Joi.string().required(),
   }),
 };
 
