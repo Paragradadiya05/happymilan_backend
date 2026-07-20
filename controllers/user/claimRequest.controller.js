@@ -1,4 +1,5 @@
 import httpStatus from 'http-status';
+import bcrypt from 'bcryptjs';
 import { claimRequestService, userService, emailService } from '../../services';
 import { catchAsync } from '../../utils/catchAsync';
 import { pick } from '../../utils/pick';
@@ -43,9 +44,10 @@ export const createRequest = catchAsync(async (req, res) => {
 
   // 4. Set requested flag on vendorData
   if (vendor.vendorData && vendor.vendorData.length > 0) {
-    vendor.vendorData[0].requested = true;
-    vendor.markModified('vendorData');
-    await vendor.save();
+    await User.updateOne(
+      { _id: vendor._id, 'vendorData._id': vendor.vendorData[0]._id },
+      { $set: { 'vendorData.$.requested': true } }
+    );
   }
 
   res.status(httpStatus.CREATED).send({
@@ -113,13 +115,19 @@ export const verifyRequest = catchAsync(async (req, res) => {
 
     // Update vendorData to claimed and reset password
     if (vendor.vendorData && vendor.vendorData.length > 0) {
-      vendor.vendorData[0].claimed = true;
-      vendor.vendorData[0].requested = false;
-      vendor.vendorData[0].claimedBy = request.userId;
-      vendor.markModified('vendorData');
+      await User.updateOne(
+        { _id: vendor._id, 'vendorData._id': vendor.vendorData[0]._id },
+        {
+          $set: {
+            'vendorData.$.claimed': true,
+            'vendorData.$.requested': false,
+            'vendorData.$.claimedBy': request.userId,
+          },
+        }
+      );
     }
-    vendor.password = tempPassword;
-    await vendor.save();
+    const hashedPassword = await bcrypt.hash(tempPassword, 8);
+    await User.updateOne({ _id: vendor._id }, { $set: { password: hashedPassword } });
 
     // Send Approval Mail with credentials
     try {
@@ -225,10 +233,15 @@ export const verifyRequest = catchAsync(async (req, res) => {
     }
   } else if (status === 'rejected') {
     if (vendor.vendorData && vendor.vendorData.length > 0) {
-      vendor.vendorData[0].claimed = false;
-      vendor.vendorData[0].requested = false;
-      vendor.markModified('vendorData');
-      await vendor.save();
+      await User.updateOne(
+        { _id: vendor._id, 'vendorData._id': vendor.vendorData[0]._id },
+        {
+          $set: {
+            'vendorData.$.claimed': false,
+            'vendorData.$.requested': false,
+          },
+        }
+      );
     }
 
     // Send Rejection Mail
