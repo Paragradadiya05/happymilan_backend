@@ -1202,6 +1202,8 @@ export const shareProfile = catchAsync(async (req, res) => {
   const shareWebUrl = `${protocol}://${host}/v1/user/user/share-profile/${userId}`;
   const appDeepLink = `happymilan://profile/${userId}`;
   const playStoreUrl = `https://play.google.com/store/apps/details?id=com.happymilan2&referrer=userIds%3D${userId}`;
+  const marketUrl = `market://details?id=com.happymilan2&referrer=userIds%3D${userId}`;
+  const androidIntentUrl = `intent://profile/${userId}#Intent;scheme=happymilan;package=com.happymilan2;S.market_referrer=userIds%3D${userId};end;`;
   const appStoreUrl = `https://apps.apple.com/app/idYOUR_IOS_APP_ID`;
 
   // Return JSON response if format=json query parameter or Accept: application/json header is sent
@@ -1216,7 +1218,9 @@ export const shareProfile = catchAsync(async (req, res) => {
         about,
         shareUrl: shareWebUrl,
         deepLink: appDeepLink,
+        androidIntentUrl,
         playStoreUrl,
+        marketUrl,
         appStoreUrl,
         whatsappShareText: `Check out ${fullName}'s profile on Hapmeet: ${shareWebUrl}`,
       },
@@ -1232,8 +1236,8 @@ export const shareProfile = catchAsync(async (req, res) => {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
       <!-- Open Graph Meta Tags for WhatsApp Card Preview -->
-      <meta property="og:site_name" content="HappyMilan Matrimony" />
-      <meta property="og:title" content="${fullName} - HappyMilan" />
+      <meta property="og:site_name" content="Hapmeet Matrimony" />
+      <meta property="og:title" content="${fullName} - Hapmeet" />
       <meta property="og:description" content="${about}" />
       <meta property="og:image" content="${profilePic}" />
       <meta property="og:image:width" content="600" />
@@ -1243,16 +1247,77 @@ export const shareProfile = catchAsync(async (req, res) => {
 
       <!-- Twitter Meta Tags -->
       <meta name="twitter:card" content="summary_large_image">
-      <meta name="twitter:title" content="${fullName} - HappyMilan">
+      <meta name="twitter:title" content="${fullName} - Hapmeet">
       <meta name="twitter:description" content="${about}">
       <meta name="twitter:image" content="${profilePic}">
 
       <title>${fullName} - Hapmeet</title>
       <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; padding: 40px 20px; background-color: #f8fafc; color: #1e293b; }
-        .card { max-width: 400px; margin: 0 auto; background: #ffffff; padding: 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-        .avatar { width: 120px; height: 120px; border-radius: 60px; object-fit: cover; margin-bottom: 16px; border: 3px solid #e2e8f0; }
-        .btn { display: inline-block; background-color: #e11d48; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; margin-top: 16px; }
+        body {
+          font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+          text-align: center;
+          padding: 40px 20px;
+          background: linear-gradient(135deg, #f3e8ff 0%, #f8fafc 100%);
+          color: #1e293b;
+          margin: 0;
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .card {
+          max-width: 420px;
+          width: 100%;
+          background: #ffffff;
+          padding: 40px 30px;
+          border-radius: 24px;
+          box-shadow: 0 10px 30px rgba(108, 92, 231, 0.12);
+          box-sizing: border-box;
+        }
+        .avatar {
+          width: 130px;
+          height: 130px;
+          border-radius: 65px;
+          object-fit: cover;
+          margin-bottom: 20px;
+          border: 4px solid #8225AF;
+          box-shadow: 0 6px 20px rgba(130, 37, 175, 0.25);
+        }
+        h2 {
+          font-size: 24px;
+          margin: 0 0 10px 0;
+          color: #0f172a;
+          font-weight: 700;
+        }
+        .bio {
+          font-size: 14px;
+          color: #64748b;
+          line-height: 1.6;
+          margin: 0 0 20px 0;
+        }
+        .status {
+          font-size: 13px;
+          color: #8225AF;
+          font-weight: 600;
+          margin-bottom: 24px;
+        }
+        .btn {
+          display: block;
+          background: linear-gradient(123.55deg, #0F52BA 0%, #8225AF 81.56%);
+          color: #ffffff !important;
+          padding: 16px 28px;
+          text-decoration: none;
+          border-radius: 50px;
+          font-weight: 700;
+          font-size: 16px;
+          box-shadow: 0 6px 20px rgba(130, 37, 175, 0.35);
+          transition: all 0.2s ease-in-out;
+        }
+        .btn:hover {
+          opacity: 0.95;
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(130, 37, 175, 0.45);
+        }
       </style>
       <script>
         window.onload = function() {
@@ -1260,27 +1325,41 @@ export const shareProfile = catchAsync(async (req, res) => {
           var isAndroid = /android/i.test(userAgent);
           var isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
 
-          // Attempt to open the installed app
-          window.location.href = "${appDeepLink}";
+          if (isAndroid) {
+            // 1. Launch Android Intent URL (Opens App directly if installed, or native Play Store app if not installed)
+            window.location.href = "${androidIntentUrl}";
 
-          // Fallback to store redirect if app not opened in 1.5 seconds
-          setTimeout(function() {
-            if (isAndroid) {
-              window.location.href = "${playStoreUrl}";
-            } else if (isIOS) {
+            // 2. Fallback to native Play Store app scheme after 2.5s if Intent didn't trigger
+            setTimeout(function() {
+              window.location.href = "${marketUrl}";
+            }, 2500);
+          } else if (isIOS) {
+            window.location.href = "${appDeepLink}";
+            setTimeout(function() {
               window.location.href = "${appStoreUrl}";
-            }
-          }, 1500);
+            }, 2000);
+          }
         };
+
+        function openAppOrStore() {
+          var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+          var isAndroid = /android/i.test(userAgent);
+
+          if (isAndroid) {
+            window.location.href = "${androidIntentUrl}";
+          } else {
+            window.location.href = "${appDeepLink}";
+          }
+        }
       </script>
     </head>
     <body>
       <div class="card">
         <img src="${profilePic}" alt="${fullName}" class="avatar" />
         <h2>${fullName}</h2>
-        <p>${about}</p>
-        <p>Redirecting to Hapmeet app...</p>
-        <a href="${playStoreUrl}" class="btn">Download HappyMilan App</a>
+        <p class="bio">${about}</p>
+        <p class="status">Opening Hapmeet App...</p>
+        <a href="${marketUrl}" onclick="openAppOrStore(); return false;" class="btn">Download Hapmeet App</a>
       </div>
     </body>
     </html>
