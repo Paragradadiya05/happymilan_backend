@@ -1199,12 +1199,11 @@ export const shareProfile = catchAsync(async (req, res) => {
 
   const protocol = req.protocol || 'https';
   const host = req.get('host');
-  const shareWebUrl = `${protocol}://${host}/v1/user/user/share/${userId}`;
-  const appDeepLink = `happymilan://share/${userId}`;
+  const shareWebUrl = `${protocol}://${host}/v1/user/user/share-profile/${userId}`;
+  const appDeepLink = `happymilan://profile/${userId}`;
   const playStoreUrl = `https://play.google.com/store/apps/details?id=com.happymilan2&referrer=userIds%3D${userId}`;
-  const playStoreSearchUrl = `https://play.google.com/store/search?q=hapmeet&c=apps&hl=en_IN`;
   const marketUrl = `market://details?id=com.happymilan2&referrer=userIds%3D${userId}`;
-  const androidIntentUrl = `intent://share/${userId}#Intent;scheme=happymilan;package=com.happymilan2;S.market_referrer=userIds%3D${userId};end;`;
+  const androidIntentUrl = `intent://profile/${userId}#Intent;scheme=happymilan;package=com.happymilan2;S.market_referrer=userIds%3D${userId};end;`;
   const appStoreUrl = `https://apps.apple.com/app/idYOUR_IOS_APP_ID`;
 
   // Return JSON response if format=json query parameter or Accept: application/json header is sent
@@ -1221,7 +1220,6 @@ export const shareProfile = catchAsync(async (req, res) => {
         deepLink: appDeepLink,
         androidIntentUrl,
         playStoreUrl,
-        playStoreSearchUrl,
         marketUrl,
         appStoreUrl,
         whatsappShareText: `Check out ${fullName}'s profile on Hapmeet: ${shareWebUrl}`,
@@ -1230,7 +1228,6 @@ export const shareProfile = catchAsync(async (req, res) => {
   }
 
   // Return HTML with Open Graph Meta Tags for WhatsApp Card Preview & Auto Redirect
-  res.setHeader('Content-Type', 'text/html');
   return res.status(httpStatus.OK).send(`
     <!DOCTYPE html>
     <html lang="en">
@@ -1254,7 +1251,7 @@ export const shareProfile = catchAsync(async (req, res) => {
       <meta name="twitter:description" content="${about}">
       <meta name="twitter:image" content="${profilePic}">
 
-      <title>Opening Hapmeet...</title>
+      <title>${fullName} - Hapmeet</title>
       <style>
         body {
           font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -1329,21 +1326,18 @@ export const shareProfile = catchAsync(async (req, res) => {
           var isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
 
           if (isAndroid) {
-            // Try launching custom scheme and Android intent URL
-            window.location.href = "${appDeepLink}";
-            setTimeout(function() {
-              window.location.href = "${androidIntentUrl}";
-            }, 300);
+            // 1. Launch Android Intent URL (Opens App directly if installed, or native Play Store app if not installed)
+            window.location.href = "${androidIntentUrl}";
 
-            // Fallback to Play Store after 1.5s if app is not installed
+            // 2. Fallback to native Play Store app scheme after 2.5s if Intent didn't trigger
             setTimeout(function() {
-              window.location.href = "${playStoreUrl}";
-            }, 1800);
+              window.location.href = "${marketUrl}";
+            }, 2500);
           } else if (isIOS) {
             window.location.href = "${appDeepLink}";
             setTimeout(function() {
               window.location.href = "${appStoreUrl}";
-            }, 1800);
+            }, 2000);
           }
         };
 
@@ -1352,10 +1346,7 @@ export const shareProfile = catchAsync(async (req, res) => {
           var isAndroid = /android/i.test(userAgent);
 
           if (isAndroid) {
-            window.location.href = "${appDeepLink}";
-            setTimeout(function() {
-              window.location.href = "${androidIntentUrl}";
-            }, 300);
+            window.location.href = "${androidIntentUrl}";
           } else {
             window.location.href = "${appDeepLink}";
           }
@@ -1367,8 +1358,8 @@ export const shareProfile = catchAsync(async (req, res) => {
         <img src="${profilePic}" alt="${fullName}" class="avatar" />
         <h2>${fullName}</h2>
         <p class="bio">${about}</p>
-        <p class="status">Opening Hapmeet...</p>
-        <a href="${playStoreUrl}" onclick="openAppOrStore();" class="btn">Download Hapmeet App</a>
+        <p class="status">Opening Hapmeet App...</p>
+        <a href="${marketUrl}" onclick="openAppOrStore(); return false;" class="btn">Download Hapmeet App</a>
       </div>
     </body>
     </html>
