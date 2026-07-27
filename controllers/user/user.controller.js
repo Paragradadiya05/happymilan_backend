@@ -1199,11 +1199,12 @@ export const shareProfile = catchAsync(async (req, res) => {
 
   const protocol = req.protocol || 'https';
   const host = req.get('host');
-  const shareWebUrl = `${protocol}://${host}/v1/user/user/share-profile/${userId}`;
-  const appDeepLink = `happymilan://profile/${userId}`;
+  const shareWebUrl = `${protocol}://${host}/v1/user/user/share/${userId}`;
+  const appDeepLink = `happymilan://share/${userId}`;
   const playStoreUrl = `https://play.google.com/store/apps/details?id=com.happymilan2&referrer=userIds%3D${userId}`;
   const marketUrl = `market://details?id=com.happymilan2&referrer=userIds%3D${userId}`;
-  const androidIntentUrl = `intent://profile/${userId}#Intent;scheme=happymilan;package=com.happymilan2;S.market_referrer=userIds%3D${userId};end;`;
+  const encodedPlayStoreUrl = encodeURIComponent(playStoreUrl);
+  const androidIntentUrl = `intent://share/${userId}#Intent;scheme=happymilan;package=com.happymilan2;S.browser_fallback_url=${encodedPlayStoreUrl};S.market_referrer=userIds%3D${userId};end;`;
   const appStoreUrl = `https://apps.apple.com/app/idYOUR_IOS_APP_ID`;
 
   // Return JSON response if format=json query parameter or Accept: application/json header is sent
@@ -1228,6 +1229,7 @@ export const shareProfile = catchAsync(async (req, res) => {
   }
 
   // Return HTML with Open Graph Meta Tags for WhatsApp Card Preview & Auto Redirect
+  res.setHeader('Content-Type', 'text/html');
   return res.status(httpStatus.OK).send(`
     <!DOCTYPE html>
     <html lang="en">
@@ -1251,7 +1253,7 @@ export const shareProfile = catchAsync(async (req, res) => {
       <meta name="twitter:description" content="${about}">
       <meta name="twitter:image" content="${profilePic}">
 
-      <title>${fullName} - Hapmeet</title>
+      <title>Opening Hapmeet...</title>
       <style>
         body {
           font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -1301,7 +1303,7 @@ export const shareProfile = catchAsync(async (req, res) => {
           font-weight: 600;
           margin-bottom: 24px;
         }
-        .btn {
+        .btn-primary {
           display: block;
           background: linear-gradient(123.55deg, #0F52BA 0%, #8225AF 81.56%);
           color: #ffffff !important;
@@ -1311,46 +1313,81 @@ export const shareProfile = catchAsync(async (req, res) => {
           font-weight: 700;
           font-size: 16px;
           box-shadow: 0 6px 20px rgba(130, 37, 175, 0.35);
+          margin-bottom: 12px;
           transition: all 0.2s ease-in-out;
         }
-        .btn:hover {
+        .btn-primary:hover {
           opacity: 0.95;
           transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(130, 37, 175, 0.45);
+        }
+        .btn-secondary {
+          display: block;
+          background: transparent;
+          color: #8225AF !important;
+          border: 2px solid #8225AF;
+          padding: 12px 28px;
+          text-decoration: none;
+          border-radius: 50px;
+          font-weight: 600;
+          font-size: 14px;
+          transition: all 0.2s ease-in-out;
+        }
+        .btn-secondary:hover {
+          background: rgba(130, 37, 175, 0.05);
         }
       </style>
       <script>
-        window.onload = function() {
+        var fallbackTimer = null;
+
+        function clearFallback() {
+          if (fallbackTimer) {
+            clearTimeout(fallbackTimer);
+            fallbackTimer = null;
+          }
+        }
+
+        // Cancel Play Store redirect as soon as the app opens (page becomes hidden/blurred)
+        document.addEventListener("visibilitychange", function() {
+          if (document.hidden) {
+            clearFallback();
+          }
+        });
+        window.addEventListener("pagehide", clearFallback);
+        window.addEventListener("blur", clearFallback);
+
+        function openApp() {
           var userAgent = navigator.userAgent || navigator.vendor || window.opera;
           var isAndroid = /android/i.test(userAgent);
           var isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
 
           if (isAndroid) {
-            // 1. Launch Android Intent URL (Opens App directly if installed, or native Play Store app if not installed)
-            window.location.href = "${androidIntentUrl}";
-
-            // 2. Fallback to native Play Store app scheme after 2.5s if Intent didn't trigger
+            // Attempt opening app via scheme & intent
+            window.location.href = "${appDeepLink}";
             setTimeout(function() {
-              window.location.href = "${marketUrl}";
+              window.location.href = "${androidIntentUrl}";
+            }, 250);
+
+            // Fallback to Play Store only if app didn't open and page remains visible
+            clearFallback();
+            fallbackTimer = setTimeout(function() {
+              if (!document.hidden) {
+                window.location.href = "${playStoreUrl}";
+              }
             }, 2500);
           } else if (isIOS) {
             window.location.href = "${appDeepLink}";
-            setTimeout(function() {
-              window.location.href = "${appStoreUrl}";
-            }, 2000);
-          }
-        };
-
-        function openAppOrStore() {
-          var userAgent = navigator.userAgent || navigator.vendor || window.opera;
-          var isAndroid = /android/i.test(userAgent);
-
-          if (isAndroid) {
-            window.location.href = "${androidIntentUrl}";
-          } else {
-            window.location.href = "${appDeepLink}";
+            clearFallback();
+            fallbackTimer = setTimeout(function() {
+              if (!document.hidden) {
+                window.location.href = "${appStoreUrl}";
+              }
+            }, 2500);
           }
         }
+
+        window.onload = function() {
+          openApp();
+        };
       </script>
     </head>
     <body>
@@ -1358,8 +1395,9 @@ export const shareProfile = catchAsync(async (req, res) => {
         <img src="${profilePic}" alt="${fullName}" class="avatar" />
         <h2>${fullName}</h2>
         <p class="bio">${about}</p>
-        <p class="status">Opening Hapmeet App...</p>
-        <a href="${marketUrl}" onclick="openAppOrStore(); return false;" class="btn">Download Hapmeet App</a>
+        <p class="status">Opening Hapmeet...</p>
+        <a href="${appDeepLink}" onclick="openApp(); return false;" class="btn-primary">Open in Hapmeet App</a>
+        <a href="${playStoreUrl}" class="btn-secondary">Download on Play Store</a>
       </div>
     </body>
     </html>
