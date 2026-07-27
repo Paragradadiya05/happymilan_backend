@@ -229,3 +229,14 @@ export const getVendorByBusinessType = {
     })
     .unknown(true),
 };
+
+export const shareProfile = {
+  params: Joi.object().keys({
+    userId: Joi.objectId().required(),
+  }),
+  query: Joi.object()
+    .keys({
+      format: Joi.string().valid('json', 'html').optional(),
+    })
+    .unknown(true),
+};

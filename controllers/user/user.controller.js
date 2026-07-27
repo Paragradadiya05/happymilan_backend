@@ -4,7 +4,7 @@ import { catchAsync } from 'utils/catchAsync';
 import { pick } from '../../utils/pick';
 import { EnumStatusOfFriend } from '../../models/enum.model';
 import ApiError from '../../utils/ApiError';
-import { Subscription } from '../../models';
+import { Subscription, User } from '../../models';
 
 export const get = catchAsync(async (req, res) => {
   const { userId } = req.params;
@@ -1168,4 +1168,121 @@ export const getmatchUser = catchAsync(async (req, res) => {
   }
 
   return res.status(httpStatus.OK).send({ results: userData });
+});
+
+export const shareProfile = catchAsync(async (req, res) => {
+  const { userId } = req.params;
+  const user = await User.findById(userId).lean();
+
+  if (!user) {
+    if (req.query.format === 'json' || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'User profile not found');
+    }
+    return res.status(httpStatus.NOT_FOUND).send(`
+      <!DOCTYPE html>
+      <html>
+      <head><title>Profile Not Found - HappyMilan</title></head>
+      <body style="font-family: Arial, sans-serif; text-align: center; padding-top: 50px;">
+        <h2>Profile Not Found</h2>
+        <p>The requested profile does not exist or has been removed.</p>
+        <a href="https://happymilan.com">Go to HappyMilan</a>
+      </body>
+      </html>
+    `);
+  }
+
+  const firstName = user.firstName || '';
+  const lastName = user.lastName || '';
+  const fullName = `${firstName} ${lastName}`.trim() || 'HappyMilan User';
+  const profilePic = user.profilePic || 'https://happymilan.com/logo.png';
+  const about = user.aboutMe || user.about || `Check out ${fullName}'s profile on HappyMilan Matrimony app.`;
+
+  const protocol = req.protocol || 'https';
+  const host = req.get('host');
+  const shareWebUrl = `${protocol}://${host}/v1/user/user/share-profile/${userId}`;
+  const appDeepLink = `happymilan://profile/${userId}`;
+  const playStoreUrl = `https://play.google.com/store/apps/details?id=com.happymilan.app&referrer=userIds%3D${userId}`;
+  const appStoreUrl = `https://apps.apple.com/app/idYOUR_IOS_APP_ID`;
+
+  // Return JSON response if format=json query parameter or Accept: application/json header is sent
+  if (req.query.format === 'json' || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+    return res.status(httpStatus.OK).send({
+      code: httpStatus.OK,
+      message: 'Profile share link generated successfully',
+      data: {
+        userId: user._id,
+        name: fullName,
+        profilePic,
+        about,
+        shareUrl: shareWebUrl,
+        deepLink: appDeepLink,
+        playStoreUrl,
+        appStoreUrl,
+        whatsappShareText: `Check out ${fullName}'s profile on HappyMilan: ${shareWebUrl}`,
+      },
+    });
+  }
+
+  // Return HTML with Open Graph Meta Tags for WhatsApp Card Preview & Auto Redirect
+  return res.status(httpStatus.OK).send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+      <!-- Open Graph Meta Tags for WhatsApp Card Preview -->
+      <meta property="og:site_name" content="HappyMilan Matrimony" />
+      <meta property="og:title" content="${fullName} - HappyMilan" />
+      <meta property="og:description" content="${about}" />
+      <meta property="og:image" content="${profilePic}" />
+      <meta property="og:image:width" content="600" />
+      <meta property="og:image:height" content="600" />
+      <meta property="og:type" content="profile" />
+      <meta property="og:url" content="${shareWebUrl}" />
+
+      <!-- Twitter Meta Tags -->
+      <meta name="twitter:card" content="summary_large_image">
+      <meta name="twitter:title" content="${fullName} - HappyMilan">
+      <meta name="twitter:description" content="${about}">
+      <meta name="twitter:image" content="${profilePic}">
+
+      <title>${fullName} - Hapmeet</title>
+      <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; padding: 40px 20px; background-color: #f8fafc; color: #1e293b; }
+        .card { max-width: 400px; margin: 0 auto; background: #ffffff; padding: 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .avatar { width: 120px; height: 120px; border-radius: 60px; object-fit: cover; margin-bottom: 16px; border: 3px solid #e2e8f0; }
+        .btn { display: inline-block; background-color: #e11d48; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; margin-top: 16px; }
+      </style>
+      <script>
+        window.onload = function() {
+          var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+          var isAndroid = /android/i.test(userAgent);
+          var isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+
+          // Attempt to open the installed app
+          window.location.href = "${appDeepLink}";
+
+          // Fallback to store redirect if app not opened in 1.5 seconds
+          setTimeout(function() {
+            if (isAndroid) {
+              window.location.href = "${playStoreUrl}";
+            } else if (isIOS) {
+              window.location.href = "${appStoreUrl}";
+            }
+          }, 1500);
+        };
+      </script>
+    </head>
+    <body>
+      <div class="card">
+        <img src="${profilePic}" alt="${fullName}" class="avatar" />
+        <h2>${fullName}</h2>
+        <p>${about}</p>
+        <p>Redirecting to Hapmeet app...</p>
+        <a href="${playStoreUrl}" class="btn">Download HappyMilan App</a>
+      </div>
+    </body>
+    </html>
+  `);
 });

@@ -154,4 +154,10 @@ router
   .get(auth(), validate(userValidation.getCredit), userController.getCreditByUserId);
 router.delete('/delete-account', auth(), validate(userValidation.deleteUser), userController.deleteUserAccount);
 
+/**
+ * Share User Profile Link API (Public Route with Open Graph HTML & JSON support)
+ */
+router.route('/share-profile/:userId').get(validate(userValidation.shareProfile), userController.shareProfile);
+router.route('/share/:userId').get(validate(userValidation.shareProfile), userController.shareProfile);
+
 export default router;
