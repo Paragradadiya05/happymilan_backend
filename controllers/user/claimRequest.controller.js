@@ -104,6 +104,8 @@ export const verifyRequest = catchAsync(async (req, res) => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Vendor profile associated with request not found');
   }
 
+  const targetEmail = request.email || (request.userId && request.userId.email) || vendor.email;
+
   request.status = status;
   if (status === 'rejected') {
     request.rejectionReason = rejectionReason;
@@ -113,7 +115,7 @@ export const verifyRequest = catchAsync(async (req, res) => {
   if (status === 'approved') {
     const tempPassword = Math.random().toString(36).slice(-10);
 
-    // Update vendorData to claimed and reset password
+    // Update vendorData to claimed and reset password + update vendor account email to claimant's target email
     if (vendor.vendorData && vendor.vendorData.length > 0) {
       await User.updateOne(
         { _id: vendor._id, 'vendorData._id': vendor.vendorData[0]._id },
@@ -127,12 +129,13 @@ export const verifyRequest = catchAsync(async (req, res) => {
       );
     }
     const hashedPassword = await bcrypt.hash(tempPassword, 8);
-    await User.updateOne({ _id: vendor._id }, { $set: { password: hashedPassword } });
+    await User.updateOne({ _id: vendor._id }, { $set: { email: targetEmail, password: hashedPassword } });
 
     // Send Approval Mail with credentials
     try {
+      console.log(`Sending claim approval email to ${targetEmail}...`);
       await emailService.sendEmail({
-        to: request.email,
+        to: targetEmail,
         subject: `Your Ownership Claim Verified - ${request.businessName}`,
         isHtml: true,
         text: `
@@ -162,9 +165,10 @@ export const verifyRequest = catchAsync(async (req, res) => {
                         
                         <p style="margin: 0 0 10px 0; font-weight: bold; color: #1a1a1a;">Temporary Credentials</p>
                         <p style="margin: 0 0 8px 0; font-size: 14px; color: #1a1a1a;">
-                          <strong>Registered Email:</strong> ${vendor.email}<br/>
+                          <strong>Registered Email:</strong> ${targetEmail}<br/>
                           <strong>Temporary Password:</strong> ${tempPassword}
                         </p>
+
                         
                         <p style="margin: 25px 0 25px 0;">For your security, please sign in using the temporary password and change it immediately after your first login.</p>
                         <p style="margin: 0 0 25px 0;">Thank you for choosing Hapmeet.</p>
@@ -246,8 +250,9 @@ export const verifyRequest = catchAsync(async (req, res) => {
 
     // Send Rejection Mail
     try {
+      console.log(`Sending claim rejection email to ${targetEmail}...`);
       await emailService.sendEmail({
-        to: request.email,
+        to: targetEmail,
         subject: `Your Ownership Claim Rejected - ${request.businessName}`,
         isHtml: true,
         text: `

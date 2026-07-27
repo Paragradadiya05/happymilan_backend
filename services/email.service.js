@@ -15,16 +15,47 @@ if (config.env !== 'test') {
  * Send an email
  * @returns {Promise}
  * @param emailParams
+ * @param subjectArg
+ * @param textArg
+ * @param isHtmlArg
  */
-export const sendEmail = async (emailParams) => {
-  const { to, subject, text, isHtml } = emailParams;
-  const msg = { from: config.email.from, to, subject, text };
-  if (isHtml) {
-    delete msg.text;
-    msg.html = text;
+export const sendEmail = async (emailParams, subjectArg, textArg, isHtmlArg) => {
+  let to;
+  let subject;
+  let text;
+  let isHtml;
+
+  if (typeof emailParams === 'object' && emailParams !== null) {
+    to = emailParams.to;
+    subject = emailParams.subject;
+    text = emailParams.text || emailParams.html;
+    isHtml = emailParams.isHtml || Boolean(emailParams.html);
+  } else {
+    to = emailParams;
+    subject = subjectArg;
+    text = textArg;
+    isHtml = isHtmlArg;
   }
-  // console.log('Sending this email message:', msg);
-  await transport.sendMail(msg);
+
+  const fromAddress =
+    config.email.from ||
+    (config.email.smtp && config.email.smtp.auth && config.email.smtp.auth.user) ||
+    'noreply@happymilan.com';
+
+  const msg = {
+    from: fromAddress,
+    to,
+    subject,
+  };
+
+  if (isHtml) {
+    msg.html = text;
+  } else {
+    msg.text = text;
+  }
+
+  logger.info(`Sending email to: ${to}, subject: "${subject}" from: "${fromAddress}"`);
+  return transport.sendMail(msg);
 };
 
 /**
