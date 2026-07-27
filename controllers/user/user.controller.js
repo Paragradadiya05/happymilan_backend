@@ -1195,13 +1195,13 @@ export const shareProfile = catchAsync(async (req, res) => {
   const lastName = user.lastName || '';
   const fullName = `${firstName} ${lastName}`.trim() || 'HappyMilan User';
   const profilePic = user.profilePic || 'https://happymilan.com/logo.png';
-  const about = user.aboutMe || user.about || `Check out ${fullName}'s profile on HappyMilan Matrimony app.`;
+  const about = user.aboutMe || user.about || `Check out ${fullName}'s profile on Hapmeet Matrimony app.`;
 
   const protocol = req.protocol || 'https';
   const host = req.get('host');
   const shareWebUrl = `${protocol}://${host}/v1/user/user/share-profile/${userId}`;
   const appDeepLink = `happymilan://profile/${userId}`;
-  const playStoreUrl = `https://play.google.com/store/apps/details?id=com.happymilan.app&referrer=userIds%3D${userId}`;
+  const playStoreUrl = `https://play.google.com/store/apps/details?id=com.happymilan2&referrer=userIds%3D${userId}`;
   const appStoreUrl = `https://apps.apple.com/app/idYOUR_IOS_APP_ID`;
 
   // Return JSON response if format=json query parameter or Accept: application/json header is sent
@@ -1218,7 +1218,7 @@ export const shareProfile = catchAsync(async (req, res) => {
         deepLink: appDeepLink,
         playStoreUrl,
         appStoreUrl,
-        whatsappShareText: `Check out ${fullName}'s profile on HappyMilan: ${shareWebUrl}`,
+        whatsappShareText: `Check out ${fullName}'s profile on Hapmeet: ${shareWebUrl}`,
       },
     });
   }
