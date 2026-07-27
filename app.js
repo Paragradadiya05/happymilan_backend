@@ -69,6 +69,23 @@ passport.use('jwt', jwtStrategy);
 if (config.env !== 'development') {
   app.use('/v1', globalLimiter);
 }
+// Serve Android App Links Verification file
+app.get('/.well-known/assetlinks.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  return res.status(200).send([
+    {
+      relation: ['delegate_permission/common.handle_all_urls'],
+      target: {
+        namespace: 'android_app',
+        package_name: 'com.happymilan2',
+        sha256_cert_fingerprints: [
+          'FA:C6:17:45:DC:09:03:78:6F:B9:ED:E6:2A:96:2B:39:9F:73:48:F0:BB:6F:89:9B:83:32:66:75:91:03:3B:9C',
+        ],
+      },
+    },
+  ]);
+});
+
 // v1 api routes
 app.use('/v1', routes);
 
@@ -76,7 +93,6 @@ app.use('/v1', routes);
 app.get('/debug-sentry', function mainHandler(req, res) {
   throw new Error('My first Sentry error!');
 });
-
 // send back a 404 error for any unknown api request
 app.use((req, res, next) => {
   next(new ApiError(httpStatus.NOT_FOUND, 'Not found'));
