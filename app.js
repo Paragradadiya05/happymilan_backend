@@ -72,18 +72,31 @@ if (config.env !== 'development') {
 // Serve Android App Links Verification file
 app.get('/.well-known/assetlinks.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
-  return res.status(200).send([
-    {
-      relation: ['delegate_permission/common.handle_all_urls'],
-      target: {
-        namespace: 'android_app',
-        package_name: 'com.happymilan2',
-        sha256_cert_fingerprints: [
-          'FA:C6:17:45:DC:09:03:78:6F:B9:ED:E6:2A:96:2B:39:9F:73:48:F0:BB:6F:89:9B:83:32:66:75:91:03:3B:9C',
-        ],
-      },
+
+  const defaultFingerprints = [
+    // Production / Release Key SHA-256
+    'FA:C6:17:45:DC:09:03:78:6F:B9:ED:E6:2A:96:2B:39:9F:73:48:F0:BB:6F:89:9B:83:32:66:75:91:03:3B:9C',
+    // Default React Native Debug Keystore SHA-256
+    '5E:8F:16:06:2E:A3:CD:2C:4A:0D:54:78:E8:4A:26:0D:09:0F:21:A9:22:97:36:1F:B6:31:09:D6:EC:E9:A6:49',
+  ];
+
+  if (process.env.ANDROID_SHA256_FINGERPRINTS) {
+    const customFingerprints = process.env.ANDROID_SHA256_FINGERPRINTS.split(',').map((fp) => fp.trim());
+    defaultFingerprints.push(...customFingerprints);
+  }
+
+  const packageNames = ['com.happymilan2', 'com.hapmeet'];
+
+  const assetLinks = packageNames.map((pkg) => ({
+    relation: ['delegate_permission/common.handle_all_urls'],
+    target: {
+      namespace: 'android_app',
+      package_name: pkg,
+      sha256_cert_fingerprints: defaultFingerprints,
     },
-  ]);
+  }));
+
+  return res.status(200).send(assetLinks);
 });
 
 // Serve iOS Universal Links Verification file
