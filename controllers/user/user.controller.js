@@ -1200,11 +1200,11 @@ export const shareProfile = catchAsync(async (req, res) => {
   const protocol = req.protocol || 'https';
   const host = req.get('host');
   const shareWebUrl = `${protocol}://${host}/v1/user/user/share/${userId}`;
-  const appDeepLink = `happymilan://share/${userId}`;
+  const appDeepLink = `hapmeet://share/${userId}`;
   const playStoreUrl = `https://play.google.com/store/apps/details?id=com.happymilan2&referrer=userIds%3D${userId}`;
   const marketUrl = `market://details?id=com.happymilan2&referrer=userIds%3D${userId}`;
   const encodedPlayStoreUrl = encodeURIComponent(playStoreUrl);
-  const androidIntentUrl = `intent://share/${userId}#Intent;scheme=happymilan;package=com.happymilan2;S.browser_fallback_url=${encodedPlayStoreUrl};S.market_referrer=userIds%3D${userId};end;`;
+  const androidIntentUrl = `intent://share/${userId}#Intent;scheme=hapmeet;package=com.happymilan2;S.browser_fallback_url=${encodedPlayStoreUrl};S.market_referrer=userIds%3D${userId};end;`;
   const appStoreUrl = `https://apps.apple.com/app/idYOUR_IOS_APP_ID`;
 
   // Return JSON response if format=json query parameter or Accept: application/json header is sent
@@ -1361,19 +1361,16 @@ export const shareProfile = catchAsync(async (req, res) => {
           var isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
 
           if (isAndroid) {
-            // Attempt opening app via scheme & intent
-            window.location.href = "${appDeepLink}";
-            setTimeout(function() {
-              window.location.href = "${androidIntentUrl}";
-            }, 250);
+            // Attempt opening app via intent scheme
+            window.location.href = "${androidIntentUrl}";
 
-            // Fallback to Play Store only if app didn't open and page remains visible
+            // Fallback to Native Play Store App if app didn't open and page remains visible
             clearFallback();
             fallbackTimer = setTimeout(function() {
               if (!document.hidden) {
-                window.location.href = "${playStoreUrl}";
+                window.location.href = "${marketUrl}";
               }
-            }, 2500);
+            }, 1500);
           } else if (isIOS) {
             window.location.href = "${appDeepLink}";
             clearFallback();
@@ -1381,7 +1378,7 @@ export const shareProfile = catchAsync(async (req, res) => {
               if (!document.hidden) {
                 window.location.href = "${appStoreUrl}";
               }
-            }, 2500);
+            }, 1500);
           }
         }
 

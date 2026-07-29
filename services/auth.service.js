@@ -137,7 +137,7 @@ export const resetPasswordOtp = async (resetPasswordRequest) => {
 
 /**
  * Reset password Token-based Service
- * @returns {Promise}
+ * @returns {Promise}C
  * @param resetPasswordRequest
  * @param {string} [resetPasswordRequest.password]
  * @param {string} [resetPasswordRequest.code]

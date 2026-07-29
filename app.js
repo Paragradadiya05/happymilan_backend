@@ -86,6 +86,22 @@ app.get('/.well-known/assetlinks.json', (req, res) => {
   ]);
 });
 
+// Serve iOS Universal Links Verification file
+app.get(['/.well-known/apple-app-site-association', '/apple-app-site-association'], (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  return res.status(200).send({
+    applinks: {
+      apps: [],
+      details: [
+        {
+          appID: 'YOUR_APPLE_TEAM_ID.com.happymilan2',
+          paths: ['/v1/user/user/share/*', '/v1/user/user/share-profile/*', '/share/*'],
+        },
+      ],
+    },
+  });
+});
+
 // v1 api routes
 app.use('/v1', routes);
 
