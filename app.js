@@ -118,6 +118,18 @@ app.get(['/.well-known/apple-app-site-association', '/apple-app-site-association
 // v1 api routes
 app.use('/v1', routes);
 
+// Short Alias Profile Share URLs (e.g. https://stag.mntech.website/share/:userId or /profile/:userId)
+const { userController } = require('controllers/user');
+const { userValidation } = require('validations/user');
+// eslint-disable-next-line global-require
+const validate = require('middlewares/validate').default || require('middlewares/validate');
+
+app.get(
+  ['/share/:userId', '/profile/:userId', '/p/:userId'],
+  validate(userValidation.shareProfile),
+  userController.shareProfile
+);
+
 // eslint-disable-next-line no-unused-vars
 app.get('/debug-sentry', function mainHandler(req, res) {
   throw new Error('My first Sentry error!');
