@@ -1172,7 +1172,7 @@ export const getmatchUser = catchAsync(async (req, res) => {
 
 export const shareProfile = catchAsync(async (req, res) => {
   const { userId } = req.params;
-  const user = await User.findById(userId).lean();
+  const user = await User.findById(userId).select('firstName lastName profilePic aboutMe about appUsesType role').lean();
 
   if (!user) {
     if (req.query.format === 'json' || (req.headers.accept && req.headers.accept.includes('application/json'))) {
