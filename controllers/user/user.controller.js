@@ -1197,14 +1197,17 @@ export const shareProfile = catchAsync(async (req, res) => {
   const profilePic = user.profilePic || 'https://happymilan.com/logo.png';
   const about = user.aboutMe || user.about || `Check out ${fullName}'s profile on Hapmeet Matrimony app.`;
 
+  const targetAppUsesType = user.appUsesType || (user.role === 'vendor' ? 'vendor' : 'marriage');
+  const userRole = user.role || 'user';
+
   const protocol = req.protocol || 'https';
   const host = req.get('host');
-  const shareWebUrl = `${protocol}://${host}/v1/user/user/share/${userId}`;
-  const appDeepLink = `hapmeet://share/${userId}`;
-  const playStoreUrl = `https://play.google.com/store/apps/details?id=com.happymilan2&referrer=userIds%3D${userId}`;
-  const marketUrl = `market://details?id=com.happymilan2&referrer=userIds%3D${userId}`;
+  const shareWebUrl = `${protocol}://${host}/v1/user/user/share/${userId}?appUsesType=${targetAppUsesType}`;
+  const appDeepLink = `hapmeet://share/${userId}?appUsesType=${targetAppUsesType}&role=${userRole}`;
+  const playStoreUrl = `https://play.google.com/store/apps/details?id=com.happymilan2&referrer=userIds%3D${userId}%26appUsesType%3D${targetAppUsesType}%26role%3D${userRole}`;
+  const marketUrl = `market://details?id=com.happymilan2&referrer=userIds%3D${userId}%26appUsesType%3D${targetAppUsesType}%26role%3D${userRole}`;
   const encodedPlayStoreUrl = encodeURIComponent(playStoreUrl);
-  const androidIntentUrl = `intent://share/${userId}#Intent;scheme=hapmeet;package=com.happymilan2;S.browser_fallback_url=${encodedPlayStoreUrl};S.market_referrer=userIds%3D${userId};end;`;
+  const androidIntentUrl = `intent://share/${userId}?appUsesType=${targetAppUsesType}&role=${userRole}#Intent;scheme=hapmeet;package=com.happymilan2;S.browser_fallback_url=${encodedPlayStoreUrl};S.market_referrer=userIds%3D${userId}%26appUsesType%3D${targetAppUsesType}%26role%3D${userRole};end;`;
   const appStoreUrl = `https://apps.apple.com/app/idYOUR_IOS_APP_ID`;
 
   // Return JSON response if format=json query parameter or Accept: application/json header is sent
@@ -1217,6 +1220,8 @@ export const shareProfile = catchAsync(async (req, res) => {
         name: fullName,
         profilePic,
         about,
+        appUsesType: targetAppUsesType,
+        role: userRole,
         shareUrl: shareWebUrl,
         deepLink: appDeepLink,
         androidIntentUrl,
@@ -1246,6 +1251,8 @@ export const shareProfile = catchAsync(async (req, res) => {
       <meta property="og:image:height" content="600" />
       <meta property="og:type" content="profile" />
       <meta property="og:url" content="${shareWebUrl}" />
+      <meta property="og:app_uses_type" content="${targetAppUsesType}" />
+      <meta property="og:role" content="${userRole}" />
 
       <!-- Twitter Meta Tags -->
       <meta name="twitter:card" content="summary_large_image">
