@@ -6,7 +6,11 @@ export async function createClaimRequest(body = {}) {
 }
 
 export async function getClaimRequestById(id, options = {}) {
-  const claim = await ClaimRequest.findById(id, options.projection, options);
+  let query = ClaimRequest.findById(id, options.projection, options);
+  if (options.populate) {
+    query = query.populate(options.populate);
+  }
+  const claim = await query;
   return claim;
 }
 
