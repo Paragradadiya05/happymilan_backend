@@ -12,4 +12,8 @@ router
   .post(optionalAuth, validate(claimRequestValidation.createClaim), claimRequestController.createRequest)
   .get(auth(), claimRequestController.getMyRequests);
 
+router
+  .route('/:requestId')
+  .get(auth(), validate(claimRequestValidation.getClaimById), claimRequestController.getRequestById);
+
 export default router;

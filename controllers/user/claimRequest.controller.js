@@ -85,6 +85,31 @@ export const listAllRequests = catchAsync(async (req, res) => {
   res.status(httpStatus.OK).send({ results: paginatedResults });
 });
 
+// Get claim request by ID with all vendor data populated
+export const getRequestById = catchAsync(async (req, res) => {
+  const { requestId } = req.params;
+  const request = await claimRequestService.getClaimRequestById(requestId, {
+    populate: [
+      {
+        path: 'vendorId',
+        populate: [{ path: 'address' }, { path: 'vendorData.claimedBy', select: 'fullName name email mobileNumber' }],
+      },
+      {
+        path: 'userId',
+        select: 'fullName name email mobileNumber profilePic',
+      },
+    ],
+  });
+
+  if (!request) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Claim request not found');
+  }
+
+  res.status(httpStatus.OK).send({
+    results: request,
+  });
+});
+
 // Admin verify claim request (Approve/Reject)
 export const verifyRequest = catchAsync(async (req, res) => {
   const { requestId } = req.params;
