@@ -182,7 +182,7 @@ const vendorData = new mongoose.Schema(
     subServices: {
       type: String,
     },
-    businessLogo: {
+    businessBanner: {
       type: String,
     },
     businessImages: [
