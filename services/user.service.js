@@ -152,6 +152,7 @@ export async function getUserListForSearch(
     { name: 'birthTime' },
     { name: 'religion' },
     { name: 'caste' },
+    { name: 'cast' },
     { name: 'height' },
     { name: 'weight' },
     { name: 'displayName' },
@@ -202,8 +203,9 @@ export async function getUserListForSearch(
     gender: '$gender',
     // dateOfBirth: '$dateOfBirth',
     // birthTime: '$birthTime',
-    // religion: '$religion',
-    // caste: '$caste',
+    religion: '$religion',
+    caste: '$caste',
+    cast: { $ifNull: ['$cast', '$caste'] },
     hobbies: '$hobbies',
     interest: '$interest',
     // homeMobileNumber: '$homeMobileNumber',
@@ -697,6 +699,7 @@ export async function getGenderListV2(filter, options = {}) {
     { name: 'birthTime' },
     { name: 'religion' },
     { name: 'caste' },
+    { name: 'cast' },
     { name: 'height' },
     { name: 'weight' },
     { name: 'displayName' },
@@ -751,8 +754,9 @@ export async function getGenderListV2(filter, options = {}) {
     gender: '$gender',
     // dateOfBirth: '$dateOfBirth',
     // birthTime: '$birthTime',
-    // religion: '$religion',
-    // caste: '$caste',
+    religion: '$religion',
+    caste: '$caste',
+    cast: { $ifNull: ['$cast', '$caste'] },
     hobbies: '$hobbies',
     interest: '$interest',
     // homeMobileNumber: '$homeMobileNumber',
@@ -1154,6 +1158,120 @@ export async function getGenderListV2(filter, options = {}) {
                         ],
                       },
                     },
+                    {
+                      field: 'weight',
+                      value: '$weight',
+                      expected: {
+                        min: {
+                          $ifNull: [
+                            { $arrayElemAt: ['$userPartnerDetails.weight.min', 0] },
+                            '$userPartnerDetails.weight.min',
+                          ],
+                        },
+                        max: {
+                          $ifNull: [
+                            { $arrayElemAt: ['$userPartnerDetails.weight.max', 0] },
+                            '$userPartnerDetails.weight.max',
+                          ],
+                        },
+                      },
+                    },
+                    {
+                      field: 'religion',
+                      value: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$religion' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$religion', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$religion', 0] },
+                          {
+                            $cond: [
+                              { $isArray: '$religion' },
+                              '$religion',
+                              {
+                                $cond: [
+                                  { $and: [{ $ne: ['$religion', null] }, { $ne: ['$religion', ''] }] },
+                                  ['$religion'],
+                                  [],
+                                ],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                      expected: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$userPartnerDetails.religion' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.religion', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$userPartnerDetails.religion', 0] },
+                          { $ifNull: ['$userPartnerDetails.religion', []] },
+                        ],
+                      },
+                    },
+                    {
+                      field: 'caste',
+                      value: {
+                        $cond: [
+                          {
+                            $and: [{ $isArray: '$caste' }, { $eq: [{ $type: { $arrayElemAt: ['$caste', 0] } }, 'array'] }],
+                          },
+                          { $arrayElemAt: ['$caste', 0] },
+                          {
+                            $cond: [
+                              { $isArray: '$caste' },
+                              '$caste',
+                              {
+                                $cond: [
+                                  { $and: [{ $ne: ['$caste', null] }, { $ne: ['$caste', ''] }] },
+                                  ['$caste'],
+                                  {
+                                    $cond: [
+                                      { $isArray: '$cast' },
+                                      '$cast',
+                                      {
+                                        $cond: [{ $and: [{ $ne: ['$cast', null] }, { $ne: ['$cast', ''] }] }, ['$cast'], []],
+                                      },
+                                    ],
+                                  },
+                                ],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                      expected: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$userPartnerDetails.caste' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.caste', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$userPartnerDetails.caste', 0] },
+                          {
+                            $cond: [
+                              {
+                                $and: [
+                                  { $isArray: '$userPartnerDetails.cast' },
+                                  { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.cast', 0] } }, 'array'] },
+                                ],
+                              },
+                              { $arrayElemAt: ['$userPartnerDetails.cast', 0] },
+                              {
+                                $ifNull: ['$userPartnerDetails.caste', { $ifNull: ['$userPartnerDetails.cast', []] }],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    },
                   ],
                   as: 'item',
                   in: {
@@ -1214,6 +1332,30 @@ export async function getGenderListV2(filter, options = {}) {
                               $gt: [{ $size: { $setIntersection: ['$$item.value', '$$item.expected'] } }, 0],
                             },
                           },
+                          {
+                            case: { $eq: ['$$item.field', 'weight'] },
+                            then: {
+                              $and: [
+                                { $ne: ['$$item.value', null] },
+                                { $ne: ['$$item.expected.min', null] },
+                                { $ne: ['$$item.expected.max', null] },
+                                { $gte: ['$$item.value', '$$item.expected.min'] },
+                                { $lte: ['$$item.value', '$$item.expected.max'] },
+                              ],
+                            },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'religion'] },
+                            then: {
+                              $gt: [{ $size: { $setIntersection: ['$$item.value', '$$item.expected'] } }, 0],
+                            },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'caste'] },
+                            then: {
+                              $gt: [{ $size: { $setIntersection: ['$$item.value', '$$item.expected'] } }, 0],
+                            },
+                          },
                         ],
                         default: false,
                       },
@@ -1233,22 +1375,27 @@ export async function getGenderListV2(filter, options = {}) {
                 },
               },
               matchPercentage: {
-                $multiply: [
+                $round: [
                   {
-                    $divide: [
+                    $multiply: [
                       {
-                        $size: {
-                          $filter: {
-                            input: '$$matchedFields',
-                            as: 'm',
-                            cond: { $eq: ['$$m.isMatched', true] },
+                        $divide: [
+                          {
+                            $size: {
+                              $filter: {
+                                input: '$$matchedFields',
+                                as: 'm',
+                                cond: { $eq: ['$$m.isMatched', true] },
+                              },
+                            },
                           },
-                        },
+                          11,
+                        ],
                       },
-                      8,
+                      100,
                     ],
                   },
-                  100,
+                  0,
                 ],
               },
             },
@@ -1370,6 +1517,7 @@ export async function getMatchUser(filter) {
     { name: 'birthTime' },
     { name: 'religion' },
     { name: 'caste' },
+    { name: 'cast' },
     { name: 'height' },
     { name: 'weight' },
     { name: 'displayName' },
@@ -1425,8 +1573,9 @@ export async function getMatchUser(filter) {
     email: '$email',
     // dateOfBirth: '$dateOfBirth',
     // birthTime: '$birthTime',
-    // religion: '$religion',
-    // caste: '$caste',
+    religion: '$religion',
+    caste: '$caste',
+    cast: { $ifNull: ['$cast', '$caste'] },
     hobbies: '$hobbies',
     interest: '$interest',
     // homeMobileNumber: '$homeMobileNumber',
@@ -1716,6 +1865,120 @@ export async function getMatchUser(filter) {
                       },
                     },
                     { field: 'hobbies', value: '$hobbies', expected: '$userPartnerDetails.hobbies' },
+                    {
+                      field: 'weight',
+                      value: '$weight',
+                      expected: {
+                        min: {
+                          $ifNull: [
+                            { $arrayElemAt: ['$userPartnerDetails.weight.min', 0] },
+                            '$userPartnerDetails.weight.min',
+                          ],
+                        },
+                        max: {
+                          $ifNull: [
+                            { $arrayElemAt: ['$userPartnerDetails.weight.max', 0] },
+                            '$userPartnerDetails.weight.max',
+                          ],
+                        },
+                      },
+                    },
+                    {
+                      field: 'religion',
+                      value: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$religion' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$religion', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$religion', 0] },
+                          {
+                            $cond: [
+                              { $isArray: '$religion' },
+                              '$religion',
+                              {
+                                $cond: [
+                                  { $and: [{ $ne: ['$religion', null] }, { $ne: ['$religion', ''] }] },
+                                  ['$religion'],
+                                  [],
+                                ],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                      expected: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$userPartnerDetails.religion' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.religion', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$userPartnerDetails.religion', 0] },
+                          { $ifNull: ['$userPartnerDetails.religion', []] },
+                        ],
+                      },
+                    },
+                    {
+                      field: 'caste',
+                      value: {
+                        $cond: [
+                          {
+                            $and: [{ $isArray: '$caste' }, { $eq: [{ $type: { $arrayElemAt: ['$caste', 0] } }, 'array'] }],
+                          },
+                          { $arrayElemAt: ['$caste', 0] },
+                          {
+                            $cond: [
+                              { $isArray: '$caste' },
+                              '$caste',
+                              {
+                                $cond: [
+                                  { $and: [{ $ne: ['$caste', null] }, { $ne: ['$caste', ''] }] },
+                                  ['$caste'],
+                                  {
+                                    $cond: [
+                                      { $isArray: '$cast' },
+                                      '$cast',
+                                      {
+                                        $cond: [{ $and: [{ $ne: ['$cast', null] }, { $ne: ['$cast', ''] }] }, ['$cast'], []],
+                                      },
+                                    ],
+                                  },
+                                ],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                      expected: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$userPartnerDetails.caste' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.caste', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$userPartnerDetails.caste', 0] },
+                          {
+                            $cond: [
+                              {
+                                $and: [
+                                  { $isArray: '$userPartnerDetails.cast' },
+                                  { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.cast', 0] } }, 'array'] },
+                                ],
+                              },
+                              { $arrayElemAt: ['$userPartnerDetails.cast', 0] },
+                              {
+                                $ifNull: ['$userPartnerDetails.caste', { $ifNull: ['$userPartnerDetails.cast', []] }],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    },
                   ],
                   as: 'item',
                   in: {
@@ -1776,6 +2039,30 @@ export async function getMatchUser(filter) {
                               $gt: [{ $size: { $setIntersection: ['$$item.value', '$$item.expected'] } }, 0],
                             },
                           },
+                          {
+                            case: { $eq: ['$$item.field', 'weight'] },
+                            then: {
+                              $and: [
+                                { $ne: ['$$item.value', null] },
+                                { $ne: ['$$item.expected.min', null] },
+                                { $ne: ['$$item.expected.max', null] },
+                                { $gte: ['$$item.value', '$$item.expected.min'] },
+                                { $lte: ['$$item.value', '$$item.expected.max'] },
+                              ],
+                            },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'religion'] },
+                            then: {
+                              $gt: [{ $size: { $setIntersection: ['$$item.value', '$$item.expected'] } }, 0],
+                            },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'caste'] },
+                            then: {
+                              $gt: [{ $size: { $setIntersection: ['$$item.value', '$$item.expected'] } }, 0],
+                            },
+                          },
                         ],
                         default: false,
                       },
@@ -1796,22 +2083,27 @@ export async function getMatchUser(filter) {
                 },
               },
               matchPercentage: {
-                $multiply: [
+                $round: [
                   {
-                    $divide: [
+                    $multiply: [
                       {
-                        $size: {
-                          $filter: {
-                            input: '$$matchedFields',
-                            as: 'item',
-                            cond: { $eq: ['$$item.isMatched', true] },
+                        $divide: [
+                          {
+                            $size: {
+                              $filter: {
+                                input: '$$matchedFields',
+                                as: 'item',
+                                cond: { $eq: ['$$item.isMatched', true] },
+                              },
+                            },
                           },
-                        },
+                          11,
+                        ],
                       },
-                      8,
+                      100,
                     ],
                   },
-                  100,
+                  0,
                 ],
               },
             },
@@ -1933,6 +2225,7 @@ export async function getDatingPartnerList(filter, options = {}) {
     { name: 'birthTime' },
     { name: 'religion' },
     { name: 'caste' },
+    { name: 'cast' },
     { name: 'height' },
     { name: 'weight' },
     { name: 'displayName' },
@@ -1984,8 +2277,9 @@ export async function getDatingPartnerList(filter, options = {}) {
     gender: '$gender',
     // dateOfBirth: '$dateOfBirth',
     // birthTime: '$birthTime',
-    // religion: '$religion',
-    // caste: '$caste',
+    religion: '$religion',
+    caste: '$caste',
+    cast: { $ifNull: ['$cast', '$caste'] },
     hobbies: '$hobbies',
     interest: '$interest',
     // homeMobileNumber: '$homeMobileNumber',
@@ -2368,6 +2662,7 @@ export async function getDatingPartnerListByAgeAndMatch(filter, ageRange, option
     { name: 'birthTime' },
     { name: 'religion' },
     { name: 'caste' },
+    { name: 'cast' },
     { name: 'height' },
     { name: 'weight' },
     { name: 'displayName' },
@@ -2419,8 +2714,9 @@ export async function getDatingPartnerListByAgeAndMatch(filter, ageRange, option
     gender: '$gender',
     // dateOfBirth: '$dateOfBirth',
     // birthTime: '$birthTime',
-    // religion: '$religion',
-    // caste: '$caste',
+    religion: '$religion',
+    caste: '$caste',
+    cast: { $ifNull: ['$cast', '$caste'] },
     hobbies: '$hobbies',
     interest: '$interest',
     // homeMobileNumber: '$homeMobileNumber',
@@ -2779,6 +3075,7 @@ export async function getUserWithDatingData(filter) {
     { name: 'birthTime' },
     { name: 'religion' },
     { name: 'caste' },
+    { name: 'cast' },
     { name: 'height' },
     { name: 'weight' },
     { name: 'displayName' },
@@ -2830,8 +3127,9 @@ export async function getUserWithDatingData(filter) {
     gender: '$gender',
     // dateOfBirth: '$dateOfBirth',
     // birthTime: '$birthTime',
-    // religion: '$religion',
-    // caste: '$caste',
+    religion: '$religion',
+    caste: '$caste',
+    cast: { $ifNull: ['$cast', '$caste'] },
     hobbies: '$hobbies',
     interest: '$interest',
     // homeMobileNumber: '$homeMobileNumber',
@@ -2993,6 +3291,7 @@ export async function getFilteredDatingInterestList(filter, options = {}) {
     { name: 'birthTime' },
     { name: 'religion' },
     { name: 'caste' },
+    { name: 'cast' },
     { name: 'height' },
     { name: 'weight' },
     { name: 'displayName' },
@@ -3044,8 +3343,9 @@ export async function getFilteredDatingInterestList(filter, options = {}) {
     gender: '$gender',
     // dateOfBirth: '$dateOfBirth',
     // birthTime: '$birthTime',
-    // religion: '$religion',
-    // caste: '$caste',
+    religion: '$religion',
+    caste: '$caste',
+    cast: { $ifNull: ['$cast', '$caste'] },
     hobbies: '$hobbies',
     interest: '$interest',
     // homeMobileNumber: '$homeMobileNumber',
@@ -3253,6 +3553,7 @@ export async function getFilteredDatingEthnicityList(filter, options = {}) {
     { name: 'birthTime' },
     { name: 'religion' },
     { name: 'caste' },
+    { name: 'cast' },
     { name: 'height' },
     { name: 'weight' },
     { name: 'displayName' },
@@ -3304,8 +3605,9 @@ export async function getFilteredDatingEthnicityList(filter, options = {}) {
     gender: '$gender',
     // dateOfBirth: '$dateOfBirth',
     // birthTime: '$birthTime',
-    // religion: '$religion',
-    // caste: '$caste',
+    religion: '$religion',
+    caste: '$caste',
+    cast: { $ifNull: ['$cast', '$caste'] },
     hobbies: '$hobbies',
     interest: '$interest',
     // homeMobileNumber: '$homeMobileNumber',
@@ -3904,6 +4206,7 @@ export async function getNewUserList(filter, options = {}) {
     { name: 'birthTime' },
     { name: 'religion' },
     { name: 'caste' },
+    { name: 'cast' },
     { name: 'height' },
     { name: 'weight' },
     { name: 'displayName' },
@@ -3958,8 +4261,9 @@ export async function getNewUserList(filter, options = {}) {
     gender: '$gender',
     // dateOfBirth: '$dateOfBirth',
     // birthTime: '$birthTime',
-    // religion: '$religion',
-    // caste: '$caste',
+    religion: '$religion',
+    caste: '$caste',
+    cast: { $ifNull: ['$cast', '$caste'] },
     hobbies: '$hobbies',
     interest: '$interest',
     // homeMobileNumber: '$homeMobileNumber',
@@ -4593,6 +4897,7 @@ export async function getNearbyUser(filter, options = {}) {
     { name: 'birthTime' },
     { name: 'religion' },
     { name: 'caste' },
+    { name: 'cast' },
     { name: 'height' },
     { name: 'weight' },
     { name: 'displayName' },
@@ -4647,8 +4952,9 @@ export async function getNearbyUser(filter, options = {}) {
     gender: '$gender',
     // dateOfBirth: '$dateOfBirth',
     // birthTime: '$birthTime',
-    // religion: '$religion',
-    // caste: '$caste',
+    religion: '$religion',
+    caste: '$caste',
+    cast: { $ifNull: ['$cast', '$caste'] },
     hobbies: '$hobbies',
     interest: '$interest',
     // homeMobileNumber: '$homeMobileNumber',
@@ -5057,6 +5363,120 @@ export async function getNearbyUser(filter, options = {}) {
                         ],
                       },
                     },
+                    {
+                      field: 'weight',
+                      value: '$weight',
+                      expected: {
+                        min: {
+                          $ifNull: [
+                            { $arrayElemAt: ['$userPartnerDetails.weight.min', 0] },
+                            '$userPartnerDetails.weight.min',
+                          ],
+                        },
+                        max: {
+                          $ifNull: [
+                            { $arrayElemAt: ['$userPartnerDetails.weight.max', 0] },
+                            '$userPartnerDetails.weight.max',
+                          ],
+                        },
+                      },
+                    },
+                    {
+                      field: 'religion',
+                      value: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$religion' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$religion', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$religion', 0] },
+                          {
+                            $cond: [
+                              { $isArray: '$religion' },
+                              '$religion',
+                              {
+                                $cond: [
+                                  { $and: [{ $ne: ['$religion', null] }, { $ne: ['$religion', ''] }] },
+                                  ['$religion'],
+                                  [],
+                                ],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                      expected: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$userPartnerDetails.religion' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.religion', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$userPartnerDetails.religion', 0] },
+                          { $ifNull: ['$userPartnerDetails.religion', []] },
+                        ],
+                      },
+                    },
+                    {
+                      field: 'caste',
+                      value: {
+                        $cond: [
+                          {
+                            $and: [{ $isArray: '$caste' }, { $eq: [{ $type: { $arrayElemAt: ['$caste', 0] } }, 'array'] }],
+                          },
+                          { $arrayElemAt: ['$caste', 0] },
+                          {
+                            $cond: [
+                              { $isArray: '$caste' },
+                              '$caste',
+                              {
+                                $cond: [
+                                  { $and: [{ $ne: ['$caste', null] }, { $ne: ['$caste', ''] }] },
+                                  ['$caste'],
+                                  {
+                                    $cond: [
+                                      { $isArray: '$cast' },
+                                      '$cast',
+                                      {
+                                        $cond: [{ $and: [{ $ne: ['$cast', null] }, { $ne: ['$cast', ''] }] }, ['$cast'], []],
+                                      },
+                                    ],
+                                  },
+                                ],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                      expected: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$userPartnerDetails.caste' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.caste', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$userPartnerDetails.caste', 0] },
+                          {
+                            $cond: [
+                              {
+                                $and: [
+                                  { $isArray: '$userPartnerDetails.cast' },
+                                  { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.cast', 0] } }, 'array'] },
+                                ],
+                              },
+                              { $arrayElemAt: ['$userPartnerDetails.cast', 0] },
+                              {
+                                $ifNull: ['$userPartnerDetails.caste', { $ifNull: ['$userPartnerDetails.cast', []] }],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    },
                   ],
                   as: 'item',
                   in: {
@@ -5117,6 +5537,30 @@ export async function getNearbyUser(filter, options = {}) {
                               $gt: [{ $size: { $setIntersection: ['$$item.value', '$$item.expected'] } }, 0],
                             },
                           },
+                          {
+                            case: { $eq: ['$$item.field', 'weight'] },
+                            then: {
+                              $and: [
+                                { $ne: ['$$item.value', null] },
+                                { $ne: ['$$item.expected.min', null] },
+                                { $ne: ['$$item.expected.max', null] },
+                                { $gte: ['$$item.value', '$$item.expected.min'] },
+                                { $lte: ['$$item.value', '$$item.expected.max'] },
+                              ],
+                            },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'religion'] },
+                            then: {
+                              $gt: [{ $size: { $setIntersection: ['$$item.value', '$$item.expected'] } }, 0],
+                            },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'caste'] },
+                            then: {
+                              $gt: [{ $size: { $setIntersection: ['$$item.value', '$$item.expected'] } }, 0],
+                            },
+                          },
                         ],
                         default: false,
                       },
@@ -5136,22 +5580,27 @@ export async function getNearbyUser(filter, options = {}) {
                 },
               },
               matchPercentage: {
-                $multiply: [
+                $round: [
                   {
-                    $divide: [
+                    $multiply: [
                       {
-                        $size: {
-                          $filter: {
-                            input: '$$matchedFields',
-                            as: 'm',
-                            cond: { $eq: ['$$m.isMatched', true] },
+                        $divide: [
+                          {
+                            $size: {
+                              $filter: {
+                                input: '$$matchedFields',
+                                as: 'm',
+                                cond: { $eq: ['$$m.isMatched', true] },
+                              },
+                            },
                           },
-                        },
+                          11,
+                        ],
                       },
-                      8,
+                      100,
                     ],
                   },
-                  100,
+                  0,
                 ],
               },
             },
@@ -5287,6 +5736,7 @@ export async function getGenderListV2WithMatchFilter(filter, options = {}) {
     { name: 'birthTime' },
     { name: 'religion' },
     { name: 'caste' },
+    { name: 'cast' },
     { name: 'height' },
     { name: 'weight' },
     { name: 'displayName' },
@@ -5341,8 +5791,9 @@ export async function getGenderListV2WithMatchFilter(filter, options = {}) {
     gender: '$gender',
     // dateOfBirth: '$dateOfBirth',
     // birthTime: '$birthTime',
-    // religion: '$religion',
-    // caste: '$caste',
+    religion: '$religion',
+    caste: '$caste',
+    cast: { $ifNull: ['$cast', '$caste'] },
     hobbies: '$hobbies',
     interest: '$interest',
     // homeMobileNumber: '$homeMobileNumber',
@@ -5744,6 +6195,120 @@ export async function getGenderListV2WithMatchFilter(filter, options = {}) {
                         ],
                       },
                     },
+                    {
+                      field: 'weight',
+                      value: '$weight',
+                      expected: {
+                        min: {
+                          $ifNull: [
+                            { $arrayElemAt: ['$userPartnerDetails.weight.min', 0] },
+                            '$userPartnerDetails.weight.min',
+                          ],
+                        },
+                        max: {
+                          $ifNull: [
+                            { $arrayElemAt: ['$userPartnerDetails.weight.max', 0] },
+                            '$userPartnerDetails.weight.max',
+                          ],
+                        },
+                      },
+                    },
+                    {
+                      field: 'religion',
+                      value: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$religion' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$religion', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$religion', 0] },
+                          {
+                            $cond: [
+                              { $isArray: '$religion' },
+                              '$religion',
+                              {
+                                $cond: [
+                                  { $and: [{ $ne: ['$religion', null] }, { $ne: ['$religion', ''] }] },
+                                  ['$religion'],
+                                  [],
+                                ],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                      expected: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$userPartnerDetails.religion' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.religion', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$userPartnerDetails.religion', 0] },
+                          { $ifNull: ['$userPartnerDetails.religion', []] },
+                        ],
+                      },
+                    },
+                    {
+                      field: 'caste',
+                      value: {
+                        $cond: [
+                          {
+                            $and: [{ $isArray: '$caste' }, { $eq: [{ $type: { $arrayElemAt: ['$caste', 0] } }, 'array'] }],
+                          },
+                          { $arrayElemAt: ['$caste', 0] },
+                          {
+                            $cond: [
+                              { $isArray: '$caste' },
+                              '$caste',
+                              {
+                                $cond: [
+                                  { $and: [{ $ne: ['$caste', null] }, { $ne: ['$caste', ''] }] },
+                                  ['$caste'],
+                                  {
+                                    $cond: [
+                                      { $isArray: '$cast' },
+                                      '$cast',
+                                      {
+                                        $cond: [{ $and: [{ $ne: ['$cast', null] }, { $ne: ['$cast', ''] }] }, ['$cast'], []],
+                                      },
+                                    ],
+                                  },
+                                ],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                      expected: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$userPartnerDetails.caste' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.caste', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$userPartnerDetails.caste', 0] },
+                          {
+                            $cond: [
+                              {
+                                $and: [
+                                  { $isArray: '$userPartnerDetails.cast' },
+                                  { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.cast', 0] } }, 'array'] },
+                                ],
+                              },
+                              { $arrayElemAt: ['$userPartnerDetails.cast', 0] },
+                              {
+                                $ifNull: ['$userPartnerDetails.caste', { $ifNull: ['$userPartnerDetails.cast', []] }],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    },
                   ],
                   as: 'item',
                   in: {
@@ -5804,6 +6369,30 @@ export async function getGenderListV2WithMatchFilter(filter, options = {}) {
                               $gt: [{ $size: { $setIntersection: ['$$item.value', '$$item.expected'] } }, 0],
                             },
                           },
+                          {
+                            case: { $eq: ['$$item.field', 'weight'] },
+                            then: {
+                              $and: [
+                                { $ne: ['$$item.value', null] },
+                                { $ne: ['$$item.expected.min', null] },
+                                { $ne: ['$$item.expected.max', null] },
+                                { $gte: ['$$item.value', '$$item.expected.min'] },
+                                { $lte: ['$$item.value', '$$item.expected.max'] },
+                              ],
+                            },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'religion'] },
+                            then: {
+                              $gt: [{ $size: { $setIntersection: ['$$item.value', '$$item.expected'] } }, 0],
+                            },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'caste'] },
+                            then: {
+                              $gt: [{ $size: { $setIntersection: ['$$item.value', '$$item.expected'] } }, 0],
+                            },
+                          },
                         ],
                         default: false,
                       },
@@ -5823,22 +6412,27 @@ export async function getGenderListV2WithMatchFilter(filter, options = {}) {
                 },
               },
               matchPercentage: {
-                $multiply: [
+                $round: [
                   {
-                    $divide: [
+                    $multiply: [
                       {
-                        $size: {
-                          $filter: {
-                            input: '$$matchedFields',
-                            as: 'm',
-                            cond: { $eq: ['$$m.isMatched', true] },
+                        $divide: [
+                          {
+                            $size: {
+                              $filter: {
+                                input: '$$matchedFields',
+                                as: 'm',
+                                cond: { $eq: ['$$m.isMatched', true] },
+                              },
+                            },
                           },
-                        },
+                          11,
+                        ],
                       },
-                      8,
+                      100,
                     ],
                   },
-                  100,
+                  0,
                 ],
               },
             },
