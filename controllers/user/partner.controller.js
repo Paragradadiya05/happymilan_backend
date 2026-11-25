@@ -31,7 +31,7 @@ export const createPartner = catchAsync(async (req, res) => {
     },
     options
   );
-  await userService.updateUser({ _id: user.id }, { userPartner });
+  await userService.updateUser({ _id: user.id }, { userPartner, userPartnerPreCompleted: true });
   return res.status(httpStatus.CREATED).send({ results: userPartner });
 });
 

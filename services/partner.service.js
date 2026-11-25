@@ -4,6 +4,36 @@ import { Partner, User } from '../models';
 import ApiError from '../utils/ApiError';
 import { EnumOfPlatformType } from '../models/enum.model';
 
+export const normalizePartnerData = (data = {}) => {
+  const payload = { ...data };
+
+  // Handle weight normalization
+  if (typeof payload.weight === 'number') {
+    payload.weight = { min: payload.weight, max: payload.weight };
+  }
+
+  // Handle religion normalization
+  if (typeof payload.religion === 'string') {
+    payload.religion = [payload.religion];
+  }
+
+  // Handle caste and cast normalization
+  if (typeof payload.caste === 'string') {
+    payload.caste = [payload.caste];
+  }
+  if (typeof payload.cast === 'string') {
+    payload.cast = [payload.cast];
+  }
+
+  if (payload.cast && !payload.caste) {
+    payload.caste = payload.cast;
+  } else if (payload.caste && !payload.cast) {
+    payload.cast = payload.caste;
+  }
+
+  return payload;
+};
+
 export async function getOne(query, options = {}) {
   const userPartnerDetail = await Partner.findOne(query, options.projection, options);
   return userPartnerDetail;
@@ -20,26 +50,28 @@ export async function getPartnerListWithPagination(filter, options = {}) {
 }
 
 export async function createPartner(body = {}) {
-  if (body.userId) {
-    const userId = await User.findOne({ _id: body.userId });
+  const normalizedBody = normalizePartnerData(body);
+  if (normalizedBody.userId) {
+    const userId = await User.findOne({ _id: normalizedBody.userId });
     if (!userId) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'field userId is not valid');
     }
   }
-  const findPartner = await Partner.find({ userId: body.userId });
+  const findPartner = await Partner.find({ userId: normalizedBody.userId });
   let partner;
   if (findPartner.length) {
-    partner = await Partner.findOneAndUpdate({ userId: body.userId }, body, {
+    partner = await Partner.findOneAndUpdate({ userId: normalizedBody.userId }, normalizedBody, {
       new: true,
     });
   } else {
-    partner = await Partner.create(body);
+    partner = await Partner.create(normalizedBody);
   }
   return partner;
 }
 
 export async function updatePartner(filter, body, options = {}) {
-  const userPartnerDetail = await Partner.findOneAndUpdate(filter, body, options);
+  const normalizedBody = normalizePartnerData(body);
+  const userPartnerDetail = await Partner.findOneAndUpdate(filter, normalizedBody, options);
   return userPartnerDetail;
 }
 
@@ -64,6 +96,74 @@ export async function getMatchedUsers(userId) {
   if (!userPartnerPreferences) {
     throw new Error('User Partner Preferences not found');
   }
+
+  const matchConditions = [
+    {
+      $cond: [
+        {
+          $and: [
+            { $gte: ['$age', (userPartnerPreferences.age && userPartnerPreferences.age.min) || 0] },
+            { $lte: ['$age', (userPartnerPreferences.age && userPartnerPreferences.age.max) || 100] },
+          ],
+        },
+        1,
+        0,
+      ],
+    },
+    {
+      $cond: [
+        {
+          $and: [
+            { $gte: ['$height', (userPartnerPreferences.height && userPartnerPreferences.height.min) || 0] },
+            { $lte: ['$height', (userPartnerPreferences.height && userPartnerPreferences.height.max) || 300] },
+          ],
+        },
+        1,
+        0,
+      ],
+    },
+    { $cond: [{ $in: ['$address.currentCountry', userPartnerPreferences.country || []] }, 1, 0] },
+    { $cond: [{ $in: ['$address.currentCity', userPartnerPreferences.city || []] }, 1, 0] },
+    { $cond: [{ $eq: ['$userProfessional.currentSalary', userPartnerPreferences.income] }, 1, 0] },
+    { $cond: [{ $in: ['$diet', userPartnerPreferences.diet || []] }, 1, 0] },
+  ];
+
+  if (
+    userPartnerPreferences.weight &&
+    userPartnerPreferences.weight.min != null &&
+    userPartnerPreferences.weight.max != null
+  ) {
+    matchConditions.push({
+      $cond: [
+        {
+          $and: [
+            { $gte: ['$weight', userPartnerPreferences.weight.min] },
+            { $lte: ['$weight', userPartnerPreferences.weight.max] },
+          ],
+        },
+        1,
+        0,
+      ],
+    });
+  }
+
+  if (userPartnerPreferences.religion && userPartnerPreferences.religion.length) {
+    matchConditions.push({
+      $cond: [{ $in: ['$religion', userPartnerPreferences.religion] }, 1, 0],
+    });
+  }
+
+  const preferredCaste =
+    userPartnerPreferences.caste && userPartnerPreferences.caste.length
+      ? userPartnerPreferences.caste
+      : userPartnerPreferences.cast;
+  if (preferredCaste && preferredCaste.length) {
+    matchConditions.push({
+      $cond: [{ $in: ['$caste', preferredCaste] }, 1, 0],
+    });
+  }
+
+  const totalCriteria = matchConditions.length;
 
   const pipeline = [
     {
@@ -131,41 +231,9 @@ export async function getMatchedUsers(userId) {
         matchData: {
           $let: {
             vars: {
-              totalCriteria: 6, // Update to the total number of criteria used
+              totalCriteria,
               matchedCriteria: {
-                $add: [
-                  {
-                    $cond: [
-                      {
-                        $and: [
-                          { $gte: ['$age', userPartnerPreferences.age.min] },
-                          { $lte: ['$age', userPartnerPreferences.age.max] },
-                        ],
-                      },
-                      1,
-                      0,
-                    ],
-                  },
-                  {
-                    $cond: [
-                      {
-                        $and: [
-                          { $gte: ['$height', userPartnerPreferences.height.min] },
-                          { $lte: ['$height', userPartnerPreferences.height.max] },
-                        ],
-                      },
-                      1,
-                      0,
-                    ],
-                  },
-                  { $cond: [{ $in: ['$address.currentCountry', userPartnerPreferences.country] }, 1, 0] },
-                  // { $cond: [{ $in: ['$address.state', userPartnerPreferences.state] }, 1, 0] },
-                  { $cond: [{ $in: ['$address.currentCity', userPartnerPreferences.city] }, 1, 0] },
-                  // Add additional conditions as needed
-                  { $cond: [{ $eq: ['$userProfessional.currentSalary', userPartnerPreferences.income] }, 1, 0] },
-                  // { $cond: [{ $in: ['$creative', userPartnerPreferences.creative] }, 1, 0] },
-                  { $cond: [{ $in: ['$diet', userPartnerPreferences.diet] }, 1, 0] },
-                ],
+                $add: matchConditions,
               },
             },
             in: {
@@ -184,6 +252,9 @@ export async function getMatchedUsers(userId) {
         _id: 1,
         age: 1,
         height: 1,
+        weight: 1,
+        religion: 1,
+        caste: 1,
         diet: 1,
         'address._id': 1,
         'address.currentResidenceAddress': 1,

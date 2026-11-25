@@ -14,6 +14,19 @@ export const createPartnerpre = {
       min: Joi.number().required(),
       max: Joi.number().required(),
     }),
+    weight: Joi.alternatives().try(
+      Joi.object({
+        min: Joi.number(),
+        max: Joi.number(),
+      }),
+      Joi.number()
+    ),
+    religion: Joi.alternatives().try(
+      Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfReligion))),
+      Joi.string().valid(...Object.values(enumModel.EnumOfReligion))
+    ),
+    caste: Joi.alternatives().try(Joi.array().items(Joi.string()), Joi.string()),
+    cast: Joi.alternatives().try(Joi.array().items(Joi.string()), Joi.string()),
     country: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfCountry))),
     state: Joi.array()
       .items(Joi.string().valid(...Object.values(enumModel.EnumOfState)))
@@ -41,6 +54,19 @@ export const updatePartnerpre = {
       min: Joi.number(),
       max: Joi.number(),
     }),
+    weight: Joi.alternatives().try(
+      Joi.object({
+        min: Joi.number(),
+        max: Joi.number(),
+      }),
+      Joi.number()
+    ),
+    religion: Joi.alternatives().try(
+      Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfReligion))),
+      Joi.string().valid(...Object.values(enumModel.EnumOfReligion))
+    ),
+    caste: Joi.alternatives().try(Joi.array().items(Joi.string()), Joi.string()),
+    cast: Joi.alternatives().try(Joi.array().items(Joi.string()), Joi.string()),
     country: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfCountry))),
     state: Joi.array().items(Joi.string().valid(...Object.values(enumModel.EnumOfState))),
     city: Joi.array().items(Joi.string()),
