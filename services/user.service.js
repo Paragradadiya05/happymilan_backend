@@ -1015,10 +1015,18 @@ export async function getGenderListV2(filter, options = {}) {
                       value: '$age',
                       expected: {
                         min: {
-                          $ifNull: [{ $arrayElemAt: ['$userPartnerDetails.age.min', 0] }, '$userPartnerDetails.age.min'],
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.age.min' },
+                            { $arrayElemAt: ['$userPartnerDetails.age.min', 0] },
+                            '$userPartnerDetails.age.min',
+                          ],
                         },
                         max: {
-                          $ifNull: [{ $arrayElemAt: ['$userPartnerDetails.age.max', 0] }, '$userPartnerDetails.age.max'],
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.age.max' },
+                            { $arrayElemAt: ['$userPartnerDetails.age.max', 0] },
+                            '$userPartnerDetails.age.max',
+                          ],
                         },
                       },
                     },
@@ -1027,13 +1035,15 @@ export async function getGenderListV2(filter, options = {}) {
                       value: '$height',
                       expected: {
                         min: {
-                          $ifNull: [
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.height.min' },
                             { $arrayElemAt: ['$userPartnerDetails.height.min', 0] },
                             '$userPartnerDetails.height.min',
                           ],
                         },
                         max: {
-                          $ifNull: [
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.height.max' },
                             { $arrayElemAt: ['$userPartnerDetails.height.max', 0] },
                             '$userPartnerDetails.height.max',
                           ],
@@ -1045,13 +1055,15 @@ export async function getGenderListV2(filter, options = {}) {
                       value: '$userProfessional.currentSalary',
                       expected: {
                         min: {
-                          $ifNull: [
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.income.min' },
                             { $arrayElemAt: ['$userPartnerDetails.income.min', 0] },
                             '$userPartnerDetails.income.min',
                           ],
                         },
                         max: {
-                          $ifNull: [
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.income.max' },
                             { $arrayElemAt: ['$userPartnerDetails.income.max', 0] },
                             '$userPartnerDetails.income.max',
                           ],
@@ -1163,13 +1175,15 @@ export async function getGenderListV2(filter, options = {}) {
                       value: '$weight',
                       expected: {
                         min: {
-                          $ifNull: [
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.weight.min' },
                             { $arrayElemAt: ['$userPartnerDetails.weight.min', 0] },
                             '$userPartnerDetails.weight.min',
                           ],
                         },
                         max: {
-                          $ifNull: [
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.weight.max' },
                             { $arrayElemAt: ['$userPartnerDetails.weight.max', 0] },
                             '$userPartnerDetails.weight.max',
                           ],
@@ -1211,7 +1225,24 @@ export async function getGenderListV2(filter, options = {}) {
                             ],
                           },
                           { $arrayElemAt: ['$userPartnerDetails.religion', 0] },
-                          { $ifNull: ['$userPartnerDetails.religion', []] },
+                          {
+                            $cond: [
+                              { $isArray: '$userPartnerDetails.religion' },
+                              '$userPartnerDetails.religion',
+                              {
+                                $cond: [
+                                  {
+                                    $and: [
+                                      { $ne: ['$userPartnerDetails.religion', null] },
+                                      { $ne: ['$userPartnerDetails.religion', ''] },
+                                    ],
+                                  },
+                                  ['$userPartnerDetails.religion'],
+                                  [],
+                                ],
+                              },
+                            ],
+                          },
                         ],
                       },
                     },
@@ -1265,7 +1296,39 @@ export async function getGenderListV2(filter, options = {}) {
                               },
                               { $arrayElemAt: ['$userPartnerDetails.cast', 0] },
                               {
-                                $ifNull: ['$userPartnerDetails.caste', { $ifNull: ['$userPartnerDetails.cast', []] }],
+                                $cond: [
+                                  { $isArray: '$userPartnerDetails.caste' },
+                                  '$userPartnerDetails.caste',
+                                  {
+                                    $cond: [
+                                      { $isArray: '$userPartnerDetails.cast' },
+                                      '$userPartnerDetails.cast',
+                                      {
+                                        $cond: [
+                                          {
+                                            $and: [
+                                              { $ne: ['$userPartnerDetails.caste', null] },
+                                              { $ne: ['$userPartnerDetails.caste', ''] },
+                                            ],
+                                          },
+                                          ['$userPartnerDetails.caste'],
+                                          {
+                                            $cond: [
+                                              {
+                                                $and: [
+                                                  { $ne: ['$userPartnerDetails.cast', null] },
+                                                  { $ne: ['$userPartnerDetails.cast', ''] },
+                                                ],
+                                              },
+                                              ['$userPartnerDetails.cast'],
+                                              [],
+                                            ],
+                                          },
+                                        ],
+                                      },
+                                    ],
+                                  },
+                                ],
                               },
                             ],
                           },
@@ -1870,13 +1933,15 @@ export async function getMatchUser(filter) {
                       value: '$weight',
                       expected: {
                         min: {
-                          $ifNull: [
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.weight.min' },
                             { $arrayElemAt: ['$userPartnerDetails.weight.min', 0] },
                             '$userPartnerDetails.weight.min',
                           ],
                         },
                         max: {
-                          $ifNull: [
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.weight.max' },
                             { $arrayElemAt: ['$userPartnerDetails.weight.max', 0] },
                             '$userPartnerDetails.weight.max',
                           ],
@@ -1918,7 +1983,24 @@ export async function getMatchUser(filter) {
                             ],
                           },
                           { $arrayElemAt: ['$userPartnerDetails.religion', 0] },
-                          { $ifNull: ['$userPartnerDetails.religion', []] },
+                          {
+                            $cond: [
+                              { $isArray: '$userPartnerDetails.religion' },
+                              '$userPartnerDetails.religion',
+                              {
+                                $cond: [
+                                  {
+                                    $and: [
+                                      { $ne: ['$userPartnerDetails.religion', null] },
+                                      { $ne: ['$userPartnerDetails.religion', ''] },
+                                    ],
+                                  },
+                                  ['$userPartnerDetails.religion'],
+                                  [],
+                                ],
+                              },
+                            ],
+                          },
                         ],
                       },
                     },
@@ -1972,7 +2054,39 @@ export async function getMatchUser(filter) {
                               },
                               { $arrayElemAt: ['$userPartnerDetails.cast', 0] },
                               {
-                                $ifNull: ['$userPartnerDetails.caste', { $ifNull: ['$userPartnerDetails.cast', []] }],
+                                $cond: [
+                                  { $isArray: '$userPartnerDetails.caste' },
+                                  '$userPartnerDetails.caste',
+                                  {
+                                    $cond: [
+                                      { $isArray: '$userPartnerDetails.cast' },
+                                      '$userPartnerDetails.cast',
+                                      {
+                                        $cond: [
+                                          {
+                                            $and: [
+                                              { $ne: ['$userPartnerDetails.caste', null] },
+                                              { $ne: ['$userPartnerDetails.caste', ''] },
+                                            ],
+                                          },
+                                          ['$userPartnerDetails.caste'],
+                                          {
+                                            $cond: [
+                                              {
+                                                $and: [
+                                                  { $ne: ['$userPartnerDetails.cast', null] },
+                                                  { $ne: ['$userPartnerDetails.cast', ''] },
+                                                ],
+                                              },
+                                              ['$userPartnerDetails.cast'],
+                                              [],
+                                            ],
+                                          },
+                                        ],
+                                      },
+                                    ],
+                                  },
+                                ],
                               },
                             ],
                           },
@@ -5220,10 +5334,18 @@ export async function getNearbyUser(filter, options = {}) {
                       value: '$age',
                       expected: {
                         min: {
-                          $ifNull: [{ $arrayElemAt: ['$userPartnerDetails.age.min', 0] }, '$userPartnerDetails.age.min'],
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.age.min' },
+                            { $arrayElemAt: ['$userPartnerDetails.age.min', 0] },
+                            '$userPartnerDetails.age.min',
+                          ],
                         },
                         max: {
-                          $ifNull: [{ $arrayElemAt: ['$userPartnerDetails.age.max', 0] }, '$userPartnerDetails.age.max'],
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.age.max' },
+                            { $arrayElemAt: ['$userPartnerDetails.age.max', 0] },
+                            '$userPartnerDetails.age.max',
+                          ],
                         },
                       },
                     },
@@ -5232,13 +5354,15 @@ export async function getNearbyUser(filter, options = {}) {
                       value: '$height',
                       expected: {
                         min: {
-                          $ifNull: [
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.height.min' },
                             { $arrayElemAt: ['$userPartnerDetails.height.min', 0] },
                             '$userPartnerDetails.height.min',
                           ],
                         },
                         max: {
-                          $ifNull: [
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.height.max' },
                             { $arrayElemAt: ['$userPartnerDetails.height.max', 0] },
                             '$userPartnerDetails.height.max',
                           ],
@@ -5250,13 +5374,15 @@ export async function getNearbyUser(filter, options = {}) {
                       value: '$userProfessional.currentSalary',
                       expected: {
                         min: {
-                          $ifNull: [
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.income.min' },
                             { $arrayElemAt: ['$userPartnerDetails.income.min', 0] },
                             '$userPartnerDetails.income.min',
                           ],
                         },
                         max: {
-                          $ifNull: [
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.income.max' },
                             { $arrayElemAt: ['$userPartnerDetails.income.max', 0] },
                             '$userPartnerDetails.income.max',
                           ],
@@ -5368,13 +5494,15 @@ export async function getNearbyUser(filter, options = {}) {
                       value: '$weight',
                       expected: {
                         min: {
-                          $ifNull: [
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.weight.min' },
                             { $arrayElemAt: ['$userPartnerDetails.weight.min', 0] },
                             '$userPartnerDetails.weight.min',
                           ],
                         },
                         max: {
-                          $ifNull: [
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.weight.max' },
                             { $arrayElemAt: ['$userPartnerDetails.weight.max', 0] },
                             '$userPartnerDetails.weight.max',
                           ],
@@ -5416,7 +5544,24 @@ export async function getNearbyUser(filter, options = {}) {
                             ],
                           },
                           { $arrayElemAt: ['$userPartnerDetails.religion', 0] },
-                          { $ifNull: ['$userPartnerDetails.religion', []] },
+                          {
+                            $cond: [
+                              { $isArray: '$userPartnerDetails.religion' },
+                              '$userPartnerDetails.religion',
+                              {
+                                $cond: [
+                                  {
+                                    $and: [
+                                      { $ne: ['$userPartnerDetails.religion', null] },
+                                      { $ne: ['$userPartnerDetails.religion', ''] },
+                                    ],
+                                  },
+                                  ['$userPartnerDetails.religion'],
+                                  [],
+                                ],
+                              },
+                            ],
+                          },
                         ],
                       },
                     },
@@ -5470,7 +5615,39 @@ export async function getNearbyUser(filter, options = {}) {
                               },
                               { $arrayElemAt: ['$userPartnerDetails.cast', 0] },
                               {
-                                $ifNull: ['$userPartnerDetails.caste', { $ifNull: ['$userPartnerDetails.cast', []] }],
+                                $cond: [
+                                  { $isArray: '$userPartnerDetails.caste' },
+                                  '$userPartnerDetails.caste',
+                                  {
+                                    $cond: [
+                                      { $isArray: '$userPartnerDetails.cast' },
+                                      '$userPartnerDetails.cast',
+                                      {
+                                        $cond: [
+                                          {
+                                            $and: [
+                                              { $ne: ['$userPartnerDetails.caste', null] },
+                                              { $ne: ['$userPartnerDetails.caste', ''] },
+                                            ],
+                                          },
+                                          ['$userPartnerDetails.caste'],
+                                          {
+                                            $cond: [
+                                              {
+                                                $and: [
+                                                  { $ne: ['$userPartnerDetails.cast', null] },
+                                                  { $ne: ['$userPartnerDetails.cast', ''] },
+                                                ],
+                                              },
+                                              ['$userPartnerDetails.cast'],
+                                              [],
+                                            ],
+                                          },
+                                        ],
+                                      },
+                                    ],
+                                  },
+                                ],
                               },
                             ],
                           },
@@ -6052,10 +6229,18 @@ export async function getGenderListV2WithMatchFilter(filter, options = {}) {
                       value: '$age',
                       expected: {
                         min: {
-                          $ifNull: [{ $arrayElemAt: ['$userPartnerDetails.age.min', 0] }, '$userPartnerDetails.age.min'],
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.age.min' },
+                            { $arrayElemAt: ['$userPartnerDetails.age.min', 0] },
+                            '$userPartnerDetails.age.min',
+                          ],
                         },
                         max: {
-                          $ifNull: [{ $arrayElemAt: ['$userPartnerDetails.age.max', 0] }, '$userPartnerDetails.age.max'],
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.age.max' },
+                            { $arrayElemAt: ['$userPartnerDetails.age.max', 0] },
+                            '$userPartnerDetails.age.max',
+                          ],
                         },
                       },
                     },
@@ -6064,13 +6249,15 @@ export async function getGenderListV2WithMatchFilter(filter, options = {}) {
                       value: '$height',
                       expected: {
                         min: {
-                          $ifNull: [
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.height.min' },
                             { $arrayElemAt: ['$userPartnerDetails.height.min', 0] },
                             '$userPartnerDetails.height.min',
                           ],
                         },
                         max: {
-                          $ifNull: [
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.height.max' },
                             { $arrayElemAt: ['$userPartnerDetails.height.max', 0] },
                             '$userPartnerDetails.height.max',
                           ],
@@ -6082,13 +6269,15 @@ export async function getGenderListV2WithMatchFilter(filter, options = {}) {
                       value: '$userProfessional.currentSalary',
                       expected: {
                         min: {
-                          $ifNull: [
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.income.min' },
                             { $arrayElemAt: ['$userPartnerDetails.income.min', 0] },
                             '$userPartnerDetails.income.min',
                           ],
                         },
                         max: {
-                          $ifNull: [
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.income.max' },
                             { $arrayElemAt: ['$userPartnerDetails.income.max', 0] },
                             '$userPartnerDetails.income.max',
                           ],
@@ -6200,13 +6389,15 @@ export async function getGenderListV2WithMatchFilter(filter, options = {}) {
                       value: '$weight',
                       expected: {
                         min: {
-                          $ifNull: [
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.weight.min' },
                             { $arrayElemAt: ['$userPartnerDetails.weight.min', 0] },
                             '$userPartnerDetails.weight.min',
                           ],
                         },
                         max: {
-                          $ifNull: [
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.weight.max' },
                             { $arrayElemAt: ['$userPartnerDetails.weight.max', 0] },
                             '$userPartnerDetails.weight.max',
                           ],
@@ -6248,7 +6439,24 @@ export async function getGenderListV2WithMatchFilter(filter, options = {}) {
                             ],
                           },
                           { $arrayElemAt: ['$userPartnerDetails.religion', 0] },
-                          { $ifNull: ['$userPartnerDetails.religion', []] },
+                          {
+                            $cond: [
+                              { $isArray: '$userPartnerDetails.religion' },
+                              '$userPartnerDetails.religion',
+                              {
+                                $cond: [
+                                  {
+                                    $and: [
+                                      { $ne: ['$userPartnerDetails.religion', null] },
+                                      { $ne: ['$userPartnerDetails.religion', ''] },
+                                    ],
+                                  },
+                                  ['$userPartnerDetails.religion'],
+                                  [],
+                                ],
+                              },
+                            ],
+                          },
                         ],
                       },
                     },
@@ -6302,7 +6510,39 @@ export async function getGenderListV2WithMatchFilter(filter, options = {}) {
                               },
                               { $arrayElemAt: ['$userPartnerDetails.cast', 0] },
                               {
-                                $ifNull: ['$userPartnerDetails.caste', { $ifNull: ['$userPartnerDetails.cast', []] }],
+                                $cond: [
+                                  { $isArray: '$userPartnerDetails.caste' },
+                                  '$userPartnerDetails.caste',
+                                  {
+                                    $cond: [
+                                      { $isArray: '$userPartnerDetails.cast' },
+                                      '$userPartnerDetails.cast',
+                                      {
+                                        $cond: [
+                                          {
+                                            $and: [
+                                              { $ne: ['$userPartnerDetails.caste', null] },
+                                              { $ne: ['$userPartnerDetails.caste', ''] },
+                                            ],
+                                          },
+                                          ['$userPartnerDetails.caste'],
+                                          {
+                                            $cond: [
+                                              {
+                                                $and: [
+                                                  { $ne: ['$userPartnerDetails.cast', null] },
+                                                  { $ne: ['$userPartnerDetails.cast', ''] },
+                                                ],
+                                              },
+                                              ['$userPartnerDetails.cast'],
+                                              [],
+                                            ],
+                                          },
+                                        ],
+                                      },
+                                    ],
+                                  },
+                                ],
                               },
                             ],
                           },
