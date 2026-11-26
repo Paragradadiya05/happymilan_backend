@@ -110,10 +110,18 @@ export async function calculateMatchScore(friendId, userPartnerPreferences, user
                       value: '$age',
                       expected: {
                         min: {
-                          $ifNull: [{ $arrayElemAt: ['$userPartnerDetails.age.min', 0] }, '$userPartnerDetails.age.min'],
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.age.min' },
+                            { $arrayElemAt: ['$userPartnerDetails.age.min', 0] },
+                            '$userPartnerDetails.age.min',
+                          ],
                         },
                         max: {
-                          $ifNull: [{ $arrayElemAt: ['$userPartnerDetails.age.max', 0] }, '$userPartnerDetails.age.max'],
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.age.max' },
+                            { $arrayElemAt: ['$userPartnerDetails.age.max', 0] },
+                            '$userPartnerDetails.age.max',
+                          ],
                         },
                       },
                     },
@@ -122,13 +130,15 @@ export async function calculateMatchScore(friendId, userPartnerPreferences, user
                       value: '$height',
                       expected: {
                         min: {
-                          $ifNull: [
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.height.min' },
                             { $arrayElemAt: ['$userPartnerDetails.height.min', 0] },
                             '$userPartnerDetails.height.min',
                           ],
                         },
                         max: {
-                          $ifNull: [
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.height.max' },
                             { $arrayElemAt: ['$userPartnerDetails.height.max', 0] },
                             '$userPartnerDetails.height.max',
                           ],
@@ -140,13 +150,15 @@ export async function calculateMatchScore(friendId, userPartnerPreferences, user
                       value: '$userProfessional.currentSalary',
                       expected: {
                         min: {
-                          $ifNull: [
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.income.min' },
                             { $arrayElemAt: ['$userPartnerDetails.income.min', 0] },
                             '$userPartnerDetails.income.min',
                           ],
                         },
                         max: {
-                          $ifNull: [
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.income.max' },
                             { $arrayElemAt: ['$userPartnerDetails.income.max', 0] },
                             '$userPartnerDetails.income.max',
                           ],
@@ -253,6 +265,171 @@ export async function calculateMatchScore(friendId, userPartnerPreferences, user
                         ],
                       },
                     },
+                    {
+                      field: 'weight',
+                      value: '$weight',
+                      expected: {
+                        min: {
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.weight.min' },
+                            { $arrayElemAt: ['$userPartnerDetails.weight.min', 0] },
+                            '$userPartnerDetails.weight.min',
+                          ],
+                        },
+                        max: {
+                          $cond: [
+                            { $isArray: '$userPartnerDetails.weight.max' },
+                            { $arrayElemAt: ['$userPartnerDetails.weight.max', 0] },
+                            '$userPartnerDetails.weight.max',
+                          ],
+                        },
+                      },
+                    },
+                    {
+                      field: 'religion',
+                      value: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$religion' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$religion', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$religion', 0] },
+                          {
+                            $cond: [
+                              { $isArray: '$religion' },
+                              '$religion',
+                              {
+                                $cond: [
+                                  { $and: [{ $ne: ['$religion', null] }, { $ne: ['$religion', ''] }] },
+                                  ['$religion'],
+                                  [],
+                                ],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                      expected: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$userPartnerDetails.religion' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.religion', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$userPartnerDetails.religion', 0] },
+                          {
+                            $cond: [
+                              { $isArray: '$userPartnerDetails.religion' },
+                              '$userPartnerDetails.religion',
+                              {
+                                $cond: [
+                                  {
+                                    $and: [
+                                      { $ne: ['$userPartnerDetails.religion', null] },
+                                      { $ne: ['$userPartnerDetails.religion', ''] },
+                                    ],
+                                  },
+                                  ['$userPartnerDetails.religion'],
+                                  [],
+                                ],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      field: 'caste',
+                      value: {
+                        $cond: [
+                          {
+                            $and: [{ $isArray: '$caste' }, { $eq: [{ $type: { $arrayElemAt: ['$caste', 0] } }, 'array'] }],
+                          },
+                          { $arrayElemAt: ['$caste', 0] },
+                          {
+                            $cond: [
+                              { $isArray: '$caste' },
+                              '$caste',
+                              {
+                                $cond: [
+                                  { $and: [{ $ne: ['$caste', null] }, { $ne: ['$caste', ''] }] },
+                                  ['$caste'],
+                                  {
+                                    $cond: [
+                                      { $isArray: '$cast' },
+                                      '$cast',
+                                      {
+                                        $cond: [{ $and: [{ $ne: ['$cast', null] }, { $ne: ['$cast', ''] }] }, ['$cast'], []],
+                                      },
+                                    ],
+                                  },
+                                ],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                      expected: {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: '$userPartnerDetails.caste' },
+                              { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.caste', 0] } }, 'array'] },
+                            ],
+                          },
+                          { $arrayElemAt: ['$userPartnerDetails.caste', 0] },
+                          {
+                            $cond: [
+                              {
+                                $and: [
+                                  { $isArray: '$userPartnerDetails.cast' },
+                                  { $eq: [{ $type: { $arrayElemAt: ['$userPartnerDetails.cast', 0] } }, 'array'] },
+                                ],
+                              },
+                              { $arrayElemAt: ['$userPartnerDetails.cast', 0] },
+                              {
+                                $cond: [
+                                  { $isArray: '$userPartnerDetails.caste' },
+                                  '$userPartnerDetails.caste',
+                                  {
+                                    $cond: [
+                                      { $isArray: '$userPartnerDetails.cast' },
+                                      '$userPartnerDetails.cast',
+                                      {
+                                        $cond: [
+                                          {
+                                            $and: [
+                                              { $ne: ['$userPartnerDetails.caste', null] },
+                                              { $ne: ['$userPartnerDetails.caste', ''] },
+                                            ],
+                                          },
+                                          ['$userPartnerDetails.caste'],
+                                          {
+                                            $cond: [
+                                              {
+                                                $and: [
+                                                  { $ne: ['$userPartnerDetails.cast', null] },
+                                                  { $ne: ['$userPartnerDetails.cast', ''] },
+                                                ],
+                                              },
+                                              ['$userPartnerDetails.cast'],
+                                              [],
+                                            ],
+                                          },
+                                        ],
+                                      },
+                                    ],
+                                  },
+                                ],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    },
                   ],
                   as: 'item',
                   in: {
@@ -313,6 +490,30 @@ export async function calculateMatchScore(friendId, userPartnerPreferences, user
                               $gt: [{ $size: { $setIntersection: ['$$item.value', '$$item.expected'] } }, 0],
                             },
                           },
+                          {
+                            case: { $eq: ['$$item.field', 'weight'] },
+                            then: {
+                              $and: [
+                                { $ne: ['$$item.value', null] },
+                                { $ne: ['$$item.expected.min', null] },
+                                { $ne: ['$$item.expected.max', null] },
+                                { $gte: ['$$item.value', '$$item.expected.min'] },
+                                { $lte: ['$$item.value', '$$item.expected.max'] },
+                              ],
+                            },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'religion'] },
+                            then: {
+                              $gt: [{ $size: { $setIntersection: ['$$item.value', '$$item.expected'] } }, 0],
+                            },
+                          },
+                          {
+                            case: { $eq: ['$$item.field', 'caste'] },
+                            then: {
+                              $gt: [{ $size: { $setIntersection: ['$$item.value', '$$item.expected'] } }, 0],
+                            },
+                          },
                         ],
                         default: false,
                       },
@@ -332,22 +533,27 @@ export async function calculateMatchScore(friendId, userPartnerPreferences, user
                 },
               },
               matchPercentage: {
-                $multiply: [
+                $round: [
                   {
-                    $divide: [
+                    $multiply: [
                       {
-                        $size: {
-                          $filter: {
-                            input: '$$matchedFields',
-                            as: 'm',
-                            cond: { $eq: ['$$m.isMatched', true] },
+                        $divide: [
+                          {
+                            $size: {
+                              $filter: {
+                                input: '$$matchedFields',
+                                as: 'm',
+                                cond: { $eq: ['$$m.isMatched', true] },
+                              },
+                            },
                           },
-                        },
+                          11,
+                        ],
                       },
-                      8,
+                      100,
                     ],
                   },
-                  100,
+                  0,
                 ],
               },
             },
@@ -1016,6 +1222,10 @@ export async function getBlock(filter, options = {}, userId) {
         const defaultPartnerPrefs = {
           age: { min: 18, max: 100 },
           height: { min: 100, max: 250 },
+          weight: { min: 40, max: 120 },
+          religion: [],
+          caste: [],
+          cast: [],
           country: [],
           city: [],
         };
@@ -1051,6 +1261,25 @@ export async function getBlock(filter, options = {}, userId) {
                 ? userPartnerData.height.max
                 : defaultPartnerPrefs.height.max,
           },
+          weight: {
+            min:
+              userPartnerData && userPartnerData.weight && userPartnerData.weight.min !== undefined
+                ? userPartnerData.weight.min
+                : defaultPartnerPrefs.weight.min,
+            max:
+              userPartnerData && userPartnerData.weight && userPartnerData.weight.max !== undefined
+                ? userPartnerData.weight.max
+                : defaultPartnerPrefs.weight.max,
+          },
+          religion: Array.isArray(userPartnerData && userPartnerData.religion)
+            ? userPartnerData.religion
+            : defaultPartnerPrefs.religion,
+          caste: Array.isArray(userPartnerData && (userPartnerData.caste || userPartnerData.cast))
+            ? userPartnerData.caste || userPartnerData.cast
+            : defaultPartnerPrefs.caste,
+          cast: Array.isArray(userPartnerData && (userPartnerData.cast || userPartnerData.caste))
+            ? userPartnerData.cast || userPartnerData.caste
+            : defaultPartnerPrefs.cast,
           country: Array.isArray(userPartnerData && userPartnerData.country)
             ? userPartnerData.country
             : defaultPartnerPrefs.country,
