@@ -405,6 +405,9 @@ const UserSchema = new mongoose.Schema(
     caste: {
       type: String,
     },
+    cast: {
+      type: String,
+    },
     ShortBio: {
       type: String,
     },
@@ -608,6 +611,7 @@ const UserSchema = new mongoose.Schema(
           'birthTime',
           'religion',
           'caste',
+          'cast',
           'height',
           'weight',
           'displayName',
@@ -643,6 +647,7 @@ const UserSchema = new mongoose.Schema(
           'datingData',
           'religion',
           'caste',
+          'cast',
           'height',
           'weight',
           'displayName',
@@ -666,6 +671,7 @@ const UserSchema = new mongoose.Schema(
           'birthTime',
           'religion',
           'caste',
+          'cast',
           'height',
           'weight',
           'displayName',
@@ -722,6 +728,11 @@ UserSchema.statics.isMobileNumberTaken = async function (mobileNumber, excludeUs
 
 UserSchema.pre('save', async function (next) {
   const User = this;
+  if (User.cast && !User.caste) {
+    User.caste = User.cast;
+  } else if (User.caste && !User.cast) {
+    User.cast = User.caste;
+  }
   if (User.isModified('password')) {
     User.password = await bcrypt.hash(User.password, 8);
   }
@@ -732,6 +743,14 @@ UserSchema.pre('save', async function (next) {
  */
 UserSchema.pre('findOneAndUpdate', async function (next) {
   const update = this.getUpdate(); // {password: "..."}
+  if (update) {
+    const data = update.$set || update;
+    if (data.cast && !data.caste) {
+      data.caste = data.cast;
+    } else if (data.caste && !data.cast) {
+      data.cast = data.caste;
+    }
+  }
   if (update && update.password) {
     const passwordHash = await bcrypt.hash(update.password, 10);
     this.setUpdate({
